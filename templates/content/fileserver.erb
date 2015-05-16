@@ -1,0 +1,5 @@
+[<%= @name %>]
+ path <%= @path %>
+<% @allow.each do |entry| -%>
+ allow <%= entry %><%= "\n" %>
+<% end -%>

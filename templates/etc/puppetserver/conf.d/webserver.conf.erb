@@ -1,0 +1,38 @@
+<%
+  vardir = scope.lookupvar('::pupmod::vardir')
+  ssldir = scope.lookupvar('::pupmod::ssldir').gsub('$vardir',vardir)
+-%>
+# This file managed by Puppet
+# Any changes will be removed on the next run
+webserver: {
+<% if @enable_master -%>
+  base: {
+<%   if @enable_ca && (@ca_port == @masterport) -%>
+    client-auth: want
+<%   else -%>
+    client-auth: need
+<%   end -%>
+    ssl-crl-path: <%= ssldir %>/crl.pem
+    ssl-ca-cert: <%= ssldir %>/certs/ca.pem
+    ssl-cert: <%= ssldir %>/certs/<%= @fqdn %>.pem
+    ssl-key: <%= ssldir %>/private_keys/<%= @fqdn %>.pem
+    ssl-host: <%= @bind_address %>
+    ssl-port: <%= @masterport %>
+    default-server: true
+  }
+<% end -%>
+<% if @enable_ca && (@ca_port != @masterport) -%>
+  ca: {
+    client-auth: want
+    ssl-crl-path: <%= ssldir %>/crl.pem
+    ssl-ca-cert: <%= ssldir %>/certs/ca.pem
+    ssl-cert: <%= ssldir %>/certs/<%= @fqdn %>.pem
+    ssl-key: <%= ssldir %>/private_keys/<%= @fqdn %>.pem
+    ssl-host: <%= @ca_bind_address %>
+    ssl-port: <%= @ca_port %>
+<% if !@enable_master -%>
+    default-server: true
+<% end -%>
+  }
+<% end -%>
+}

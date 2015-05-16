@@ -1,0 +1,62 @@
+<%
+if @maxruntime.empty? then
+  # Limit this to 4 hours, if users want more than that, they'll just
+  # need to set maxruntime themselves.
+  maxage = [@interval.to_i * 60,14400].min
+else
+  maxage = @maxruntime.to_i * 60
+end
+
+if maxage < scope.lookupvar('::pupmod::configtimeout').to_i then
+  maxage = scope.lookupvar('::pupmod::configtimeout').to_i
+end
+
+if scope.lookupvar('::pupmod::splay') then
+  maxage = maxage + scope.lookupvar('::pupmod::splaytimeout').to_i + 10
+end
+-%>
+#!/bin/sh
+
+PATH="/usr/kerberos/sbin:/usr/kerberos/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin";
+
+now=0;
+filedate=0;
+
+puppet_lockfile=`puppet config print agent_disabled_lockfile`;
+puppet_run_lockfile=`puppet config print agent_catalog_run_lockfile`;
+
+if [ -f "$puppet_lockfile" ]; then
+
+  # Exit if maxruntime == 0.  This means that you wish to never forcibly unlock
+  # the system.
+  if [ "<%= @maxruntime %>" == "0" ]; then
+    exit 0;
+  fi
+
+  now=`date "+%s"`;
+  filedate=`stat --printf="%Z" $puppet_lockfile`;
+fi
+
+ps -C puppetd,"puppet agent" >& /dev/null
+pup_status=$?
+
+# Do this if puppet is running without a puppet run lockfile for some reason (unlikely).
+if [ $pup_status -eq 0 ] && [ ! -f "$puppet_run_lockfile" ]; then
+  /sbin/service puppet stop 2>&1 > /dev/null;
+  wait;
+fi
+
+# If we've gotten here, then we're breaking a lock on the system in order to
+# run puppet.
+# The purpose of this is to ensure that people don't lock puppet and forget
+# about it.
+# If you want to disable puppet then disable the cron job and the service and
+# set the lockfile.
+if [ $pup_status -ne 0 ] && [ $(( $now - $filedate )) -gt <%= maxage %> ]; then
+  /bin/logger -s -p 'local6.warn' -t 'puppetd' "Puppet forcibly unlocked.";
+  /bin/rm -f $puppet_lockfile;
+fi
+
+if [ ! -f "$puppet_lockfile" ] && [ ! -f "$puppet_run_lockfile" ]; then
+  puppet agent --onetime --no-daemonize --no-show_diff;
+fi

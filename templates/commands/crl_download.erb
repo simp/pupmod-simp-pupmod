@@ -1,0 +1,5 @@
+<%
+  t_ssldir = @vardir + @ssldir.gsub('$vardir','')
+  t_ca_server = @ca_server.gsub('$server',@puppet_server)
+-%>
+/usr/bin/curl -sS --cert <%= t_ssldir %>/certs/<%= @trusted['certname'] %>.pem --key <%= t_ssldir %>/private_keys/<%= @trusted['certname'] %>.pem -k -o <%= t_ssldir %>/crl.pem -H "Accept: s" https://<%= t_ca_server %>:<%= @ca_port %>/production/certificate_revocation_list/ca && /sbin/service httpd reload

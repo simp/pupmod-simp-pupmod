@@ -1,0 +1,45 @@
+# This file managed by Puppet
+# Any changes will be removed on the next run
+
+# configuration for the JRuby interpreters
+jruby-puppet: {
+    # This setting determines where JRuby will look for gems.  It is also
+    # used by the `puppetserver gem` command line tool.
+<% if @gem_home.empty? -%>
+    gem-home: <%= scope.lookupvar('::pupmod::vardir') + 'jruby-gems' %>
+<% else -%>
+    gem-home: <%= @gem_home %>
+<% end -%>
+
+    # (optional) path to puppet conf dir; if not specified, will use the puppet default
+    master-conf-dir: <%= scope.lookupvar('::pupmod::confdir') %>
+
+    # (optional) path to puppet var dir; if not specified, will use the puppet default
+    master-var-dir: <%= scope.lookupvar('::pupmod::vardir') %>
+
+    # (optional) maximum number of JRuby instances to allow; defaults to <num-cpus>+2
+    max-active-instances: <%= @max_active_instances %>
+}
+
+# settings related to HTTP client requests made by Puppet Server
+http-client: {
+<% if !@ssl_protocols.empty? -%>
+    # A list of acceptable protocols for making HTTP requests
+    ssl-protocols: [<%= @ssl_protocols.join(',') %>]
+<% end -%>
+<% if !@ssl_cipher_suites.empty? -%>
+    # A list of acceptable cipher suites for making HTTP requests
+    cipher-suites: [<%= @ssl_cipher_suites.join(',') %>]
+<% end -%>
+}
+
+# settings related to profiling the puppet Ruby code
+profiler: {
+    # enable or disable profiling for the Ruby code; defaults to 'false'.
+    enabled: <%= @enable_profiler %>
+}
+
+# Settings related to the puppet-admin HTTP API
+puppet-admin: {
+    client-whitelist: [<%= @admin_api_whitelist.join(',') %>]
+}

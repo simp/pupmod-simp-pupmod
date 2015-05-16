@@ -1,0 +1,24 @@
+# This file managed by Puppet
+# Any changes will be removed on the next run
+<%
+  admin_api_mountpoint = @admin_api_mountpoint.dup
+  admin_api_mountpoint = "/#{admin_api_mountpoint}" unless admin_api_mountpoint[0].chr == '/'
+-%>
+web-router-service: {
+    # These two should not be modified because the Puppet 3.x agent expects them to
+    # be mounted at "/"
+<% if @enable_ca && (@ca_port != @masterport) -%>
+    "puppetlabs.services.ca.certificate-authority-service/certificate-authority-service": {
+      default: {
+        route: ""
+        server: "ca"
+      }
+    }
+<% else -%>
+    "puppetlabs.services.ca.certificate-authority-service/certificate-authority-service": ""
+<% end -%>
+    "puppetlabs.services.master.master-service/master-service": ""
+
+    # This controls the mount point for the puppet admin API.
+    "puppetlabs.services.puppet-admin.puppet-admin-service/puppet-admin-service": "<%= admin_api_mountpoint %>"
+}
