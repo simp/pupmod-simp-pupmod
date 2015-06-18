@@ -1,7 +1,7 @@
 Summary: Puppet Management Puppet Module
 Name: pupmod-pupmod
 Version: 6.0.0
-Release: 16
+Release: 17
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -63,6 +63,9 @@ fi
 # Post uninstall stuff
 
 %changelog
+* Tue May 05 2015 Jacob Gingrich <jacob.gingrich@onyxpoint.com> - 6.0.0-17
+- Enabled the puppetserver service
+
 * Fri Mar 20 2015 Kendall Moore <kmoore@keywcorp.com> - 6.0.0-16
 - Added a puppet_ruby_dir fact to return the location of the
   runtime ruby directory for Puppet on the client.

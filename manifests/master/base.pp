@@ -87,6 +87,7 @@ class pupmod::master::base {
 
   service { $::pupmod::master::service:
     ensure     => 'running',
+    enable     => true,
     hasrestart => true,
     hasstatus  => true,
     require    => [

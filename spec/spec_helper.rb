@@ -47,12 +47,12 @@ RSpec.configure do |c|
   c.hiera_config = File.join(fixture_path,'hieradata','hiera.yaml')
 
   c.before(:all) do
-# Add fixture lib dirs to LOAD_PATH. Work-around for PUP-3336
-if Puppet.version < "4.0.0"
-  Dir["#{fixture_path}/modules/*/lib"].entries.each do |lib_dir|
-    $LOAD_PATH << lib_dir
-  end
-end
+    # Add fixture lib dirs to LOAD_PATH. Work-around for PUP-3336
+    if Puppet.version < "4.0.0"
+      Dir["#{fixture_path}/modules/*/lib"].entries.each do |lib_dir|
+        $LOAD_PATH << lib_dir
+      end
+    end
 
     data = YAML.load(default_hiera_config)
     data[:yaml][:datadir] = File.join(fixture_path, 'hieradata').to_s
@@ -71,6 +71,8 @@ end
   c.before(:each) do
     @spec_global_env_temp = Dir.mktmpdir('simptest')
     Puppet[:environmentpath] = @spec_global_env_temp
+    Puppet[:user] = Etc.getpwuid(Process.uid).name
+    Puppet[:group] = Etc.getgrgid(Process.gid).name
   end
 
   c.after(:each) do
