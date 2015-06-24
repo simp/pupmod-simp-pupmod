@@ -31,11 +31,11 @@ class pupmod::master::base {
   }
 
   file { $::pupmod::environmentpath:
-    ensure => 'directory',
-    owner  => 'root',
-    group  => 'puppet',
-    mode   => 'u=rwx,g=rwx,o-rwx',
-    recurse => true,
+    ensure       => 'directory',
+    owner        => 'root',
+    group        => 'puppet',
+    mode         => 'u=rwx,g=rwx,o-rwx',
+    recurse      => true,
     recurselimit => 1
   }
 
@@ -51,7 +51,7 @@ class pupmod::master::base {
     ensure  => 'file',
     owner   => 'root',
     group   => 'root',
-    mode    => '700',
+    mode    => '0700',
     content => template('pupmod/usr/local/sbin/puppetserver_clear_environment_cache.erb')
   }
 
@@ -59,7 +59,7 @@ class pupmod::master::base {
     ensure  => 'file',
     owner   => 'root',
     group   => 'root',
-    mode    => '700',
+    mode    => '0700',
     content => template('pupmod/usr/local/sbin/puppetserver_reload.erb')
   }
 
@@ -68,7 +68,7 @@ class pupmod::master::base {
     path       => '^/node/([^/]+)$',
     path_regex => true,
     allow      => ['$1', $::fqdn],
-    notify => Exec['puppetserver_reload']
+    notify     => Exec['puppetserver_reload']
   }
 
   group { 'puppet':

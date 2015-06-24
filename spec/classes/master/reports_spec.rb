@@ -14,7 +14,8 @@ describe 'pupmod::master::reports' do
     :grub_version => '0.9',
     :uid_min => '500',
     :apache_version => '2.2',
-    :init_systems => ['sysv','rc','upstart']
+    :init_systems => ['sysv','rc','upstart'],
+    :osfamily => 'RedHat'
   }
 
   let(:facts) {base_facts}

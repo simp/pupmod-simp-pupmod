@@ -20,7 +20,9 @@ describe 'pupmod::master::base' do
       :processorcount => 4,
       :selinux_current_mode => 'enabled',
       :trusted => { 'certname' => 'spec.test' },
-      :uid_min => '500'
+      :uid_min => '500',
+      :operatingsystemrelease => '6',
+      :osfamily => 'RedHat'
     },
     "RHEL 7" => {
       :apache_version => '2.4',
@@ -40,7 +42,9 @@ describe 'pupmod::master::base' do
       :passenger_version => '4',
       :selinux_current_mode => 'enabled',
       :trusted => { 'certname' => 'spec.test' },
-      :uid_min => '500'
+      :uid_min => '500',
+      :operatingsystemrelease => '7',
+      :osfamily => 'RedHat'
     }
   }
 

@@ -403,7 +403,7 @@ class pupmod::master (
   validate_array($ssl_cipher_suites)
   validate_bool($enable_profiler)
   validate_array($admin_api_whitelist)
-  validate_string($sdmin_api_mountpoint)
+  validate_string($admin_api_mountpoint)
   validate_bool($log_to_file)
   validate_bool($log_to_syslog)
   validate_string($syslog_facility)

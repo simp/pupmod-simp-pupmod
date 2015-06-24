@@ -49,7 +49,7 @@ define pupmod::conf (
     section => $section,
     setting => $setting,
     # This needs to be a string to take effect!
-    value   => "$value"
+    value   => $value
   }
 
   validate_string($setting)
