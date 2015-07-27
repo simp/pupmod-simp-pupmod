@@ -1,7 +1,7 @@
 Summary: Puppet Management Puppet Module
 Name: pupmod-pupmod
 Version: 6.0.0
-Release: 17
+Release: 18
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -63,6 +63,10 @@ fi
 # Post uninstall stuff
 
 %changelog
+* Mon Jun 17 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.0.0-18
+- Remove the legacy code that restarted httpd when the Puppet CRL was
+  downloaded.
+
 * Tue May 05 2015 Jacob Gingrich <jacob.gingrich@onyxpoint.com> - 6.0.0-17
 - Enabled the puppetserver service
 
