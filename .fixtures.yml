@@ -10,6 +10,7 @@ fixtures:
     augeasproviders_puppet: "git://github.com/simp/augeasproviders_puppet"
     common: "git://github.com/simp/pupmod-simp-common"
     concat: "git://github.com/simp/pupmod-simp-concat"
+    functions: "git://github.com/simp/pupmod-simp-functions"
     inifile: "git://github.com/simp/puppetlabs-inifile"
     iptables: "git://github.com/simp/pupmod-simp-iptables"
     logrotate: "git://github.com/simp/pupmod-simp-logrotate"

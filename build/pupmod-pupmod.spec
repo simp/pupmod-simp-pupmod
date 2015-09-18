@@ -1,7 +1,7 @@
 Summary: Puppet Management Puppet Module
 Name: pupmod-pupmod
 Version: 6.0.0
-Release: 18
+Release: 19
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -63,6 +63,9 @@ fi
 # Post uninstall stuff
 
 %changelog
+* Thu Sep 17 2015 Kendall Moore <kmoore@keywcorp.com> - 6.0.0-19
+- Ensure keylength is set to 2048 in puppet.conf if FIPS mode is enabled.
+
 * Mon Jun 17 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.0.0-18
 - Remove the legacy code that restarted httpd when the Puppet CRL was
   downloaded.
