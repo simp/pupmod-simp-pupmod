@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ae5cdf2_b0c8ab75",
+        "filename": "manifests/master.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2015-09-18T20:01:09Z",
+      "side": 1,
+      "message": "These should be prefaced with underscores:\n\n_fips_enabled...",
+      "revId": "30922aad587ccc84b56da6f080e2918b218f3621",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ae5cdf2_d0c5375c",
+        "filename": "manifests/master.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2015-09-18T20:01:09Z",
+      "side": 1,
+      "message": "These should change from l_k to _k",
+      "revId": "30922aad587ccc84b56da6f080e2918b218f3621",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
