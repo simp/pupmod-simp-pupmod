@@ -22,7 +22,8 @@ describe 'pupmod::master' do
       :trusted => { 'certname' => 'spec.test' },
       :uid_min => '500',
       :operatingsystemrelease => '6',
-      :osfamily => 'RedHat'
+      :osfamily => 'RedHat',
+      :use_fips => true
     },
     "RHEL 7" => {
       :apache_version => '2.4',
@@ -44,7 +45,8 @@ describe 'pupmod::master' do
       :trusted => { 'certname' => 'spec.test' },
       :uid_min => '500',
       :operatingsystemrelease => '7',
-      :osfamily => 'RedHat'
+      :osfamily => 'RedHat',
+      :use_fips => true
     }
   }
 
