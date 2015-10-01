@@ -1,17 +1,116 @@
 ---
 language: ruby
 cache: bundler
+fast_finish: true
+bundler_args: --without development system_tests
+before_install: rm Gemfile.lock || true
 rvm:
-    - 1.8.7
-    - 1.9.3
-    - 2.0.0
-    - 2.2.1
-install: bundle install
+  - 1.8.7
+  - 1.9.3
+  - 2.0.0
+  - 2.1.0
+  - 2.2.1
+###script: bundle exec rake test
 script:
     - 'bundle exec rake validate'
     - 'bundle exec rake lint'
     - 'bundle exec rake spec'
+env:
+  - PUPPET_VERSION="~> 2.7.0"
+  - PUPPET_VERSION="~> 3.2.0"
+  - PUPPET_VERSION="~> 3.3.0"
+  - PUPPET_VERSION="~> 3.4.0"
+  - PUPPET_VERSION="~> 3.5.0" STRICT_VARIABLES=yes
+  - PUPPET_VERSION="~> 3.6.0" STRICT_VARIABLES=yes
+  - PUPPET_VERSION="~> 3.7.0" STRICT_VARIABLES=yes
+  - PUPPET_VERSION="~> 3.7.0" STRICT_VARIABLES=yes FUTURE_PARSER=yes
+  - PUPPET_VERSION="~> 4.0.0"
+  - PUPPET_VERSION="~> 4.1.0"
+
 matrix:
-    allow_failures:
-        - rvm: 1.8.7
-        - rvm: 2.2.1
+  allow_failures:
+    - rvm: 1.8.7
+    - rvm: 2.1.0
+    - rvm: 2.2.1
+    - env:
+      - PUPPET_VERSION="~> 2.7.0"
+      - PUPPET_VERSION="~> 3.2.0"
+      - PUPPET_VERSION="~> 3.3.0"
+      - PUPPET_VERSION="~> 3.4.0"
+      - PUPPET_VERSION="~> 3.5.0" STRICT_VARIABLES=yes
+      - PUPPET_VERSION="~> 3.6.0" STRICT_VARIABLES=yes
+      - PUPPET_VERSION="~> 3.7.0" STRICT_VARIABLES=yes
+      - PUPPET_VERSION="~> 3.7.0" STRICT_VARIABLES=yes FUTURE_PARSER=yes
+      - PUPPET_VERSION="~> 4.0.0"
+      - PUPPET_VERSION="~> 4.1.0"
+
+  exclude:
+  # Ruby 1.8.7
+  # - Ruby 1.8.7 & Puppet 4.X is impossibru
+  - rvm: 1.8.7
+    env: PUPPET_VERSION="~> 4.0.0"
+  - rvm: 1.8.7
+    env: PUPPET_VERSION="~> 4.1.0"
+
+  # - simp-rake-helpers deps currently break between 1.8.7 and 3.X
+  # - Currently there is Gemfile logic testing for TRAVIS to avoid this.
+  # - For Ruby 1.8.7, testing earliest and latest 3.X is sufficient.
+  - rvm: 1.8.7
+    env: PUPPET_VERSION="~> 3.3.0"
+  - rvm: 1.8.7
+    env: PUPPET_VERSION="~> 3.4.0"
+  - rvm: 1.8.7
+    env: PUPPET_VERSION="~> 3.5.0" STRICT_VARIABLES=yes
+  - rvm: 1.8.7
+    env: PUPPET_VERSION="~> 3.6.0" STRICT_VARIABLES=yes
+
+  # Ruby 1.9.3
+  - rvm: 1.9.3
+    env: PUPPET_VERSION="~> 2.7.0"
+
+  # Ruby 2.0.0
+  - rvm: 2.0.0
+    env: PUPPET_VERSION="~> 2.7.0"
+  - rvm: 2.0.0
+    env: PUPPET_VERSION="~> 3.2.0"
+  - rvm: 2.0.0
+    env: PUPPET_VERSION="~> 3.3.0"
+  - rvm: 2.0.0
+    env: PUPPET_VERSION="~> 3.4.0"
+  - rvm: 2.0.0
+    env: PUPPET_VERSION="~> 3.5.0" STRICT_VARIABLES=yes
+  - rvm: 2.0.0
+    env: PUPPET_VERSION="~> 3.6.0" STRICT_VARIABLES=yes
+
+  # Ruby 2.1.0
+  - rvm: 2.1.0
+    env: PUPPET_VERSION="~> 2.7.0"
+  - rvm: 2.1.0
+    env: PUPPET_VERSION="~> 3.2.0"
+  - rvm: 2.1.0
+    env: PUPPET_VERSION="~> 3.3.0"
+  - rvm: 2.1.0
+    env: PUPPET_VERSION="~> 3.4.0"
+  - rvm: 2.1.0
+    env: PUPPET_VERSION="~> 3.5.0" STRICT_VARIABLES=yes
+  - rvm: 2.1.0
+    env: PUPPET_VERSION="~> 3.6.0" STRICT_VARIABLES=yes
+
+  # Ruby 2.2.1
+  - rvm: 2.2.1
+    env: PUPPET_VERSION="~> 2.7.0"
+  # - No Ruby 2.2 for ~>3.X: https://tickets.puppetlabs.com/browse/PUP-3796
+  - rvm: 2.2.1
+    env: PUPPET_VERSION="~> 3.2.0"
+  - rvm: 2.2.1
+    env: PUPPET_VERSION="~> 3.3.0"
+  - rvm: 2.2.1
+    env: PUPPET_VERSION="~> 3.4.0"
+  - rvm: 2.2.1
+    env: PUPPET_VERSION="~> 3.5.0" STRICT_VARIABLES=yes
+  - rvm: 2.2.1
+    env: PUPPET_VERSION="~> 3.6.0" STRICT_VARIABLES=yes
+  - rvm: 2.2.1
+    env: PUPPET_VERSION="~> 3.7.0" STRICT_VARIABLES=yes
+  - rvm: 2.2.1
+    env: PUPPET_VERSION="~> 3.7.0" STRICT_VARIABLES=yes FUTURE_PARSER=yes
