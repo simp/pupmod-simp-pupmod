@@ -71,13 +71,6 @@
 #
 # The port upon which the Puppet master process will listen.
 #
-# [*trusted_node_data*]
-# Type: Boolean
-# Default: true
-#
-# Stores trusted node data in a hash called $trusted. When true also prevents
-# $trusted from being overridden in any scope.
-#
 # [*use_iptables*]
 # Type: Boolean
 # Default: true
@@ -194,7 +187,6 @@ class pupmod::master (
   $environmentpath = '/etc/puppet/environments',
   $freeze_main = false,
   $masterport = '8140',
-  $trusted_node_data = true,
   $use_iptables = true,
   $ca_status_whitelist = [$::fqdn],
   $ruby_load_path = '',
@@ -211,18 +203,42 @@ class pupmod::master (
   $syslog_message_format = '%logger[%thread]: %msg',
   $log_level = 'WARN'
 ) {
-  include '::apache'
-  include '::pupmod'
-
   $service = 'puppetserver'
-
-  include '::pupmod::master::sysconfig'
-  include '::pupmod::master::reports'
-  include '::pupmod::master::base'
-
   $l_client_nets = nets2cidr($client_nets)
   $l_confdir = $::pupmod::confdir
 
+  validate_net_list($bind_address)
+  validate_net_list($ca_bind_address)
+  validate_port($ca_port)
+  validate_net_list($l_client_nets)
+  validate_re($ca_ttl,'^\d+y$')
+  validate_bool($daemonize)
+  validate_bool($enable_ca)
+  validate_bool($enable_master)
+  validate_absolute_path($environmentpath)
+  validate_bool($freeze_main)
+  validate_port($masterport)
+  validate_bool($use_iptables)
+  validate_array($ca_status_whitelist)
+  if !empty($ruby_load_path) { validate_absolute_path($ruby_load_path) }
+  if !empty($gem_home) { validate_absolute_path($gem_home) }
+  validate_integer($max_active_instances)
+  validate_array($ssl_protocols)
+  validate_array($ssl_cipher_suites)
+  validate_bool($enable_profiler)
+  validate_array($admin_api_whitelist)
+  validate_string($admin_api_mountpoint)
+  validate_bool($log_to_file)
+  validate_bool($log_to_syslog)
+  validate_string($syslog_facility)
+  validate_string($syslog_message_format)
+  validate_array_member($log_level,['TRACE','DEBUG','INFO','WARN','ERROR','OFF'])
+
+  include '::apache'
+  include '::pupmod'
+  include '::pupmod::master::sysconfig'
+  include '::pupmod::master::reports'
+  include '::pupmod::master::base'
   Class['::pupmod::master::sysconfig'] ~> Service[$service]
 
   file { '/etc/puppetserver':
@@ -353,12 +369,7 @@ class pupmod::master (
     notify  => Service[$service]
   }
 
-  # For now, FIPS compliance does not include 4096 bit keys. If FIPS is enabled,
-  # set the key length to 2048.
-  $_fips_enabled_on_system = defined('$::fips_enabled') ? { true => $::fips_enabled, default => false }
-  $_fips_enabled_in_hiera = hiera('use_fips')
-
-  if $_fips_enabled_on_system or $_fips_enabled_in_hiera {
+  if $pupmod::use_fips {
     $_keylength = '2048'
   }
   else {
@@ -401,31 +412,4 @@ class pupmod::master (
     }
   }
 
-  validate_net_list($bind_address)
-  validate_net_list($ca_bind_address)
-  validate_port($ca_port)
-  validate_net_list($l_client_nets)
-  validate_re($ca_ttl,'^\d+y$')
-  validate_bool($daemonize)
-  validate_bool($enable_ca)
-  validate_bool($enable_master)
-  validate_absolute_path($environmentpath)
-  validate_bool($freeze_main)
-  validate_port($masterport)
-  validate_bool($trusted_node_data)
-  validate_bool($use_iptables)
-  validate_array($ca_status_whitelist)
-  if !empty($ruby_load_path) { validate_absolute_path($ruby_load_path) }
-  if !empty($gem_home) { validate_absolute_path($gem_home) }
-  validate_integer($max_active_instances)
-  validate_array($ssl_protocols)
-  validate_array($ssl_cipher_suites)
-  validate_bool($enable_profiler)
-  validate_array($admin_api_whitelist)
-  validate_string($admin_api_mountpoint)
-  validate_bool($log_to_file)
-  validate_bool($log_to_syslog)
-  validate_string($syslog_facility)
-  validate_string($syslog_message_format)
-  validate_array_member($log_level,['TRACE','DEBUG','INFO','WARN','ERROR','OFF'])
 }

@@ -1,0 +1,57 @@
+{
+  "name":    "simp-pupmod",
+  "version": "5.0.0",
+  "author":  "SIMP",
+  "summary": "A puppet module to manage puppet",
+  "license": "Apache-2.0",
+  "source":  "https://github.com/simp/pupmod-simp-pupmod",
+  "project_page": "https://github.com/simp/pupmod-simp-pupmod",
+  "issues_url":   "https://simp-project.atlassian.net",
+  "tags": [ "simp", "ci", "pupmod" ],
+  "dependencies": [
+    {
+      "name": "puppetlabs-stdlib",
+      "version_requirement": ">= 4.1.0"
+    },
+    {
+      "name": "simp-iptables",
+      "version_requirement": ">= 4.1.0"
+    },
+    {
+      "name": "simp-logrotate",
+      "version_requirement": ">= 4.1.0-2"
+    },
+    {
+      "name": "simp-simplib",
+      "version_requirement": ">= 4.1.0"
+    },
+    {
+      "name": "simp-apache",
+      "version_requirement": ">= 4.1.0"
+    },
+    {
+      "name": "simp-pki",
+      "version_requirement": ">= 4.1.0-4"
+    },
+    {
+      "name": "simp-tcpwrappers",
+      "version_requirement": ">= 3.0.0-2"
+    }
+  ],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "CentOS",
+      "operatingsystemrelease": [
+        "6",
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "6",
+        "7"
+      ]
+    }
+  ]
+}
