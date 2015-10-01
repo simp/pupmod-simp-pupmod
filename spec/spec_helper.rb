@@ -1,6 +1,8 @@
 require 'pathname'
-require 'rspec-puppet'
 require 'puppetlabs_spec_helper/module_spec_helper'
+require 'rspec-puppet'
+require 'simp/rspec-puppet-facts'
+include Simp::RspecPuppetFacts
 
 # RSpec Material
 
@@ -37,6 +39,10 @@ if not File.directory?(File.join(fixture_path,'hieradata')) then
   FileUtils.mkdir_p(File.join(fixture_path,'hieradata'))
 end
 
+if not File.directory?(File.join(fixture_path,'modules',module_name)) then
+  FileUtils.mkdir_p(File.join(fixture_path,'modules',module_name))
+end
+
 RSpec.configure do |c|
   c.mock_framework = :rspec
   c.mock_with :mocha
@@ -47,12 +53,12 @@ RSpec.configure do |c|
   c.hiera_config = File.join(fixture_path,'hieradata','hiera.yaml')
 
   c.before(:all) do
-    # Add fixture lib dirs to LOAD_PATH. Work-around for PUP-3336
-    if Puppet.version < "4.0.0"
-      Dir["#{fixture_path}/modules/*/lib"].entries.each do |lib_dir|
-        $LOAD_PATH << lib_dir
-      end
-    end
+# Add fixture lib dirs to LOAD_PATH. Work-around for PUP-3336
+if Puppet.version < "4.0.0"
+  Dir["#{fixture_path}/modules/*/lib"].entries.each do |lib_dir|
+    $LOAD_PATH << lib_dir
+  end
+end
 
     data = YAML.load(default_hiera_config)
     data[:yaml][:datadir] = File.join(fixture_path, 'hieradata').to_s
@@ -62,10 +68,6 @@ RSpec.configure do |c|
 
     @orig_site_pp = File.join(c.manifest_dir,'site.pp')
     @orig_site_pp_content = File.read(@orig_site_pp)
-  end
-
-  c.after(:all) do
-    mod_site_pp(@orig_site_pp_content)
   end
 
   c.before(:each) do
@@ -78,6 +80,10 @@ RSpec.configure do |c|
   c.after(:each) do
     FileUtils.rm_rf(@spec_global_env_temp)
   end
+
+  c.after(:all) do
+    mod_site_pp(@orig_site_pp_content)
+  end
 end
 
 Dir.glob("#{RSpec.configuration.module_path}/*").each do |dir|
@@ -87,3 +93,4 @@ Dir.glob("#{RSpec.configuration.module_path}/*").each do |dir|
     fail "ERROR: The module '#{dir}' is not installed. Tests cannot continue."
   end
 end
+
