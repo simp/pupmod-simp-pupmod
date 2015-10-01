@@ -1,7 +1,7 @@
 Summary: Puppet Management Puppet Module
 Name: pupmod-pupmod
 Version: 6.0.0
-Release: 19
+Release: 20
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -63,10 +63,13 @@ fi
 # Post uninstall stuff
 
 %changelog
+* Wed Nov 04 2015 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.0.0-20
+- Improved logic for  defaults
+
 * Thu Sep 17 2015 Kendall Moore <kmoore@keywcorp.com> - 6.0.0-19
 - Ensure keylength is set to 2048 in puppet.conf if FIPS mode is enabled.
 
-* Mon Jun 17 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.0.0-18
+* Wed Jun 17 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.0.0-18
 - Remove the legacy code that restarted httpd when the Puppet CRL was
   downloaded.
 
@@ -199,7 +202,7 @@ fi
   site and, therefore, the name of the file in /etc/httpd/conf.d. This caused a
   conflict on upgrade.
 
-* Thu Sep 24 2013 Kendall Moore <kmoore@keywcorp.com> - 5.0.0-0
+* Tue Sep 24 2013 Kendall Moore <kmoore@keywcorp.com> - 5.0.0-0
 - Require puppet 3.X and puppet-server 3.X because of an upgrade to use
   hiera instead of extdata.
 - Updated the config.ru and apache_passenger templates as well as the passenger::add_site
