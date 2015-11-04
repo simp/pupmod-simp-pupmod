@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ab29df4_f395d040",
+        "filename": "manifests/init.pp",
+        "patchSetId": 2
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 1005194
+      },
+      "writtenOn": "2015-11-04T17:51:17Z",
+      "side": 1,
+      "message": "debug cruft?",
+      "revId": "fc1cb8f9724aec64495ab5cabfca146b94c03b1f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
