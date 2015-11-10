@@ -1,14 +1,14 @@
 Summary: Puppet Management Puppet Module
 Name: pupmod-pupmod
 Version: 6.0.0
-Release: 20
+Release: 21
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Requires: hiera >= 1.3.0
 Requires: pupmod-apache >= 4.1.0-1
-Requires: pupmod-concat >= 4.0.0-0
+Requires: pupmod-simpcat >= 4.0.0-0
 Requires: pupmod-iptables >= 4.1.0-3
 Requires: pupmod-puppetlabs-inifile >= 1.0.0
 Requires: puppet >= 3.3.0
@@ -63,6 +63,9 @@ fi
 # Post uninstall stuff
 
 %changelog
+* Mon Nov 09 2015 Chris Tessmer <chris.tessmer@onypoint.com> - 6.0.0-21
+- migration to simplib and simpcat (lib/ only)
+
 * Wed Nov 04 2015 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.0.0-20
 - Improved logic for  defaults
 
