@@ -203,14 +203,9 @@ class pupmod::master (
   $syslog_message_format = '%logger[%thread]: %msg',
   $log_level = 'WARN'
 ) {
-  $service = 'puppetserver'
-  $l_client_nets = nets2cidr($client_nets)
-  $l_confdir = $::pupmod::confdir
-
   validate_net_list($bind_address)
   validate_net_list($ca_bind_address)
   validate_port($ca_port)
-  validate_net_list($l_client_nets)
   validate_re($ca_ttl,'^\d+y$')
   validate_bool($daemonize)
   validate_bool($enable_ca)
@@ -233,6 +228,11 @@ class pupmod::master (
   validate_string($syslog_facility)
   validate_string($syslog_message_format)
   validate_array_member($log_level,['TRACE','DEBUG','INFO','WARN','ERROR','OFF'])
+
+  $service = 'puppetserver'
+  $l_client_nets = nets2cidr($client_nets)
+  validate_net_list($l_client_nets)
+  $l_confdir = $::pupmod::confdir
 
   include '::apache'
   include '::pupmod'

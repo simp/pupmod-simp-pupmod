@@ -73,6 +73,14 @@ class pupmod::master::sysconfig (
   $service_stop_retries = '60',
   $start_timeout = '120'
 ) {
+  validate_absolute_path($java_bin)
+  validate_re($java_start_memory,'^\d+(g|k|m)$')
+  validate_re($java_max_memory,'^\d+(g|k|m|%)$')
+  validate_re($java_max_perm_size,'^\d+(g|k|m)$')
+  if !empty($java_temp_dir) { validate_absolute_path($java_temp_dir) }
+  validate_array($extra_java_args)
+  validate_integer($service_stop_retries)
+  validate_integer($start_timeout)
 
   if empty($java_temp_dir) {
     $l_java_temp_dir = "${::pupmod::vardir}/pserver_tmp"
@@ -95,13 +103,4 @@ class pupmod::master::sysconfig (
     content => template('pupmod/etc/sysconfig/puppetserver.erb'),
     notify  => Service[$::pupmod::master::service]
   }
-
-  validate_absolute_path($java_bin)
-  validate_re($java_start_memory,'^\d+(g|k|m)$')
-  validate_re($java_max_memory,'^\d+(g|k|m|%)$')
-  validate_re($java_max_perm_size,'^\d+(g|k|m)$')
-  if !empty($java_temp_dir) { validate_absolute_path($java_temp_dir) }
-  validate_array($extra_java_args)
-  validate_integer($service_stop_retries)
-  validate_integer($start_timeout)
 }

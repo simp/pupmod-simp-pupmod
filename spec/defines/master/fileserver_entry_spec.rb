@@ -5,7 +5,7 @@ describe 'pupmod::master::fileserver_entry' do
     context "on #{os}" do
       base_facts = {
         :operatingsystem => 'RedHat',
-        :lsbmajdistrelease => '6',
+        :operatingsystemmajrelease => '6',
         :hardwaremodel => 'x86_64',
         :spec_title => description,
         :ipaddress => '1.2.3.4',

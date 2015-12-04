@@ -19,9 +19,9 @@ define pupmod::master::autosign (
   $entry
 ) {
 
-  $l_name = inline_template("<%= '$name'.gsub('/','_') %>")
+  $l_name = inline_template("<%= '${name}'.gsub('/','_') %>")
 
-  concat_fragment { "autosign+$l_name.autosign":
-    content => "$name\n$entry\n"
+  concat_fragment { "autosign+${l_name}.autosign":
+    content => "${name}\n${entry}\n"
   }
 }

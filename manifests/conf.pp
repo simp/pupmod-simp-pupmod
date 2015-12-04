@@ -42,6 +42,9 @@ define pupmod::conf (
 ) {
   include '::pupmod'
 
+  validate_string($setting)
+  validate_array($section)
+
   $l_name = "${module_name}_${name}"
 
   ini_setting { $l_name:
@@ -51,7 +54,4 @@ define pupmod::conf (
     # This needs to be a string to take effect!
     value   => $value
   }
-
-  validate_string($setting)
-  validate_array($section)
 }

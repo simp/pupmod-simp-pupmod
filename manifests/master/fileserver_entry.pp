@@ -24,13 +24,13 @@ define pupmod::master::fileserver_entry (
     $allow,
     $path
 ) {
-  $l_name = inline_template("<%= '$name'.gsub('/','_') %>")
-
   # Validation first to appease rspec
   validate_array($allow)
   validate_absolute_path($path)
 
-  concat_fragment { "fileserver+$l_name.fileserver":
+  $l_name = inline_template("<%= '${name}'.gsub('/','_') %>")
+
+  concat_fragment { "fileserver+${l_name}.fileserver":
     content => template('pupmod/content/fileserver.erb')
   }
 
