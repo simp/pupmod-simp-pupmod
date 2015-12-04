@@ -226,6 +226,34 @@ class pupmod (
   $use_fips             = defined('$::fips_enabled') ? { true  => str2bool($::fips_enabled), default => hiera('use_fips', false) }
 ) {
 
+  validate_port($ca_port)
+  validate_string($ca_server)
+  validate_bool($auditd_support)
+  validate_integer($ca_crl_pull_interval)
+  validate_string($certname)
+  validate_re($classfile,'^(\$(?!/)|/).+')
+  validate_re($confdir,'^(\$(?!/)|/).+')
+  validate_integer($configtimeout)
+  validate_bool($daemonize)
+  validate_string($digest_algorithm)
+  validate_bool($enable_puppet_master)
+  validate_re($environmentpath,'^(\$(?!/)|/).+')
+  validate_bool($listen)
+  validate_re($localconfig,'^(\$(?!/)|/).+')
+  validate_re($logdir,'^(\$(?!/)|/).+')
+  validate_port($masterport)
+  validate_bool($report)
+  validate_re($rundir,'^(\$(?!/)|/).+')
+  validate_integer($runinterval)
+  validate_bool($splay)
+  if !empty($splaylimit) { validate_integer($splaylimit) }
+  validate_string($srv_domain)
+  validate_net_list($srv_domain)
+  validate_re($ssldir,'^(\$(?!/)|/).+')
+  validate_string($syslogfacility)
+  validate_bool($use_srv_records)
+  validate_absolute_path($vardir)
+
   $l_crl_pull_minute = ip_to_cron(1)
   $l_crl_pull_hour = ip_to_cron($ca_crl_pull_interval,24)
 
@@ -429,32 +457,4 @@ class pupmod (
       value      => 'on'
     }
   }
-
-  validate_port($ca_port)
-  validate_string($ca_server)
-  validate_bool($auditd_support)
-  validate_integer($ca_crl_pull_interval)
-  validate_string($certname)
-  validate_re($classfile,'^(\$(?!/)|/).+')
-  validate_re($confdir,'^(\$(?!/)|/).+')
-  validate_integer($configtimeout)
-  validate_bool($daemonize)
-  validate_string($digest_algorithm)
-  validate_bool($enable_puppet_master)
-  validate_re($environmentpath,'^(\$(?!/)|/).+')
-  validate_bool($listen)
-  validate_re($localconfig,'^(\$(?!/)|/).+')
-  validate_re($logdir,'^(\$(?!/)|/).+')
-  validate_port($masterport)
-  validate_bool($report)
-  validate_re($rundir,'^(\$(?!/)|/).+')
-  validate_integer($runinterval)
-  validate_bool($splay)
-  if !empty($splaylimit) { validate_integer($splaylimit) }
-  validate_string($srv_domain)
-  validate_net_list($srv_domain)
-  validate_re($ssldir,'^(\$(?!/)|/).+')
-  validate_string($syslogfacility)
-  validate_bool($use_srv_records)
-  validate_absolute_path($vardir)
 }

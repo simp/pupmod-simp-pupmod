@@ -1,7 +1,7 @@
 Summary: Puppet Management Puppet Module
 Name: pupmod-pupmod
 Version: 6.0.0
-Release: 21
+Release: 22
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -63,7 +63,12 @@ fi
 # Post uninstall stuff
 
 %changelog
-* Mon Nov 09 2015 Chris Tessmer <chris.tessmer@onypoint.com> - 6.0.0-21
+* Fri Dec 04 2015 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.0.0-22
+- Replaced all 'lsb*' facts with their (package-independent)
+  'operatingsystem*' counterparts.
+- Moved parameter validations to the top of each class.
+
+* Mon Nov 09 2015 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.0.0-21
 - migration to simplib and simpcat (lib/ only)
 
 * Wed Nov 04 2015 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.0.0-20

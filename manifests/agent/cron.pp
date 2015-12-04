@@ -105,6 +105,10 @@ class pupmod::agent::cron (
   $weekday = '*',
   $maxruntime = ''
   ) {
+  validate_integer($interval)
+  validate_string($minute_base)
+  validate_integer($runs_per_timeframe)
+  validate_integer($run_timeframe)
 
   include 'pupmod'
 
@@ -144,9 +148,4 @@ class pupmod::agent::cron (
     mode    => '0750',
     content => template('pupmod/usr/local/bin/puppetagent_cron.erb')
   }
-
-  validate_integer($interval)
-  validate_string($minute_base)
-  validate_integer($runs_per_timeframe)
-  validate_integer($run_timeframe)
 }

@@ -31,6 +31,9 @@ class pupmod::master::reports (
   $purge_keep_days = '7',
   $purge_verbose = false
 ) {
+  validate_bool($purge)
+  validate_integer($purge_keep_days)
+  validate_bool($purge_verbose)
 
   if $purge {
     if $purge_verbose {
@@ -48,8 +51,4 @@ class pupmod::master::reports (
       content => "#!/bin/sh\n${l_purge_script}"
     }
   }
-
-  validate_bool($purge)
-  validate_integer($purge_keep_days)
-  validate_bool($purge_verbose)
 }
