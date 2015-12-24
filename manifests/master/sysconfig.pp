@@ -96,7 +96,7 @@ class pupmod::master::sysconfig (
     mode   => '0750'
   }
 
-  file { '/etc/sysconfig/puppetmaster':
+  file { '/etc/sysconfig/puppetserver':
     owner   => 'root',
     group   => 'root',
     mode    => '0640',
