@@ -1,7 +1,7 @@
 Summary: Puppet Management Puppet Module
 Name: pupmod-pupmod
 Version: 6.0.0
-Release: 22
+Release: 23
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -17,9 +17,9 @@ Requires: pupmod-augeasproviders_grub >= 1.0.2
 Requires: pupmod-augeasproviders_puppet >= 1.0.2
 Buildarch: noarch
 Requires: simp-bootstrap >= 4.2.0
-Obsoletes: pupmod-pupmod-test
+Obsoletes: pupmod-pupmod-test >= 0.0.1
 
-Prefix: /etc/puppet/environments/simp/modules
+Prefix: %{_sysconfdir}/puppet/environments/simp/modules
 
 %description
 This unfortunately named Puppet module provides the capability to configure both
@@ -55,14 +55,18 @@ mkdir -p %{buildroot}/%{prefix}/pupmod
 %post
 #!/bin/sh
 
-if [ -d %{prefix}/pupmod/plugins ]; then
-  /bin/mv %{prefix}/pupmod/plugins %{prefix}/pupmod/plugins.bak
-fi
-
 %postun
 # Post uninstall stuff
 
 %changelog
+* Thu Dec 24 2015 Trevor Vaughan <tvaughahn@onyxpoint.com> - 6.0.0-23
+- Fixed minor logic errors
+- Now have configuration changes notify Service['puppetserver'] instead of the
+  more efficient Exec. This gets around a race condition when the service is
+  restarted and the exec fires before the service has fully restarted.
+- Fixed issues with the puppetserver_* helper scripts that surfaced due to
+  changes in the HTTP responses from the Puppet Server.
+
 * Fri Dec 04 2015 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.0.0-22
 - Replaced all 'lsb*' facts with their (package-independent)
   'operatingsystem*' counterparts.

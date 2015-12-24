@@ -10,13 +10,14 @@ class pupmod::master::base {
   include '::pupmod::master'
 
   $masterport = $::pupmod::master::masterport
+  $admin_api_mountpoint = $::pupmod::master::admin_api_mountpoint
 
   $auto_fragdir = fragmentdir('autosign')
   concat_build { 'autosign':
     quiet  => true,
     order  => ['*.autosign'],
     target => "${::pupmod::confdir}/autosign.conf",
-    notify => Exec['puppetserver_reload']
+    notify => Service[$::pupmod::master::service]
   }
 
   exec { 'puppetserver_reload':
@@ -68,7 +69,7 @@ class pupmod::master::base {
     path       => '^/node/([^/]+)$',
     path_regex => true,
     allow      => ['$1', $::fqdn],
-    notify     => Exec['puppetserver_reload']
+    notify     => Service[$::pupmod::master::service]
   }
 
   group { 'puppet':
