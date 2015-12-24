@@ -232,7 +232,6 @@ class pupmod::master (
   $service = 'puppetserver'
   $l_client_nets = nets2cidr($client_nets)
   validate_net_list($l_client_nets)
-  $l_confdir = $::pupmod::confdir
 
   include '::apache'
   include '::pupmod'
@@ -240,6 +239,8 @@ class pupmod::master (
   include '::pupmod::master::reports'
   include '::pupmod::master::base'
   Class['::pupmod::master::sysconfig'] ~> Service[$service]
+
+  $l_confdir = $::pupmod::confdir
 
   file { '/etc/puppetserver':
     ensure => 'directory',
