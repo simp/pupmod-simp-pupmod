@@ -35,6 +35,8 @@ class pupmod::master::reports (
   validate_integer($purge_keep_days)
   validate_bool($purge_verbose)
 
+  compliance_map()
+
   if $purge {
     if $purge_verbose {
       $l_purge_script = "/bin/find /var/lib/puppet/reports/ -mtime +${purge_keep_days} -type f -exec echo \"Removing {}\" \\; -exec rm -f {} \\;"

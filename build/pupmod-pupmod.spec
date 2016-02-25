@@ -18,6 +18,7 @@ Requires: pupmod-augeasproviders_puppet >= 1.0.2
 Buildarch: noarch
 Requires: simp-bootstrap >= 4.2.0
 Obsoletes: pupmod-pupmod-test >= 0.0.1
+Requires: pupmod-onyxpoint-compliance_markup
 
 Prefix: %{_sysconfdir}/puppet/environments/simp/modules
 
@@ -59,11 +60,14 @@ mkdir -p %{buildroot}/%{prefix}/pupmod
 # Post uninstall stuff
 
 %changelog
+* Thu Feb 25 2016 Ralph Wright <ralph.wright@onyxpoint.com> - 6.0.0-24
+- Added compliance function support
+
 * Wed Feb 24 2016 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.0.0-24
 - Fix the subscribe on the Service['puppet'] resource to not be a hard coded
   path.
 
-* Thu Dec 24 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.0.0-23
+* Thu Dec 24 2015 Trevor Vaughan <tvaughahn@onyxpoint.com> - 6.0.0-23
 - Fixed minor logic errors
 - Now have configuration changes notify Service['puppetserver'] instead of the
   more efficient Exec. This gets around a race condition when the service is

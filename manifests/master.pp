@@ -229,6 +229,8 @@ class pupmod::master (
   validate_string($syslog_message_format)
   validate_array_member($log_level,['TRACE','DEBUG','INFO','WARN','ERROR','OFF'])
 
+  compliance_map()
+
   $service = 'puppetserver'
   $l_client_nets = nets2cidr($client_nets)
   validate_net_list($l_client_nets)

@@ -20,5 +20,6 @@ fixtures:
     rsync: "git://github.com/simp/pupmod-simp-rsync"
     rsyslog: "git://github.com/simp/pupmod-simp-rsyslog"
     stdlib: "git://github.com/simp/puppetlabs-stdlib"
+    compliance: "https://github.com/trevor-vaughan/pupmod-compliance"
   symlinks:
     pupmod: "#{source_dir}"

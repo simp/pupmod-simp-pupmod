@@ -254,6 +254,8 @@ class pupmod (
   validate_bool($use_srv_records)
   validate_absolute_path($vardir)
 
+  compliance_map()
+
   $l_crl_pull_minute = ip_to_cron(1)
   $l_crl_pull_hour = ip_to_cron($ca_crl_pull_interval,24)
 

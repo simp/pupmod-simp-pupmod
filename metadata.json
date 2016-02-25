@@ -36,6 +36,10 @@
     {
       "name": "simp-tcpwrappers",
       "version_requirement": ">= 3.0.0-2"
+    },
+    {
+      "name": "onyxpoint/compliance_markup",
+      "version_requirement": ">= 1.0.0"
     }
   ],
   "operatingsystem_support": [
