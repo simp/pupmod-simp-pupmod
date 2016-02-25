@@ -82,6 +82,8 @@ class pupmod::master::sysconfig (
   validate_integer($service_stop_retries)
   validate_integer($start_timeout)
 
+  compliance_map()
+
   if empty($java_temp_dir) {
     $l_java_temp_dir = "${::pupmod::vardir}/pserver_tmp"
   }

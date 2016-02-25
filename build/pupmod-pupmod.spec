@@ -1,7 +1,7 @@
 Summary: Puppet Management Puppet Module
 Name: pupmod-pupmod
 Version: 6.0.0
-Release: 23
+Release: 24
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -18,6 +18,7 @@ Requires: pupmod-augeasproviders_puppet >= 1.0.2
 Buildarch: noarch
 Requires: simp-bootstrap >= 4.2.0
 Obsoletes: pupmod-pupmod-test >= 0.0.1
+Requires: pupmod-onyxpoint-compliance_markup
 
 Prefix: %{_sysconfdir}/puppet/environments/simp/modules
 
@@ -59,6 +60,9 @@ mkdir -p %{buildroot}/%{prefix}/pupmod
 # Post uninstall stuff
 
 %changelog
+* Thu Feb 25 2016 Ralph Wright <ralph.wright@onyxpoint.com> - 6.0.0-24
+- Added compliance function support
+
 * Thu Dec 24 2015 Trevor Vaughan <tvaughahn@onyxpoint.com> - 6.0.0-23
 - Fixed minor logic errors
 - Now have configuration changes notify Service['puppetserver'] instead of the
