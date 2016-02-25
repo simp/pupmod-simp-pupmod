@@ -1,7 +1,7 @@
 Summary: Puppet Management Puppet Module
 Name: pupmod-pupmod
 Version: 6.0.0
-Release: 23
+Release: 24
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -59,7 +59,11 @@ mkdir -p %{buildroot}/%{prefix}/pupmod
 # Post uninstall stuff
 
 %changelog
-* Thu Dec 24 2015 Trevor Vaughan <tvaughahn@onyxpoint.com> - 6.0.0-23
+* Wed Feb 24 2016 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.0.0-24
+- Fix the subscribe on the Service['puppet'] resource to not be a hard coded
+  path.
+
+* Thu Dec 24 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.0.0-23
 - Fixed minor logic errors
 - Now have configuration changes notify Service['puppetserver'] instead of the
   more efficient Exec. This gets around a race condition when the service is

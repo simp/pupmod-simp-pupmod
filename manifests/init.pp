@@ -278,7 +278,7 @@ class pupmod (
       hasrestart => true,
       hasstatus  => false,
       status     => '/usr/bin/test `/bin/ps --no-headers -fC puppetd,"puppet agent" | /usr/bin/wc -l` -ge 1 -a ! `/bin/ps --no-headers -fC puppetd,"puppet agent" | /bin/grep -c "no-daemonize"` -ge 1',
-      subscribe  => File['/etc/puppet/puppet.conf']
+      subscribe  => File["${confdir}/puppet.conf"]
     }
   }
   else {
