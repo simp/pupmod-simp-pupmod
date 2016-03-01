@@ -50,6 +50,24 @@
       "revId": "d1caebf1195055740a43a725a0966371cb8a1902",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a72e520_ab6e92c7",
+        "filename": "metadata.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2016-03-01T13:44:33Z",
+      "side": 1,
+      "message": "I lied....",
+      "parentUuid": "5a72e520_d017ff4f",
+      "revId": "d1caebf1195055740a43a725a0966371cb8a1902",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
