@@ -1,32 +1,18 @@
 require 'spec_helper'
 
 describe 'pupmod::agent::cron' do
-  on_supported_os.each do |os, os_facts|
+  on_supported_os.each do |os, facts|
     context "on #{os}" do
-      let(:trusted_facts){{
-        'certname' => 'spec.test'
-      }}
-      let(:base_facts) {{
-        :ipaddress      => '1.2.3.4',
-        :ipaddress_eth0 => '1.2.3.4',
-      }}
-      let(:facts){
-        x = os_facts.merge(base_facts)
-        x[:trusted] = trusted_facts if Puppet.version < "4.0.0"
-        x
-      }
-      if Puppet.version >= "4.0.0"
-        let(:trusted_data){ trusted_facts }
-      end
 
+      let(:facts) { facts }
 
-      describe 'using general parameters' do
+      context 'using general parameters' do
         let(:params) {{ :interval => '60' }}
 
         it { is_expected.to create_class('pupmod::agent::cron') }
         it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/-gt 3600/) }
         it { is_expected.to contain_cron('puppetagent').with({
-            'minute'    => ['10','40'],
+            'minute'    => ['27','57'],
             'hour'      => '*',
             'monthday'  => '*',
             'month'     => '*',

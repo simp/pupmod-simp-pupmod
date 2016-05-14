@@ -1,6 +1,6 @@
 Summary: Puppet Management Puppet Module
 Name: pupmod-pupmod
-Version: 6.0.0
+Version: 6.0.1
 Release: 24
 License: Apache License, Version 2.0
 Group: Applications/System
@@ -60,6 +60,9 @@ mkdir -p %{buildroot}/%{prefix}/pupmod
 # Post uninstall stuff
 
 %changelog
+* Thu May 19 2016 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.0.1-0
+- Made master::reports a private class
+
 * Thu Feb 25 2016 Ralph Wright <ralph.wright@onyxpoint.com> - 6.0.0-24
 - Added compliance function support
 

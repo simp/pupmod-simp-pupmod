@@ -1,6 +1,6 @@
 {
   "name":    "simp-pupmod",
-  "version": "6.0.0",
+  "version": "6.0.1",
   "author":  "SIMP",
   "summary": "A puppet module to manage puppet",
   "license": "Apache-2.0",
@@ -10,31 +10,31 @@
   "tags": [ "simp", "ci", "pupmod" ],
   "dependencies": [
     {
-      "name": "puppetlabs-stdlib",
+      "name": "puppetlabs/stdlib",
       "version_requirement": ">= 4.1.0"
     },
     {
-      "name": "simp-iptables",
+      "name": "simp/iptables",
       "version_requirement": ">= 4.1.0"
     },
     {
-      "name": "simp-logrotate",
+      "name": "simp/logrotate",
       "version_requirement": ">= 4.1.0-2"
     },
     {
-      "name": "simp-simplib",
+      "name": "simp/simplib",
       "version_requirement": ">= 4.1.0"
     },
     {
-      "name": "simp-apache",
+      "name": "simp/apache",
       "version_requirement": ">= 4.1.0"
     },
     {
-      "name": "simp-pki",
+      "name": "simp/pki",
       "version_requirement": ">= 4.1.0-4"
     },
     {
-      "name": "simp-tcpwrappers",
+      "name": "simp/tcpwrappers",
       "version_requirement": ">= 3.0.0-2"
     },
     {
