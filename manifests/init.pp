@@ -185,6 +185,12 @@
 #
 # Whether the server will search for SRV records in DNS for the current domain.
 #
+# [*use_haveged*]
+# Type: Boolean
+# Default: true
+#
+# If true, include haveged to assist with entropy generation.
+#
 # [*vardir*]
 # Type: Absolute Path
 # Default: /var/lib/puppet
@@ -223,6 +229,7 @@ class pupmod (
   $syslogfacility       = 'local6',
   $use_srv_records      = false,
   $vardir               = '/var/lib/puppet',
+  $use_haveged          = true,
   $use_fips             = defined('$::fips_enabled') ? { true  => str2bool($::fips_enabled), default => hiera('use_fips', false) }
 ) {
 
@@ -253,8 +260,13 @@ class pupmod (
   validate_string($syslogfacility)
   validate_bool($use_srv_records)
   validate_absolute_path($vardir)
+  validate_bool($use_haveged)
 
   compliance_map()
+
+  if $use_haveged {
+    include "::haveged"
+  }
 
   $l_crl_pull_minute = ip_to_cron(1)
   $l_crl_pull_hour = ip_to_cron($ca_crl_pull_interval,24)

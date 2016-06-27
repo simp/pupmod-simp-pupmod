@@ -10,6 +10,9 @@ fixtures:
     augeasproviders_puppet: "git://github.com/simp/augeasproviders_puppet"
     common: "git://github.com/simp/pupmod-simp-common"
     compliance: "git://github.com/trevor-vaughan/pupmod-compliance.git"
+    haveged:
+      repo: "git://github.com/simp/puppet-haveged"
+      branch: "simp-master"
     simplib: "git://github.com/simp/pupmod-simp-simplib"
     simpcat: "git://github.com/simp/pupmod-simp-concat"
     functions: "git://github.com/simp/pupmod-simp-functions"

@@ -1,3 +1,6 @@
+* Mon Jun 27 2016 Nick Markowski <nmarkowski@keywcorp.com> - 6.0.3-0
+- Pupmod-haveged included by default to assist with entropy generation.
+
 * Tue Jun 21 2016 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.0.2-0
 - Updated the calls to use_iptables to be able to be disabled globally.
 
