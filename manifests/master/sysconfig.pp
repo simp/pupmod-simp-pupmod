@@ -66,13 +66,13 @@
 class pupmod::master::sysconfig (
   $java_bin = '/usr/bin/java',
   $java_start_memory = '2g',
-  $java_max_memory = '80%',
+  $java_max_memory = $::pupmod::params::java_max_memory,
   $java_max_perm_size = '256m',
   $java_temp_dir = '',
   $extra_java_args = [],
   $service_stop_retries = '60',
   $start_timeout = '120'
-) {
+) inherits pupmod::params {
   validate_absolute_path($java_bin)
   validate_re($java_start_memory,'^\d+(g|k|m)$')
   validate_re($java_max_memory,'^\d+(g|k|m|%)$')
