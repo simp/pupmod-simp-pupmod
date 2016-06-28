@@ -66,7 +66,7 @@
 class pupmod::master::sysconfig (
   $java_bin = '/usr/bin/java',
   $java_start_memory = '2g',
-  $java_max_memory = '80%',
+  $java_max_memory = $::pupmod::params::java_max_memory,
   $java_max_perm_size = '256m',
   $java_temp_dir = '',
   $extra_java_args = [],
