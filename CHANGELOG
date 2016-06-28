@@ -1,3 +1,6 @@
+* Tue Jun 28 2016 Nick Miller <nick.miller@onyxpoint.com> - 6.0.4-0
+- Added logic to make sure java_max_memory never exceeded 12G
+
 * Mon Jun 27 2016 Nick Markowski <nmarkowski@keywcorp.com> - 6.0.3-0
 - Pupmod-haveged included by default to assist with entropy generation.
 
