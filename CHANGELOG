@@ -1,3 +1,6 @@
+* Thu Jun 30 2016 Nick Markowski <nmarkowski@keywcorp.com> - 6.0.5-0
+- Use_haveged is now a global catalyst.
+
 * Tue Jun 28 2016 Nick Miller <nick.miller@onyxpoint.com> - 6.0.4-0
 - Added logic to make sure java_max_memory never exceeded 12G
 

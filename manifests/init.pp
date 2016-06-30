@@ -229,7 +229,7 @@ class pupmod (
   $syslogfacility       = 'local6',
   $use_srv_records      = false,
   $vardir               = '/var/lib/puppet',
-  $use_haveged          = true,
+  $use_haveged          = defined('$::use_haveged') ? { true => getvar('::use_haveged'), default => hiera('use_haveged', true) },
   $use_fips             = defined('$::fips_enabled') ? { true  => str2bool($::fips_enabled), default => hiera('use_fips', false) }
 ) {
 
