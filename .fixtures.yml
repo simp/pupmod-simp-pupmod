@@ -1,28 +1,38 @@
 ---
 fixtures:
   repositories:
-    apache: "git://github.com/simp/pupmod-simp-apache"
-    auditd: "git://github.com/simp/pupmod-simp-auditd"
-    augeasproviders: "git://github.com/simp/augeasproviders"
-    augeasproviders_base: "git://github.com/simp/augeasproviders_base"
-    augeasproviders_core: "git://github.com/simp/augeasproviders_core"
-    augeasproviders_grub: "git://github.com/simp/augeasproviders_grub"
-    augeasproviders_puppet: "git://github.com/simp/augeasproviders_puppet"
-    common: "git://github.com/simp/pupmod-simp-common"
-    compliance: "git://github.com/trevor-vaughan/pupmod-compliance.git"
-    haveged:
-      repo: "git://github.com/simp/puppet-haveged"
+    apache: "https://github.com/simp/pupmod-simp-apache"
+    auditd: "https://github.com/simp/pupmod-simp-auditd"
+    augeasproviders: 
+      repo: "https://github.com/simp/augeasproviders"
+    augeasproviders_base: 
+      repo: "https://github.com/simp/augeasproviders_base"
       branch: "simp-master"
-    simplib: "git://github.com/simp/pupmod-simp-simplib"
-    simpcat: "git://github.com/simp/pupmod-simp-concat"
-    functions: "git://github.com/simp/pupmod-simp-functions"
-    inifile: "git://github.com/simp/puppetlabs-inifile"
-    iptables: "git://github.com/simp/pupmod-simp-iptables"
-    logrotate: "git://github.com/simp/pupmod-simp-logrotate"
-    pki: "git://github.com/simp/pupmod-simp-pki"
-    rsync: "git://github.com/simp/pupmod-simp-rsync"
-    rsyslog: "git://github.com/simp/pupmod-simp-rsyslog"
-    stdlib: "git://github.com/simp/puppetlabs-stdlib"
-    compliance: "https://github.com/trevor-vaughan/pupmod-compliance"
+    augeasproviders_core: 
+      repo: "https://github.com/simp/augeasproviders_core"
+      branch: "simp-master"
+    augeasproviders_grub: 
+      repo: "https://github.com/simp/augeasproviders_grub"
+      branch: "simp-master"
+    augeasproviders_puppet: 
+      repo: "https://github.com/simp/augeasproviders_puppet"
+      branch: "simp-master"
+    compliance_markup: "https://github.com/simp/pupmod-simp-compliance_markup"
+    haveged:
+      repo: "https://github.com/simp/puppet-haveged"
+      branch: "simp-master"
+    simpcat: "https://github.com/simp/pupmod-simp-simpcat"
+    simplib: "https://github.com/simp/pupmod-simp-simplib"
+    inifile: 
+      repo: "https://github.com/simp/puppetlabs-inifile"
+      branch: "simp-master"
+    iptables: "https://github.com/simp/pupmod-simp-iptables"
+    logrotate: "https://github.com/simp/pupmod-simp-logrotate"
+    pki: "https://github.com/simp/pupmod-simp-pki"
+    rsync: "https://github.com/simp/pupmod-simp-rsync"
+    rsyslog: "https://github.com/simp/pupmod-simp-rsyslog"
+    stdlib: 
+      repo: "https://github.com/simp/puppetlabs-stdlib"
+      branch: "simp-master"
   symlinks:
     pupmod: "#{source_dir}"
