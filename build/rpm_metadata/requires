@@ -1,13 +1,10 @@
 Requires: hiera >= 1.3.0
-Requires: pupmod-apache >= 4.1.0-1
-Requires: pupmod-simpcat >= 4.0.0-0
-Requires: pupmod-iptables >= 4.1.0-3
-Requires: pupmod-puppetlabs-inifile >= 1.0.0
-Requires: puppet >= 3.3.0
-Requires: puppetlabs-stdlib >= 4.1.0
 Requires: pupmod-augeasproviders_grub >= 1.0.2
 Requires: pupmod-augeasproviders_puppet >= 1.0.2
-Requires: simp-bootstrap >= 4.2.0
+Requires: pupmod-puppetlabs-inifile >= 1.0.0
+Requires: pupmod-simp-apache >= 4.1.0
+Requires: pupmod-simp-compliance_markup
+Requires: pupmod-simp-haveged >= 0.3.0
+Requires: pupmod-simp-iptables >= 4.1.0
+Requires: pupmod-simp-simpcat >= 4.0.0
 Obsoletes: pupmod-pupmod-test >= 0.0.1
-Requires: pupmod-onyxpoint-compliance_markup
-Requires: pupmod-haveged >= 0.3.0
