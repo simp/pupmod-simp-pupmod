@@ -1,3 +1,6 @@
+* Tue Sep 20 2016 Bryan Howard, Liz Nemsick <lnemsick.simp@gmail.com> - 6.0.6-0
+- Fixed bash redirection error in puppetagent_cron.erb
+
 * Thu Jun 30 2016 Nick Markowski <nmarkowski@keywcorp.com> - 6.0.5-0
 - Use_haveged is now a global catalyst.
 
