@@ -42,7 +42,7 @@ pup_status=$?
 
 # Do this if puppet is running without a puppet run lockfile for some reason (unlikely).
 if [ $pup_status -eq 0 ] && [ ! -f "$puppet_run_lockfile" ]; then
-  /sbin/service puppet stop 2>&1 > /dev/null;
+  /sbin/service puppet stop >/dev/null 2>&1;
   wait;
 fi
 
