@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_8dfe9803",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2016-09-21T21:33:43Z",
+      "side": 1,
+      "message": "Go ahead and share attribution of this with the original submitter here.\n\nAfter that, go ahead and push!",
+      "revId": "a82b2202bec54ab144fabcfbf0234963cd2f3ec6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
