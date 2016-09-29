@@ -1,3 +1,6 @@
+* Wed Sep 28 2016 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.0.7-0
+- Fix Forge `haveged` dependency name
+
 * Tue Sep 20 2016 Bryan Howard, Liz Nemsick <lnemsick.simp@gmail.com> - 6.0.6-0
 - Fixed bash redirection error in puppetagent_cron.erb
 
