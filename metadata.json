@@ -1,16 +1,20 @@
 {
-  "name":    "simp-pupmod",
-  "version": "6.0.5",
-  "author":  "SIMP",
+  "name": "simp-pupmod",
+  "version": "6.0.6",
+  "author": "SIMP",
   "summary": "A puppet module to manage puppet",
   "license": "Apache-2.0",
-  "source":  "https://github.com/simp/pupmod-simp-pupmod",
+  "source": "https://github.com/simp/pupmod-simp-pupmod",
   "project_page": "https://github.com/simp/pupmod-simp-pupmod",
-  "issues_url":   "https://simp-project.atlassian.net",
-  "tags": [ "simp", "ci", "pupmod" ],
+  "issues_url": "https://simp-project.atlassian.net",
+  "tags": [
+    "simp",
+    "ci",
+    "pupmod"
+  ],
   "dependencies": [
     {
-      "name": "simp/puppet-haveged",
+      "name": "simp/haveged",
       "version_requirement": ">= 0.3.0 < 1.0.0"
     },
     {

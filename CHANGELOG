@@ -1,3 +1,6 @@
+* Wed Sep 28 2016 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.0.6-0
+- Fix Forge `haveged` dependency name
+
 * Thu Jun 30 2016 Nick Markowski <nmarkowski@keywcorp.com> - 6.0.5-0
 - Use_haveged is now a global catalyst.
 
