@@ -1,0 +1,7 @@
+# This file managed by Puppet
+# Any changes will be removed on the next run
+<% if @enable_ca -%>
+puppetlabs.services.ca.certificate-authority-service/certificate-authority-service
+<% else -%>
+puppetlabs.services.ca.certificate-authority-disabled-service/certificate-authority-disabled-service
+<% end -%>

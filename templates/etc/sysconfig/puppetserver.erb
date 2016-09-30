@@ -4,17 +4,24 @@ java_max_memory = @java_max_memory.dup
 if java_max_memory[-1].chr == '%'
   java_max_memory = (@memorysize_mb.to_f * (java_max_memory[0..-2].to_f/100.0)).round.to_s + 'm'
 end
+
+if !@java_start_memory || @java_start_memory.empty?
+  java_start_memory = java_max_memory
+else
+  java_start_memory = @java_start_memory
+end
 -%>
 # Location of your Java binary (version 7 or higher)
 JAVA_BIN="<%= @java_bin %>"
 
 # Modify this if you'd like to change the memory allocation, enable JMX, etc
-JAVA_ARGS="-Xms<%= @java_start_memory %> -Xmx<%= java_max_memory %> -XX:MaxPermSize=<%= @java_max_perm_size %> -Djava.io.tmpdir=<%= @l_java_temp_dir %>"
+JAVA_ARGS="-Xms<%= java_start_memory %> -Xmx<%= java_max_memory %> -Djava.io.tmpdir=<%= @_java_temp_dir %>"
 
 # These normally shouldn't need to be edited if using OS packages
 USER="puppet"
-INSTALL_DIR="/usr/share/puppetserver"
-CONFIG="/etc/puppetserver/conf.d"
-BOOTSTRAP_CONFIG="/etc/puppetserver/bootstrap.cfg"
+GROUP="puppet"
+INSTALL_DIR="<%= @install_dir %>"
+CONFIG="<%= @config %>"
+BOOTSTRAP_CONFIG="<%= @bootstrap_config %>"
 SERVICE_STOP_RETRIES=<%= @service_stop_retries %>
 START_TIMEOUT="<%= @start_timeout %>"
