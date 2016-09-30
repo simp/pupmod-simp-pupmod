@@ -1,16 +1,22 @@
 require 'spec_helper'
 
 describe 'pupmod' do
-  on_supported_os.each do |os, facts|
+  on_supported_os.each do |os, os_facts|
+    before :all do
+      @extras = { :puppet_settings => {
+        'master' => {
+          'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf'
+      }}}
+    end
     context "on #{os}" do
-      let(:facts) { facts }
+        let(:facts){ @extras.merge(os_facts) }
 
       context "with default parameters" do
         it { is_expected.to create_class('pupmod') }
         it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_file('/etc/puppet/puppet.conf') }
+        it { is_expected.to contain_file('/etc/puppetlabs/puppet/puppet.conf') }
         it 'operatingsystem < 7' do
-          if facts[:operatingsystemmajrelease].to_i < 7
+          if os_facts[:operatingsystemmajrelease].to_i < 7
             is_expected.to contain_selboolean('puppet_manage_all_files')
           else
             is_expected.to contain_selboolean('puppetagent_manage_all_files')
@@ -21,13 +27,14 @@ describe 'pupmod' do
 
         context 'with_selinux_disabled' do
           let(:facts) {
-            facts[:selinux_current_mode] = 'disabled'
-            facts[:selinux] = false
+            _facts = @extras.merge(os_facts)
+            _facts[:selinux_current_mode] = 'disabled'
+            _facts[:selinux] = false
 
-            facts
+            _facts
           }
 
-          if facts[:operatingsystemmajrelease].to_i < 7 then
+          if os_facts[:operatingsystemmajrelease].to_i < 7 then
             it { is_expected.not_to contain_selboolean('puppet_manage_all_files') }
           else
             it { is_expected.not_to contain_selboolean('puppetagent_manage_all_files') }

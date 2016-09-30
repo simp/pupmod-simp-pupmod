@@ -17,7 +17,7 @@
     </appender>
 
     <appender name="F1" class="ch.qos.logback.core.FileAppender">
-        <file>/var/log/puppetserver/puppetserver.log</file>
+        <file><%= @logdir %></file>
         <append>true</append>
         <encoder>
             <pattern>%d %-5p [%c{2}] %m%n</pattern>

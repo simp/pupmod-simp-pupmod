@@ -27,11 +27,14 @@
 #
 class pupmod::master::reports (
   $port = $::pupmod::master::masterport,
+  $vardir = $::pupmod::master::vardir,
   $purge = true,
   $purge_keep_days = '7',
   $purge_verbose = false
-) {
+) inherits ::pupmod::master {
+  validate_port($port)
   validate_bool($purge)
+  validate_absolute_path($vardir)
   validate_integer($purge_keep_days)
   validate_bool($purge_verbose)
 
@@ -41,10 +44,10 @@ class pupmod::master::reports (
 
   if $purge {
     if $purge_verbose {
-      $l_purge_script = "/bin/find /var/lib/puppet/reports/ -mtime +${purge_keep_days} -type f -exec echo \"Removing {}\" \\; -exec rm -f {} \\;"
+      $l_purge_script = "/bin/find ${vardir}/reports/ -mtime +${purge_keep_days} -type f -exec echo \"Removing {}\" \\; -exec rm -f {} \\;"
     }
     else {
-      $l_purge_script = "/bin/find /var/lib/puppet/reports/ -mtime +${purge_keep_days} -type f -exec rm -f {} \\;"
+      $l_purge_script = "/bin/find ${vardir}/reports/ -mtime +${purge_keep_days} -type f -exec rm -f {} \\;"
     }
 
     file { '/etc/cron.daily/puppet_client_report_purge':
