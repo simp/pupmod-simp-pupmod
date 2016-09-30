@@ -26,8 +26,8 @@
 # The value of the setting to be set.
 #
 # [*section*]
-# Type: Array
-# Default: ['main']
+# Type: String
+# Default: 'main'
 #
 # The Sections of the puppet.conf to set.
 #
@@ -38,12 +38,12 @@
 define pupmod::conf (
   $setting,
   $value,
-  $section = ['main'],
+  $section = 'main'
 ) {
   include '::pupmod'
 
   validate_string($setting)
-  validate_array($section)
+  validate_string($section)
 
   $l_name = "${module_name}_${name}"
 

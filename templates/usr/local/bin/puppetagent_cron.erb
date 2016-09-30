@@ -7,17 +7,13 @@ else
   maxage = @maxruntime.to_i * 60
 end
 
-if maxage < scope.lookupvar('::pupmod::configtimeout').to_i then
-  maxage = scope.lookupvar('::pupmod::configtimeout').to_i
-end
-
 if scope.lookupvar('::pupmod::splay') then
   maxage = maxage + scope.lookupvar('::pupmod::splaytimeout').to_i + 10
 end
 -%>
 #!/bin/sh
 
-PATH="/usr/kerberos/sbin:/usr/kerberos/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin";
+PATH="/opt/puppetlabs/bin:/usr/kerberos/sbin:/usr/kerberos/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin";
 
 now=0;
 filedate=0;
