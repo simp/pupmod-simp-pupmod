@@ -1,6 +1,6 @@
 {
   "name":    "simp-pupmod",
-  "version": "6.0.7",
+  "version": "7.0.0",
   "author":  "SIMP",
   "summary": "A puppet module to manage puppet",
   "license": "Apache-2.0",
@@ -30,11 +30,11 @@
       "version_requirement": ">= 4.1.0"
     },
     {
-      "name": "simp/simplib",
-      "version_requirement": ">= 4.1.0"
+      "name": "simp/simpcat",
+      "version_requirement": ">= 6.0.0"
     },
     {
-      "name": "simp/apache",
+      "name": "simp/simplib",
       "version_requirement": ">= 4.1.0"
     },
     {
@@ -48,6 +48,16 @@
     {
       "name": "simp/compliance_markup",
       "version_requirement": ">= 1.0.0"
+    }
+  ],
+  "requirements": [
+    {
+      "name": "puppet",
+      "version_requirement": ">= 4.x"
+    },
+    {
+      "name": "pe",
+      "version_requirement": ">= 2016.2.0"
     }
   ],
   "operatingsystem_support": [

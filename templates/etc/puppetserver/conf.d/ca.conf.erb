@@ -12,5 +12,6 @@ certificate-authority: {
         # this endpoint that do not present a valid client cert mentioned in
         # this list will be denied access.
         client-whitelist: [<%= @ca_status_whitelist.join(',') %>]
+        authorization-required: true
     }
 }
