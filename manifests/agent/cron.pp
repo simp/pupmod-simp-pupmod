@@ -112,7 +112,7 @@ class pupmod::agent::cron (
 
   compliance_map()
 
-  include 'pupmod'
+  include '::pupmod'
 
   cron { 'puppetd': ensure => 'absent' }
 

@@ -55,7 +55,7 @@
 #
 # [*environmentpath*]
 # Type: Absolute Path
-# Default: /etc/puppet/environments
+# Default: $::pupmod::params::puppet_config['environmentpath']
 #
 # The location of all directory environments.
 #
@@ -184,9 +184,16 @@ class pupmod::master (
   $daemonize             = true,
   $enable_ca             = true,
   $enable_master         = true,
-  $environmentpath       = '/etc/puppet/environments',
+  $environmentpath       = $::pupmod::params::puppet_config['environmentpath'],
   $freeze_main           = false,
   $masterport            = '8140',
+  $puppet_confdir        = $::pupmod::params::puppet_config['confdir'],
+  $confdir               = $::pupmod::params::master_config['confdir'],
+  $codedir               = $::pupmod::params::master_config['codedir'],
+  $vardir                = $::pupmod::params::master_config['vardir'],
+  $rundir                = $::pupmod::params::master_config['rundir'],
+  $logdir                = $::pupmod::params::master_config['logdir'],
+  $use_legacy_auth_conf  = true,
   $use_iptables          = defined('$::use_iptables') ? { true => str2bool($::use_iptables), default => hiera('use_iptables', true) },
   $ca_status_whitelist   = [$::fqdn],
   $ruby_load_path        = '',
@@ -202,7 +209,8 @@ class pupmod::master (
   $syslog_facility       = 'LOCAL6',
   $syslog_message_format = '%logger[%thread]: %msg',
   $log_level             = 'WARN'
-) {
+) inherits ::pupmod::params {
+
   validate_net_list($bind_address)
   validate_net_list($ca_bind_address)
   validate_port($ca_port)
@@ -213,6 +221,11 @@ class pupmod::master (
   validate_absolute_path($environmentpath)
   validate_bool($freeze_main)
   validate_port($masterport)
+  validate_absolute_path($confdir)
+  validate_absolute_path($vardir)
+  validate_absolute_path($rundir)
+  validate_absolute_path($logdir)
+  validate_bool($use_legacy_auth_conf)
   validate_bool($use_iptables)
   validate_array($ca_status_whitelist)
   if !empty($ruby_load_path) { validate_absolute_path($ruby_load_path) }
@@ -235,40 +248,47 @@ class pupmod::master (
   $l_client_nets = nets2cidr($client_nets)
   validate_net_list($l_client_nets)
 
-  include '::apache'
   include '::pupmod'
   include '::pupmod::master::sysconfig'
   include '::pupmod::master::reports'
   include '::pupmod::master::base'
+
   Class['::pupmod::master::sysconfig'] ~> Service[$service]
 
-  $l_confdir = $::pupmod::confdir
+  $_conf_base = dirname($confdir)
 
-  file { '/etc/puppetserver':
+  file { $_conf_base:
     ensure => 'directory',
     owner  => 'root',
     group  => 'puppet',
     mode   => '0640'
   }
 
-  file { '/etc/puppetserver/conf.d':
+  file { $confdir:
     ensure => 'directory',
     owner  => 'root',
     group  => 'puppet',
     mode   => '0640'
   }
 
-  file { '/etc/puppetserver/bootstrap.cfg':
+  file { $codedir:
+    ensure => 'directory',
+    owner  => 'root',
+    group  => 'puppet',
+    mode   => '0640'
+  }
+
+  file { "${_conf_base}/services.d/ca.cfg":
     ensure  => 'file',
     owner   => 'root',
     group   => 'puppet',
     mode    => '0640',
-    content => template('pupmod/etc/puppetserver/bootstrap.cfg.erb'),
+    content => template('pupmod/etc/puppetserver/ca.cfg.erb'),
     require => Package[$service],
     notify  => Service[$service]
   }
 
-  file { '/etc/puppetserver/logback.xml':
+  file { "${_conf_base}/logback.xml":
     ensure  => 'file',
     owner   => 'root',
     group   => 'puppet',
@@ -278,7 +298,7 @@ class pupmod::master (
     notify  => Service[$service]
   }
 
-  file { '/etc/puppetserver/conf.d/ca.conf':
+  file { "${confdir}/ca.conf":
     ensure  => 'file',
     owner   => 'root',
     group   => 'puppet',
@@ -289,7 +309,7 @@ class pupmod::master (
   }
 
   if !empty($ruby_load_path) {
-    file { '/etc/puppetserver/conf.d/os-settings.conf':
+    file { "${confdir}/os-settings.conf":
       ensure  => 'file',
       owner   => 'root',
       group   => 'puppet',
@@ -300,7 +320,7 @@ class pupmod::master (
     }
   }
 
-  file { '/etc/puppetserver/conf.d/puppetserver.conf':
+  file { "${confdir}/puppetserver.conf":
     ensure  => 'file',
     owner   => 'root',
     group   => 'puppet',
@@ -310,7 +330,7 @@ class pupmod::master (
     notify  => Service[$service]
   }
 
-  file { '/etc/puppetserver/conf.d/web-routes.conf':
+  file { "${confdir}/web-routes.conf":
     ensure  => 'file',
     owner   => 'root',
     group   => 'puppet',
@@ -320,7 +340,7 @@ class pupmod::master (
     notify  => Service[$service]
   }
 
-  file { '/etc/puppetserver/conf.d/webserver.conf':
+  file { "${confdir}/webserver.conf":
     ensure  => 'file',
     owner   => 'root',
     group   => 'puppet',
@@ -331,42 +351,42 @@ class pupmod::master (
   }
 
   pupmod::conf { 'master_environmentpath':
-    section => ['master'],
+    section => 'master',
     setting => 'environmentpath',
     value   => $environmentpath,
     notify  => Service[$service]
   }
 
   pupmod::conf { 'master_daemonize':
-    section => ['master'],
+    section => 'master',
     setting => 'daemonize',
     value   => $daemonize,
     notify  => Service[$service]
   }
 
   pupmod::conf { 'master_masterport':
-    section => ['master'],
+    section => 'master',
     setting => 'masterport',
     value   => $masterport,
     notify  => Service[$service]
   }
 
   pupmod::conf { 'master_ca':
-    section => ['master'],
+    section => 'master',
     setting => 'ca',
     value   => $enable_ca,
     notify  => Service[$service]
   }
 
   pupmod::conf { 'master_ca_port':
-    section => ['master'],
+    section => 'master',
     setting => 'ca_port',
     value   => $ca_port,
     notify  => Service[$service]
   }
 
   pupmod::conf { 'ca_ttl':
-    section => ['master'],
+    section => 'master',
     setting => 'ca_ttl',
     value   => $ca_ttl,
     notify  => Service[$service]
@@ -380,7 +400,7 @@ class pupmod::master (
   }
 
   pupmod::conf { 'keylength':
-    section => ['master'],
+    section => 'master',
     setting => 'keylength',
     value   => $_keylength,
     notify  => Service[$service]

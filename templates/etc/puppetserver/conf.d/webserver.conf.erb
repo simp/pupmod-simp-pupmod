@@ -7,6 +7,7 @@
 webserver: {
 <% if @enable_master -%>
   base: {
+    access-log-config: /etc/puppetlabs/puppetserver/request-logging.xml
 <%   if @enable_ca && (@ca_port == @masterport) -%>
     client-auth: want
 <%   else -%>
@@ -23,6 +24,7 @@ webserver: {
 <% end -%>
 <% if @enable_ca && (@ca_port != @masterport) -%>
   ca: {
+    access-log-config: /etc/puppetlabs/puppetserver/request-logging.xml
     client-auth: want
     ssl-crl-path: <%= ssldir %>/crl.pem
     ssl-ca-cert: <%= ssldir %>/certs/ca.pem
