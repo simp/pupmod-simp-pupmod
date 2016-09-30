@@ -1,0 +1,3 @@
+---
+pupmod::splay: true
+pupmod::splaylimit: '1800'

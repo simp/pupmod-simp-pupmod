@@ -1,3 +1,7 @@
+* Fri Sep 30 2016 Trevor Vaughan <tvaughan@onyxpoint.com>, Chris Tessmer <chris.tessmer@onyxpoint.com> - 7.0.0-0
+- Upate to work with the latest Puppet 4 and Puppet Server
+- Fixed a lot of tests and minor logic problems
+
 * Wed Sep 28 2016 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.0.7-0
 - Fix Forge `haveged` dependency name
 

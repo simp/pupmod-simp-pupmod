@@ -21,16 +21,9 @@
 # [*java_max_memory*]
 #  Type: Integer followed by one of '%', 'k', 'm', or 'g' for a percentage of
 #        total memory, kilobytes, megabytes, and gigabytes respectively.
-#  Default: '80%'
+#  Default: '50%'
 #
 #  The maximum amount of memory to allocate within the system.
-#
-# [*java_max_perm_size*]
-#  Type: Integer followed by one of 'k', 'm', or 'g' for kilobytes, megabytes,
-#        and gigabytes respectively.
-#  Default: '256m'
-#
-#  The maximum 'permanent space' that can be allocated by the JVM.
 #
 # [*java_temp_dir*]
 #  Type: Absolute Path
@@ -64,19 +57,21 @@
 #  failed to start.
 #
 class pupmod::master::sysconfig (
+  $install_dir = $::pupmod::params::master_install_dir,
+  $config = $::pupmod::master::confdir,
+  $bootstrap_config = $::pupmod::params::master_bootstrap_config,
   $java_bin = '/usr/bin/java',
-  $java_start_memory = '2g',
-  $java_max_memory = $::pupmod::params::java_max_memory,
-  $java_max_perm_size = '256m',
+  $java_start_memory = '',
+  $java_max_memory = '50%',
   $java_temp_dir = '',
   $extra_java_args = [],
   $service_stop_retries = '60',
   $start_timeout = '120'
-) inherits pupmod::params {
+) inherits ::pupmod::master {
+
   validate_absolute_path($java_bin)
-  validate_re($java_start_memory,'^\d+(g|k|m)$')
+  if !empty($java_start_memory){ validate_re($java_start_memory,'^\d+(g|k|m)$') }
   validate_re($java_max_memory,'^\d+(g|k|m|%)$')
-  validate_re($java_max_perm_size,'^\d+(g|k|m)$')
   if !empty($java_temp_dir) { validate_absolute_path($java_temp_dir) }
   validate_array($extra_java_args)
   validate_integer($service_stop_retries)
@@ -85,13 +80,13 @@ class pupmod::master::sysconfig (
   compliance_map()
 
   if empty($java_temp_dir) {
-    $l_java_temp_dir = "${::pupmod::vardir}/pserver_tmp"
+    $_java_temp_dir = "${::pupmod::vardir}/pserver_tmp"
   }
   else {
-    $l_java_temp_dir = $java_temp_dir
+    $_java_temp_dir = $java_temp_dir
   }
 
-  file { $l_java_temp_dir:
+  file { $_java_temp_dir:
     ensure => 'directory',
     owner  => 'puppet',
     group  => 'puppet',
