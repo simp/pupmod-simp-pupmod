@@ -8,7 +8,7 @@ describe 'pupmod' do
       context "with default parameters" do
         it { is_expected.to create_class('pupmod') }
         it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_file('/etc/puppet/puppet.conf') }
+        it { is_expected.to contain_file('/etc/puppetlabs/puppet/puppet.conf') }
         it 'operatingsystem < 7' do
           if facts[:operatingsystemmajrelease].to_i < 7
             is_expected.to contain_selboolean('puppet_manage_all_files')

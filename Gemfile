@@ -5,7 +5,7 @@
 # ------------------------------------------------------------------------------
 # NOTE: SIMP Puppet rake tasks support ruby 2.0 and ruby 2.1
 # ------------------------------------------------------------------------------
-puppetversion = ENV.key?('PUPPET_VERSION') ? "#{ENV['PUPPET_VERSION']}" : '~>3'
+puppetversion = ENV.key?('PUPPET_VERSION') ? "#{ENV['PUPPET_VERSION']}" : '~>4'
 gem_sources   = ENV.key?('SIMP_GEM_SERVERS') ? ENV['SIMP_GEM_SERVERS'].split(/[, ]+/) : ['https://rubygems.org']
 
 gem_sources.each { |gem_source| source gem_source }
@@ -35,6 +35,7 @@ group :development do
   gem "travis-lint"
   gem "travish"
   gem "puppet-blacksmith"
+  gem "puppet-strings"
   gem "guard-rake"
   gem 'pry'
   gem 'pry-doc'
