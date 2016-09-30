@@ -41,8 +41,7 @@ describe 'pupmod::agent::cron' do
 
         context 'too_short_max_age' do
           let(:params) {{ :maxruntime => '1' }}
-          conf_timeout = Puppet.settings[:configtimeout]
-          it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/-gt #{conf_timeout}/) }
+          it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/-gt 60/) }
         end
       end
     end
