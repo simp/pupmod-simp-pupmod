@@ -12,8 +12,8 @@ class pupmod::master::base {
   $masterport = $::pupmod::master::masterport
   $admin_api_mountpoint = $::pupmod::master::admin_api_mountpoint
 
-  $auto_fragdir = fragmentdir('autosign')
-  concat_build { 'autosign':
+  $auto_fragdir = simpcat_fragmentdir('autosign')
+  simpcat_build { 'autosign':
     quiet  => true,
     order  => ['*.autosign'],
     target => "${::pupmod::confdir}/autosign.conf",
@@ -26,12 +26,12 @@ class pupmod::master::base {
     require     => File['/usr/local/sbin/puppetserver_reload']
   }
 
-  file { "${settings::ssldir}/ca/ca_crl.pem":
+  file { "${::pupmod::ssldir}/ca/ca_crl.pem":
     audit  => 'content',
     notify => Service[$::pupmod::master::service]
   }
 
-  file { $::pupmod::environmentpath:
+  file { $::pupmod::master::environmentpath:
     ensure       => 'directory',
     owner        => 'root',
     group        => 'puppet',
@@ -40,11 +40,11 @@ class pupmod::master::base {
     recurselimit => 1
   }
 
-  file { "${::pupmod::confdir}/autosign.conf":
+  file { "${::pupmod::master::confdir}/autosign.conf":
     owner     => 'root',
     group     => 'puppet',
     mode      => '0644',
-    subscribe => Concat_build['autosign']
+    subscribe => Simpcat_build['autosign']
   }
 
   # Some simple helper scripts
@@ -66,9 +66,10 @@ class pupmod::master::base {
 
   puppet_auth { 'puppetlast_support':
     ensure     => 'present',
-    path       => '^/node/([^/]+)$',
+    target     => $facts['puppet_settings']['master']['rest_authconfig'],
+    path       => '^/puppet/v3/node/([^/]+)$',
     path_regex => true,
-    allow      => ['$1', $::fqdn],
+    allow      => ['$1', $facts['fqdn']],
     notify     => Service[$::pupmod::master::service]
   }
 
