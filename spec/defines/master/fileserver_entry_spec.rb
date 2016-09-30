@@ -24,7 +24,7 @@ describe 'pupmod::master::fileserver_entry' do
           :allow => ['foo.bar.baz']
         }}
         it { is_expected.to (
-            contain_concat_fragment("fileserver+fileserver_entry_test.fileserver")
+            contain_simpcat_fragment("fileserver+fileserver_entry_test.fileserver")
               .with_content(
                 %r|\[fileserver_entry_test\]\n\s*path /good/path\n\sallow foo.bar.baz\n*|
         ))}
@@ -38,7 +38,7 @@ describe 'pupmod::master::fileserver_entry' do
 
         it do
           expect {
-            is_expected.to contain_concat_fragment("fileserver+#{title}.fileserver")
+            is_expected.to contain_simpcat_fragment("fileserver+#{title}.fileserver")
           }.to raise_error(Puppet::Error, /"#{params[:path]}" is not an absolute path/)
         end
       end
@@ -51,7 +51,7 @@ describe 'pupmod::master::fileserver_entry' do
 
         it do
           expect {
-            is_expected.to contain_concat_fragment("fileserver+#{title}.fileserver")
+            is_expected.to contain_simpcat_fragment("fileserver+#{title}.fileserver")
           }.to raise_error(Puppet::Error, /"#{params[:allow]}" is not an Array/)
         end
       end

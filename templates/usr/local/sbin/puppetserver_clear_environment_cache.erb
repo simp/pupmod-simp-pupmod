@@ -1,5 +1,7 @@
 # A simple script for clearing the environment cache on the local server
 
+PATH=/opt/puppetlabs/bin:$PATH
+
 cert=`puppet config print hostcert`
 key=`puppet config print hostprivkey`
 cacert=`puppet config print localcacert`

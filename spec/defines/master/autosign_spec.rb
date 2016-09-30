@@ -8,7 +8,7 @@ describe 'pupmod::master::autosign' do
       context 'base' do
         let(:title) { 'autosign_test' }
         let(:params) {{ :entry => 'foo bar' }}
-        it { is_expected.to contain_concat_fragment("autosign+#{title}.autosign").with({
+        it { is_expected.to contain_simpcat_fragment("autosign+#{title}.autosign").with({
             :content => "#{title}\n#{params[:entry]}\n"
         })}
       end
