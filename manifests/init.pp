@@ -34,7 +34,7 @@
 # Type: Boolean
 # Default: true
 #
-# If true, adds an audit record to watch the /etc/puppet directory for
+# If true, adds an audit record to watch sensitive Puppet directories for
 # changes by any user that is not the puppet user.
 #
 # [*ca_crl_pull_interval*]
@@ -64,17 +64,11 @@
 #
 # [*confdir*]
 # Type: Path with optional permissions argument.
-# Default: /etc/puppet { owner = root, group = puppet, mode = 660 }
+# Default: `puppet config print confdir` { owner = root, group = puppet, mode = 660 }
 # The path to the puppet configuration directory.
 #
 # See http://docs.puppetlabs.com/references/latest/configuration.html for
 # additional details.
-#
-# [*configtimeout*]
-# Type: Integer
-# Default: 120
-#
-# The number of seconds to wait for a valid config from the Puppet server before timing out.
 #
 # [*daemonize*]
 # Type: Boolean
@@ -99,14 +93,6 @@
 # Given the ability to run puppet remotely via SSH, MCollective, or
 # many other means, we will not open this by default. If you decide to
 # enable it, don't forget to add an associated IPTables rule.
-#
-# [*localconfig*]
-# Type: Path with optional permissions argument.
-# Default: $vardir/localconfig
-# The path to the puppet local configuration directory.
-#
-# See http://docs.puppetlabs.com/references/latest/configuration.html for
-# additional details.
 #
 # [*logdir*]
 # Type: Path with optional permissions argument.
@@ -193,7 +179,7 @@
 #
 # [*vardir*]
 # Type: Absolute Path
-# Default: /var/lib/puppet
+# Default: $vardir/puppet
 #
 # The directory where puppet will store all of its 'variable' data.
 #
@@ -209,29 +195,27 @@ class pupmod (
   $ca_crl_pull_interval = '2',
   $certname             = $::fqdn,
   $classfile            = '$vardir/classes.txt',
-  $confdir              = '/etc/puppet',
-  $configtimeout        = '120',
+  $confdir              = $::pupmod::params::puppet_config['confdir'],
   $daemonize            = false,
   $digest_algorithm     = 'sha256',
   $enable_puppet_master = false,
-  $environmentpath      = '/etc/puppet/environments',
+  $environmentpath      = $::pupmod::params::puppet_config['environmentpath'],
   $listen               = false,
-  $localconfig          = '$vardir/localconfig',
-  $logdir               = '/var/log/puppet',
+  $logdir               = $::pupmod::params::puppet_config['logdir'],
   $masterport           = '8140',
   $report               = false,
-  $rundir               = '/var/run/puppet',
+  $rundir               = $::pupmod::params::puppet_config['rundir'],
   $runinterval          = '1800',
   $splay                = false,
   $splaylimit           = '',
   $srv_domain           = $::domain,
-  $ssldir               = '$vardir/ssl',
+  $ssldir               = $::pupmod::params::puppet_config['ssldir'],
   $syslogfacility       = 'local6',
   $use_srv_records      = false,
-  $vardir               = '/var/lib/puppet',
+  $vardir               = $::pupmod::params::puppet_config['vardir'],
   $use_haveged          = defined('$::use_haveged') ? { true => getvar('::use_haveged'), default => hiera('use_haveged', true) },
   $use_fips             = defined('$::fips_enabled') ? { true  => str2bool($::fips_enabled), default => hiera('use_fips', false) }
-) {
+) inherits pupmod::params {
 
   validate_port($ca_port)
   validate_string($ca_server)
@@ -240,13 +224,11 @@ class pupmod (
   validate_string($certname)
   validate_re($classfile,'^(\$(?!/)|/).+')
   validate_re($confdir,'^(\$(?!/)|/).+')
-  validate_integer($configtimeout)
   validate_bool($daemonize)
   validate_string($digest_algorithm)
   validate_bool($enable_puppet_master)
   validate_re($environmentpath,'^(\$(?!/)|/).+')
   validate_bool($listen)
-  validate_re($localconfig,'^(\$(?!/)|/).+')
   validate_re($logdir,'^(\$(?!/)|/).+')
   validate_port($masterport)
   validate_bool($report)
@@ -265,11 +247,36 @@ class pupmod (
   compliance_map()
 
   if $use_haveged {
-    include "::haveged"
+    include '::haveged'
   }
 
   $l_crl_pull_minute = ip_to_cron(1)
   $l_crl_pull_hour = ip_to_cron($ca_crl_pull_interval,24)
+
+  if $enable_puppet_master {
+    include 'pupmod::master'
+    $_conf_group = 'puppet'
+  }
+  else {
+    $_conf_group = 'root'
+  }
+
+  package { 'puppet-agent': ensure => 'latest' }
+
+  file { $confdir:
+    ensure => 'directory',
+    owner  => 'root',
+    group  => $_conf_group,
+    mode   => '0640'
+  }
+
+  file { "${confdir}/puppet.conf":
+    ensure => 'file',
+    owner  => 'root',
+    group  => $_conf_group,
+    mode   => '0640',
+    audit  => content
+  }
 
   cron { 'puppet_crl_pull':
     command => template('pupmod/commands/crl_download.erb'),
@@ -300,7 +307,7 @@ class pupmod (
   }
 
   pupmod::conf { 'agent_daemonize':
-    section => ['agent'],
+    section => 'agent',
     setting => 'daemonize',
     value   => $daemonize
   }
@@ -321,7 +328,7 @@ class pupmod (
   }
 
   pupmod::conf { 'report':
-    section => ['agent'],
+    section => 'agent',
     setting => 'report',
     value   => $report
   }
@@ -373,16 +380,6 @@ class pupmod (
     value   => $confdir
   }
 
-  pupmod::conf { 'configtimeout':
-    setting => 'configtimeout',
-    value   => $configtimeout
-  }
-
-  pupmod::conf { 'localconfig':
-    setting => 'localconfig',
-    value   => $localconfig
-  }
-
   pupmod::conf { 'logdir':
     setting => 'logdir',
     value   => $logdir
@@ -413,10 +410,6 @@ class pupmod (
     value   => $digest_algorithm
   }
 
-  if $enable_puppet_master {
-    include 'pupmod::master'
-  }
-
   if $auditd_support {
     include 'auditd'
 
@@ -430,21 +423,6 @@ class pupmod (
     }
   }
 
-  file { $confdir:
-    ensure => 'directory',
-    owner  => 'root',
-    group  => 'puppet',
-    mode   => '0640'
-  }
-
-  file { "${confdir}/puppet.conf":
-    ensure => 'file',
-    owner  => 'root',
-    group  => 'puppet',
-    mode   => '0640',
-    audit  => content
-  }
-
   # This is to allow the hosts to boot faster.  It should probably be
   # re-worked.
   file { '/etc/sysconfig/puppet':
@@ -454,9 +432,6 @@ class pupmod (
     mode    => '0644',
     content => "PUPPET_EXTRA_OPTS='--daemonize'\n"
   }
-
-  package { 'puppet': ensure => 'latest' }
-  package { 'facter': ensure => 'latest' }
 
   # Changing SELinux booleans on a minor update is a horrible idea.
   if ( $::operatingsystem in ['RedHat','CentOS'] ) and ( $::operatingsystemmajrelease < '7' ) {

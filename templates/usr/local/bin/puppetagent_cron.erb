@@ -7,17 +7,14 @@ else
   maxage = @maxruntime.to_i * 60
 end
 
-if maxage < scope.lookupvar('::pupmod::configtimeout').to_i then
-  maxage = scope.lookupvar('::pupmod::configtimeout').to_i
-end
-
+_maxage = maxage + 0
 if scope.lookupvar('::pupmod::splay') then
-  maxage = maxage + scope.lookupvar('::pupmod::splaytimeout').to_i + 10
+  maxage = maxage + scope.lookupvar('::pupmod::splaylimit').to_i + 10
 end
 -%>
 #!/bin/sh
 
-PATH="/usr/kerberos/sbin:/usr/kerberos/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin";
+PATH="/opt/puppetlabs/bin:/usr/kerberos/sbin:/usr/kerberos/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin";
 
 now=0;
 filedate=0;
@@ -52,6 +49,8 @@ fi
 # about it.
 # If you want to disable puppet then disable the cron job and the service and
 # set the lockfile.
+# ======================================== _maxage: <%= _maxage %>
+# ======================================== @interval: <%= @interval %>
 if [ $pup_status -ne 0 ] && [ $(( $now - $filedate )) -gt <%= maxage %> ]; then
   /bin/logger -s -p 'local6.warn' -t 'puppetd' "Puppet forcibly unlocked.";
   /bin/rm -f $puppet_lockfile;

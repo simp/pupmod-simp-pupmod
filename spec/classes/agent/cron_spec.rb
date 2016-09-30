@@ -1,10 +1,10 @@
 require 'spec_helper'
 
 describe 'pupmod::agent::cron' do
-  on_supported_os.each do |os, facts|
+  on_supported_os.each do |os, os_facts|
     context "on #{os}" do
 
-      let(:facts) { facts }
+      let(:facts) { os_facts }
 
       context 'using general parameters' do
         let(:params) {{ :interval => '60' }}
@@ -39,10 +39,31 @@ describe 'pupmod::agent::cron' do
           it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/-gt 600/) }
         end
 
-        context 'too_short_max_age' do
-          let(:params) {{ :maxruntime => '1' }}
-          conf_timeout = Puppet.settings[:configtimeout]
-          it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/-gt #{conf_timeout}/) }
+        context 'set_max_age' do
+          let(:params) {{ :maxruntime => '10' }}
+          it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/-gt 600/) }
+        end
+
+        context 'set_max_age to never unlock' do
+          let(:params) {{ :maxruntime => '0' }}
+          it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/"0" == "0"/) }
+        end
+
+        context 'when pupmod::splay is true' do
+          let(:facts) do
+            os_facts.merge({'custom_hiera'=>'pupmod_splay_is_true'})
+          end
+          let(:params) {{ }}
+          splay = Puppet[:splaylimit] + 1800 + 10
+          it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/-gt #{splay}/) }
+        end
+
+        context 'when pupmod::splay is true but maxruntime is disabled' do
+          let(:facts) { os_facts.merge( {'custom_hiera'=>'pupmod_splay_is_true'} )}
+          let(:params) {{ :maxruntime => '0' }}
+          splay = Puppet[:splaylimit] + 10
+            it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/"0" == "0"/) }
+            it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/-gt #{splay}/) }
         end
       end
     end

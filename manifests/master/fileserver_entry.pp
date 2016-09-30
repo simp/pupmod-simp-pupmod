@@ -30,7 +30,7 @@ define pupmod::master::fileserver_entry (
 
   $l_name = inline_template("<%= '${name}'.gsub('/','_') %>")
 
-  concat_fragment { "fileserver+${l_name}.fileserver":
+  simpcat_fragment { "fileserver+${l_name}.fileserver":
     content => template('pupmod/content/fileserver.erb')
   }
 
