@@ -6,7 +6,7 @@ jruby-puppet: {
     # This setting determines where JRuby will look for gems.  It is also
     # used by the `puppetserver gem` command line tool.
 <% if @gem_home.empty? -%>
-    gem-home: <%= scope.lookupvar('::pupmod::vardir') + 'jruby-gems' %>
+    gem-home: <%= scope.lookupvar('::pupmod::vardir') + '/jruby-gems' %>
 <% else -%>
     gem-home: <%= @gem_home %>
 <% end -%>
