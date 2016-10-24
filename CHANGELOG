@@ -1,3 +1,10 @@
+* Mon Nov 07 2016 Liz Nemsick <lnemsick.simp@gmail.com> - 6.0.9-0
+- Expanded pupmod::ssldir so that the puppet-specific, '$vardir'
+  string no longer appears in the puppet_master audit rule.
+- Fixed a bug that resulted in a malformed directory setting for the
+  gem-home parameter in puppetserver.conf.
+- Bump version to skip Forge version not noted in CHANGELOG.
+
 * Wed Sep 28 2016 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.0.7-0
 - Fix Forge `haveged` dependency name
 
