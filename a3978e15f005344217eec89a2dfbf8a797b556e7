@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_90f515cc",
+        "filename": "manifests/init.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2016-10-24T23:53:36Z",
+      "side": 1,
+      "message": "What does this refer to?",
+      "range": {
+        "startLine": 169,
+        "startChar": 13,
+        "endLine": 169,
+        "endChar": 48
+      },
+      "revId": "a3978e15f005344217eec89a2dfbf8a797b556e7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_50fb0dbe",
+        "filename": "spec/classes/master_spec.rb",
+        "patchSetId": 1
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2016-10-24T23:53:36Z",
+      "side": 1,
+      "message": "Trailing whitespace",
+      "range": {
+        "startLine": 284,
+        "startChar": 12,
+        "endLine": 284,
+        "endChar": 13
+      },
+      "revId": "a3978e15f005344217eec89a2dfbf8a797b556e7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_700051ab",
+        "filename": "spec/classes/master_spec.rb",
+        "patchSetId": 1
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2016-10-24T23:53:36Z",
+      "side": 1,
+      "message": "Trailing whitespace",
+      "range": {
+        "startLine": 505,
+        "startChar": 0,
+        "endLine": 505,
+        "endChar": 7
+      },
+      "revId": "a3978e15f005344217eec89a2dfbf8a797b556e7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
