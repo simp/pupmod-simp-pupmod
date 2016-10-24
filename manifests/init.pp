@@ -55,7 +55,7 @@
 # additional details.
 #
 # [*classfile*]
-# Type: Path with optional permissions argument.
+# Type: Path
 # Default: $vardir/classes.txt { owner = puppet, group = puppet, mode = 640 }
 # The path to the puppet class file.
 #
@@ -63,8 +63,7 @@
 # additional details.
 #
 # [*confdir*]
-# Type: Path with optional permissions argument.
-# Default: /etc/puppet { owner = root, group = puppet, mode = 660 }
+# Type: Path
 # The path to the puppet configuration directory.
 #
 # See http://docs.puppetlabs.com/references/latest/configuration.html for
@@ -101,7 +100,7 @@
 # enable it, don't forget to add an associated IPTables rule.
 #
 # [*localconfig*]
-# Type: Path with optional permissions argument.
+# Type: Path
 # Default: $vardir/localconfig
 # The path to the puppet local configuration directory.
 #
@@ -109,8 +108,7 @@
 # additional details.
 #
 # [*logdir*]
-# Type: Path with optional permissions argument.
-# Default: /var/log/puppet
+# Type: Path
 # The path to the puppet log directory.
 #
 # See http://docs.puppetlabs.com/references/latest/configuration.html for
@@ -130,8 +128,7 @@
 # reports are required.
 #
 # [*rundir*]
-# Type: Path with optional permissions argument.
-# Default: /var/run/puppet
+# Type: Path
 #
 # The path to the puppet run status directory.
 #
@@ -166,8 +163,8 @@
 # The domain to search when using SRV records.
 #
 # [*ssldir*]
-# Type: Path with optional permissions argument.
-# Default: $vardir/ssl
+# Type: Absolute Path
+#
 # The path to the puppet ssl directory.
 #
 # See http://docs.puppetlabs.com/references/latest/configuration.html for
@@ -193,7 +190,6 @@
 #
 # [*vardir*]
 # Type: Absolute Path
-# Default: /var/lib/puppet
 #
 # The directory where puppet will store all of its 'variable' data.
 #
@@ -209,29 +205,29 @@ class pupmod (
   $ca_crl_pull_interval = '2',
   $certname             = $::fqdn,
   $classfile            = '$vardir/classes.txt',
-  $confdir              = '/etc/puppet',
+  $confdir              = $::pupmod::params::confdir,
   $configtimeout        = '120',
   $daemonize            = false,
   $digest_algorithm     = 'sha256',
   $enable_puppet_master = false,
-  $environmentpath      = '/etc/puppet/environments',
+  $environmentpath      = $::pupmod::params::environmentpath,
   $listen               = false,
   $localconfig          = '$vardir/localconfig',
-  $logdir               = '/var/log/puppet',
+  $logdir               = $::pupmod::params::logdir,
   $masterport           = '8140',
   $report               = false,
-  $rundir               = '/var/run/puppet',
+  $rundir               = $::pupmod::params::rundir,
   $runinterval          = '1800',
   $splay                = false,
   $splaylimit           = '',
   $srv_domain           = $::domain,
-  $ssldir               = '$vardir/ssl',
+  $ssldir               = $::pupmod::params::ssldir,
   $syslogfacility       = 'local6',
   $use_srv_records      = false,
-  $vardir               = '/var/lib/puppet',
+  $vardir               = $::pupmod::params::vardir,
   $use_haveged          = defined('$::use_haveged') ? { true => getvar('::use_haveged'), default => hiera('use_haveged', true) },
   $use_fips             = defined('$::fips_enabled') ? { true  => str2bool($::fips_enabled), default => hiera('use_fips', false) }
-) {
+) inherits pupmod::params {
 
   validate_port($ca_port)
   validate_string($ca_server)
@@ -256,7 +252,7 @@ class pupmod (
   if !empty($splaylimit) { validate_integer($splaylimit) }
   validate_string($srv_domain)
   validate_net_list($srv_domain)
-  validate_re($ssldir,'^(\$(?!/)|/).+')
+  validate_absolute_path($ssldir)
   validate_string($syslogfacility)
   validate_bool($use_srv_records)
   validate_absolute_path($vardir)
