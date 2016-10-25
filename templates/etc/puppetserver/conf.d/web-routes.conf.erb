@@ -7,10 +7,10 @@
 web-router-service: {
 <% if @enable_ca && (@ca_port != @masterport) -%>
   "puppetlabs.services.ca.certificate-authority-service/certificate-authority-service": {
-    default: {
-      route: "/puppet-ca"
-      server: "ca"
-    }
+     default: {
+       route: "/puppet-ca"
+       server: "ca"
+     }
   }
 <% else -%>
   "puppetlabs.services.ca.certificate-authority-service/certificate-authority-service": "/puppet-ca"

@@ -152,8 +152,8 @@
 # The domain to search when using SRV records.
 #
 # [*ssldir*]
-# Type: Path with optional permissions argument.
-# Default: $vardir/ssl
+# Type: Absolute Path
+#
 # The path to the puppet ssl directory.
 #
 # See http://docs.puppetlabs.com/references/latest/configuration.html for
@@ -238,7 +238,7 @@ class pupmod (
   if !empty($splaylimit) { validate_integer($splaylimit) }
   validate_string($srv_domain)
   validate_net_list($srv_domain)
-  validate_re($ssldir,'^(\$(?!/)|/).+')
+  validate_absolute_path($ssldir)
   validate_string($syslogfacility)
   validate_bool($use_srv_records)
   validate_absolute_path($vardir)

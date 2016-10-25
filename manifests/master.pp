@@ -90,12 +90,6 @@
 #
 # The path to the system Ruby installation to use for the Puppet Server
 #
-# [*gem_home*]
-# Type: Absolute Path
-# Default: $::pupmod::master::vardir/jruby-gems
-#
-# The path to the jruby-gems directory to be used by the Puppet Server
-#
 # [*max_active_instances*]
 # Type: Integer
 # Default: $::processorcount + 2
@@ -197,7 +191,6 @@ class pupmod::master (
   $use_iptables          = defined('$::use_iptables') ? { true => str2bool($::use_iptables), default => hiera('use_iptables', true) },
   $ca_status_whitelist   = [$::fqdn],
   $ruby_load_path        = '',
-  $gem_home              = '',
   $max_active_instances  = (to_integer($::processorcount) + 2),
   $ssl_protocols         = [ 'TLSv1', 'TLSv1.1', 'TLSv1.2' ],
   $ssl_cipher_suites     = [],
@@ -229,7 +222,6 @@ class pupmod::master (
   validate_bool($use_iptables)
   validate_array($ca_status_whitelist)
   if !empty($ruby_load_path) { validate_absolute_path($ruby_load_path) }
-  if !empty($gem_home) { validate_absolute_path($gem_home) }
   validate_integer($max_active_instances)
   validate_array($ssl_protocols)
   validate_array($ssl_cipher_suites)
