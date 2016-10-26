@@ -16,6 +16,24 @@
       "revId": "0eafb07776ed2323611e3b0373d8577aff3279fb",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_530f8d2d",
+        "filename": "manifests/params.pp",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2016-10-26T14:45:21Z",
+      "side": 1,
+      "message": "Also, why the difference in this solution and the one for SIMP 6?\n\nThe params idea seems OK for both, you\u0027ll  just need to select on the puppet version fact from the client (which would be correct).\n\nAlternatively, you can use the new fact in simplib to just pluck it from the client by default.",
+      "parentUuid": "baa041b7_0019ad87",
+      "revId": "0eafb07776ed2323611e3b0373d8577aff3279fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
