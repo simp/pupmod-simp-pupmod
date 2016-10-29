@@ -167,7 +167,6 @@
 #
 # [*ssldir*]
 # Type: Path with optional permissions argument.
-# Default: $vardir/ssl
 # The path to the puppet ssl directory.
 #
 # See http://docs.puppetlabs.com/references/latest/configuration.html for
@@ -193,7 +192,6 @@
 #
 # [*vardir*]
 # Type: Absolute Path
-# Default: /var/lib/puppet
 #
 # The directory where puppet will store all of its 'variable' data.
 #
@@ -225,13 +223,13 @@ class pupmod (
   $splay                = false,
   $splaylimit           = '',
   $srv_domain           = $::domain,
-  $ssldir               = '$vardir/ssl',
+  $ssldir               = $::pupmod::params::ssldir,
   $syslogfacility       = 'local6',
   $use_srv_records      = false,
-  $vardir               = '/var/lib/puppet',
+  $vardir               = $::pupmod::params::vardir,
   $use_haveged          = defined('$::use_haveged') ? { true => getvar('::use_haveged'), default => hiera('use_haveged', true) },
   $use_fips             = defined('$::fips_enabled') ? { true  => str2bool($::fips_enabled), default => hiera('use_fips', false) }
-) {
+) inherits pupmod::params {
 
   validate_port($ca_port)
   validate_string($ca_server)
@@ -256,7 +254,7 @@ class pupmod (
   if !empty($splaylimit) { validate_integer($splaylimit) }
   validate_string($srv_domain)
   validate_net_list($srv_domain)
-  validate_re($ssldir,'^(\$(?!/)|/).+')
+  validate_absolute_path($ssldir)
   validate_string($syslogfacility)
   validate_bool($use_srv_records)
   validate_absolute_path($vardir)
