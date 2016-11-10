@@ -1,3 +1,6 @@
+* Thu Nov 10 2016 Nick Miller <nick.miller@onyxpoint.com> - 7.0.1-0
+- Removed puppetlast_support puppet_auth resource, it is unneeded
+
 * Fri Sep 30 2016 Trevor Vaughan <tvaughan@onyxpoint.com>, Chris Tessmer <chris.tessmer@onyxpoint.com> - 7.0.0-0
 - Upate to work with the latest Puppet 4 and Puppet Server
 - Fixed a lot of tests and minor logic problems

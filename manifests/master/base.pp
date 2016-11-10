@@ -64,15 +64,6 @@ class pupmod::master::base {
     content => template('pupmod/usr/local/sbin/puppetserver_reload.erb')
   }
 
-  puppet_auth { 'puppetlast_support':
-    ensure     => 'present',
-    target     => $facts['puppet_settings']['master'],
-    path       => '^/puppet/v3/node/([^/]+)$',
-    path_regex => true,
-    allow      => ['$1', $facts['fqdn']],
-    notify     => Service[$::pupmod::master::service]
-  }
-
   group { 'puppet':
     ensure    => 'present',
     allowdupe => false,

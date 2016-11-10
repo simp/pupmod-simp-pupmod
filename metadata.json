@@ -1,6 +1,6 @@
 {
   "name": "simp-pupmod",
-  "version": "7.0.0",
+  "version": "7.0.1",
   "author": "SIMP",
   "summary": "A puppet module to manage puppet",
   "license": "Apache-2.0",
