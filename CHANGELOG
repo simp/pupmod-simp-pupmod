@@ -1,4 +1,7 @@
-* Thu Nov 10 2016 Nick Miller <nick.miller@onyxpoint.com> - 7.0.1-0
+* Tue Nov 15 2016 Liz Nemsick <lnemsick.simp@gmail.com> - 7.0.0-0
+- Updated iptables dependency version
+
+* Thu Nov 10 2016 Nick Miller <nick.miller@onyxpoint.com> - 7.0.0-0
 - Removed puppetlast_support puppet_auth resource, it is unneeded
 
 * Fri Sep 30 2016 Trevor Vaughan <tvaughan@onyxpoint.com>, Chris Tessmer <chris.tessmer@onyxpoint.com> - 7.0.0-0
