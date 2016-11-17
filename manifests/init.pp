@@ -240,7 +240,7 @@ class pupmod (
   validate_bool($daemonize)
   validate_string($digest_algorithm)
   validate_bool($enable_puppet_master)
-  validate_re($environmentpath,'^(\$(?!/)|/).+')
+  if !empty($environmentpath) { validate_re($environmentpath,'^(\$(?!/)|/).+') }
   validate_bool($listen)
   validate_re($localconfig,'^(\$(?!/)|/).+')
   validate_re($logdir,'^(\$(?!/)|/).+')
