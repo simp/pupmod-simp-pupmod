@@ -1,3 +1,6 @@
+* Mon Nov 21 2016 Chris Tessmer <chris.tessmer@onyxpoint.com> - 7.0.0-0
+- Updated to compliance_markup version 2
+
 * Tue Nov 15 2016 Liz Nemsick <lnemsick.simp@gmail.com> - 7.0.0-0
 - Updated iptables dependency version
 

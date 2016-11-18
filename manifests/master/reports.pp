@@ -38,7 +38,6 @@ class pupmod::master::reports (
   validate_integer($purge_keep_days)
   validate_bool($purge_verbose)
 
-  compliance_map()
 
   assert_private()
 
