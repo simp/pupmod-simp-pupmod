@@ -1,7 +1,7 @@
 {
   "name": "simp-pupmod",
   "version": "7.0.1",
-  "author": "SIMP",
+  "author": "SIMP Team",
   "summary": "A puppet module to manage puppet",
   "license": "Apache-2.0",
   "source": "https://github.com/simp/pupmod-simp-pupmod",
@@ -44,10 +44,6 @@
     {
       "name": "simp/tcpwrappers",
       "version_requirement": ">= 5.0.0 < 6.0.0"
-    },
-    {
-      "name": "simp/compliance_markup",
-      "version_requirement": ">= 1.0.2 < 2.0.0"
     }
   ],
   "requirements": [
