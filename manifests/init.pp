@@ -244,7 +244,6 @@ class pupmod (
   validate_absolute_path($vardir)
   validate_bool($use_haveged)
 
-  compliance_map()
 
   if $use_haveged {
     include '::haveged'

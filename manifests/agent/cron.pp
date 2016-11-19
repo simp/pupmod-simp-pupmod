@@ -110,7 +110,6 @@ class pupmod::agent::cron (
   validate_integer($runs_per_timeframe)
   validate_integer($run_timeframe)
 
-  compliance_map()
 
   include '::pupmod'
 
