@@ -27,7 +27,7 @@
     },
     {
       "name": "simp/logrotate",
-      "version_requirement": ">= 4.1.1 < 5.0.0"
+      "version_requirement": ">= 5.0.0 < 6.0.0"
     },
     {
       "name": "simp/simpcat",
@@ -39,7 +39,7 @@
     },
     {
       "name": "simp/pki",
-      "version_requirement": ">= 4.2.5 < 5.0.0"
+      "version_requirement": ">= 5.0.0 < 6.0.0"
     },
     {
       "name": "simp/tcpwrappers",

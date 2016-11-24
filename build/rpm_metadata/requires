@@ -7,8 +7,8 @@ Requires: pupmod-simp-iptables < 6.0.0-0
 Requires: pupmod-simp-iptables >= 5.0.0-0
 Requires: pupmod-simp-logrotate < 5.0.0-0
 Requires: pupmod-simp-logrotate >= 4.1.1-0
-Requires: pupmod-simp-pki < 5.0.0-0
-Requires: pupmod-simp-pki >= 4.2.5-0
+Requires: pupmod-simp-pki < 6.0.0-0
+Requires: pupmod-simp-pki >= 5.0.0-0
 Requires: pupmod-simp-simpcat < 7.0.0-0
 Requires: pupmod-simp-simpcat >= 6.0.0-0
 Requires: pupmod-simp-simplib < 3.0.0-0
