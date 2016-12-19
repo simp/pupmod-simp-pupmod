@@ -1,5 +1,5 @@
 <%
-if @maxruntime.nil? then
+unless @maxruntime
   # Limit this to 4 hours, if users want more than that, they'll just
   # need to set maxruntime themselves.
   maxage = [@interval.to_i * 60,14400].min
@@ -7,7 +7,7 @@ else
   maxage = @maxruntime.to_i * 60
 end
 
-if scope.lookupvar('::pupmod::splay') then
+if scope.lookupvar('::pupmod::splay')
   maxage = maxage + scope.lookupvar('::pupmod::splaylimit').to_i + 10
 end
 -%>
