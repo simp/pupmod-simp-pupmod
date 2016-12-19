@@ -3,19 +3,9 @@ require 'spec_helper'
 describe 'pupmod::master::fileserver_entry' do
   on_supported_os.each do |os, facts|
     context "on #{os}" do
-      base_facts = {
-        :operatingsystem => 'RedHat',
-        :operatingsystemmajrelease => '6',
-        :hardwaremodel => 'x86_64',
-        :spec_title => description,
-        :ipaddress => '1.2.3.4',
-        :grub_version => '0.9',
-        :uid_min => '500',
-        :apache_version => '2.2',
-        :init_systems => ['sysv','rc','upstart']
-      }
-
-      let(:facts) {base_facts}
+      let(:facts) do
+        facts
+      end
       let(:title) { 'fileserver_entry_test' }
 
       context 'base' do
@@ -39,7 +29,7 @@ describe 'pupmod::master::fileserver_entry' do
         it do
           expect {
             is_expected.to contain_simpcat_fragment("fileserver+#{title}.fileserver")
-          }.to raise_error(Puppet::Error, /"#{params[:path]}" is not an absolute path/)
+          }.to raise_error(Puppet::Error, /parameter 'path' expects/)
         end
       end
 
@@ -52,7 +42,7 @@ describe 'pupmod::master::fileserver_entry' do
         it do
           expect {
             is_expected.to contain_simpcat_fragment("fileserver+#{title}.fileserver")
-          }.to raise_error(Puppet::Error, /"#{params[:allow]}" is not an Array/)
+          }.to raise_error(Puppet::Error)
         end
       end
     end

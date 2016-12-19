@@ -1,5 +1,5 @@
 <%
-if @maxruntime.empty? then
+if @maxruntime.nil? then
   # Limit this to 4 hours, if users want more than that, they'll just
   # need to set maxruntime themselves.
   maxage = [@interval.to_i * 60,14400].min

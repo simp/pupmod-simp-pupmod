@@ -1,10 +1,6 @@
-# Class: pupmod::master::base
-#
 # A break out of the mostly static files used by the Puppet master.
 #
-# == Authors
-#
-# * Trevor Vaughan <tvaughan@onyxpoint.com>
+# @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 class pupmod::master::base {
   include '::pupmod::master'

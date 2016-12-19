@@ -1,26 +1,17 @@
-# == Class pupmod::agent::cron
-#
 # This class configures the cron settings for a non-daemonized puppet
 # client.
 #
-# == Parameters
+# @param interval
+#   The cron iteration time (in minutes) for running puppet.
+#   This applies the standard */$interval style syntax from cron.
+#   See crontab(5) for additional details.
 #
-# [*interval*]
-# Type: Integer
-# Default: 30
+#   Note: This is overridden if $minute is set to anything other
+#   than 'nil'.  If this is the case, it is assumed that you want finer
+#   control over your puppet run.
 #
-# The cron iteration time (in minutes) for running puppet.
-# This applies the standard */$interval style syntax from cron.
-# See crontab(5) for additional details.
-#
-# Note: This is overridden if $minute is set to anything other
-# than 'nil'.  If this is the case, it is assumed that you want finer
-# control over your puppet run.
-#
-# [*minute_base*]
-# Type: String or Integer
-# Default: $::ipaddress
-# The default artifact to use to auto-generate a cron interval.
+# @param minute_base
+#   The default artifact to use to auto-generate a cron interval.
 #
 # The default of $::ipaddress is used to provide a reasonable guess at
 # spreading the puppet runs across all of your systems. However, you
@@ -32,84 +23,55 @@
 # If this is the *same* resolved value on all of your systems then
 # your systems will have the *same* run interval.
 #
-# [*run_timeframe*]
-# Type: Integer
-# Default: 60
+# @param run_timeframe
+#   The time frame within which you wish to run the puppet agent. This
+#   directly translates to the minute field of the cron job so this
+#   should probably be left at 60.
 #
-# The time frame within which you wish to run the puppet agent. This
-# directly translates to the minute field of the cron job so this
-# should probably be left at 60.
+# @param runs_per_timeframe
+#   The number of times, per $timeframe, that you want to run the Puppet
+#   Agent.
 #
-# [*runs_per_timeframe*]
-# Type: Integer
-# Default: 2
+# @param minute
+#   The 'minute' value for the crontab entry.
+#   Set to 'nil' if you want to use $interval.
 #
-# The number of times, per $timeframe, that you want to run the Puppet
-# Agent.
+# @param hour
+#   The 'hour' value for the crontab entry.
+#   Not used if using $interval.
 #
-# [*minute*]
-# Type: Cron value
-# Default: 'rand'
+# @param monthday
+#   The 'monthday' value for the crontab entry.
+#   Not used if using $interval.
 #
-# The 'minute' value for the crontab entry.
-# Set to 'nil' if you want to use $interval.
+# @param month
+#   The 'month' value for the crontab entry.
+#   Not used if using $interval.
 #
-# [*hour*]
-# Type: Cron value
-# Default: '*'
+# @param weekday
+#   The 'weekday' value for the crontab entry.
+#   Not used if using $interval.
 #
-# The 'hour' value for the crontab entry.
-# Not used if using $interval.
+# @param maxruntime
+#   This variable controls how long a run of puppet will be allowed to
+#   proceed by the puppet cron job before being forcibly overridden. By
+#   default, it will never be overridden.
 #
-# [*monthday*]
-# Type: Cron value
-# Default: '*'
-#
-# The 'monthday' value for the crontab entry.
-# Not used if using $interval.
-#
-# [*month*]
-# Type: Cron value
-# Default: '*'
-#
-# The 'month' value for the crontab entry.
-# Not used if using $interval.
-#
-# [*weekday*]
-# Type: Cron value
-# Default: '*'
-#
-# The 'weekday' value for the crontab entry.
-# Not used if using $interval.
-#
-# [*maxruntime*]
-# Type: Cron value
-# Default: '*'
-#
-# This variable controls how long a run of puppet will be allowed to
-# proceed by the puppet cron job before being forcibly overridden. By
-# default, it will never be overridden.
-#
-# If not specified, this will be set to 4*interval or 4 hours,
-# whichever is smaller.
+#   If not specified, this will be set to 4*interval or 4 hours,
+#   whichever is smaller.
 #
 class pupmod::agent::cron (
-  $interval = '30',
-  $minute_base = $::ipaddress,
-  $run_timeframe = '60',
-  $runs_per_timeframe = '2',
-  $minute = 'rand',
-  $hour = '*',
-  $monthday = '*',
-  $month = '*',
-  $weekday = '*',
-  $maxruntime = ''
-  ) {
-  validate_integer($interval)
-  validate_string($minute_base)
-  validate_integer($runs_per_timeframe)
-  validate_integer($run_timeframe)
-
+  Integer               $interval           = 30,
+  String                $minute_base        = $facts['ipaddress'],
+  Integer               $run_timeframe      = 60,
+  Integer               $runs_per_timeframe = 2,
+  Variant[Array,String] $minute             = 'rand',
+  Variant[Array,String] $hour               = '*',
+  Variant[Array,String] $monthday           = '*',
+  Variant[Array,String] $month              = '*',
+  Variant[Array,String] $weekday            = '*',
+  Optional[Integer]     $maxruntime         = undef
+) {
 
   include '::pupmod'
 

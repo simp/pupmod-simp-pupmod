@@ -1,32 +1,20 @@
-# == Define: pupmod::master::fileserver_entry
-#
 # Manage entries in the /etc/puppet/fileserver.conf file.
 #
-# == Parameters
+# @param name
+#   The name of the [] segment.
 #
-# [*name*]
+# @param allow
+#   An array of entries to add to the allow statement.
 #
-# The name of the [] segment.
+# @param path
+#   The filesystem path to which this segment should point.
 #
-# [*allow*]
-#
-# An array of entries to add to the allow statement.
-#
-# [*path*]
-#
-# The filesystem path to which this segment should point.
-#
-# == Authors
-#
-# * Trevor Vaughan <tvaughan@onyxpoint.com>
+# @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 define pupmod::master::fileserver_entry (
-    $allow,
-    $path
+  Variant[Array[Simplib::Host],Simplib::Host] $allow,
+  Stdlib::AbsolutePath $path
 ) {
-  # Validation first to appease rspec
-  validate_array($allow)
-  validate_absolute_path($path)
 
   $l_name = inline_template("<%= '${name}'.gsub('/','_') %>")
 

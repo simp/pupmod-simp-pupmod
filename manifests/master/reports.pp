@@ -1,43 +1,26 @@
-# == Class: pupmod::master::reports
-#
 # This class simply controls settings around client reports on the
 # system.
 #
 # Most importantly, it allows for purging the reports.
 #
-# == Parameters
-#
-# [*purge*]
-# Type: Boolean
-# Default: true
+# @param purge
 #   Whether or not to purge old reports from the system.
 #
-# [*purge_keep_days*]
-# Type: Integer
-# Default: 7
+# @param purge_keep_days
 #   The number of days of reports to keep around on the system.
 #
-# [*purge_verbose*]
-# Type: Boolean
-# Default: false
+# @param purge_verbose
 #   Whether or not to be verbose about which logs are being purged.
 #
-# == Authors
-#  * Trevor Vaughan <tvaughan@onyxpoint.com>
+# @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 class pupmod::master::reports (
-  $port = $::pupmod::master::masterport,
-  $vardir = $::pupmod::master::vardir,
-  $purge = true,
-  $purge_keep_days = '7',
-  $purge_verbose = false
+  Simplib::Port         $port            = $::pupmod::master::masterport,
+  Stdlib::AbsolutePath  $vardir          = $::pupmod::master::vardir,
+  Boolean               $purge           = true,
+  Integer               $purge_keep_days = 7,
+  Boolean               $purge_verbose   = false
 ) inherits ::pupmod::master {
-  validate_port($port)
-  validate_bool($purge)
-  validate_absolute_path($vardir)
-  validate_integer($purge_keep_days)
-  validate_bool($purge_verbose)
-
 
   assert_private()
 

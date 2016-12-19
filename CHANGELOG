@@ -1,4 +1,10 @@
-* Wed Nov 23 2016 Jeanne Greulich <jgreulich.simp@onyxpoint.com> - 5.0.0-0
+* Mon Dec 10 2016 Nick Miller <nick.miller@onyxpoint.com> - 7.0.0-0
+- Updated assets and versions
+- Converted to puppet-strings
+- Switched to the new catalyst pattern with simplib::lookup
+- Strong typed module
+
+* Wed Nov 23 2016 Jeanne Greulich <jgreulich.simp@onyxpoint.com> - 7.0.0-0
 - update requirement versions
 
 * Mon Nov 21 2016 Chris Tessmer <chris.tessmer@onyxpoint.com> - 7.0.0-0

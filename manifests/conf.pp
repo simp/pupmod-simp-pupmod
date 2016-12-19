@@ -1,49 +1,28 @@
-# == Define: pupmod::conf
-#
 # This is a simple define to call the Puppet INIFile class for the passed
 # parameters on the puppet.conf file.
 #
 # The main purpose is to easily allow for a service trigger.
 #
-# == Parameters
+# @param name
+#   A globally unique name for this resource. Will be prefixed with $modname
 #
-# [*name*]
-# Type: String
-# Default: None
+# @param setting
+#   The setting in the section to set
 #
-# A globally unique name for this resource. Will be prefixed with $modname
+# @param value
+#   The value of the setting to be set.
 #
-# [*setting*]
-# Type: String
-# Default: None
+# @param section
+#   The Sections of the puppet.conf to set.
 #
-# The setting in the section to set
-#
-# [*value*]
-# Type: String
-# Default: None
-#
-# The value of the setting to be set.
-#
-# [*section*]
-# Type: String
-# Default: 'main'
-#
-# The Sections of the puppet.conf to set.
-#
-# == Authors
-#
-# * Trevor Vaughan <tvaughan@onyxpoint.com>
+# @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 define pupmod::conf (
-  $setting,
-  $value,
-  $section = 'main'
+  String $setting,
+  Scalar $value,
+  String $section = 'main'
 ) {
   include '::pupmod'
-
-  validate_string($setting)
-  validate_string($section)
 
   $l_name = "${module_name}_${name}"
 

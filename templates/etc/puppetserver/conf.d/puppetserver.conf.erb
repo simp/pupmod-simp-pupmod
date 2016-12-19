@@ -55,7 +55,7 @@ http-client: {
     # A list of acceptable protocols for making HTTP requests
     ssl-protocols: [<%= @ssl_protocols.join(',') %>]
 <% end -%>
-<% if !@ssl_cipher_suites.empty? -%>
+<% if !@ssl_cipher_suites.nil? -%>
     # A list of acceptable cipher suites for making HTTP requests
     cipher-suites: [<%= @ssl_cipher_suites.join(',') %>]
 <% end -%>

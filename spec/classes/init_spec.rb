@@ -14,7 +14,7 @@ describe 'pupmod' do
       describe "with default parameters" do
         it { is_expected.to create_class('pupmod') }
         it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_class('haveged') }
+        it { is_expected.not_to contain_class('haveged') }
         it { is_expected.to contain_package('puppet-agent').with_ensure('latest') }
         it { is_expected.to contain_file('/etc/puppetlabs/puppet').with({
           'ensure' => 'directory',
@@ -55,23 +55,23 @@ describe 'pupmod' do
 
         it { is_expected.to contain_pupmod__conf('masterport').with({
           'setting' => 'masterport',
-          'value' => '8140'
+          'value' => 8140
         }) }
 
         it { is_expected.to contain_pupmod__conf('report').with({
           'section' => 'agent',
           'setting' => 'report',
-          'value' => 'false'
+          'value' => false
         }) }
 
         it { is_expected.to contain_pupmod__conf('ca_port').with({
           'setting' => 'ca_port',
-          'value' => '8141'
+          'value' => 8141
         }) }
 
         it { is_expected.to contain_pupmod__conf('splay').with({
           'setting' => 'splay',
-          'value' => 'false'
+          'value' => false
         }) }
         it { is_expected.not_to contain_pupmod__conf('splaylimit') }
        it { is_expected.to contain_pupmod__conf('syslogfacility').with({
@@ -111,7 +111,7 @@ describe 'pupmod' do
 
         it { is_expected.to contain_pupmod__conf('runinterval').with({
           'setting' => 'runinterval',
-          'value' => '1800'
+          'value' => 1800
         }) }
 
         it { is_expected.to contain_pupmod__conf('ssldir').with({
@@ -121,7 +121,7 @@ describe 'pupmod' do
 
         it { is_expected.to contain_pupmod__conf('stringify_facts').with({
           'setting' => 'stringify_facts',
-          'value' => 'false'
+          'value' => false
         }) }
 
         it { is_expected.to contain_pupmod__conf('digest_algorithm').with({
@@ -171,9 +171,9 @@ describe 'pupmod' do
       end
 
       describe "with non-default parameters" do
-        context 'with use_haveged => false' do
-          let(:params) {{:use_haveged => false}}
-          it { is_expected.to_not contain_class('haveged') }
+        context 'with haveged => true' do
+          let(:params) {{ :haveged => true }}
+          it { is_expected.to contain_class('haveged') }
         end
 
         context 'with enable_puppet_master => false' do
@@ -209,10 +209,10 @@ describe 'pupmod' do
         end
 
         context 'with non-empty splaylimit' do
-          let(:params) {{:splaylimit => '5'}}
+          let(:params) {{:splaylimit => 5}}
           it { is_expected.to contain_pupmod__conf('splaylimit').with({
             'setting' => 'splaylimit',
-            'value' => '5'
+            'value' => 5
           }) }
         end
 
@@ -223,26 +223,6 @@ describe 'pupmod' do
         end
       end
 
-      describe 'with invalid input' do
-        [:ssldir, :vardir].each do |path|
-          context "with invalid #{path}" do
-            let(:params) {{path => 'relative/path'}}
-            it 'fails to compile' do
-              expect { is_expected.to compile
-              }.to raise_error(RSpec::Expectations::ExpectationNotMetError,%r{"relative/path" is not an absolute path})
-            end
-          end
-        end
-
-        context 'with invalid use_haveged' do
-          let(:params) {{:use_haveged => 'invalid_input'}}
-          it 'with use_haveged as a string' do
-            expect {
-              is_expected.to compile
-            }.to raise_error(RSpec::Expectations::ExpectationNotMetError,/invalid_input" is not a boolean/)
-          end
-        end
-      end
     end
   end
 end

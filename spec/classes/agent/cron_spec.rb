@@ -7,7 +7,7 @@ describe 'pupmod::agent::cron' do
       let(:facts) { os_facts }
 
       context 'using general parameters' do
-        let(:params) {{ :interval => '60' }}
+        let(:params) {{ :interval => 60 }}
 
         it { is_expected.to create_class('pupmod::agent::cron') }
         it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/-gt 3600/) }
@@ -16,7 +16,7 @@ describe 'pupmod::agent::cron' do
         )}
 
         it { is_expected.to contain_cron('puppetagent').with({
-            'minute'    => ['27','57'],
+            'minute'    => [27,57],
             'hour'      => '*',
             'monthday'  => '*',
             'month'     => '*',
@@ -26,7 +26,7 @@ describe 'pupmod::agent::cron' do
         context 'use_alternate_minute_base' do
           let(:params) {{ :minute_base => 'foo' }}
           it { is_expected.to contain_cron('puppetagent').with({
-              'minute'    => ['29','59'],
+              'minute'    => [29,59],
               'hour'      => '*',
               'monthday'  => '*',
               'month'     => '*',
@@ -35,17 +35,17 @@ describe 'pupmod::agent::cron' do
         end
 
         context 'set_max_age' do
-          let(:params) {{ :maxruntime => '10' }}
+          let(:params) {{ :maxruntime => 10 }}
           it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/-gt 600/) }
         end
 
         context 'set_max_age' do
-          let(:params) {{ :maxruntime => '10' }}
+          let(:params) {{ :maxruntime => 10 }}
           it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/-gt 600/) }
         end
 
         context 'set_max_age to never unlock' do
-          let(:params) {{ :maxruntime => '0' }}
+          let(:params) {{ :maxruntime => 0 }}
           it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/"0" == "0"/) }
         end
 
@@ -60,7 +60,7 @@ describe 'pupmod::agent::cron' do
 
         context 'when pupmod::splay is true but maxruntime is disabled' do
           let(:facts) { os_facts.merge( {'custom_hiera'=>'pupmod_splay_is_true'} )}
-          let(:params) {{ :maxruntime => '0' }}
+          let(:params) {{ :maxruntime => 0 }}
           splay = Puppet[:splaylimit] + 10
             it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/"0" == "0"/) }
             it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/-gt #{splay}/) }
