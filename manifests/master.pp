@@ -73,7 +73,7 @@
 # @param log_to_file
 #   If true, log to system log files at /var/log/puppetserver.
 #
-# @param log_to_syslog
+# @param syslog
 #   If true, log to the local system logger over UDP port 514.
 #
 # @param syslog_facility
@@ -120,7 +120,7 @@ class pupmod::master (
   Array[Simplib::Hostname]       $admin_api_whitelist   = [$facts['fqdn']],
   String                         $admin_api_mountpoint  = '/puppet-admin-api',
   Boolean                        $log_to_file           = false,
-  Boolean                        $log_to_syslog         = true,
+  Boolean                        $syslog                = simplib::lookup('simp_options::syslog', { 'default_value' => true }),,
   String                         $syslog_facility       = 'LOCAL6',
   String                         $syslog_message_format = '%logger[%thread]: %msg',
   Pupmod::LogLevel               $log_level             = 'WARN'

@@ -1,4 +1,4 @@
-* Mon Dec 10 2016 Nick Miller <nick.miller@onyxpoint.com> - 7.0.0-0
+* Mon Dec 10 2016 Nick Miller <nick.miller@onyxpoint.com> - 7.1.0-0
 - Updated assets and versions
 - Converted to puppet-strings
 - Switched to the new catalyst pattern with simplib::lookup

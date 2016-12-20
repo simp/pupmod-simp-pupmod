@@ -27,7 +27,7 @@
     <logger name="org.eclipse.jetty" level="<%= @log_level %>"/>
 
     <root level="<%= @log_level %>">
-<% if @log_to_syslog -%>
+<% if @syslog -%>
         <appender-ref ref="SYSLOG"/>
 <% end -%>
 <% if @log_to_file -%>
