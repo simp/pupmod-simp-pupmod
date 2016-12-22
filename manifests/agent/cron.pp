@@ -61,16 +61,16 @@
 #   whichever is smaller.
 #
 class pupmod::agent::cron (
-  Integer               $interval           = 30,
+  Integer[0]            $interval           = 30,
   String                $minute_base        = $facts['ipaddress'],
-  Integer               $run_timeframe      = 60,
-  Integer               $runs_per_timeframe = 2,
+  Integer[0]            $run_timeframe      = 60,
+  Integer[0]            $runs_per_timeframe = 2,
   Variant[Array,String] $minute             = 'rand',
   Variant[Array,String] $hour               = '*',
   Variant[Array,String] $monthday           = '*',
   Variant[Array,String] $month              = '*',
   Variant[Array,String] $weekday            = '*',
-  Optional[Integer]     $maxruntime         = undef
+  Optional[Integer[0]]  $maxruntime         = undef
 ) {
 
   include '::pupmod'
