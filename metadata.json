@@ -1,8 +1,8 @@
 {
   "name": "simp-pupmod",
-  "version": "7.0.0",
+  "version": "7.1.0",
   "author": "SIMP Team",
-  "summary": "A puppet module to manage puppet",
+  "summary": "A puppet module to manage puppetserver and puppet agents",
   "license": "Apache-2.0",
   "source": "https://github.com/simp/pupmod-simp-pupmod",
   "project_page": "https://github.com/simp/pupmod-simp-pupmod",
@@ -10,7 +10,11 @@
   "tags": [
     "simp",
     "ci",
-    "pupmod"
+    "pupmod",
+    "puppet",
+    "puppetserver",
+    "puppet-agent",
+    "agent"
   ],
   "dependencies": [
     {
@@ -35,7 +39,7 @@
     },
     {
       "name": "simp/simplib",
-      "version_requirement": ">= 2.0.0 < 3.0.0"
+      "version_requirement": ">= 2.1.0 < 3.0.0"
     },
     {
       "name": "simp/pki",

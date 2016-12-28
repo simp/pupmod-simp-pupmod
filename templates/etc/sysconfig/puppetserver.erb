@@ -22,6 +22,6 @@ USER="puppet"
 GROUP="puppet"
 INSTALL_DIR="<%= @install_dir %>"
 CONFIG="<%= @config %>"
-BOOTSTRAP_CONFIG="<%= @bootstrap_config %>"
+BOOTSTRAP_CONFIG="<%= @bootstrap_config.join(',') %>"
 SERVICE_STOP_RETRIES=<%= @service_stop_retries %>
 START_TIMEOUT="<%= @start_timeout %>"

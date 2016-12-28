@@ -1,5 +1,3 @@
-# == Class: pupmod
-#
 # A class for managing Puppet configurations.
 #
 # This is mainly a stub class for hooking other classes along the way
@@ -10,242 +8,153 @@
 # of the configuration file. Selective options may be written to their
 # respective components as necessary for deconfliction.
 #
-# == Parameters
+# @param ca_port
+#   The port where the remote CA should be contacted.
 #
-# [*ca_port*]
-# Type: Integer
-# Default: 8141
+# @param ca_server
+#   The puppet CA from which to obtain your system certificates.
 #
-# The port where the remote CA should be contacted.
+# @param puppet_server
+#   The puppet master from which to retrieve your configuration.
 #
-# [*ca_server*]
-# Type: Hostname or IP
-# Default: '$server'
+# @param auditd_support
+#   If true, adds an audit record to watch sensitive Puppet directories for
+#   changes by any user that is not the puppet user.
 #
-# The puppet CA from which to obtain your system certificates.
+# @param ca_crl_pull_interval
+#   How many times per day to pull the CRL down from the CA via cron.
 #
-# [*puppet_server*]
-# Type: Hostname or IP
-# Default: puppet.${::domain}
+#   This uses ip_to_cron to randomize the pull interval so that the CA doesn't
+#   get swarmed.
 #
-# The puppet master from which to retrieve your configuration.
+# @param certname
+#   The puppet environment name of the system.
 #
-# [*auditd_support*]
-# Type: Boolean
-# Default: true
+#   See http://docs.puppetlabs.com/references/latest/configuration.html for
+#   additional details.
 #
-# If true, adds an audit record to watch sensitive Puppet directories for
-# changes by any user that is not the puppet user.
+# @param classfile
+#   The path to the puppet class file.
 #
-# [*ca_crl_pull_interval*]
-# Type: Integer
-# Default: 2
+#   See http://docs.puppetlabs.com/references/latest/configuration.html for
+#   additional details.
 #
-# How many times per day to pull the CRL down from the CA via cron.
+# @param confdir
+#   The path to the puppet configuration directory.
 #
-# This uses ip_to_cron to randomize the pull interval so that the CA doesn't
-# get swarmed.
+#   See http://docs.puppetlabs.com/references/latest/configuration.html for
+#   additional details.
 #
-# [*certname*]
-# Type: String
-# Default: $::fqdn
-# The puppet environment name of the system.
+# @param daemonize
+#   Whether or not to daemonize the Puppet agent.
 #
-# See http://docs.puppetlabs.com/references/latest/configuration.html for
-# additional details.
+#   SIMP systems do not, by default, daemonize their agents so that the
+#   consumed resources can be freed for other uses and so that the cron
+#   job can maintain a safe system state over time.
 #
-# [*classfile*]
-# Type: Path with optional permissions argument.
-# Default: $vardir/classes.txt { owner = puppet, group = puppet, mode = 640 }
-# The path to the puppet class file.
+# @param enable_puppet_master
+#   Whether or not to make the system a puppetmaster.
 #
-# See http://docs.puppetlabs.com/references/latest/configuration.html for
-# additional details.
+# @param listen
+#   Whether or not to listen for incoming connections to the puppet
+#   agent.
 #
-# [*confdir*]
-# Type: Path with optional permissions argument.
-# Default: `puppet config print confdir` { owner = root, group = puppet, mode = 660 }
-# The path to the puppet configuration directory.
+#   Given the ability to run puppet remotely via SSH, MCollective, or
+#   many other means, we will not open this by default. If you decide to
+#   enable it, don't forget to add an associated IPTables rule.
 #
-# See http://docs.puppetlabs.com/references/latest/configuration.html for
-# additional details.
+# @param logdir
+#   The path to the puppet log directory.
 #
-# [*daemonize*]
-# Type: Boolean
+#   See http://docs.puppetlabs.com/references/latest/configuration.html for
+#   additional details.
 #
-# Whether or not to daemonize the Puppet agent.
+# @param masterport
+#   The port where the Puppet Master should be contacted.
 #
-# SIMP systems do not, by default, daemonize their agents so that the
-# consumed resources can be freed for other uses and so that the cron
-# job can maintain a safe system state over time.
+# @param report
+#   Whether or not to send reports to the report server. This is
+#   disabled by default to allow users to reduce network load unless
+#   reports are required.
 #
-# [*enable_puppet_master*]
-# Type: Boolean
-# Default: false
-# Whether or not to make the system a puppetmaster.
+# @param rundir
+#   The path to the puppet run status directory.
 #
-# [*listen*]
-# Type: Boolean
+#   See http://docs.puppetlabs.com/references/latest/configuration.html for
+#   additional details.
 #
-# Whether or not to listen for incoming connections to the puppet
-# agent.
+# @param runinterval
+#   The number of seconds between puppet runs.
+#   Has no effect on the client cron job.
 #
-# Given the ability to run puppet remotely via SSH, MCollective, or
-# many other means, we will not open this by default. If you decide to
-# enable it, don't forget to add an associated IPTables rule.
+# @param splay
+#   Whether or not to splay the puppet runs.
 #
-# [*logdir*]
-# Type: Path with optional permissions argument.
-# Default: /var/log/puppet
-# The path to the puppet log directory.
+#   This is done by default to add some randomization to client system
+#   runs on large systems.
 #
-# See http://docs.puppetlabs.com/references/latest/configuration.html for
-# additional details.
+# @param splaylimit
 #
-# [*masterport*]
-# Type: Integer
-# Default: 8140
+# @param srv_domain
+#   The domain to search when using SRV records.
 #
-# The port where the Puppet Master should be contacted.
+# @param ssldir
+#   The path to the puppet ssl directory.
 #
-# [*report*]
-# Type: Boolean
-# Default: false
-# Whether or not to send reports to the report server. This is
-# disabled by default to allow users to reduce network load unless
-# reports are required.
+#   See http://docs.puppetlabs.com/references/latest/configuration.html for
+#   additional details.
 #
-# [*rundir*]
-# Type: Path with optional permissions argument.
-# Default: /var/run/puppet
+# @param syslogfacility
+#   The Syslog facility to use when outputting messages from puppet.
 #
-# The path to the puppet run status directory.
+# @param use_srv_records
+#   Whether the server will search for SRV records in DNS for the current domain.
 #
-# See http://docs.puppetlabs.com/references/latest/configuration.html for
-# additional details.
+# @param haveged
+#   If true, include haveged to assist with entropy generation.
 #
-# [*runinterval*]
-# Type: Integer
-# Default: 1800
+# @param vardir
+#   The directory where puppet will store all of its 'variable' data.
 #
-# The number of seconds between puppet runs.
-# Has no effect on the client cron job.
-#
-# [*splay*]
-# Type: Boolean
-# Default: false
-#
-# Whether or not to splay the puppet runs.
-#
-# This is done by default to add some randomization to client system
-# runs on large systems.
-#
-# [*splaylimit*]
-# Type: Integer
-# Default: '$runinterval' (The runinterval value in the config, not a variable
-# here)
-#
-# [*srv_domain*]
-# Type: String
-# Default: $::domain
-#
-# The domain to search when using SRV records.
-#
-# [*ssldir*]
-# Type: Absolute Path
-#
-# The path to the puppet ssl directory.
-#
-# See http://docs.puppetlabs.com/references/latest/configuration.html for
-# additional details.
-#
-# [*syslogfacility*]
-# Type: Syslog Facility Identifier
-# Default: local6
-#
-# The Syslog facility to use when outputting messages from puppet.
-#
-# [*use_srv_records*]
-# Type: Boolean
-# Default: false
-#
-# Whether the server will search for SRV records in DNS for the current domain.
-#
-# [*use_haveged*]
-# Type: Boolean
-# Default: true
-#
-# If true, include haveged to assist with entropy generation.
-#
-# [*vardir*]
-# Type: Absolute Path
-# Default: $vardir/puppet
-#
-# The directory where puppet will store all of its 'variable' data.
-#
-# == Authors
-#
-# * Trevor Vaughan <tvaughan@onyxpoint.com>
+# @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 class pupmod (
-  $ca_port              = hiera('puppet::ca_port','8141'),
-  $ca_server            = hiera('puppet::ca','$server'),
-  $puppet_server        = hiera('puppet::server',"puppet.${::domain}"),
-  $auditd_support       = true,
-  $ca_crl_pull_interval = '2',
-  $certname             = $::fqdn,
-  $classfile            = '$vardir/classes.txt',
-  $confdir              = $::pupmod::params::puppet_config['confdir'],
-  $daemonize            = false,
-  $digest_algorithm     = 'sha256',
-  $enable_puppet_master = false,
-  $environmentpath      = $::pupmod::params::puppet_config['environmentpath'],
-  $listen               = false,
-  $logdir               = $::pupmod::params::puppet_config['logdir'],
-  $masterport           = '8140',
-  $report               = false,
-  $rundir               = $::pupmod::params::puppet_config['rundir'],
-  $runinterval          = '1800',
-  $splay                = false,
-  $splaylimit           = '',
-  $srv_domain           = $::domain,
-  $ssldir               = $::pupmod::params::puppet_config['ssldir'],
-  $syslogfacility       = 'local6',
-  $use_srv_records      = false,
-  $vardir               = $::pupmod::params::puppet_config['vardir'],
-  $use_haveged          = defined('$::use_haveged') ? { true => getvar('::use_haveged'), default => hiera('use_haveged', true) },
-  $use_fips             = defined('$::fips_enabled') ? { true  => str2bool($::fips_enabled), default => hiera('use_fips', false) }
+  Variant[Simplib::Host,Enum['$server']] $ca_server = simplib::lookup('simp_options::puppet::ca', { 'default_value' => '$server' }),
+  Simplib::Port             $ca_port              = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
+  Simplib::Host             $puppet_server        = simplib::lookup('simp_options::puppet::server', { 'default_value'  => "puppet.${facts['domain']}" }),
+  Boolean                   $auditd_support       = true,
+  Integer                   $ca_crl_pull_interval = 2,
+  Simplib::Host             $certname             = $facts['fqdn'],
+  String                    $classfile            = '$vardir/classes.txt',
+  Stdlib::AbsolutePath      $confdir              = $::pupmod::params::puppet_config['confdir'],
+  Boolean                   $daemonize            = false,
+  Enum['md5','sha256']      $digest_algorithm     = 'sha256',
+  Boolean                   $enable_puppet_master = false,
+  Stdlib::AbsolutePath      $environmentpath      = $::pupmod::params::puppet_config['environmentpath'],
+  Boolean                   $listen               = false,
+  Stdlib::AbsolutePath      $logdir               = $::pupmod::params::puppet_config['logdir'],
+  Simplib::Port             $masterport           = 8140,
+  Boolean                   $report               = false,
+  Stdlib::AbsolutePath      $rundir               = $::pupmod::params::puppet_config['rundir'],
+  Integer                   $runinterval          = 1800,
+  Boolean                   $splay                = false,
+  Optional[Integer]         $splaylimit           = undef,
+  Simplib::Host             $srv_domain           = $facts['domain'],
+  Stdlib::AbsolutePath      $ssldir               = $::pupmod::params::puppet_config['ssldir'],
+  Simplib::Syslog::Facility $syslogfacility       = 'local6',
+  Boolean                   $use_srv_records      = false,
+  Stdlib::AbsolutePath      $vardir               = $::pupmod::params::puppet_config['vardir'],
+  Boolean                   $haveged              = simplib::lookup('simp_options::haveged', { 'default_value' => false }),
+  Boolean                   $fips                 = simplib::lookup('simp_options::fips', { 'default_value' => false }),
 ) inherits pupmod::params {
 
-  validate_port($ca_port)
-  validate_string($ca_server)
-  validate_bool($auditd_support)
-  validate_integer($ca_crl_pull_interval)
-  validate_string($certname)
   validate_re($classfile,'^(\$(?!/)|/).+')
   validate_re($confdir,'^(\$(?!/)|/).+')
-  validate_bool($daemonize)
-  validate_string($digest_algorithm)
-  validate_bool($enable_puppet_master)
   validate_re($environmentpath,'^(\$(?!/)|/).+')
-  validate_bool($listen)
   validate_re($logdir,'^(\$(?!/)|/).+')
-  validate_port($masterport)
-  validate_bool($report)
   validate_re($rundir,'^(\$(?!/)|/).+')
-  validate_integer($runinterval)
-  validate_bool($splay)
-  if !empty($splaylimit) { validate_integer($splaylimit) }
-  validate_string($srv_domain)
-  validate_net_list($srv_domain)
-  validate_absolute_path($ssldir)
-  validate_string($syslogfacility)
-  validate_bool($use_srv_records)
-  validate_absolute_path($vardir)
-  validate_bool($use_haveged)
 
-
-  if $use_haveged {
+  if $haveged {
     include '::haveged'
   }
 

@@ -1,243 +1,132 @@
-# Class: pupmod::master
-#
 # Provides configuration for a puppet master.
 #
-# == Parameters
+# @param bind_address
+#   The IP address to which the Puppet Master process should bind
 #
-# [*bind_address*]
-# Type: IP Address
-# Default: '0.0.0.0'
+# @param ca_bind_address
+#   The IP address to which the Puppet CA process should bind
 #
-# The IP address to which the Puppet Master process should bind
+# @param ca_port
+#   The port upon which the CA should listen. This has been modified from the
+#   default setting of 8140 so that it does not interfere with the certificate
+#   verification of various clients.
 #
-# [*ca_bind_address*]
-# Type: IP Address
-# Default: '0.0.0.0'
+# @param trusted_nets
+#   An array of networks from which to allow access to the master.
 #
-# The IP address to which the Puppet CA process should bind
+# @param ca_ttl
+#   This is the length after which the CA certificate will no longer be valid.
 #
-# [*ca_port*]
-# Type: Integer
-# Default: 8141
+# @param daemonize
+#   Whether or not to run the server as a daemon.
 #
-# The port upon which the CA should listen. This has been modified from the
-# default setting of 8140 so that it does not interfere with the certificate
-# verification of various clients.
+# @param enable_ca
+#   Whether or not the system should act as a CA.
 #
-# [*client_nets*]
-# Type: Network List Array or String
+# @param enable_master
+#   Whether or not the system should act as a Puppet Master
 #
-# An array of networks from which to allow access to the master.
+# @param environmentpath
+#   The location of all directory environments.
 #
-# [*ca_ttl*]
-# Type: TTL Value
-# Default: 10y
+# @param freeze_main
+#   Whether or not code is allowed outside of site.pp or a module.
 #
-# This is the length after which the CA certificate will no longer be valid.
+# @param masterport
+#   The port upon which the Puppet master process will listen.
 #
-# [*daemonize*]
-# Type: Boolean
-# Default: true
+# @param firewall
+#   If enabled, will use the SIMP iptables classes to manipulate IPTables.
 #
-# Whether or not to run the server as a daemon.
+# @param ca_status_whitelist
+#   An array of certificate short names which will be allowed to query the CA end
+#   point of the Puppet Server
 #
-# [*enable_ca*]
-# Type: Boolean
-# Default: true
+# @param ruby_load_path
+#   The path to the system Ruby installation to use for the Puppet Server
 #
-# Whether or not the system should act as a CA.
+# @param max_active_instances
+#   The maximum number of active JRuby instances to be run by the Puppet Server
 #
-# [*enable_master*]
-# Type: Boolean
-# Default: true
+# @param ssl_protocols
+#   Default: ['TLSv1','TLSv1.1','TLSv1.2']
+#   The protocols that are allowed for communication with the Puppet Server. See
+#   the ssl-protocols documentaiton for the Puppet Server for additional details.
 #
-# Whether or not the system should act as a Puppet Master
+# @param ssl_cipher_suite
+#   The allowed SSL Cipher Suites to be used by the Puppet Server. The allowed
+#   list is Java version dependent and you will need to check the system Java
+#   documentaiton for details.
 #
-# [*environmentpath*]
-# Type: Absolute Path
-# Default: $::pupmod::params::puppet_config['environmentpath']
+# @param enable_profiler
+#   Whether or not to enable the Puppet Server profiler to allow for code metrics
+#   gathering.
 #
-# The location of all directory environments.
+# @param admin_api_whitelist
+#   A list of X.509 certificate names that should be allowed to access the Puppet
+#   Server's administrative API.
 #
-# [*freeze_main*]
-# Type: Boolean
-# Default: false
+# @param admin_api_mountpoint
+#   The endpoint for the Puppet Servers adminstrative API. Changing this may
+#   break external utilities.
 #
-# Whether or not code is allowed outside of site.pp or a module.
+# @param log_to_file
+#   If true, log to system log files at /var/log/puppetserver.
 #
-# [*masterport*]
-# Type: Integer
-# Default: 8140
+# @param syslog
+#   If true, log to the local system logger over UDP port 514.
 #
-# The port upon which the Puppet master process will listen.
+# @param syslog_facility
+#   The syslog facility to which to report if using syslog.
 #
-# [*use_iptables*]
-# Type: Boolean
-# Default: true
+# @param syslog_message_format
+#   The Logback compatible syslog message format. For more information, see the
+#   Logback documentation for 'SuffixPattern'.
 #
-# If enabled, will use the SIMP iptables classes to manipulate IPTables.
+# @param log_level
+#   Type: One of ['TRACE','DEBUG','INFO','WARN','ERROR','OFF']
+#   A syslog severity string limiting the messages reported. Be aware that
+#   anything above 'WARN' will provide a massive amount of logs at each puppet
+#   run.
 #
-# [*ca_status_whitelist*]
-# Type: Array of Certificate short names
-# Default: [$::fqdn]
-#
-# An array of certificate short names which will be allowed to query the CA end
-# point of the Puppet Server
-#
-# [*ruby_load_path*]
-# Type: Absolute Path
-# Default: System Dependent
-#
-# The path to the system Ruby installation to use for the Puppet Server
-#
-# [*max_active_instances*]
-# Type: Integer
-# Default: $::processorcount + 2
-#
-# The maximum number of active JRuby instances to be run by the Puppet Server
-#
-# [*ssl_protocols*]
-# Type: Array of Protocols
-# Default: ['TLSv1','TLSv1.1','TLSv1.2']
-#
-# The protocols that are allowed for communication with the Puppet Server. See
-# the ssl-protocols documentaiton for the Puppet Server for additional details.
-#
-# [*ssl_cipher_suite*]
-# Type: Array of Cipher Suites
-# Default: []
-#
-# The allowed SSL Cipher Suites to be used by the Puppet Server. The allowed
-# list is Java version dependent and you will need to check the system Java
-# docutmenation for details.
-#
-# [*enable_profiler*]
-# Type: Boolean
-# Default: false
-#
-# Whether or not to enable the Puppet Server profiler to allow for code metrics
-# gathering.
-#
-# [*admin_api_whitelist*]
-# Type: Array of Certificate Names
-# Default: [$::fqdn]
-#
-# A list of X.509 certificate names that should be allowed to access the Puppet
-# Server's administrative API.
-#
-# [*admin_api_mountpoint*]
-# Type: String
-# Default: '/puppet-admin-api'
-#
-# The endpoint for the Puppet Servers adminstrative API. Changing this may
-# break external utilities.
-#
-# [*log_to_file*]
-# Type: Boolean
-# Default: false
-#
-# If true, log to system log files at /var/log/puppetserver.
-#
-# [*log_to_syslog*]
-# Type: Boolean
-# Default: true
-#
-# If true, log to the local system logger over UDP port 514.
-#
-# [*syslog_facility*]
-# Type: String
-# Default: 'LOCAL6'
-#
-# The syslog facility to which to report if using syslog.
-#
-# [*syslog_message_format*]
-# Type: String
-# Default: '%logger[%thread]: %msg'
-#
-# The Logback compatible syslog message format. For more information, see the
-# Logback documentation for 'SuffixPattern'.
-#
-# [*log_level*]
-# Type: One of ['TRACE','DEBUG','INFO','WARN','ERROR','OFF']
-# Default: 'WARN'
-#
-# A syslog severity string limiting the messages reported. Be aware that
-# anything above 'WARN' will provide a massive amount of logs at each puppet
-# run.
-#
-# == Authors
-#
-# * Trevor Vaughan <tvaughan@onyxpoint.com>
+# @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 class pupmod::master (
-  $bind_address          = '0.0.0.0',
-  $ca_bind_address       = '0.0.0.0',
-  $ca_port               = hiera('puppet::ca_port','8141'),
-  $client_nets           = hiera('client_nets',['127.0.0.1','::1']),
-  $ca_ttl                = '10y',
-  $daemonize             = true,
-  $enable_ca             = true,
-  $enable_master         = true,
-  $environmentpath       = $::pupmod::params::puppet_config['environmentpath'],
-  $freeze_main           = false,
-  $masterport            = '8140',
-  $puppet_confdir        = $::pupmod::params::puppet_config['confdir'],
-  $confdir               = $::pupmod::params::master_config['confdir'],
-  $codedir               = $::pupmod::params::master_config['codedir'],
-  $vardir                = $::pupmod::params::master_config['vardir'],
-  $rundir                = $::pupmod::params::master_config['rundir'],
-  $logdir                = $::pupmod::params::master_config['logdir'],
-  $use_legacy_auth_conf  = true,
-  $use_iptables          = defined('$::use_iptables') ? { true => str2bool($::use_iptables), default => hiera('use_iptables', true) },
-  $ca_status_whitelist   = [$::fqdn],
-  $ruby_load_path        = '',
-  $max_active_instances  = (to_integer($::processorcount) + 2),
-  $ssl_protocols         = [ 'TLSv1', 'TLSv1.1', 'TLSv1.2' ],
-  $ssl_cipher_suites     = [],
-  $enable_profiler       = false,
-  $admin_api_whitelist   = [$::fqdn],
-  $admin_api_mountpoint  = '/puppet-admin-api',
-  $log_to_file           = false,
-  $log_to_syslog         = true,
-  $syslog_facility       = 'LOCAL6',
-  $syslog_message_format = '%logger[%thread]: %msg',
-  $log_level             = 'WARN'
+  Simplib::IP                    $bind_address          = '0.0.0.0',
+  Simplib::IP                    $ca_bind_address       = '0.0.0.0',
+  Simplib::Port                  $ca_port               = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
+  Simplib::NetList               $trusted_nets          = simplib::lookup('simp_options::trusted_nets', { 'default_value' => ['127.0.0.1','::1'] }),
+  Pupmod::CaTTL                  $ca_ttl                = '10y',
+  Boolean                        $daemonize             = true,
+  Boolean                        $enable_ca             = true,
+  Boolean                        $enable_master         = true,
+  Stdlib::AbsolutePath           $environmentpath       = $::pupmod::params::puppet_config['environmentpath'],
+  Boolean                        $freeze_main           = false,
+  Simplib::Port                  $masterport            = 8140,
+  Stdlib::AbsolutePath           $puppet_confdir        = $::pupmod::params::puppet_config['confdir'],
+  Stdlib::AbsolutePath           $confdir               = $::pupmod::params::master_config['confdir'],
+  Stdlib::AbsolutePath           $codedir               = $::pupmod::params::master_config['codedir'],
+  Stdlib::AbsolutePath           $vardir                = $::pupmod::params::master_config['vardir'],
+  Stdlib::AbsolutePath           $rundir                = $::pupmod::params::master_config['rundir'],
+  Stdlib::AbsolutePath           $logdir                = $::pupmod::params::master_config['logdir'],
+  Boolean                        $use_legacy_auth_conf  = true,
+  Boolean                        $firewall              = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
+  Array[Simplib::Host]           $ca_status_whitelist   = [$facts['fqdn']],
+  Optional[Stdlib::AbsolutePath] $ruby_load_path        = undef,
+  Integer                        $max_active_instances  = ($facts['processors']['count'] + 2),
+  Array[String]                  $ssl_protocols         = ['TLSv1', 'TLSv1.1', 'TLSv1.2'],
+  Optional[Array]                $ssl_cipher_suites     = undef,
+  Boolean                        $enable_profiler       = false,
+  Array[Simplib::Hostname]       $admin_api_whitelist   = [$facts['fqdn']],
+  String                         $admin_api_mountpoint  = '/puppet-admin-api',
+  Boolean                        $log_to_file           = false,
+  Boolean                        $syslog                = simplib::lookup('simp_options::syslog', { 'default_value' => false }),
+  String                         $syslog_facility       = 'LOCAL6',
+  String                         $syslog_message_format = '%logger[%thread]: %msg',
+  Pupmod::LogLevel               $log_level             = 'WARN'
 ) inherits ::pupmod::params {
 
-  validate_net_list($bind_address)
-  validate_net_list($ca_bind_address)
-  validate_port($ca_port)
-  validate_re($ca_ttl,'^\d+y$')
-  validate_bool($daemonize)
-  validate_bool($enable_ca)
-  validate_bool($enable_master)
-  validate_absolute_path($environmentpath)
-  validate_bool($freeze_main)
-  validate_port($masterport)
-  validate_absolute_path($confdir)
-  validate_absolute_path($vardir)
-  validate_absolute_path($rundir)
-  validate_absolute_path($logdir)
-  validate_bool($use_legacy_auth_conf)
-  validate_bool($use_iptables)
-  validate_array($ca_status_whitelist)
-  if !empty($ruby_load_path) { validate_absolute_path($ruby_load_path) }
-  validate_integer($max_active_instances)
-  validate_array($ssl_protocols)
-  validate_array($ssl_cipher_suites)
-  validate_bool($enable_profiler)
-  validate_array($admin_api_whitelist)
-  validate_string($admin_api_mountpoint)
-  validate_bool($log_to_file)
-  validate_bool($log_to_syslog)
-  validate_string($syslog_facility)
-  validate_string($syslog_message_format)
-  validate_array_member($log_level,['TRACE','DEBUG','INFO','WARN','ERROR','OFF'])
-
-
   $service = 'puppetserver'
-  $l_client_nets = nets2cidr($client_nets)
-  validate_net_list($l_client_nets)
 
   include '::pupmod'
   include '::pupmod::master::sysconfig'
@@ -299,7 +188,7 @@ class pupmod::master (
     notify  => Service[$service]
   }
 
-  if !empty($ruby_load_path) {
+  if $ruby_load_path {
     file { "${confdir}/os-settings.conf":
       ensure  => 'file',
       owner   => 'root',
@@ -383,11 +272,11 @@ class pupmod::master (
     notify  => Service[$service]
   }
 
-  if $pupmod::use_fips {
-    $_keylength = '2048'
+  if $::pupmod::fips {
+    $_keylength = 2048
   }
   else {
-    $_keylength = '4096'
+    $_keylength = 4096
   }
 
   pupmod::conf { 'keylength':
@@ -406,22 +295,22 @@ class pupmod::master (
     notify  => Service[$service]
   }
 
-  if $use_iptables {
+  if $firewall {
     include '::iptables'
 
     if $enable_master {
-      iptables::add_tcp_stateful_listen { 'allow_puppet':
-        order       => '11',
-        client_nets => $l_client_nets,
-        dports      => $masterport
+      iptables::listen::tcp_stateful { 'allow_puppet':
+        order        => 11,
+        trusted_nets => $trusted_nets,
+        dports       => $masterport
       }
     }
 
     if $enable_ca {
-      iptables::add_tcp_stateful_listen { 'allow_puppetca':
-        order       => '11',
-        client_nets => $l_client_nets,
-        dports      => $ca_port
+      iptables::listen::tcp_stateful { 'allow_puppetca':
+        order        => 11,
+        trusted_nets => $trusted_nets,
+        dports       => $ca_port
       }
     }
   }

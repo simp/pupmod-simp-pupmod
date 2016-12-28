@@ -1,5 +1,3 @@
-# Class: pupmod::params
-#
 # A set of defaults for the 'pupmod' namespace
 #
 class pupmod::params {
@@ -21,5 +19,8 @@ class pupmod::params {
   }
 
   $master_install_dir = '/opt/puppetlabs/server/apps/puppetserver'
-  $master_bootstrap_config = '/etc/puppetlabs/puppetserver/services.d/,/opt/puppetlabs/server/apps/puppetserver/config/services.d/'
+  $master_bootstrap_config = [
+    '/etc/puppetlabs/puppetserver/services.d/',
+    '/opt/puppetlabs/server/apps/puppetserver/config/services.d/'
+    ]
 }

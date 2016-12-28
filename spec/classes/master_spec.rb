@@ -86,7 +86,6 @@ puppetlabs.services.ca.certificate-authority-service/certificate-authority-servi
     <logger name="org.eclipse.jetty" level="WARN"/>
 
     <root level="WARN">
-        <appender-ref ref="SYSLOG"/>
     </root>
 </configuration>
 ~,
@@ -278,21 +277,21 @@ webserver: {
         it { is_expected.to contain_pupmod__conf('master_masterport').with({
           'section' => 'master',
           'setting' => 'masterport',
-          'value'   => '8140',
+          'value'   => 8140,
           'notify'  => 'Service[puppetserver]'
         }) }
 
         it { is_expected.to contain_pupmod__conf('master_ca').with({
           'section' => 'master',
           'setting' => 'ca',
-          'value'   => 'true',
+          'value'   => true,
           'notify'  => 'Service[puppetserver]'
         }) }
 
         it { is_expected.to contain_pupmod__conf('master_ca_port').with({
           'section' => 'master',
           'setting' => 'ca_port',
-          'value'   => '8141',
+          'value'   => 8141,
           'notify'  => 'Service[puppetserver]'
         }) }
 
@@ -307,32 +306,19 @@ webserver: {
         it { is_expected.to contain_pupmod__conf('keylength').with({
           'section' => 'master',
           'setting' => 'keylength',
-          'value'   => '4096',
+          'value'   => 4096,
           'notify'  => 'Service[puppetserver]'
         }) }
 
         it { is_expected.to contain_pupmod__conf('freeze_main').with({
           'setting' => 'freeze_main',
-          'value'   => 'false',
+          'value'   => false,
           'notify'  => 'Service[puppetserver]'
         }) }
 
-        it { is_expected.to contain_class('iptables') }
-        it {
-          pending "Requires fix to simplib's nets2cidr, which does not convert IPv4 addresses to CIDR"
-          is_expected.to contain_iptables__add_tcp_stateful_listen('allow_puppet').with({
-            'order'       => '11',
-            'client_nets' => ['127.0.0.1/32','::1/128'],
-            'dports'      => '8140'
-        }) }
-
-        it {
-          pending "Requires fix to simplib's nets2cidr, which does not convert IPv4 addresses to CIDR"
-          is_expected.to contain_iptables__add_tcp_stateful_listen('allow_puppetca').with({
-            'order'       => '11',
-            'client_nets' => ['127.0.0.1/32','::1/128'],
-            'dports'      => '8141'
-        }) }
+        it { is_expected.not_to contain_class('iptables') }
+        it { is_expected.not_to contain_iptables__listen__tcp_stateful('allow_puppet') }
+        it { is_expected.not_to contain_iptables__listen__tcp_stateful('allow_puppetca') }
       end
 
       describe "with non-default parameters" do
@@ -352,8 +338,8 @@ puppetlabs.services.ca.certificate-authority-disabled-service/certificate-author
           }) }
         end
 
-        context 'with log_to_syslog => false and log_to_file => true' do
-          let(:params) {{:log_to_syslog => false, :log_to_file => true}}
+        context 'with syslog => true and log_to_file => true' do
+          let(:params) {{:syslog => true, :log_to_file => true}}
           it { is_expected.to contain_file('/etc/puppetlabs/puppetserver/logback.xml').with({
             'ensure'  => 'file',
             'owner'   => 'root',
@@ -388,6 +374,7 @@ puppetlabs.services.ca.certificate-authority-disabled-service/certificate-author
     <logger name="org.eclipse.jetty" level="WARN"/>
 
     <root level="WARN">
+        <appender-ref ref="SYSLOG"/>
         <appender-ref ref="F1"/>
     </root>
 </configuration>
@@ -560,8 +547,8 @@ web-router-service: {
         context 'when enable_ca => true and ca_port == masterport' do
           let(:params) {{
             :enable_ca => false,
-            :ca_port => '12345',
-            :masterport => '12345'
+            :ca_port => 12345,
+            :masterport => 12345
 
           }}
           it { is_expected.to contain_file('/etc/puppetlabs/puppetserver/conf.d/web-routes.conf').with({
@@ -614,7 +601,7 @@ webserver: {
             'require' => 'Package[puppetserver]',
             'notify'  => 'Service[puppetserver]'
           }) }
-          it { is_expected.to_not contain_iptables__add_tcp_stateful_listen('allow_puppet') }
+          it { is_expected.to_not contain_iptables__listen__tcp_stateful('allow_puppet') }
         end
 
         context 'when enable_ca =>false' do
@@ -643,7 +630,7 @@ webserver: {
             'require' => 'Package[puppetserver]',
             'notify'  => 'Service[puppetserver]'
           }) }
-          it { is_expected.to_not contain_iptables__add_tcp_stateful_listen('allow_puppetca') }
+          it { is_expected.to_not contain_iptables__listen__tcp_stateful('allow_puppetca') }
         end
 
         context 'when ca_port == masterport' do
@@ -674,11 +661,21 @@ webserver: {
           }) }
         end
 
-        context 'when use_iptables => false' do
-          let(:params) {{ :use_iptables => false }}
-          it { is_expected.to_not contain_class('iptables') }
-          it { is_expected.to_not contain_iptables__add_tcp_stateful_listen('allow_puppet') }
-          it { is_expected.to_not contain_iptables__add_tcp_stateful_listen('allow_puppetca') }
+        context 'when firewall => true' do
+          let(:params) {{ :firewall => true }}
+          it { is_expected.to contain_class('iptables') }
+          it {
+            is_expected.to contain_iptables__listen__tcp_stateful('allow_puppet').with({
+              'order'        => '11',
+              'trusted_nets' => ['127.0.0.1','::1'],
+              'dports'       => 8140
+          }) }
+          it {
+            is_expected.to contain_iptables__listen__tcp_stateful('allow_puppetca').with({
+              'order'        => '11',
+              'trusted_nets' => ['127.0.0.1','::1'],
+              'dports'       => 8141
+          }) }
         end
       end
     end

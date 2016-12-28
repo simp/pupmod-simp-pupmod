@@ -1,22 +1,16 @@
-# == Define: pupmod::master::autosign
-#
 # Add an autosign entry to the puppet autosign file.
 #
 # Ideally, autosign will not be used in your environment. However,
 # should you happen to need it
 #
-# == Parameters
+# @param name
+#   The entry that you will be autosigning.
 #
-# [*name*]
-#
-# The entry that you will be autosigning.
-#
-# [*entry*]
-#
-# The autosign entry to add to the file.
+# @param entry
+#   The autosign entry to add to the file.
 #
 define pupmod::master::autosign (
-  $entry
+  String $entry
 ) {
 
   $l_name = inline_template("<%= '${name}'.gsub('/','_') %>")

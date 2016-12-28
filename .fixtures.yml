@@ -30,9 +30,7 @@ fixtures:
     rsync: https://github.com/simp/pupmod-simp-rsync
     rsyslog: https://github.com/simp/pupmod-simp-rsyslog
     simpcat: https://github.com/simp/pupmod-simp-simpcat
-    simplib: https://github.com/simp/pupmod-simp-simplib
-    stdlib:
-      repo: https://github.com/simp/puppetlabs-stdlib
-      branch: simp-master
+    simplib: https://github.com/jeefberkey/pupmod-simp-simplib
+    stdlib: https://github.com/simp/puppetlabs-stdlib
   symlinks:
     pupmod: "#{source_dir}"
