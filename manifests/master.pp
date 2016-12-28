@@ -120,7 +120,7 @@ class pupmod::master (
   Array[Simplib::Hostname]       $admin_api_whitelist   = [$facts['fqdn']],
   String                         $admin_api_mountpoint  = '/puppet-admin-api',
   Boolean                        $log_to_file           = false,
-  Boolean                        $syslog                = simplib::lookup('simp_options::syslog', { 'default_value' => true }),,
+  Boolean                        $syslog                = simplib::lookup('simp_options::syslog', { 'default_value' => false }),
   String                         $syslog_facility       = 'LOCAL6',
   String                         $syslog_message_format = '%logger[%thread]: %msg',
   Pupmod::LogLevel               $log_level             = 'WARN'
@@ -299,16 +299,16 @@ class pupmod::master (
     include '::iptables'
 
     if $enable_master {
-      iptables::add_tcp_stateful_listen { 'allow_puppet':
-        order        => '11',
+      iptables::listen::tcp_stateful { 'allow_puppet':
+        order        => 11,
         trusted_nets => $trusted_nets,
         dports       => $masterport
       }
     }
 
     if $enable_ca {
-      iptables::add_tcp_stateful_listen { 'allow_puppetca':
-        order        => '11',
+      iptables::listen::tcp_stateful { 'allow_puppetca':
+        order        => 11,
         trusted_nets => $trusted_nets,
         dports       => $ca_port
       }
