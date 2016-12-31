@@ -1,0 +1,4 @@
+-a always,exit -F dir=/etc/puppetlabs/puppet -F uid!=puppet -p wa -k Puppet_Config
+-a always,exit -F dir=/var/log/puppetlabs/puppet -F uid!=puppet -p wa -k Puppet_Log
+-a always,exit -F dir=/var/run/puppetlabs -F uid!=puppet -p wa -k Puppet_Run
+-a always,exit -F dir=/etc/puppetlabs/puppet/ssl -F uid!=puppet -p wa -k Puppet_SSL

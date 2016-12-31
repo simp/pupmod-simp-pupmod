@@ -1,3 +1,4 @@
+#
 # A class for managing Puppet configurations.
 #
 # This is mainly a stub class for hooking other classes along the way
@@ -113,6 +114,9 @@
 # @param haveged
 #   If true, include haveged to assist with entropy generation.
 #
+# @param fips
+#   If true, enable fips mode
+#
 # @param vardir
 #   The directory where puppet will store all of its 'variable' data.
 #
@@ -144,8 +148,8 @@ class pupmod (
   Simplib::Syslog::Facility $syslogfacility       = 'local6',
   Boolean                   $use_srv_records      = false,
   Stdlib::AbsolutePath      $vardir               = $::pupmod::params::puppet_config['vardir'],
-  Boolean                   $haveged              = simplib::lookup('simp_options::haveged', { 'default_value' => false }),
-  Boolean                   $fips                 = simplib::lookup('simp_options::fips', { 'default_value' => false }),
+  Boolean                   $haveged              = simplib::lookup('simp_options::haveged', { 'default_value'                     => false }),
+  Boolean                   $fips                 = simplib::lookup('simp_options::fips', { 'default_value'                        => false }),
 ) inherits pupmod::params {
 
   validate_re($classfile,'^(\$(?!/)|/).+')
@@ -322,12 +326,7 @@ class pupmod (
     include 'auditd'
 
     auditd::add_rules { 'puppet_master':
-      content => "
-        -a always,exit -F dir=${confdir} -F uid!=puppet -p wa -k Puppet_Config
-        -a always,exit -F dir=${logdir} -F uid!=puppet -p wa -k Puppet_Log
-        -a always,exit -F dir=${rundir} -F uid!=puppet -p wa -k Puppet_Run
-        -a always,exit -F dir=${ssldir} -F uid!=puppet -p wa -k Puppet_SSL
-      "
+      content => template('pupmod/puppet-auditd-rules.erb'),
     }
   }
 

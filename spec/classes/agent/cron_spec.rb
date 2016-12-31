@@ -1,3 +1,4 @@
+#
 require 'spec_helper'
 
 describe 'pupmod::agent::cron' do
@@ -14,7 +15,12 @@ describe 'pupmod::agent::cron' do
         it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(
           /service puppet stop > \/dev\/null 2>&1/
         )}
-
+        it { is_expected.to contain_cron('puppetd').with(
+            {
+              "ensure" => "absent",
+            }
+          )
+        }
         it { is_expected.to contain_cron('puppetagent').with({
             'minute'    => [27,57],
             'hour'      => '*',
