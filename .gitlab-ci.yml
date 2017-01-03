@@ -1,0 +1,59 @@
+#
+---
+puppet-syntax:
+  stage: test
+  tags:
+    - docker
+  image: ruby:2.1
+  script:
+    - bundle install
+    - bundle exec rake syntax
+puppet-lint:
+  stage: test
+  tags:
+    - docker
+  image: ruby:2.1
+  script:
+    - bundle install
+    - bundle exec rake lint
+puppet-metadata:
+  stage: test
+  tags:
+    - docker
+  image: ruby:2.1
+  script:
+    - bundle install
+    - bundle exec rake metadata
+unit-test-ruby-2.1:
+  stage: test
+  tags:
+    - docker
+  image: ruby:2.1
+  script:
+    - bundle install
+    - bundle exec rake spec
+unit-test-ruby-2.2:
+  stage: test
+  tags:
+    - docker
+  image: ruby:2.2
+  allow_failure: true
+  script:
+    - bundle install
+    - bundle exec rake spec
+unit-test-ruby-2.3:
+  stage: test
+  tags:
+    - docker
+  image: ruby:2.3
+  allow_failure: true
+  script:
+    - bundle install
+    - bundle exec rake spec
+acceptance-test:
+  stage: test
+  tags:
+    - beaker
+  script:
+    - bundle install --no-binstubs --path=vendor
+    - bundle exec rake acceptance
