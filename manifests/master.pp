@@ -88,6 +88,8 @@
 #   A syslog severity string limiting the messages reported. Be aware that
 #   anything above 'WARN' will provide a massive amount of logs at each puppet
 #   run.
+# @param mock
+#   DO NOT USE. needed for rspec testing
 #
 # @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
@@ -96,6 +98,7 @@ class pupmod::master (
   Simplib::IP                    $ca_bind_address       = '0.0.0.0',
   Simplib::Port                  $ca_port               = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
   Simplib::NetList               $trusted_nets          = simplib::lookup('simp_options::trusted_nets', { 'default_value' => ['127.0.0.1','::1'] }),
+  String                         $server_distribution   = simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'PC1' } ),
   Pupmod::CaTTL                  $ca_ttl                = '10y',
   Boolean                        $daemonize             = true,
   Boolean                        $enable_ca             = true,
@@ -123,202 +126,212 @@ class pupmod::master (
   Boolean                        $syslog                = simplib::lookup('simp_options::syslog', { 'default_value' => false }),
   String                         $syslog_facility       = 'LOCAL6',
   String                         $syslog_message_format = '%logger[%thread]: %msg',
-  Pupmod::LogLevel               $log_level             = 'WARN'
+  Pupmod::LogLevel               $log_level             = 'WARN',
+  Boolean                        $mock                  = false
 ) inherits ::pupmod::params {
+  if ($mock == false) {
+    $service = 'puppetserver'
+    include '::pupmod'
+    class { '::pupmod::master::sysconfig':
+      service => $service,
+    }
+    include '::pupmod::master::reports'
+    include '::pupmod::master::base'
+    Class['::pupmod::master::sysconfig'] ~> Service[$service]
 
-  $service = 'puppetserver'
+    $_conf_base = dirname($confdir)
 
-  include '::pupmod'
-  include '::pupmod::master::sysconfig'
-  include '::pupmod::master::reports'
-  include '::pupmod::master::base'
+    file { $_conf_base:
+      ensure => 'directory',
+      owner  => 'root',
+      group  => 'puppet',
+      mode   => '0640'
+    }
 
-  Class['::pupmod::master::sysconfig'] ~> Service[$service]
+    file { $confdir:
+      ensure => 'directory',
+      owner  => 'root',
+      group  => 'puppet',
+      mode   => '0640'
+    }
 
-  $_conf_base = dirname($confdir)
+    file { $codedir:
+      ensure => 'directory',
+      owner  => 'root',
+      group  => 'puppet',
+      mode   => '0640'
+    }
 
-  file { $_conf_base:
-    ensure => 'directory',
-    owner  => 'root',
-    group  => 'puppet',
-    mode   => '0640'
-  }
-
-  file { $confdir:
-    ensure => 'directory',
-    owner  => 'root',
-    group  => 'puppet',
-    mode   => '0640'
-  }
-
-  file { $codedir:
-    ensure => 'directory',
-    owner  => 'root',
-    group  => 'puppet',
-    mode   => '0640'
-  }
-
-  file { "${_conf_base}/services.d/ca.cfg":
-    ensure  => 'file',
-    owner   => 'root',
-    group   => 'puppet',
-    mode    => '0640',
-    content => template('pupmod/etc/puppetserver/ca.cfg.erb'),
-    require => Package[$service],
-    notify  => Service[$service]
-  }
-
-  file { "${_conf_base}/logback.xml":
-    ensure  => 'file',
-    owner   => 'root',
-    group   => 'puppet',
-    mode    => '0640',
-    content => template('pupmod/etc/puppetserver/logback.xml.erb'),
-    require => Package[$service],
-    notify  => Service[$service]
-  }
-
-  file { "${confdir}/ca.conf":
-    ensure  => 'file',
-    owner   => 'root',
-    group   => 'puppet',
-    mode    => '0640',
-    content => template('pupmod/etc/puppetserver/conf.d/ca.conf.erb'),
-    require => Package[$service],
-    notify  => Service[$service]
-  }
-
-  if $ruby_load_path {
-    file { "${confdir}/os-settings.conf":
+    file { "${_conf_base}/services.d/ca.cfg":
       ensure  => 'file',
       owner   => 'root',
       group   => 'puppet',
       mode    => '0640',
-      content => template('pupmod/etc/puppetserver/conf.d/os-settings.conf.erb'),
+      content => template('pupmod/etc/puppetserver/ca.cfg.erb'),
       require => Package[$service],
       notify  => Service[$service]
     }
-  }
 
-  file { "${confdir}/puppetserver.conf":
-    ensure  => 'file',
-    owner   => 'root',
-    group   => 'puppet',
-    mode    => '0640',
-    content => template('pupmod/etc/puppetserver/conf.d/puppetserver.conf.erb'),
-    require => Package[$service],
-    notify  => Service[$service]
-  }
+    file { "${_conf_base}/logback.xml":
+      ensure  => 'file',
+      owner   => 'root',
+      group   => 'puppet',
+      mode    => '0640',
+      content => template('pupmod/etc/puppetserver/logback.xml.erb'),
+      require => Package[$service],
+      notify  => Service[$service]
+    }
 
-  file { "${confdir}/web-routes.conf":
-    ensure  => 'file',
-    owner   => 'root',
-    group   => 'puppet',
-    mode    => '0640',
-    content => template('pupmod/etc/puppetserver/conf.d/web-routes.conf.erb'),
-    require => Package[$service],
-    notify  => Service[$service]
-  }
+    file { "${confdir}/ca.conf":
+      ensure  => 'file',
+      owner   => 'root',
+      group   => 'puppet',
+      mode    => '0640',
+      content => template('pupmod/etc/puppetserver/conf.d/ca.conf.erb'),
+      require => Package[$service],
+      notify  => Service[$service]
+    }
 
-  file { "${confdir}/webserver.conf":
-    ensure  => 'file',
-    owner   => 'root',
-    group   => 'puppet',
-    mode    => '0640',
-    content => template('pupmod/etc/puppetserver/conf.d/webserver.conf.erb'),
-    require => Package[$service],
-    notify  => Service[$service]
-  }
+    if $ruby_load_path {
+      file { "${confdir}/os-settings.conf":
+        ensure  => 'file',
+        owner   => 'root',
+        group   => 'puppet',
+        mode    => '0640',
+        content => template('pupmod/etc/puppetserver/conf.d/os-settings.conf.erb'),
+        require => Package[$service],
+        notify  => Service[$service]
+      }
+    }
+
+    file { "${confdir}/puppetserver.conf":
+      ensure  => 'file',
+      owner   => 'root',
+      group   => 'puppet',
+      mode    => '0640',
+      content => template('pupmod/etc/puppetserver/conf.d/puppetserver.conf.erb'),
+      require => Package[$service],
+      notify  => Service[$service]
+    }
+
+    file { "${confdir}/web-routes.conf":
+      ensure  => 'file',
+      owner   => 'root',
+      group   => 'puppet',
+      mode    => '0640',
+      content => template('pupmod/etc/puppetserver/conf.d/web-routes.conf.erb'),
+      require => Package[$service],
+      notify  => Service[$service]
+    }
+
+    file { "${confdir}/webserver.conf":
+      ensure  => 'file',
+      owner   => 'root',
+      group   => 'puppet',
+      mode    => '0640',
+      content => template('pupmod/etc/puppetserver/conf.d/webserver.conf.erb'),
+      require => Package[$service],
+      notify  => Service[$service]
+    }
 
   pupmod::conf { 'trusted_server_facts':
+    confdir => $puppet_confdir,
     setting => 'trusted_server_facts',
     value   => true,
     notify  => Service[$service]
   }
 
-  pupmod::conf { 'master_environmentpath':
-    section => 'master',
-    setting => 'environmentpath',
-    value   => $environmentpath,
-    notify  => Service[$service]
-  }
-
-  pupmod::conf { 'master_daemonize':
-    section => 'master',
-    setting => 'daemonize',
-    value   => $daemonize,
-    notify  => Service[$service]
-  }
-
-  pupmod::conf { 'master_masterport':
-    section => 'master',
-    setting => 'masterport',
-    value   => $masterport,
-    notify  => Service[$service]
-  }
-
-  pupmod::conf { 'master_ca':
-    section => 'master',
-    setting => 'ca',
-    value   => $enable_ca,
-    notify  => Service[$service]
-  }
-
-  pupmod::conf { 'master_ca_port':
-    section => 'master',
-    setting => 'ca_port',
-    value   => $ca_port,
-    notify  => Service[$service]
-  }
-
-  pupmod::conf { 'ca_ttl':
-    section => 'master',
-    setting => 'ca_ttl',
-    value   => $ca_ttl,
-    notify  => Service[$service]
-  }
-
-  if $::pupmod::fips {
-    $_keylength = 2048
-  }
-  else {
-    $_keylength = 4096
-  }
-
-  pupmod::conf { 'keylength':
-    section => 'master',
-    setting => 'keylength',
-    value   => $_keylength,
-    notify  => Service[$service]
-  }
-
-  pupmod::conf { 'freeze_main':
-    setting => 'freeze_main',
-    # This is hard set for now until we can ensure that this works in all
-    # potential configurations.
-    value   => false,
-    #value   => $freeze_main,
-    notify  => Service[$service]
-  }
-
-  if $firewall {
-    include '::iptables'
-
-    if $enable_master {
-      iptables::listen::tcp_stateful { 'allow_puppet':
-        order        => 11,
-        trusted_nets => $trusted_nets,
-        dports       => $masterport
-      }
+    pupmod::conf { 'master_environmentpath':
+      section => 'master',
+      confdir => $puppet_confdir,
+      setting => 'environmentpath',
+      value   => $environmentpath,
+      notify  => Service[$service]
     }
 
-    if $enable_ca {
-      iptables::listen::tcp_stateful { 'allow_puppetca':
-        order        => 11,
-        trusted_nets => $trusted_nets,
-        dports       => $ca_port
+    pupmod::conf { 'master_daemonize':
+      section => 'master',
+      confdir => $puppet_confdir,
+      setting => 'daemonize',
+      value   => $daemonize,
+      notify  => Service[$service]
+    }
+
+    pupmod::conf { 'master_masterport':
+      section => 'master',
+      confdir => $puppet_confdir,
+      setting => 'masterport',
+      value   => $masterport,
+      notify  => Service[$service]
+    }
+
+    pupmod::conf { 'master_ca':
+      section => 'master',
+      confdir => $puppet_confdir,
+      setting => 'ca',
+      value   => $enable_ca,
+      notify  => Service[$service]
+    }
+
+    pupmod::conf { 'master_ca_port':
+      section => 'master',
+      confdir => $puppet_confdir,
+      setting => 'ca_port',
+      value   => $ca_port,
+      notify  => Service[$service]
+    }
+
+    pupmod::conf { 'ca_ttl':
+      section => 'master',
+      confdir => $puppet_confdir,
+      setting => 'ca_ttl',
+      value   => $ca_ttl,
+      notify  => Service[$service]
+    }
+
+    if $::pupmod::fips {
+      $_keylength = 2048
+    }
+    else {
+      $_keylength = 4096
+    }
+
+    pupmod::conf { 'keylength':
+      section => 'master',
+      confdir => $puppet_confdir,
+      setting => 'keylength',
+      value   => $_keylength,
+      notify  => Service[$service]
+    }
+
+    pupmod::conf { 'freeze_main':
+      confdir => $puppet_confdir,
+      setting => 'freeze_main',
+      # This is hard set for now until we can ensure that this works in all
+      # potential configurations.
+      value   => false,
+      #value   => $freeze_main,
+      notify  => Service[$service]
+    }
+
+    if $firewall {
+      include '::iptables'
+
+      if $enable_master {
+        iptables::listen::tcp_stateful { 'allow_puppet':
+          order        => 11,
+          trusted_nets => $trusted_nets,
+          dports       => $masterport
+        }
+      }
+
+      if $enable_ca {
+        iptables::listen::tcp_stateful { 'allow_puppetca':
+          order        => 11,
+          trusted_nets => $trusted_nets,
+          dports       => $ca_port
+        }
       }
     }
   }
-
 }

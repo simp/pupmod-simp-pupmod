@@ -75,5 +75,6 @@
         "7"
       ]
     }
-  ]
+  ],
+  "data_provider": "hiera"
 }

@@ -45,7 +45,7 @@
 #
 class pupmod::master::sysconfig (
   Stdlib::AbsolutePath           $install_dir          = $::pupmod::params::master_install_dir,
-  Stdlib::AbsolutePath           $config               = $::pupmod::master::confdir,
+  Stdlib::AbsolutePath           $config               = $::pupmod::params::master_config['confdir'],
   Array[Stdlib::AbsolutePath]    $bootstrap_config     = $::pupmod::params::master_bootstrap_config,
   Stdlib::AbsolutePath           $java_bin             = '/usr/bin/java',
   Optional[Pupmod::Memory]       $java_start_memory    = undef,
@@ -53,28 +53,47 @@ class pupmod::master::sysconfig (
   Optional[Stdlib::AbsolutePath] $java_temp_dir        = undef,
   Optional[Array[String]]        $extra_java_args      = undef,
   Integer                        $service_stop_retries = 60,
-  Integer                        $start_timeout        = 120
-) inherits ::pupmod::master {
+  Integer                        $start_timeout        = 120,
+  Simplib::Serverdistribution    $server_distribution  = 'PC1',
+  String                         $service              = 'puppetserver',
+  String                         $user                 = 'puppet',
+  String                         $group                = 'puppet',
+  Boolean                        $mock                 = false
+) inherits pupmod {
+  unless (mock == true) {
+    if empty($java_temp_dir) {
+      $_java_temp_dir = "${::pupmod::vardir}/pserver_tmp"
+    }
+    else {
+      $_java_temp_dir = $java_temp_dir
+    }
 
-  if empty($java_temp_dir) {
-    $_java_temp_dir = "${::pupmod::vardir}/pserver_tmp"
-  }
-  else {
-    $_java_temp_dir = $java_temp_dir
-  }
-
-  file { $_java_temp_dir:
-    ensure => 'directory',
-    owner  => 'puppet',
-    group  => 'puppet',
-    mode   => '0750'
-  }
-
-  file { '/etc/sysconfig/puppetserver':
-    owner   => 'root',
-    group   => 'puppet',
-    mode    => '0640',
-    content => template('pupmod/etc/sysconfig/puppetserver.erb'),
-    notify  => Service[$::pupmod::master::service]
+    file { $_java_temp_dir:
+      ensure => 'directory',
+      owner  => $user,
+      group  => $group,
+      mode   => '0750'
+    }
+    if ($server_distribution == 'PC1') {
+      file { "/etc/sysconfig/${service}":
+        owner   => 'root',
+        group   => 'puppet',
+        mode    => '0640',
+        content => template('pupmod/etc/sysconfig/puppetserver.erb'),
+        notify  => Service[$service]
+      }
+    }
+    if ($server_distribution == 'PE') {
+      pe_ini_subsetting { 'pupmod::master::sysconfig::javatempdir':
+        path              => '/etc/sysconfig/pe-puppetserver',
+        section           => '',
+        setting           => 'JAVA_ARGS',
+        subsetting        => '-Djava.io.tmpdir',
+        quote_char        => '"',
+        value             => "=${_java_temp_dir}",
+        key_val_separator => '=',
+        notify            => Service[$service],
+      }
+    }
   }
 }

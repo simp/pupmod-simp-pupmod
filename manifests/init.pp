@@ -1,4 +1,3 @@
-#
 # A class for managing Puppet configurations.
 #
 # This is mainly a stub class for hooking other classes along the way
@@ -17,6 +16,10 @@
 #
 # @param puppet_server
 #   The puppet master from which to retrieve your configuration.
+#
+# @param server_distribution
+#   The server distribution used. This changes the configuration based on whether
+#   we are using PC1 or PE
 #
 # @param auditd_support
 #   If true, adds an audit record to watch sensitive Puppet directories for
@@ -120,13 +123,23 @@
 # @param vardir
 #   The directory where puppet will store all of its 'variable' data.
 #
+# @param mock
+#   If true, disable all code.
+#
+# @param firewall
+#   Whether or not firewall rules should be created
+#
+# @param pe_classlist
+#   Hash of pe classes and assorted metadata.
+#
 # @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 class pupmod (
-  Variant[Simplib::Host,Enum['$server']] $ca_server = simplib::lookup('simp_options::puppet::ca', { 'default_value' => '$server' }),
-  Simplib::Port             $ca_port              = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
-  Simplib::Host             $puppet_server        = simplib::lookup('simp_options::puppet::server', { 'default_value'  => "puppet.${facts['domain']}" }),
-  Boolean                   $auditd_support       = true,
+  Variant[Simplib::Host,Enum['$server']] $ca_server = simplib::lookup('simp_options::puppet::ca', { 'default_value'                => '$server' }),
+  Simplib::Port             $ca_port              = simplib::lookup('simp_options::puppet::ca_port', { 'default_value'             => 8141 }),
+  Simplib::Host             $puppet_server        = simplib::lookup('simp_options::puppet::server', { 'default_value'              => "puppet.${facts['domain']}" }),
+  Simplib::Serverdistribution                    $server_distribution  = simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'PC1' } ),
+  Boolean                   $auditd_support       = simplib::lookup('simp_options::auditd', { 'default_value'                             =>  false }),
   Integer                   $ca_crl_pull_interval = 2,
   Simplib::Host             $certname             = $facts['fqdn'],
   String                    $classfile            = '$vardir/classes.txt',
@@ -150,207 +163,217 @@ class pupmod (
   Stdlib::AbsolutePath      $vardir               = $::pupmod::params::puppet_config['vardir'],
   Boolean                   $haveged              = simplib::lookup('simp_options::haveged', { 'default_value'                     => false }),
   Boolean                   $fips                 = simplib::lookup('simp_options::fips', { 'default_value'                        => false }),
+  Boolean                   $firewall             = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
+  Hash                      $pe_classlist         = {},
+  Boolean                   $mock                 = false
 ) inherits pupmod::params {
+  unless ($mock == true) {
+    validate_re($classfile,'^(\$(?!/)|/).+')
+    validate_re($confdir,'^(\$(?!/)|/).+')
+    validate_re($environmentpath,'^(\$(?!/)|/).+')
+    validate_re($logdir,'^(\$(?!/)|/).+')
+    validate_re($rundir,'^(\$(?!/)|/).+')
 
-  validate_re($classfile,'^(\$(?!/)|/).+')
-  validate_re($confdir,'^(\$(?!/)|/).+')
-  validate_re($environmentpath,'^(\$(?!/)|/).+')
-  validate_re($logdir,'^(\$(?!/)|/).+')
-  validate_re($rundir,'^(\$(?!/)|/).+')
+    if $haveged {
+      include '::haveged'
+    }
 
-  if $haveged {
-    include '::haveged'
-  }
+    $l_crl_pull_minute = ip_to_cron(1)
+    $l_crl_pull_hour = ip_to_cron($ca_crl_pull_interval,24)
 
-  $l_crl_pull_minute = ip_to_cron(1)
-  $l_crl_pull_hour = ip_to_cron($ca_crl_pull_interval,24)
+    if $enable_puppet_master {
+      include 'pupmod::master'
+    }
+    package { 'puppet-agent': ensure => 'latest' }
 
-  if $enable_puppet_master {
-    include 'pupmod::master'
-    $_conf_group = 'puppet'
-  }
-  else {
-    $_conf_group = 'root'
-  }
+    cron { 'puppet_crl_pull':
+      command => template('pupmod/commands/crl_download.erb'),
+      user    => 'root',
+      minute  => ip_to_cron(1),
+      hour    => ip_to_cron($ca_crl_pull_interval,24)
+    }
+    if $daemonize {
+      cron { 'puppetagent': ensure => 'absent' }
 
-  package { 'puppet-agent': ensure => 'latest' }
+      # This has been designed to explicitly be the antithesis of the
+      # cron in the 'false' statement above.
+      #
+      # Anything else is wholly irrelevant, since it's puppet checking
+      # on itself while it's running.
+      service { 'puppet':
+        ensure     => 'running',
+        enable     => true,
+        hasrestart => true,
+        hasstatus  => false,
+        status     => '/usr/bin/test `/bin/ps --no-headers -fC puppetd,"puppet agent" | /usr/bin/wc -l` -ge 1 -a ! `/bin/ps --no-headers -fC puppetd,"puppet agent" | /bin/grep -c "no-daemonize"` -ge 1',
+        subscribe  => File["${confdir}/puppet.conf"]
+      }
+    }
+    else {
+      include 'pupmod::agent::cron'
+    }
 
-  file { $confdir:
-    ensure => 'directory',
-    owner  => 'root',
-    group  => $_conf_group,
-    mode   => '0640'
-  }
+    pupmod::conf { 'agent_daemonize':
+      section => 'agent',
+      confdir => $confdir,
+      setting => 'daemonize',
+      value   => $daemonize
+    }
 
-  file { "${confdir}/puppet.conf":
-    ensure => 'file',
-    owner  => 'root',
-    group  => $_conf_group,
-    mode   => '0640',
-    audit  => content
-  }
-
-  cron { 'puppet_crl_pull':
-    command => template('pupmod/commands/crl_download.erb'),
-    user    => 'root',
-    minute  => ip_to_cron(1),
-    hour    => ip_to_cron($ca_crl_pull_interval,24)
-  }
-
-  if $daemonize {
-    cron { 'puppetagent': ensure => 'absent' }
-
-    # This has been designed to explicitly be the antithesis of the
-    # cron in the 'false' statement above.
+    # This takes some explaining. You may be asking yourself:
+    # Dear god? why? The short answer is, to make the UX for
+    # PE better, we need to make no assumptions about the
+    # amount of configuration the user has done before trying
+    # to lay SIMP on top of PE.
     #
-    # Anything else is wholly irrelevant, since it's puppet checking
-    # on itself while it's running.
-    service { 'puppet':
-      ensure     => 'running',
-      enable     => true,
-      hasrestart => true,
-      hasstatus  => false,
-      status     => '/usr/bin/test `/bin/ps --no-headers -fC puppetd,"puppet agent" | /usr/bin/wc -l` -ge 1 -a ! `/bin/ps --no-headers -fC puppetd,"puppet agent" | /bin/grep -c "no-daemonize"` -ge 1',
-      subscribe  => File["${confdir}/puppet.conf"]
+    # Therefore, we have to inspect the catalog to see which PE
+    # classes are included, and tailor our configuration 
+    # accordingly.
+    #
+    # To do this we have to use defined(). But this has an inherent
+    # race condition if you use it in a normal class, as if this class
+    # is evaluated before the class you are checking, you 
+    # will get an erroneous false result.
+    #
+    # The workaround is to take advantage of the fact that the puppet
+    # catalog compiler takes multiple passes, a first pass for most
+    # classes to be evaluated, and a second pass for resource collection
+    # staetments. Basically by creating a virtual defined type and realizing
+    # it immediately, we 'throw' any puppet code in the defined type into the
+    # next pass of the compiler.
+    #
+    # Disgusting? yes. Necessary? unfortunately. This will have to be re-evaluated
+    # for every major puppet release.
+
+    @pupmod::pass_two { 'main':
+      server_distribution =>  $server_distribution,
+      confdir             => $confdir,
+      firewall            => $firewall,
+      pe_classlist        => $pe_classlist,
+      pupmod_server       => $puppet_server,
+      pupmod_ca_server    => $ca_server,
+      pupmod_masterport   => $masterport,
+      pupmod_ca_port      => $ca_port,
+      pupmod_report       => $report,
     }
-  }
-  else {
-    include 'pupmod::agent::cron'
-  }
+    Pupmod::Pass_two <| |>
 
-  pupmod::conf { 'agent_daemonize':
-    section => 'agent',
-    setting => 'daemonize',
-    value   => $daemonize
-  }
-
-  pupmod::conf { 'server':
-    setting => 'server',
-    value   => $puppet_server
-  }
-
-  pupmod::conf { 'ca_server':
-    setting => 'ca_server',
-    value   => $ca_server
-  }
-
-  pupmod::conf { 'masterport':
-    setting => 'masterport',
-    value   => $masterport
-  }
-
-  pupmod::conf { 'report':
-    section => 'agent',
-    setting => 'report',
-    value   => $report
-  }
-
-  pupmod::conf { 'ca_port':
-    setting => 'ca_port',
-    value   => $ca_port
-  }
-
-  pupmod::conf { 'splay':
-    setting => 'splay',
-    value   => $splay
-  }
-
-  if !empty($splaylimit) {
-    pupmod::conf { 'splaylimit':
-      setting => 'splaylimit',
-      value   => $splaylimit
+    pupmod::conf { 'splay':
+      confdir => $confdir,
+      setting => 'splay',
+      value   => $splay
     }
-  }
 
-  pupmod::conf { 'syslogfacility':
-    setting => 'syslogfacility',
-    value   => $syslogfacility
-  }
-
-  pupmod::conf { 'srv_domain':
-    setting => 'srv_domain',
-    value   => $srv_domain
-  }
-
-  pupmod::conf { 'certname':
-    setting => 'certname',
-    value   => $certname
-  }
-
-  pupmod::conf { 'vardir':
-    setting => 'vardir',
-    value   => $vardir
-  }
-
-  pupmod::conf { 'classfile':
-    setting => 'classfile',
-    value   => $classfile
-  }
-
-  pupmod::conf { 'confdir':
-    setting => 'confdir',
-    value   => $confdir
-  }
-
-  pupmod::conf { 'logdir':
-    setting => 'logdir',
-    value   => $logdir
-  }
-
-  pupmod::conf { 'rundir':
-    setting => 'rundir',
-    value   => $rundir
-  }
-
-  pupmod::conf { 'runinterval':
-    setting => 'runinterval',
-    value   => $runinterval
-  }
-
-  pupmod::conf { 'ssldir':
-    setting => 'ssldir',
-    value   => $ssldir
-  }
-
-  pupmod::conf { 'stringify_facts':
-    setting => 'stringify_facts',
-    value   => false
-  }
-
-  pupmod::conf { 'digest_algorithm':
-    setting => 'digest_algorithm',
-    value   => $digest_algorithm
-  }
-
-  if $auditd_support {
-    include 'auditd'
-
-    auditd::rule { 'puppet_master':
-      content => template('pupmod/puppet-auditd-rules.erb'),
+    if !empty($splaylimit) {
+      pupmod::conf { 'splaylimit':
+        confdir => $confdir,
+        setting => 'splaylimit',
+        value   => $splaylimit
+      }
     }
-  }
 
-  # This is to allow the hosts to boot faster.  It should probably be
-  # re-worked.
-  file { '/etc/sysconfig/puppet':
-    ensure  => 'file',
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0644',
-    content => "PUPPET_EXTRA_OPTS='--daemonize'\n"
-  }
+    pupmod::conf { 'syslogfacility':
+      confdir => $confdir,
+      setting => 'syslogfacility',
+      value   => $syslogfacility
+    }
 
-  # Changing SELinux booleans on a minor update is a horrible idea.
-  if ( $::operatingsystem in ['RedHat','CentOS'] ) and ( $::operatingsystemmajrelease < '7' ) {
-    $puppet_agent_sebool = 'puppet_manage_all_files'
-  }
-  else {
-    $puppet_agent_sebool = 'puppetagent_manage_all_files'
-  }
-  if $::selinux_current_mode and $::selinux_current_mode != 'disabled' {
-    selboolean { $puppet_agent_sebool :
-      persistent => true,
-      value      => 'on'
+    pupmod::conf { 'srv_domain':
+      confdir => $confdir,
+      setting => 'srv_domain',
+      value   => $srv_domain
+    }
+
+    pupmod::conf { 'certname':
+      confdir => $confdir,
+      setting => 'certname',
+      value   => $certname
+    }
+
+    pupmod::conf { 'vardir':
+      confdir => $confdir,
+      setting => 'vardir',
+      value   => $vardir
+    }
+
+    pupmod::conf { 'classfile':
+      confdir => $confdir,
+      setting => 'classfile',
+      value   => $classfile
+    }
+
+    pupmod::conf { 'confdir':
+      confdir => $confdir,
+      setting => 'confdir',
+      value   => $confdir,
+    }
+
+    pupmod::conf { 'logdir':
+      confdir => $confdir,
+      setting => 'logdir',
+      value   => $logdir
+    }
+
+    pupmod::conf { 'rundir':
+      confdir => $confdir,
+      setting => 'rundir',
+      value   => $rundir
+    }
+
+    pupmod::conf { 'runinterval':
+      confdir => $confdir,
+      setting => 'runinterval',
+      value   => $runinterval
+    }
+
+    pupmod::conf { 'ssldir':
+      confdir => $confdir,
+      setting => 'ssldir',
+      value   => $ssldir
+    }
+
+    pupmod::conf { 'stringify_facts':
+      confdir => $confdir,
+      setting => 'stringify_facts',
+      value   => false
+    }
+
+    pupmod::conf { 'digest_algorithm':
+      confdir => $confdir,
+      setting => 'digest_algorithm',
+      value   => $digest_algorithm
+    }
+
+    if $auditd_support {
+      include 'auditd'
+
+      auditd::rule { 'puppet_master':
+        content => template('pupmod/puppet-auditd-rules.erb'),
+      }
+    }
+
+    # This is to allow the hosts to boot faster.  It should probably be
+    # re-worked.
+    file { '/etc/sysconfig/puppet':
+      ensure  => 'file',
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0644',
+      content => "PUPPET_EXTRA_OPTS='--daemonize'\n"
+    }
+
+    # Changing SELinux booleans on a minor update is a horrible idea.
+    if ( $::operatingsystem in ['RedHat','CentOS'] ) and ( $::operatingsystemmajrelease < '7' ) {
+      $puppet_agent_sebool = 'puppet_manage_all_files'
+    }
+    else {
+      $puppet_agent_sebool = 'puppetagent_manage_all_files'
+    }
+    if $::selinux_current_mode and $::selinux_current_mode != 'disabled' {
+      selboolean { $puppet_agent_sebool :
+        persistent => true,
+        value      => 'on'
+      }
     }
   }
 }

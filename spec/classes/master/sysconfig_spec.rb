@@ -14,6 +14,16 @@ describe 'pupmod::master::sysconfig' do
       let(:facts){ @extras.merge(os_facts) }
 
       context 'with default parameters' do
+          puppetserver_content = File.open("#{File.dirname(__FILE__)}/data/puppetserver.txt", "rb").read;
+          it { is_expected.to contain_file('/etc/sysconfig/puppetserver').with(
+            {
+              'owner' => 'root',
+              'group' => 'puppet',
+              'mode' => '0640',
+            }
+          )
+          }
+          it { is_expected.to contain_file('/etc/sysconfig/puppetserver').with_content(puppetserver_content) }
         it { is_expected.to create_class('pupmod::master::sysconfig') }
         it { is_expected.to contain_file('/opt/puppetlabs/puppet/cache/pserver_tmp').with(
             {
@@ -24,16 +34,6 @@ describe 'pupmod::master::sysconfig' do
             }
           )
         }
-        puppetserver_content = File.open("#{File.dirname(__FILE__)}/data/puppetserver.txt", "rb").read;
-        it { is_expected.to contain_file('/etc/sysconfig/puppetserver').with(
-            {
-              'owner' => 'root',
-              'group' => 'puppet',
-              'mode' => '0640',
-            }
-          )
-        }
-        it { is_expected.to contain_file('/etc/sysconfig/puppetserver').with_content(puppetserver_content) }
       end
     end
   end
