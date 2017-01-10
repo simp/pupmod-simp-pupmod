@@ -1,0 +1,11 @@
+# A simple script for reloading the Puppet Server JRuby instances
+
+PATH=/opt/puppetlabs/bin:$PATH
+
+cert=`puppet config print hostcert`
+key=`puppet config print hostprivkey`
+cacert=`puppet config print localcacert`
+
+resp=`curl -o /dev/null -L -w "%{http_code}" -s -i --cert ${cert} --key ${key} --cacert ${cacert} -X DELETE https://foo.example.com:8140/puppet-admin-api/v1/jruby-pool`
+
+test "$resp" -eq '204'

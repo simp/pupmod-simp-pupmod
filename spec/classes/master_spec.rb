@@ -315,6 +315,21 @@ webserver: {
           'value'   => false,
           'notify'  => 'Service[puppetserver]'
         }) }
+        it { is_expected.to contain_ini_setting("pupmod_master_environmentpath") }
+
+        it { is_expected.to contain_ini_setting("pupmod_master_daemonize") }
+
+        it { is_expected.to contain_ini_setting("pupmod_master_masterport") }
+
+        it { is_expected.to contain_ini_setting("pupmod_master_ca") }
+
+        it { is_expected.to contain_ini_setting("pupmod_master_ca_port") }
+
+        it { is_expected.to contain_ini_setting("pupmod_ca_ttl") }
+
+        it { is_expected.to contain_ini_setting("pupmod_keylength") }
+
+        it { is_expected.to contain_ini_setting("pupmod_freeze_main") }
 
         it { is_expected.not_to contain_class('iptables') }
         it { is_expected.not_to contain_iptables__listen__tcp_stateful('allow_puppet') }
@@ -681,3 +696,4 @@ webserver: {
     end
   end
 end
+

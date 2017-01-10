@@ -1,0 +1,4 @@
+-a always,exit -F dir=<%= @confdir %> -F uid!=puppet -p wa -k Puppet_Config
+-a always,exit -F dir=<%= @logdir %> -F uid!=puppet -p wa -k Puppet_Log
+-a always,exit -F dir=<%= @rundir %> -F uid!=puppet -p wa -k Puppet_Run
+-a always,exit -F dir=<%= @ssldir %> -F uid!=puppet -p wa -k Puppet_SSL
