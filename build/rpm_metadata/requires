@@ -1,6 +1,6 @@
 Obsoletes: pupmod-pupmod-test >= 0.0.1
 Requires: pupmod-puppetlabs-stdlib < 5.0.0-0
-Requires: pupmod-puppetlabs-stdlib >= 4.9.0-0
+Requires: pupmod-puppetlabs-stdlib >= 4.13.1-0
 Requires: pupmod-simp-haveged < 1.0.0-0
 Requires: pupmod-simp-haveged >= 0.3.2-0
 Requires: pupmod-simp-iptables < 7.0.0-0
