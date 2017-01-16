@@ -28,7 +28,7 @@ describe 'pupmod::master::sysconfig' do
         it { is_expected.to contain_file('/etc/sysconfig/puppetserver').with(
             {
               'owner' => 'root',
-              'group' => 'root',
+              'group' => 'puppet',
               'mode' => '0640',
             }
           )

@@ -23,15 +23,15 @@
     },
     {
       "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 4.9.0 < 5.0.0"
+      "version_requirement": ">= 4.13.0 < 5.0.0"
     },
     {
       "name": "simp/iptables",
-      "version_requirement": ">= 5.0.0 < 6.0.0"
+      "version_requirement": ">= 6.0.0 < 7.0.0"
     },
     {
       "name": "simp/logrotate",
-      "version_requirement": ">= 5.0.0 < 6.0.0"
+      "version_requirement": ">= 6.0.0 < 7.0.0"
     },
     {
       "name": "simp/simpcat",
@@ -39,15 +39,15 @@
     },
     {
       "name": "simp/simplib",
-      "version_requirement": ">= 2.1.0 < 3.0.0"
+      "version_requirement": ">= 3.1.0 < 4.0.0"
     },
     {
       "name": "simp/pki",
-      "version_requirement": ">= 5.0.0 < 6.0.0"
+      "version_requirement": ">= 6.0.0 < 7.0.0"
     },
     {
       "name": "simp/tcpwrappers",
-      "version_requirement": ">= 5.0.0 < 6.0.0"
+      "version_requirement": ">= 6.0.0 < 7.0.0"
     }
   ],
   "requirements": [

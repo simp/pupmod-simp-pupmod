@@ -72,7 +72,7 @@ class pupmod::master::sysconfig (
 
   file { '/etc/sysconfig/puppetserver':
     owner   => 'root',
-    group   => 'root',
+    group   => 'puppet',
     mode    => '0640',
     content => template('pupmod/etc/sysconfig/puppetserver.erb'),
     notify  => Service[$::pupmod::master::service]
