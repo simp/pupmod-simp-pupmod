@@ -325,7 +325,7 @@ class pupmod (
   if $auditd_support {
     include 'auditd'
 
-    auditd::add_rules { 'puppet_master':
+    auditd::rule { 'puppet_master':
       content => template('pupmod/puppet-auditd-rules.erb'),
     }
   }

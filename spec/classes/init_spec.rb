@@ -174,7 +174,7 @@ describe 'pupmod' do
           it { is_expected.to contain_class('auditd') }
           audit_content = File.open("#{File.dirname(__FILE__)}/data/auditd.txt", "rb").read;
 
-          it { is_expected.to contain_auditd__add_rules('puppet_master').with_content(audit_content)}
+          it { is_expected.to contain_auditd__rule('puppet_master').with_content(audit_content)}
 
           it { is_expected.to contain_file('/etc/sysconfig/puppet').with({
             'ensure'  => 'file',
@@ -260,7 +260,7 @@ describe 'pupmod' do
           context 'with auditd_support => false' do
             let(:params) {{:auditd_support => false}}
             it { is_expected.to_not contain_class('auditd') }
-            it { is_expected.to_not contain_auditd__add_rules('puppet_master') }
+            it { is_expected.to_not contain_auditd__rule('puppet_master') }
           end
         end
 
