@@ -3,6 +3,7 @@
 - Converted to puppet-strings
 - Switched to the new catalyst pattern with simplib::lookup
 - Strong typed module
+- Set trusted_server_facts to true by default
 
 * Wed Nov 23 2016 Jeanne Greulich <jgreulich.simp@onyxpoint.com> - 7.0.0-0
 - update requirement versions

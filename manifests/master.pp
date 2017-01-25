@@ -230,6 +230,12 @@ class pupmod::master (
     notify  => Service[$service]
   }
 
+  pupmod::conf { 'trusted_server_facts':
+    setting => 'trusted_server_facts',
+    value   => true,
+    notify  => Service[$service]
+  }
+
   pupmod::conf { 'master_environmentpath':
     section => 'master',
     setting => 'environmentpath',
