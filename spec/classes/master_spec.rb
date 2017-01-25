@@ -260,6 +260,12 @@ webserver: {
           'notify'  => 'Service[puppetserver]'
         }) }
 
+        it { is_expected.to contain_pupmod__conf('trusted_server_facts').with({
+          'setting' => 'trusted_server_facts',
+          'value'   => true,
+          'notify'  => 'Service[puppetserver]'
+        }) }
+
         it { is_expected.to contain_pupmod__conf('master_environmentpath').with({
           'section' => 'master',
           'setting' => 'environmentpath',
