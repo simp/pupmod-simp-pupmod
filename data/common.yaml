@@ -1,0 +1,69 @@
+---
+pupmod::pe_classlist:
+  pupmod:
+   users:
+      - root
+  pupmod::master:
+    users:
+      - puppet
+  puppet_enterprise::profile::puppetdb:
+    users:
+      - pe-puppetdb
+      - pe-postgres
+    services:
+      - pe-puppetdb
+      - pe-postgresql
+    firewall_rules:
+      - proto: tcp
+        port: 8081
+      - proto: tcp
+        port: 5432
+  puppet_enterprise::profile::console:
+    users:
+      - pe-webserver
+      - pe-console-services
+    services:
+      - pe-console-services
+      - pe-nginx
+    firewall_rules:
+      - proto: tcp
+        port: 443
+      - proto: tcp
+        port: 4431
+      - proto: tcp
+        port: 4433
+  puppet_enterprise::profile::amq::broker:
+    users:
+      - pe-activemq
+    services:
+      - pe-activemq
+    firewall_rules:
+      - proto: tcp
+        port: 45826
+      - proto: tcp
+        port: 61613
+      - proto: tcp
+        port: 61616
+  puppet_enterprise::profile::orchestrator:
+    users:
+      - pe-orchestration-services
+    services:
+      - pe-orchestration-services
+    firewall_rules:
+      - proto: tcp
+        port: 8142
+      - proto: tcp
+        port: 8143
+  puppet_enterprise::profile::master:
+    users:
+      - pe-puppet
+    services:
+      - pe-puppetserver
+    firewall_rules:
+      - proto: tcp
+        port: 8140
+      - proto: tcp
+        port: 8170
+lookup::options:
+  pupmod::pe_classlist:
+    merge: deep

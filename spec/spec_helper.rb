@@ -143,6 +143,9 @@ RSpec.configure do |c|
     FileUtils.rm_rf(@spec_global_env_temp)
     @spec_global_env_temp = nil
   end
+  c.after(:suite) do
+#    RSpec::Puppet::Coverage.report!(100)
+  end
 end
 
 Dir.glob("#{RSpec.configuration.module_path}/*").each do |dir|

@@ -60,13 +60,6 @@ class pupmod::master::base {
     content => template('pupmod/usr/local/sbin/puppetserver_reload.erb')
   }
 
-  group { 'puppet':
-    ensure    => 'present',
-    allowdupe => false,
-    gid       => '52',
-    tag       => 'firstrun',
-    require   => Package[$::pupmod::master::service]
-  }
 
   package { $::pupmod::master::service:
     ensure => 'latest',

@@ -20,14 +20,14 @@
 define pupmod::conf (
   String $setting,
   Scalar $value,
+  String $confdir,
   String $section = 'main'
 ) {
-  include '::pupmod'
 
   $l_name = "${module_name}_${name}"
 
   ini_setting { $l_name:
-    path    => "${::pupmod::confdir}/puppet.conf",
+    path    => "${confdir}/puppet.conf",
     section => $section,
     setting => $setting,
     # This needs to be a string to take effect!
