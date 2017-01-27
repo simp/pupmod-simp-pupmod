@@ -11,17 +11,18 @@ if scope.lookupvar('::pupmod::splay')
   maxage = maxage + scope.lookupvar('::pupmod::splaylimit').to_i + 10
 end
 -%>
-#!/bin/sh
+#!/bin/bash
 
 PATH="/opt/puppetlabs/bin:/usr/kerberos/sbin:/usr/kerberos/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin";
 
 now=0;
 filedate=0;
 
-puppet_lockfile=`puppet config print agent_disabled_lockfile`;
-puppet_run_lockfile=`puppet config print agent_catalog_run_lockfile`;
+puppet_lockfile="$(puppet config print agent_disabled_lockfile)";
+puppet_run_lockfile="$(puppet config print agent_catalog_run_lockfile)";
 
-if [ -f "$puppet_lockfile" ]; then
+# This handles willful disabling of Puppet and service status (not cron runs)
+if [ -f "${puppet_lockfile}" ]; then
 
   # Exit if maxruntime == 0.  This means that you wish to never forcibly unlock
   # the system.
@@ -29,30 +30,49 @@ if [ -f "$puppet_lockfile" ]; then
     exit 0;
   fi
 
-  now=`date "+%s"`;
-  filedate=`stat --printf="%Z" $puppet_lockfile`;
+  now=$(date "+%s");
+  filedate=$(stat --printf="%Z" ${puppet_lockfile});
+
+  /sbin/service puppet status &> /dev/null;
+  pup_status=$?;
+
+  # Do this if puppet is running without a puppet run lockfile for some reason (unlikely).
+  if [[ ${pup_status} -eq 0 && ! -f "${puppet_run_lockfile}" ]]; then
+    /sbin/service puppet stop > /dev/null 2>&1;
+    wait;
+  fi
+
+  # If we've gotten here, then we're breaking a lock on the system in order to
+  # run puppet.
+  # The purpose of this is to ensure that people don't lock puppet and forget
+  # about it.
+  # If you want to disable puppet then disable the cron job and the service and
+  # set the lockfile.
+  if [[ ${pup_status} -ne 0 && $(( ${now} - ${filedate} )) -gt <%= maxage %> ]; then
+    /bin/logger -s -p 'local6.warn' -t 'puppetd' "Puppet disable forcibly unlocked.";
+    /bin/rm -f "${puppet_lockfile}";
+  fi
 fi
 
-ps -C puppetd,"puppet agent" >& /dev/null
-pup_status=$?
+# Get the process listing to check for "hung" cron job runs
+pup_status="$(ps -p "${pidof ruby)" -o args --no-headers 2> /dev/null | grep 'puppet agent')";
 
-# Do this if puppet is running without a puppet run lockfile for some reason (unlikely).
-if [ $pup_status -eq 0 ] && [ ! -f "$puppet_run_lockfile" ]; then
-  /sbin/service puppet stop > /dev/null 2>&1;
-  wait;
+# This handles "hung" puppet processes
+if [ -f "${puppet_run_lockfile}" ]; then
+
+  now=$(date "+%s");
+  filedate=$(stat --printf="%Z" ${puppet_run_lockfile});
+
+  # If we've gotten here, then Puppet has not completed within threshold
+  if [[ -n "${pup_status}" && $(( ${now} - ${filedate} )) -gt <%= maxage %> ]; then
+    pkill puppet;
+    wait;
+    /bin/logger -s -p 'local6.warn' -t 'puppetd' "Puppet processes forcibly killed.";
+    /bin/rm -f "${puppet_run_lockfile}";
+  fi
 fi
 
-# If we've gotten here, then we're breaking a lock on the system in order to
-# run puppet.
-# The purpose of this is to ensure that people don't lock puppet and forget
-# about it.
-# If you want to disable puppet then disable the cron job and the service and
-# set the lockfile.
-if [ $pup_status -ne 0 ] && [ $(( $now - $filedate )) -gt <%= maxage %> ]; then
-  /bin/logger -s -p 'local6.warn' -t 'puppetd' "Puppet forcibly unlocked.";
-  /bin/rm -f $puppet_lockfile;
-fi
-
+# Run Puppet is we don't have any locks
 if [ ! -f "$puppet_lockfile" ] && [ ! -f "$puppet_run_lockfile" ]; then
   puppet agent --onetime --no-daemonize --no-show_diff;
 fi
