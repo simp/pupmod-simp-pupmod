@@ -72,7 +72,7 @@ if [ -f "${puppet_run_lockfile}" ]; then
   fi
 fi
 
-# Run Puppet is we don't have any locks
-if [ ! -f "$puppet_lockfile" ] && [ ! -f "$puppet_run_lockfile" ]; then
+# Run Puppet if we don't have any locks
+if [ ! -f "${puppet_lockfile}" ] && [ ! -f "${puppet_run_lockfile}" ]; then
   puppet agent --onetime --no-daemonize --no-show_diff;
 fi
