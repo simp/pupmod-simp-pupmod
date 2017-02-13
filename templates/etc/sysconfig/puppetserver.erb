@@ -10,12 +10,14 @@ if !@java_start_memory || @java_start_memory.empty?
 else
   java_start_memory = @java_start_memory
 end
+
+extra_java_args = @extra_java_args.join(' ')
 -%>
 # Location of your Java binary (version 7 or higher)
 JAVA_BIN="<%= @java_bin %>"
 
 # Modify this if you'd like to change the memory allocation, enable JMX, etc
-JAVA_ARGS="-Xms<%= java_start_memory %> -Xmx<%= java_max_memory %> -Djava.io.tmpdir=<%= @_java_temp_dir %>"
+JAVA_ARGS="-Xms<%= java_start_memory %> -Xmx<%= java_max_memory %> -Djava.io.tmpdir=<%= @_java_temp_dir %> <%= extra_java_args %>"
 
 # These normally shouldn't need to be edited if using OS packages
 USER="puppet"
