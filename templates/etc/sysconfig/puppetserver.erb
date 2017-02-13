@@ -11,7 +11,7 @@ else
   java_start_memory = @java_start_memory
 end
 
-if !@extra_java_args.empty?
+if @extra_java_args != nil
   extra_java_args = @extra_java_args.join(' ')
 end
 -%>
