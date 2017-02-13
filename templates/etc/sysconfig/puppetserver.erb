@@ -11,7 +11,9 @@ else
   java_start_memory = @java_start_memory
 end
 
-extra_java_args = @extra_java_args.join(' ')
+if !@extra_java_args.empty?
+  extra_java_args = @extra_java_args.join(' ')
+end
 -%>
 # Location of your Java binary (version 7 or higher)
 JAVA_BIN="<%= @java_bin %>"
