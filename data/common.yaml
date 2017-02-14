@@ -64,6 +64,6 @@ pupmod::pe_classlist:
         port: 8140
       - proto: tcp
         port: 8170
-lookup::options:
+lookup_options:
   pupmod::pe_classlist:
     merge: deep
