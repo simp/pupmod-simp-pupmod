@@ -48,14 +48,14 @@ if [ -f "${puppet_lockfile}" ]; then
   # about it.
   # If you want to disable puppet then disable the cron job and the service and
   # set the lockfile.
-  if [ ${pup_status} -ne 0 && $(( ${now} - ${filedate} )) -gt <%= maxage %> ]; then
+  if [[ ${pup_status} -ne 0 && $(( ${now} - ${filedate} )) -gt <%= maxage %> ]]; then
     /bin/logger -s -p 'local6.warn' -t 'puppetd' "Puppet disable forcibly unlocked.";
     /bin/rm -f "${puppet_lockfile}";
   fi
 fi
 
 # Get the process listing to check for "hung" cron job runs
-pup_status="$(ps -p "${pidof ruby)" -o args --no-headers 2> /dev/null | grep 'puppet agent')";
+pup_status="$(ps -p "$(pidof ruby)" -o args --no-headers 2> /dev/null | grep 'puppet agent')";
 
 # This handles "hung" puppet processes
 if [ -f "${puppet_run_lockfile}" ]; then
@@ -64,7 +64,7 @@ if [ -f "${puppet_run_lockfile}" ]; then
   filedate=$(stat --printf="%Z" ${puppet_run_lockfile});
 
   # If we've gotten here, then Puppet has not completed within threshold
-  if [ -n "${pup_status}" && $(( ${now} - ${filedate} )) -gt <%= maxage %> ]; then
+  if [[ -n "${pup_status}" && $(( ${now} - ${filedate} )) -gt <%= maxage %> ]]; then
     pkill puppet;
     wait;
     /bin/logger -s -p 'local6.warn' -t 'puppetd' "Puppet processes forcibly killed.";
