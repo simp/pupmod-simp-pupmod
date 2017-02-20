@@ -1,3 +1,6 @@
+* Mon Feb 20 2017 Jeanne Greuich <jeanne.greulich@onyxpoint.com> - 7.1.0-0
+- Fix typos in the puppetagent cron script
+
 * Mon Dec 10 2016 Nick Miller <nick.miller@onyxpoint.com> - 7.1.0-0
 - Updated assets and versions
 - Converted to puppet-strings
