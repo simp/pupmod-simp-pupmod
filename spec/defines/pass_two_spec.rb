@@ -178,8 +178,32 @@ describe 'pupmod::pass_two' do
                   it { is_expected.to compile }
                   it { is_expected.to contain_class("pupmod::master::sysconfig")}
                   it { is_expected.to contain_class("pupmod::params")}
-                  it { is_expected.to contain_file("/opt/puppetlabs/puppet/cache/pserver_tmp")}
-                  it { is_expected.to contain_pe_ini_subsetting("pupmod::master::sysconfig::javatempdir")}
+                  {
+                    "2015.1.1" => true,
+                    "2015.20.1" => true,
+                    "2016.1.0" => true,
+                    "2016.2.0" => true,
+                    "2016.4.0" => false,
+                    "2016.4.1" => false,
+                    "2016.5.1" => false,
+                    "2017.1.0" => false,
+                    "2017.20.1" => false,
+                    "2018.1.0" => false,
+                    "2020.1.0" => false,
+                    "2021.1.0" => false,
+                  }.each do |pe_version, tmpdir|
+                    it { is_expected.to contain_file("/opt/puppetlabs/puppet/cache/pserver_tmp")}
+                    context "when pe_version == #{pe_version}" do
+                      let (:facts) do
+                        { "pe_build" => pe_version }.merge(facts)
+                      end
+                      if (tmpdir == true)
+                        it { is_expected.to contain_pe_ini_subsetting("pupmod::master::sysconfig::javatempdir")}
+                      else
+                        it { is_expected.to_not contain_pe_ini_subsetting("pupmod::master::sysconfig::javatempdir")}
+                      end
+                    end
+                  end
                 end
               end
             end
