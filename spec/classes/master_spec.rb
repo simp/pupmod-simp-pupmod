@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+audit_content = File.open("#{File.dirname(__FILE__)}/data/auditd.txt", "rb").read;
+
 describe 'pupmod::master' do
   before :all do
     @extras = { :puppet_settings => {
@@ -698,6 +700,18 @@ webserver: {
               'dports'       => 8141
           }) }
         end
+
+        context 'with auditd => false' do
+          let(:params) {{:auditd => false}}
+          it { is_expected.to_not contain_class('auditd') }
+          it { is_expected.to_not contain_auditd__rule('puppet_master').with_content(audit_content)}
+        end
+        context 'with auditd => true' do
+          let(:params) {{:auditd => true}}
+          it { is_expected.to contain_class('auditd') }
+          it { is_expected.to contain_auditd__rule('puppet_master').with_content(audit_content)}
+        end
+
       end
     end
   end

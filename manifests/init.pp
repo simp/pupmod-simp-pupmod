@@ -21,10 +21,6 @@
 #   The server distribution used. This changes the configuration based on whether
 #   we are using PC1 or PE
 #
-# @param auditd_support
-#   If true, adds an audit record to watch sensitive Puppet directories for
-#   changes by any user that is not the puppet user.
-#
 # @param ca_crl_pull_interval
 #   How many times per day to pull the CRL down from the CA via cron.
 #
@@ -135,11 +131,10 @@
 # @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 class pupmod (
-  Variant[Simplib::Host,Enum['$server']] $ca_server = simplib::lookup('simp_options::puppet::ca', { 'default_value'                => '$server' }),
-  Simplib::Port             $ca_port              = simplib::lookup('simp_options::puppet::ca_port', { 'default_value'             => 8141 }),
-  Simplib::Host             $puppet_server        = simplib::lookup('simp_options::puppet::server', { 'default_value'              => "puppet.${facts['domain']}" }),
-  Simplib::Serverdistribution                    $server_distribution  = simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'PC1' } ),
-  Boolean                   $auditd_support       = simplib::lookup('simp_options::auditd', { 'default_value'                             =>  false }),
+  Variant[Simplib::Host,Enum['$server']] $ca_server = simplib::lookup('simp_options::puppet::ca', { 'default_value' => '$server' }),
+  Simplib::Port             $ca_port              = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
+  Simplib::Host             $puppet_server        = simplib::lookup('simp_options::puppet::server', { 'default_value' => "puppet.${facts['domain']}" }),
+  Simplib::ServerDistribution $server_distribution = simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'PC1' } ),
   Integer                   $ca_crl_pull_interval = 2,
   Simplib::Host             $certname             = $facts['fqdn'],
   String                    $classfile            = '$vardir/classes.txt',
@@ -161,13 +156,15 @@ class pupmod (
   Simplib::Syslog::Facility $syslogfacility       = 'local6',
   Boolean                   $use_srv_records      = false,
   Stdlib::AbsolutePath      $vardir               = $::pupmod::params::puppet_config['vardir'],
-  Boolean                   $haveged              = simplib::lookup('simp_options::haveged', { 'default_value'                     => false }),
-  Boolean                   $fips                 = simplib::lookup('simp_options::fips', { 'default_value'                        => false }),
+  Boolean                   $haveged              = simplib::lookup('simp_options::haveged', { 'default_value' => false }),
+  Boolean                   $fips                 = simplib::lookup('simp_options::fips', { 'default_value' => false }),
   Boolean                   $firewall             = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Hash                      $pe_classlist         = {},
   Boolean                   $mock                 = false
 ) inherits pupmod::params {
   unless ($mock == true) {
+    # These regexes match absolute paths or paths that begin with an existing
+    # puppet configuration variable, like $vardir
     validate_re($classfile,'^(\$(?!/)|/).+')
     validate_re($confdir,'^(\$(?!/)|/).+')
     validate_re($environmentpath,'^(\$(?!/)|/).+')
@@ -227,12 +224,12 @@ class pupmod (
     # to lay SIMP on top of PE.
     #
     # Therefore, we have to inspect the catalog to see which PE
-    # classes are included, and tailor our configuration 
+    # classes are included, and tailor our configuration
     # accordingly.
     #
     # To do this we have to use defined(). But this has an inherent
     # race condition if you use it in a normal class, as if this class
-    # is evaluated before the class you are checking, you 
+    # is evaluated before the class you are checking, you
     # will get an erroneous false result.
     #
     # The workaround is to take advantage of the fact that the puppet
@@ -246,7 +243,7 @@ class pupmod (
     # for every major puppet release.
 
     @pupmod::pass_two { 'main':
-      server_distribution =>  $server_distribution,
+      server_distribution => $server_distribution,
       confdir             => $confdir,
       firewall            => $firewall,
       pe_classlist        => $pe_classlist,
@@ -342,14 +339,6 @@ class pupmod (
       confdir => $confdir,
       setting => 'digest_algorithm',
       value   => $digest_algorithm
-    }
-
-    if $auditd_support {
-      include 'auditd'
-
-      auditd::rule { 'puppet_master':
-        content => template('pupmod/puppet-auditd-rules.erb'),
-      }
     }
 
     # This is to allow the hosts to boot faster.  It should probably be

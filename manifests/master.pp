@@ -6,6 +6,10 @@
 # @param ca_bind_address
 #   The IP address to which the Puppet CA process should bind
 #
+# @param auditd
+#   If true, adds an audit record to watch sensitive Puppet directories for
+#   changes by any user that is not the puppet user.
+#
 # @param ca_port
 #   The port upon which the CA should listen. This has been modified from the
 #   default setting of 8140 so that it does not interfere with the certificate
@@ -96,6 +100,7 @@
 class pupmod::master (
   Simplib::IP                    $bind_address          = '0.0.0.0',
   Simplib::IP                    $ca_bind_address       = '0.0.0.0',
+  Boolean                        $auditd                = simplib::lookup('simp_options::auditd', { 'default_value' => false }),
   Simplib::Port                  $ca_port               = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
   Simplib::NetList               $trusted_nets          = simplib::lookup('simp_options::trusted_nets', { 'default_value' => ['127.0.0.1','::1'] }),
   String                         $server_distribution   = simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'PC1' } ),
@@ -112,6 +117,7 @@ class pupmod::master (
   Stdlib::AbsolutePath           $vardir                = $::pupmod::params::master_config['vardir'],
   Stdlib::AbsolutePath           $rundir                = $::pupmod::params::master_config['rundir'],
   Stdlib::AbsolutePath           $logdir                = $::pupmod::params::master_config['logdir'],
+  Stdlib::AbsolutePath           $ssldir                = $::pupmod::params::puppet_config['ssldir'],
   Boolean                        $use_legacy_auth_conf  = true,
   Boolean                        $firewall              = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Array[Simplib::Host]           $ca_status_whitelist   = [$facts['fqdn']],
@@ -234,12 +240,12 @@ class pupmod::master (
       notify  => Service[$service]
     }
 
-  pupmod::conf { 'trusted_server_facts':
-    confdir => $puppet_confdir,
-    setting => 'trusted_server_facts',
-    value   => true,
-    notify  => Service[$service]
-  }
+    pupmod::conf { 'trusted_server_facts':
+      confdir => $puppet_confdir,
+      setting => 'trusted_server_facts',
+      value   => true,
+      notify  => Service[$service]
+    }
 
     pupmod::conf { 'master_environmentpath':
       section => 'master',
@@ -312,6 +318,14 @@ class pupmod::master (
       value   => false,
       #value   => $freeze_main,
       notify  => Service[$service]
+    }
+
+    if $auditd {
+      include '::auditd'
+
+      auditd::rule { 'puppet_master':
+        content => template('pupmod/puppet-auditd-rules.erb'),
+      }
     }
 
     if $firewall {
