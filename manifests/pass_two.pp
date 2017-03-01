@@ -1,14 +1,14 @@
 define pupmod::pass_two (
-  $namerar = $name,
-  $server_distribution = 'PC1',
-  $confdir = '/etc/puppetlabs/puppet',
-  $firewall = undef,
-  $pe_classlist = lookup('pupmod::pe_classlist'),
-  $pupmod_server = '1.2.3.4',
-  $pupmod_ca_server = '$server',
-  $pupmod_ca_port = 8141,
-  $pupmod_report = false,
-  $pupmod_masterport = 8140,
+  String $namevar = $name,
+  Simplib::ServerDistribution $server_distribution = 'PC1',
+  Stdlib::AbsolutePath $confdir = '/etc/puppetlabs/puppet',
+  Optional[Boolean] $firewall = undef,
+  Hash $pe_classlist = lookup('pupmod::pe_classlist'),
+  Optional[Simplib::Host] $pupmod_server = '1.2.3.4',
+  Variant[Simplib::Host,Enum['$server']] $pupmod_ca_server = '$server',
+  Simplib::Port $pupmod_ca_port = 8141,
+  Boolean $pupmod_report = false,
+  Simplib::Port $pupmod_masterport = 8140,
 ) {
   if (defined(Class['puppet_enterprise'])) {
     $_server_distribution = 'PE'
@@ -136,6 +136,18 @@ define pupmod::pass_two (
     group  => $_conf_group,
     mode   => $shared_mode,
     audit  => content
+  }
+
+  if ($_server_distribution == 'PE') {
+    # lint:ignore:variable_scope
+    $pe_classlist.each |String $class, Hash $data| {
+      if (defined(Class[$class])) {
+        if ($data['configure_access'] == true) {
+          pam::access::rule { "Add rule for ${class}": users => $data['users'], origins => ['ALL'], comment =>  'fix for init scripts that use su' }
+        }
+      }
+    }
+    # lint:endignore
   }
 
   # Generate firewall rules on a per-class basis.
