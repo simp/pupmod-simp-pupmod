@@ -15,11 +15,11 @@
 # @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 class pupmod::master::reports (
-  Simplib::Port         $port            = $::pupmod::master::masterport,
-  Stdlib::AbsolutePath  $vardir          = $::pupmod::master::vardir,
-  Boolean               $purge           = true,
-  Integer               $purge_keep_days = 7,
-  Boolean               $purge_verbose   = false
+  Simplib::Port        $port            = $::pupmod::master::masterport,
+  Stdlib::AbsolutePath $vardir          = $::pupmod::master::vardir,
+  Boolean              $purge           = true,
+  Integer              $purge_keep_days = 7,
+  Boolean              $purge_verbose   = false
 ) inherits ::pupmod::master {
 
   assert_private()

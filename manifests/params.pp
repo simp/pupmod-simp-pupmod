@@ -22,5 +22,5 @@ class pupmod::params {
   $master_bootstrap_config = [
     '/etc/puppetlabs/puppetserver/services.d/',
     '/opt/puppetlabs/server/apps/puppetserver/config/services.d/'
-    ]
+  ]
 }

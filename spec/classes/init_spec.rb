@@ -1,5 +1,7 @@
 require 'spec_helper'
+
 audit_content = File.open("#{File.dirname(__FILE__)}/data/auditd.txt", "rb").read;
+
 describe 'pupmod' do
   on_supported_os.each do |os, os_facts|
     before :all do
@@ -114,8 +116,8 @@ describe 'pupmod' do
 
             it { is_expected.to contain_ini_setting("pupmod_logdir") }
 
-          it { is_expected.to_not contain_class('auditd') }
-          it { is_expected.to_not contain_auditd__rule('puppet_master').with_content(audit_content)}
+            it { is_expected.to_not contain_class('auditd') }
+            it { is_expected.to_not contain_auditd__rule('puppet_master').with_content(audit_content)}
             it { is_expected.to contain_ini_setting("pupmod_rundir") }
 
             it { is_expected.to contain_ini_setting("pupmod_runinterval") }
@@ -192,19 +194,8 @@ describe 'pupmod' do
               }) }
 
               it { is_expected.to contain_ini_setting("pupmod_splaylimit") }
-
             end
 
-            context 'with auditd_support => false' do
-              let(:params) {{:auditd_support => false}}
-              it { is_expected.to_not contain_class('auditd') }
-              it { is_expected.to_not contain_auditd__rule('puppet_master').with_content(audit_content)}
-            end
-            context 'with auditd_support => true' do
-              let(:params) {{:auditd_support => true}}
-              it { is_expected.to contain_class('auditd') }
-              it { is_expected.to contain_auditd__rule('puppet_master').with_content(audit_content)}
-            end
           end
         end
       end

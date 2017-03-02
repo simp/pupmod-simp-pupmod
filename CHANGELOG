@@ -1,3 +1,8 @@
+* Wed Mar 01 2017 Nick Miller <nick.miller@onyxpoint.com> - 7.1.1-0
+- The previous audit rules relied on the puppet user existing, but in
+  newer versions of puppet, the puppet user only exists on the
+  puppetserver. This commit only puts auditing on the puppetserver.
+
 * Mon Feb 20 2017 Jeanne Greuich <jeanne.greulich@onyxpoint.com> - 7.1.0-0
 - Fix typos in the puppetagent cron script
 
