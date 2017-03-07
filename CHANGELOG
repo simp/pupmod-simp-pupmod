@@ -1,3 +1,7 @@
+* Mon Mar 06 2017 Nick Markowski <nmarkowski@keywcorp.com> - 7.1.1-0
+- Puppet agent runs in bootstrap and puppetagent_cron are now mutually
+  exclusive, with the addition of flock logic.
+
 * Wed Mar 01 2017 Nick Miller <nick.miller@onyxpoint.com> - 7.1.1-0
 - The previous audit rules relied on the puppet user existing, but in
   newer versions of puppet, the puppet user only exists on the
