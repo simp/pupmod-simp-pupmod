@@ -79,7 +79,7 @@ class pupmod::agent::cron (
 
   if $minute == 'nil' {
     cron { 'puppetagent':
-      command => 'flock -w .1 /var/puppetagent_cron.lock /usr/local/bin/puppetagent_cron.sh',
+      command => 'flock -w .1 /var/lock/puppetagent_cron /usr/local/bin/puppetagent_cron.sh',
       user    => 'root',
       minute  => "*/${interval}",
       require => File['/usr/local/bin/puppetagent_cron.sh']
@@ -93,7 +93,7 @@ class pupmod::agent::cron (
       $l_minute = $minute
     }
     cron { 'puppetagent':
-      command  => 'flock -w .1 /var/puppetagent_cron.lock /usr/local/bin/puppetagent_cron.sh',
+      command  => 'flock -w .1 /var/lock/puppetagent_cron /usr/local/bin/puppetagent_cron.sh',
       user     => 'root',
       minute   => $l_minute,
       hour     => $hour,
