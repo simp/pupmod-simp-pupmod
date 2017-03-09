@@ -8,7 +8,7 @@ filedate=0;
 puppet_run_lockfile="$(puppet config print agent_catalog_run_lockfile)";
 puppet_disable_lockfile="$(puppet config print agent_disabled_lockfile)";
 
-<% if @enable_agent -%>
+<% if @break_puppet_lock -%>
 # This handles forcibly enabling puppet agent if _max_disable_time is exceeded.
 if [ -f "${puppet_disable_lockfile}" ]; then
 
