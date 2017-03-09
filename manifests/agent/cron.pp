@@ -115,9 +115,11 @@ class pupmod::agent::cron (
     $_max_disable_time = $max_disable_time
   }
   else {
-    if $::splaylimit {
+    $_splaylimit = getvar('pupmod::splaylimit')
+
+    if $_splaylimit {
       # This assumes splay is in seconds.
-      $_max_disable_time = $_max_disable_base + ($::splaylimit / 60)
+      $_max_disable_time = $_max_disable_base + ($_splaylimit / 60)
     }
     else {
       $_max_disable_time = $_max_disable_base
