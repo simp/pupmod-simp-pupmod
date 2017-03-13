@@ -11,7 +11,7 @@ describe 'pupmod::agent::cron' do
         let(:params) {{ :interval => 60 }}
 
         it { is_expected.to create_class('pupmod::agent::cron') }
-        it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/-gt 3600/) }
+        it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/-gt 14400/) }
         it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(
           /service puppet stop > \/dev\/null 2>&1/
         )}
@@ -50,26 +50,10 @@ describe 'pupmod::agent::cron' do
           it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/-gt 600/) }
         end
 
-        context 'set_max_age to never unlock' do
-          let(:params) {{ :maxruntime => 0 }}
-          it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/"0" == "0"/) }
-        end
-
-        context 'when pupmod::splay is true' do
-          let(:facts) do
-            os_facts.merge({'custom_hiera'=>'pupmod_splay_is_true'})
-          end
-          let(:params) {{ }}
-          splay = Puppet[:splaylimit] + 1800 + 10
-          it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/-gt #{splay}/) }
-        end
-
-        context 'when pupmod::splay is true but maxruntime is disabled' do
-          let(:facts) { os_facts.merge( {'custom_hiera'=>'pupmod_splay_is_true'} )}
-          let(:params) {{ :maxruntime => 0 }}
-          splay = Puppet[:splaylimit] + 10
-            it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/"0" == "0"/) }
-            it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/-gt #{splay}/) }
+        context 'disable break_puppet_lock' do
+          let(:params) {{ :break_puppet_lock => false }}
+          it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/handles puppet processes which have been running longer than maxruntime/) }
+          it { is_expected.to_not contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(/handles forcibly enabling puppet agent/) }
         end
       end
     end

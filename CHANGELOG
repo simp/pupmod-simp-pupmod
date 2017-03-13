@@ -1,3 +1,12 @@
+* Wed Mar 08 2017 Nick Markowski <nmarkowski@keywcorp.com> - 7.2.0-0
+- Updated puppetagent_cron:
+-  Added `break_puppet_lock` param so users can clearly specify when they wish
+   to forcibly enable the puppet agent.
+-  Added `max_disable_time param`. Updated logic to determine when to
+   forcibly enable a puppet agent, and moved logic into cron.pp for
+   user-friendliness.
+-  Set maxruntime default of 4 hours
+
 * Wed Mar 01 2017 Nick Miller <nick.miller@onyxpoint.com> - 7.1.1-0
 - The previous audit rules relied on the puppet user existing, but in
   newer versions of puppet, the puppet user only exists on the
