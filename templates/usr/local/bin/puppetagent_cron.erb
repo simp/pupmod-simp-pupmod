@@ -48,7 +48,7 @@ if [ -f "${puppet_run_lockfile}" ]; then
 
   # If we've gotten here, then Puppet has not completed within threshold
   if [[ -n "${pup_status}" && $(( ${now} - ${filedate} )) -gt <%= @maxruntime * 60 %> ]]; then
-    pkill puppet;
+    pkill -x puppet;
     wait;
     /bin/logger -s -p 'local6.warn' -t 'puppet' "Puppet processes forcibly killed.";
     /bin/rm -f "${puppet_run_lockfile}";
