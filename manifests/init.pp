@@ -128,6 +128,9 @@
 # @param pe_classlist
 #   Hash of pe classes and assorted metadata.
 #
+# @param package_ensure
+#   String used to specify 'latest', 'installed', or a specific version of the puppet-agent package
+#
 # @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 class pupmod (
@@ -160,6 +163,7 @@ class pupmod (
   Boolean                                $fips                 = simplib::lookup('simp_options::fips', { 'default_value' => false }),
   Boolean                                $firewall             = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Hash                                   $pe_classlist         = {},
+  String                                 $package_ensure       = 'latest',
   Boolean                                $mock                 = false
 ) inherits pupmod::params {
   unless ($mock == true) {
@@ -181,7 +185,7 @@ class pupmod (
     if $enable_puppet_master {
       include 'pupmod::master'
     }
-    package { 'puppet-agent': ensure => 'latest' }
+    package { 'puppet-agent': ensure => $package_ensure }
 
     cron { 'puppet_crl_pull':
       command => template('pupmod/commands/crl_download.erb'),
@@ -366,3 +370,4 @@ class pupmod (
     }
   }
 }
+# vim: set expandtab ts=2 sw=2:

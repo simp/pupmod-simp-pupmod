@@ -92,6 +92,8 @@
 #   A syslog severity string limiting the messages reported. Be aware that
 #   anything above 'WARN' will provide a massive amount of logs at each puppet
 #   run.
+# @param package_ensure
+#   String used to specify either 'latest', 'installed', or a specific version of the puppetserver package
 # @param mock
 #   DO NOT USE. needed for rspec testing
 #
@@ -133,6 +135,7 @@ class pupmod::master (
   String                         $syslog_facility       = 'LOCAL6',
   String                         $syslog_message_format = '%logger[%thread]: %msg',
   Pupmod::LogLevel               $log_level             = 'WARN',
+  String                         $package_ensure                = 'latest',
   Boolean                        $mock                  = false
 ) inherits ::pupmod::params {
   if ($mock == false) {
