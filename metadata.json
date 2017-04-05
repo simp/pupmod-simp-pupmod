@@ -1,6 +1,6 @@
 {
   "name": "simp-pupmod",
-  "version": "7.2.0",
+  "version": "7.3.0",
   "author": "SIMP Team",
   "summary": "A puppet module to manage puppetserver and puppet agents",
   "license": "Apache-2.0",
@@ -54,10 +54,6 @@
     {
       "name": "puppet",
       "version_requirement": ">= 4.x"
-    },
-    {
-      "name": "pe",
-      "version_requirement": ">= 2016.2.0"
     }
   ],
   "operatingsystem_support": [
