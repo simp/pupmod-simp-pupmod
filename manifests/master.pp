@@ -135,7 +135,7 @@ class pupmod::master (
   String                         $syslog_facility       = 'LOCAL6',
   String                         $syslog_message_format = '%logger[%thread]: %msg',
   Pupmod::LogLevel               $log_level             = 'WARN',
-  String                         $package_ensure                = 'latest',
+  String                         $package_ensure        = 'latest',
   Boolean                        $mock                  = false
 ) inherits ::pupmod::params {
   if ($mock == false) {
