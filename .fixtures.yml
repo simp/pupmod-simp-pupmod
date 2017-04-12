@@ -36,6 +36,6 @@ fixtures:
     stdlib: https://github.com/simp/puppetlabs-stdlib
     puppet_enterprise:
       repo: https://github.com/simp/pupmod-mock-puppet_enterprise
-      ref: 0.1.0
+      ref: 0.2.0
   symlinks:
     pupmod: "#{source_dir}"
