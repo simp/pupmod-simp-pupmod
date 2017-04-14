@@ -65,6 +65,40 @@ pupmod::pe_classlist:
         port: 8140
       - proto: tcp
         port: 8170
+  puppet_enterprise::profile::primary_master_replica:
+    users:
+      - pe-puppetdb
+      - pe-postgres
+      - pe-webserver
+      - pe-console-services
+      - pe-puppet
+    services:
+      - pe-puppetdb
+      - pe-postgresql
+      - pe-console-services
+      - pe-nginx
+      - pe-puppetserver
+    firewall_rules:
+      - proto: tcp
+        port: 8081
+      - proto: tcp
+        port: 5432
+      - proto: tcp
+        port: 443
+      - proto: tcp
+        port: 4431
+      - proto: tcp
+        port: 4433
+      - proto: tcp
+        port: 45826
+      - proto: tcp
+        port: 8142
+      - proto: tcp
+        port: 8143
+      - proto: tcp
+        port: 8140
+      - proto: tcp
+        port: 8170
 lookup_options:
   pupmod::pe_classlist:
     merge: deep
