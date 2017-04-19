@@ -1,4 +1,4 @@
-* Thr Apr 13 2017 Dylan Cochran <dylan.cochran@onyxpoint.com> - 7.3.1-0
+* Thu Apr 13 2017 Dylan Cochran <dylan.cochran@onyxpoint.com> - 7.3.1-0
 - Add 'puppet_enterprise::profile::primary_master_replica' class definition
   to the class list to work around an issue in production
 
