@@ -6,18 +6,22 @@ pupmod::pe_classlist:
   pupmod::master:
     users:
       - puppet
-  puppet_enterprise::profile::puppetdb:
+  puppet_enterprise::profile::database:
     users:
-      - pe-puppetdb
       - pe-postgres
     services:
-      - pe-puppetdb
       - pe-postgresql
     firewall_rules:
       - proto: tcp
-        port: 8081
-      - proto: tcp
         port: 5432
+  puppet_enterprise::profile::puppetdb:
+    users:
+      - pe-puppetdb
+    services:
+      - pe-puppetdb
+    firewall_rules:
+      - proto: tcp
+        port: 8081
   puppet_enterprise::profile::console:
     users:
       - pe-webserver
@@ -101,4 +105,4 @@ pupmod::pe_classlist:
         port: 8170
 lookup_options:
   pupmod::pe_classlist:
-    merge: deep
+    merge: hash
