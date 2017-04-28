@@ -22,7 +22,7 @@ describe 'pupmod' do
             it { is_expected.to create_class('pupmod') }
             it { is_expected.to compile.with_all_deps }
             it { is_expected.not_to contain_class('haveged') }
-            it { is_expected.to contain_package('puppet-agent').with_ensure('latest') }
+            it { is_expected.to contain_package('puppet-agent').with_ensure('installed') }
             it { is_expected.to contain_cron('puppet_crl_pull').with_command(
               "/usr/bin/curl -sS --cert /etc/puppetlabs/puppet/ssl/certs/foo.example.com.pem --key /etc/puppetlabs/puppet/ssl/private_keys/foo.example.com.pem -k -o /etc/puppetlabs/puppet/ssl/crl.pem -H \"Accept: s\" https://1.2.3.4:8141/puppet-ca/v1/certificate_revocation_list/ca\n") }
 

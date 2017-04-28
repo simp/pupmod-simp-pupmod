@@ -163,7 +163,7 @@ class pupmod (
   Boolean                                $fips                 = simplib::lookup('simp_options::fips', { 'default_value' => false }),
   Boolean                                $firewall             = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Hash                                   $pe_classlist         = {},
-  String                                 $package_ensure       = 'latest',
+  String                                 $package_ensure       = simplib::lookup('simp_options::package_ensure' , { 'default_value' => 'installed'}),
   Boolean                                $mock                 = false
 ) inherits pupmod::params {
   unless ($mock == true) {
