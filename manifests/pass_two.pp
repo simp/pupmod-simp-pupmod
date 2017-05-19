@@ -89,7 +89,7 @@ define pupmod::pass_two (
   }
 
   # All of those functions are required to make this 'safe' and
-  # indempotent.
+  # idempotent.
   group { $_conf_group:
     ensure    => 'present',
     allowdupe => false,
