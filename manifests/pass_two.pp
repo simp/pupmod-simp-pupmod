@@ -1,3 +1,4 @@
+# @see comment at manifests/init.pp:244
 define pupmod::pass_two (
   String $namevar = $name,
   Simplib::ServerDistribution $server_distribution = 'PC1',
@@ -61,8 +62,8 @@ define pupmod::pass_two (
   #
   # This also prevents us from passing the burden onto the user to classify
   # their nodes with two classes, one for SIMP, and one for PE.
-  # 
-  # For safety that means that releases of SIMP are only supported on specified PE 
+  #
+  # For safety that means that releases of SIMP are only supported on specified PE
   # releases. We need to have a matrix of supported versions.
   if ($_server_distribution == 'PE') {
     $available = $pe_classlist.map |$class, $data| {
@@ -87,7 +88,7 @@ define pupmod::pass_two (
     $group_members = undef
   }
 
-  # All of those functions are required to make this 'safe' and 
+  # All of those functions are required to make this 'safe' and
   # indempotent.
   group { $_conf_group:
     ensure    => 'present',
@@ -134,8 +135,7 @@ define pupmod::pass_two (
     ensure => 'file',
     owner  => 'root',
     group  => $_conf_group,
-    mode   => $shared_mode,
-    audit  => content
+    mode   => $shared_mode
   }
 
   if ($_server_distribution == 'PE') {
@@ -153,12 +153,11 @@ define pupmod::pass_two (
   # Generate firewall rules on a per-class basis.
   # Basically, only when a node is classified with a role will we poke
   # a hole in the firewall for it
-  # 
+  #
   # Only create tcp rules since that's all puppet uses. But support it
   # in the data model anyway
   if ($firewall) {
     if ($_server_distribution == 'PE') {
-      # lint:ignore:variable_scope
       $pe_classlist.each |String $class, Hash $data| {
         if (defined(Class[$class])) {
           $rules = $data['firewall_rules']
@@ -178,6 +177,5 @@ define pupmod::pass_two (
         }
       }
     }
-    # lint:endignore
     }
 }

@@ -23,7 +23,6 @@ class pupmod::master::base {
   }
 
   file { "${::pupmod::ssldir}/ca/ca_crl.pem":
-    audit  => 'content',
     notify => Service[$::pupmod::master::service]
   }
 

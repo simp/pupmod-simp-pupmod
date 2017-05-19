@@ -1,3 +1,6 @@
+* Fri May 19 2017 Nick Miller <nick.miller@onyxpoint.com> - 7.3.3-0
+- Removed deprecated `audit` metaparameter
+
 * Fri Apr 28 2017 Dylan Cochran <dylan.cochran@onyxpoint.com> - 7.3.3-0
 - Use global catalyst to configure package_ensure.
 
