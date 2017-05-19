@@ -81,8 +81,7 @@ describe 'pupmod::pass_two' do
                 'ensure' => 'file',
                 'owner'  => 'root',
                 'group'  => 'puppet',
-                'mode'   => mode,
-                'audit'  => 'content',
+                'mode'   => mode
               }) }
               it { is_expected.to contain_group('puppet').with({
                 'ensure' => 'present',

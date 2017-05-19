@@ -84,7 +84,7 @@ class pupmod::master::sysconfig (
     }
     if ($server_distribution == 'PE') {
       if (has_key($facts, 'pe_build')) {
-        if (SemVer($facts['pe_build']) < SemVer("2016.4.0")) {
+        if (SemVer($facts['pe_build']) < SemVer('2016.4.0')) {
           pe_ini_subsetting { 'pupmod::master::sysconfig::javatempdir':
             path              => '/etc/sysconfig/pe-puppetserver',
             section           => '',

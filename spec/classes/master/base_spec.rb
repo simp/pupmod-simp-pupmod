@@ -30,12 +30,7 @@ describe 'pupmod::master::base' do
             }
           )
         }
-        it { is_expected.to contain_file('/etc/puppetlabs/puppet/ssl/ca/ca_crl.pem').with(
-            {
-              "audit" => "content",
-            }
-          )
-        }
+        it { is_expected.to contain_file('/etc/puppetlabs/puppet/ssl/ca/ca_crl.pem') }
         it { is_expected.to contain_file('/etc/puppetlabs/puppetserver/conf.d/autosign.conf').with(
             {
               "owner" => "root",

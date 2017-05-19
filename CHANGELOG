@@ -1,11 +1,10 @@
-* Fri Apr 28 2017 Dylan Cochran <dylan.cochran@onyxpoint.com> - 7.3.3-0
-- Use global catalyst to configure package_ensure.
+* Fri May 19 2017 Nick Miller <nick.miller@onyxpoint.com> - 7.3.1-0
+- Removed deprecated `audit` metaparameter
 
-* Mon Apr 24 2017 Dylan Cochran <dylan.cochran@onyxpoint.com> - 7.3.2-0
+* Fri Apr 28 2017 Dylan Cochran <dylan.cochran@onyxpoint.com> - 7.3.1-0
+- Use global catalyst to configure package_ensure.
 - Add 'puppet_enterprise::profile::database' class definition to the pe_classlist
   and move the postgresql components under that class.
-
-* Thu Apr 13 2017 Dylan Cochran <dylan.cochran@onyxpoint.com> - 7.3.1-0
 - Add 'puppet_enterprise::profile::primary_master_replica' class definition
   to the class list to work around an issue in production
 
