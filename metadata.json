@@ -27,7 +27,7 @@
     },
     {
       "name": "puppetlabs/puppet_authorization",
-      "version_requirement": ">= 0.2.0"
+      "version_requirement": ">= 0.2.0 < 1.0.0"
     },
     {
       "name": "simp/iptables",

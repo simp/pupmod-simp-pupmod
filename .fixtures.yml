@@ -3,27 +3,15 @@ fixtures:
   repositories:
     apache: https://github.com/simp/pupmod-simp-apache
     auditd: https://github.com/simp/pupmod-simp-auditd
-    augeasproviders:
-      repo: https://github.com/simp/augeasproviders
-      branch: simp-master
-    augeasproviders_base:
-      repo: https://github.com/simp/augeasproviders_base
-      branch: simp-master
-    augeasproviders_core:
-      repo: https://github.com/simp/augeasproviders_core
-      branch: simp-master
-    augeasproviders_grub:
-      repo: https://github.com/simp/augeasproviders_grub
-      branch: simp-master
-    augeasproviders_puppet:
-      repo: https://github.com/simp/augeasproviders_puppet
-      branch: simp-master
+    augeasproviders: https://github.com/simp/augeasproviders
+    augeasproviders_base: https://github.com/simp/augeasproviders_base
+    augeasproviders_core: https://github.com/simp/augeasproviders_core
+    augeasproviders_grub: https://github.com/simp/augeasproviders_grub
+    augeasproviders_puppet: https://github.com/simp/augeasproviders_puppet
     haveged:
       repo: https://github.com/simp/puppet-haveged
       branch: simp-master
-    inifile:
-      repo: https://github.com/simp/puppetlabs-inifile
-      branch: simp-master
+    inifile: https://github.com/simp/puppetlabs-inifile
     iptables: https://github.com/simp/pupmod-simp-iptables
     logrotate: https://github.com/simp/pupmod-simp-logrotate
     pam: https://github.com/simp/pupmod-simp-pam
@@ -37,5 +25,6 @@ fixtures:
     puppet_enterprise:
       repo: https://github.com/simp/pupmod-mock-puppet_enterprise
       ref: 0.3.0
+    puppet_authorization: https://github.com/simp/puppetlabs-puppet_authorization.git
   symlinks:
     pupmod: "#{source_dir}"
