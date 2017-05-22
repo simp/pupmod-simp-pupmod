@@ -116,9 +116,9 @@ define pupmod::pass_two (
         service             => 'pe-puppetserver',
         user                => 'pe-puppet',
       }
-      # class { 'pupmod::master::simp_auth':
-      #   server_distribution => 'PE'
-      # }
+    }
+    class { 'pupmod::master::simp_auth':
+      server_distribution => $_server_distribution
     }
   }
 

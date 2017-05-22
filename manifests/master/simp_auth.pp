@@ -1,20 +1,56 @@
 # Add SIMP-specific entries to PuppetServer's auth.conf
 #
-# NOTE: This is a private class.  The parameters of this class are exposed via the
-# pupmod::master API.
+# @param auth_conf_path
+#   Type:    Stdlib::AbsolutePath
+#   Default: /etc/puppetlabs/puppetserver/conf.d/auth.conf
+#   The location to the puppet master's auth.conf
+#
+# @param pki_cacerts_all
+#   Type:    Boolean
+#   Default: true
+#   If enabled, allow PKI cacerts files from SIMP PKI module from all hosts
+#
+# @param pki_mcollective_all
+#   Type:    Boolean
+#   Default: true
+#   If enabled, allow SIMP site_files cacerts access from all hosts
+#
+# @param site_files_cacerts_all
+#   Type:    Boolean
+#   Default: true
+#   If enabled, allow MCO files from SIMP PKI module access from all hosts
+#
+# @param site_files_mcollective_all
+#   Type:    Boolean
+#   Default: true
+#   If enabled, allow SIMP site_files PKI mcollective access from all hosts
+#
+# @param keydist_from_host
+#   Type:    Boolean
+#   Default: true
+#   If enabled, allow SIMP PKI keydist module access from specific host
+#
+# @param pki_keytabs_from_host
+#   Type:    Boolean
+#   Default: true
+#   If enabled, allow SIMP site_files PKI keytabs access from specific host
+#
+# @param krb5_keytabs_from_host
+#   Type:    Boolean
+#   Default: true
+#   If enabled, allow SIMP site_files krb5 keytabs access from specific host
 #
 class pupmod::master::simp_auth (
-  Simplib::ServerDistribution $server_distribution        = $::pupmod::master::server_distribution,
-  Stdlib::AbsolutePath        $auth_conf_path             = $::pupmod::master::auth_conf_path,
-  Boolean                     $pki_cacerts_all            = $::pupmod::master::auth_pki_cacerts_all,
-  Boolean                     $pki_mcollective_all        = $::pupmod::master::auth_pki_mcollective_all,
-  Boolean                     $site_files_cacerts_all     = $::pupmod::master::auth_site_files_cacerts_all,
-  Boolean                     $site_files_mcollective_all = $::pupmod::master::auth_site_files_mcollective_all,
-  Boolean                     $keydist_from_host          = $::pupmod::master::auth_keydist_from_host,
-  Boolean                     $pki_keytabs_from_host      = $::pupmod::master::auth_pki_keytabs_from_host,
-  Boolean                     $krb5_keytabs_from_host     = $::pupmod::master::auth_krb5_keytabs_from_host,
-) inherits ::pupmod::master {
-  assert_private()
+  Simplib::ServerDistribution $server_distribution        = simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'PC1' } ),
+  Stdlib::AbsolutePath        $auth_conf_path             = '/etc/puppetlabs/puppetserver/conf.d/auth.conf',
+  Boolean                     $pki_cacerts_all            = true,
+  Boolean                     $pki_mcollective_all        = true,
+  Boolean                     $site_files_cacerts_all     = true,
+  Boolean                     $site_files_mcollective_all = true,
+  Boolean                     $keydist_from_host          = true,
+  Boolean                     $pki_keytabs_from_host      = true,
+  Boolean                     $krb5_keytabs_from_host     = true,
+) {
 
   $_master_service = $server_distribution ? {
     'PE'    => 'pe-puppetserver',
