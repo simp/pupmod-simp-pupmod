@@ -26,6 +26,10 @@
       "version_requirement": ">= 4.13.0 < 5.0.0"
     },
     {
+      "name": "puppetlabs/puppet_authorization",
+      "version_requirement": ">= 0.2.0"
+    },
+    {
       "name": "simp/iptables",
       "version_requirement": ">= 6.0.0 < 7.0.0"
     },

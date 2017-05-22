@@ -1,3 +1,6 @@
+* Mon May 22 2017 Kendall Moore <kendall.moore@onyxpoint.com> 7.3.2-0
+- Added manifest to manage simp-specific puppet master auth requirements
+
 * Fri May 19 2017 Nick Miller <nick.miller@onyxpoint.com> - 7.3.1-0
 - Removed deprecated `audit` metaparameter
 

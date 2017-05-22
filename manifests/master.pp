@@ -97,46 +97,96 @@
 # @param mock
 #   DO NOT USE. needed for rspec testing
 #
+# @param auth_conf_path
+#   Type:    Stdlib::AbsolutePath
+#   Default: /etc/puppetlabs/puppetserver/conf.d/auth.conf
+#   The location to the puppet master's auth.conf
+#
+# @param pki_cacerts_all
+#   Type:    Boolean
+#   Default: true
+#   If enabled, allow PKI cacerts files from SIMP PKI module from all hosts
+#
+# @param pki_mcollective_all
+#   Type:    Boolean
+#   Default: true
+#   If enabled, allow SIMP site_files cacerts access from all hosts
+#
+# @param site_files_cacerts_all
+#   Type:    Boolean
+#   Default: true
+#   If enabled, allow MCO files from SIMP PKI module access from all hosts
+#
+# @param site_files_mcollective_all
+#   Type:    Boolean
+#   Default: true
+#   If enabled, allow SIMP site_files PKI mcollective access from all hosts
+#
+# @param keydist_from_host
+#   Type:    Boolean
+#   Default: true
+#   If enabled, allow SIMP PKI keydist module access from specific host
+#
+# @param pki_keytabs_from_host
+#   Type:    Boolean
+#   Default: true
+#   If enabled, allow SIMP site_files PKI keytabs access from specific host
+#
+# @param krb5_keytabs_from_host
+#   Type:    Boolean
+#   Default: true
+#   If enabled, allow SIMP site_files krb5 keytabs access from specific host
+#
 # @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 class pupmod::master (
-  Simplib::IP                    $bind_address          = '0.0.0.0',
-  Simplib::IP                    $ca_bind_address       = '0.0.0.0',
-  Boolean                        $auditd                = simplib::lookup('simp_options::auditd', { 'default_value' => false }),
-  Simplib::Port                  $ca_port               = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
-  Simplib::NetList               $trusted_nets          = simplib::lookup('simp_options::trusted_nets', { 'default_value' => ['127.0.0.1','::1'] }),
-  String                         $server_distribution   = simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'PC1' } ),
-  Pupmod::CaTTL                  $ca_ttl                = '10y',
-  Boolean                        $daemonize             = true,
-  Boolean                        $enable_ca             = true,
-  Boolean                        $enable_master         = true,
-  Stdlib::AbsolutePath           $environmentpath       = $::pupmod::params::puppet_config['environmentpath'],
-  Boolean                        $freeze_main           = false,
-  Simplib::Port                  $masterport            = 8140,
-  Stdlib::AbsolutePath           $puppet_confdir        = $::pupmod::params::puppet_config['confdir'],
-  Stdlib::AbsolutePath           $confdir               = $::pupmod::params::master_config['confdir'],
-  Stdlib::AbsolutePath           $codedir               = $::pupmod::params::master_config['codedir'],
-  Stdlib::AbsolutePath           $vardir                = $::pupmod::params::master_config['vardir'],
-  Stdlib::AbsolutePath           $rundir                = $::pupmod::params::master_config['rundir'],
-  Stdlib::AbsolutePath           $logdir                = $::pupmod::params::master_config['logdir'],
-  Stdlib::AbsolutePath           $ssldir                = $::pupmod::params::puppet_config['ssldir'],
-  Boolean                        $use_legacy_auth_conf  = true,
-  Boolean                        $firewall              = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
-  Array[Simplib::Host]           $ca_status_whitelist   = [$facts['fqdn']],
-  Optional[Stdlib::AbsolutePath] $ruby_load_path        = undef,
-  Integer                        $max_active_instances  = ($facts['processors']['count'] + 2),
-  Array[String]                  $ssl_protocols         = ['TLSv1', 'TLSv1.1', 'TLSv1.2'],
-  Optional[Array]                $ssl_cipher_suites     = undef,
-  Boolean                        $enable_profiler       = false,
-  Array[Simplib::Hostname]       $admin_api_whitelist   = [$facts['fqdn']],
-  String                         $admin_api_mountpoint  = '/puppet-admin-api',
-  Boolean                        $log_to_file           = false,
-  Boolean                        $syslog                = simplib::lookup('simp_options::syslog', { 'default_value' => false }),
-  String                         $syslog_facility       = 'LOCAL6',
-  String                         $syslog_message_format = '%logger[%thread]: %msg',
-  Pupmod::LogLevel               $log_level             = 'WARN',
-  String                         $package_ensure        = 'latest',
-  Boolean                        $mock                  = false
+  Simplib::IP                    $bind_address                    = '0.0.0.0',
+  Simplib::IP                    $ca_bind_address                 = '0.0.0.0',
+  Boolean                        $auditd                          = simplib::lookup('simp_options::auditd', { 'default_value' => false }),
+  Simplib::Port                  $ca_port                         = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
+  Simplib::NetList               $trusted_nets                    = simplib::lookup('simp_options::trusted_nets', { 'default_value' => ['127.0.0.1','::1'] }),
+  String                         $server_distribution             = simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'PC1' } ),
+  Pupmod::CaTTL                  $ca_ttl                          = '10y',
+  Boolean                        $daemonize                       = true,
+  Boolean                        $enable_ca                       = true,
+  Boolean                        $enable_master                   = true,
+  Stdlib::AbsolutePath           $environmentpath                 = $::pupmod::params::puppet_config['environmentpath'],
+  Boolean                        $freeze_main                     = false,
+  Simplib::Port                  $masterport                      = 8140,
+  Stdlib::AbsolutePath           $puppet_confdir                  = $::pupmod::params::puppet_config['confdir'],
+  Stdlib::AbsolutePath           $confdir                         = $::pupmod::params::master_config['confdir'],
+  Stdlib::AbsolutePath           $codedir                         = $::pupmod::params::master_config['codedir'],
+  Stdlib::AbsolutePath           $vardir                          = $::pupmod::params::master_config['vardir'],
+  Stdlib::AbsolutePath           $rundir                          = $::pupmod::params::master_config['rundir'],
+  Stdlib::AbsolutePath           $logdir                          = $::pupmod::params::master_config['logdir'],
+  Stdlib::AbsolutePath           $ssldir                          = $::pupmod::params::puppet_config['ssldir'],
+  Boolean                        $use_legacy_auth_conf            = true,
+  Boolean                        $firewall                        = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
+  Array[Simplib::Host]           $ca_status_whitelist             = [$facts['fqdn']],
+  Optional[Stdlib::AbsolutePath] $ruby_load_path                  = undef,
+  Integer                        $max_active_instances            = ($facts['processors']['count'] + 2),
+  Array[String]                  $ssl_protocols                   = ['TLSv1', 'TLSv1.1', 'TLSv1.2'],
+  Optional[Array]                $ssl_cipher_suites               = undef,
+  Boolean                        $enable_profiler                 = false,
+  Array[Simplib::Hostname]       $admin_api_whitelist             = [$facts['fqdn']],
+  String                         $admin_api_mountpoint            = '/puppet-admin-api',
+  Boolean                        $log_to_file                     = false,
+  Boolean                        $syslog                          = simplib::lookup('simp_options::syslog', { 'default_value' => false }),
+  String                         $syslog_facility                 = 'LOCAL6',
+  String                         $syslog_message_format           = '%logger[%thread]: %msg',
+  Pupmod::LogLevel               $log_level                       = 'WARN',
+  String                         $package_ensure                  = 'latest',
+  Boolean                        $mock                            = false,
+  Boolean                        $enable_simp_master_auth         = true,
+  Stdlib::AbsolutePath           $auth_conf_path                  = '/etc/puppetlabs/puppetserver/conf.d/auth.conf',
+  Boolean                        $auth_pki_cacerts_all            = true,
+  Boolean                        $auth_pki_mcollective_all        = true,
+  Boolean                        $auth_site_files_cacerts_all     = true,
+  Boolean                        $auth_site_files_mcollective_all = true,
+  Boolean                        $auth_keydist_from_host          = true,
+  Boolean                        $auth_pki_keytabs_from_host      = true,
+  Boolean                        $auth_krb5_keytabs_from_host     = true,
+
 ) inherits ::pupmod::params {
   if ($mock == false) {
     $service = 'puppetserver'
@@ -321,6 +371,10 @@ class pupmod::master (
       value   => false,
       #value   => $freeze_main,
       notify  => Service[$service]
+    }
+
+    if $enable_simp_master_auth {
+      include ::pupmod::master::simp_auth
     }
 
     if $auditd {
