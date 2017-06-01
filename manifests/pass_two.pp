@@ -117,6 +117,8 @@ define pupmod::pass_two (
         user                => 'pe-puppet',
       }
     }
+  }
+  if (defined(Class['pupmod::master'])) {
     class { 'pupmod::master::simp_auth':
       server_distribution => $_server_distribution
     }
@@ -142,7 +144,6 @@ define pupmod::pass_two (
   }
 
   if ($_server_distribution == 'PE') {
-    # lint:ignore:variable_scope
     $pe_classlist.each |String $class, Hash $data| {
       if (defined(Class[$class])) {
         if ($data['configure_access'] == true) {
@@ -150,7 +151,6 @@ define pupmod::pass_two (
         }
       }
     }
-    # lint:endignore
   }
 
   # Generate firewall rules on a per-class basis.
