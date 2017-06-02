@@ -139,4 +139,11 @@ class pupmod::master::simp_auth (
     path                 => $auth_conf_path,
     notify               => Service[$_master_service],
   }
+
+  # The puppet-agent package drops off this file for some reason, and it comes
+  # as root:root. The puppetserver attempts to read this file because it exists,
+  # and can't because of the permissions (puppetserver runs as puppet:puppet).
+  file { '/etc/puppetlabs/puppet/auth.conf':
+    ensure => absent
+  }
 }

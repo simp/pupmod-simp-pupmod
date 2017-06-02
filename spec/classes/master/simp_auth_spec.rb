@@ -65,6 +65,7 @@ describe 'pupmod::master::simp_auth' do
           'allow'                => '$2',
           'sort_order'           => 460,
         }) }
+        it { is_expected.to create_file('/etc/puppetlabs/puppet/auth.conf').with_ensure('absent') }
       end
 
       context 'on PE' do
