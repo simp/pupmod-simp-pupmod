@@ -144,6 +144,7 @@ class pupmod::master::simp_auth (
   # as root:root. The puppetserver attempts to read this file because it exists,
   # and can't because of the permissions (puppetserver runs as puppet:puppet).
   file { '/etc/puppetlabs/puppet/auth.conf':
-    ensure => absent
+    ensure => absent,
+    notify => Service[$_master_service]
   }
 }

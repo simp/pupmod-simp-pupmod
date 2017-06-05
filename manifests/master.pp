@@ -120,7 +120,7 @@ class pupmod::master (
   Stdlib::AbsolutePath           $rundir                = $::pupmod::params::master_config['rundir'],
   Stdlib::AbsolutePath           $logdir                = $::pupmod::params::master_config['logdir'],
   Stdlib::AbsolutePath           $ssldir                = $::pupmod::params::puppet_config['ssldir'],
-  Boolean                        $use_legacy_auth_conf  = true,
+  Boolean                        $use_legacy_auth_conf  = false,
   Boolean                        $firewall              = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Array[Simplib::Host]           $ca_status_whitelist   = [$facts['fqdn']],
   Optional[Stdlib::AbsolutePath] $ruby_load_path        = undef,
