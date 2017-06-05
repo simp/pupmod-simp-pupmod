@@ -1,4 +1,3 @@
-#
 require 'spec_helper'
 
 describe 'pupmod::master::base' do
