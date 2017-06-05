@@ -87,7 +87,7 @@ class pupmod::master::simp_auth (
 
   puppet_authorization::rule { 'Allow access to each hosts own kerberos keytabs from the legacy location':
     ensure               => $bool2ensure[$legacy_pki_keytabs_from_host],
-    match_request_path   => '^/puppet/v3/file_(metadata|content)/site_files/pki_files/files/keytabs/([^/]+)',
+    match_request_path   => '^/puppet/v3/file_(metadata|content)/pki_files/keytabs/([^/]+)',
     match_request_type   => 'regex',
     match_request_method => ['get'],
     allow                => '$2',
@@ -98,7 +98,7 @@ class pupmod::master::simp_auth (
 
   puppet_authorization::rule { 'Allow access to the cacerts from the pki_files module from all hosts':
     ensure               => $bool2ensure[$pki_cacerts_all],
-    match_request_path   => '^/puppet/v3/file_(metadata|content)/site_files/pki_files/files/keydist/cacerts',
+    match_request_path   => '^/puppet/v3/file_(metadata|content)/pki_files/keydist/cacerts',
     match_request_type   => 'regex',
     match_request_method => ['get'],
     allow                => '*',
@@ -109,7 +109,7 @@ class pupmod::master::simp_auth (
 
   puppet_authorization::rule { 'Allow access to the mcollective PKI from the pki_files module from all hosts':
     ensure               => $bool2ensure[$pki_mcollective_all],
-    match_request_path   => '^/puppet/v3/file_(metadata|content)/site_files/pki_files/files/keydist/mcollective',
+    match_request_path   => '^/puppet/v3/file_(metadata|content)/pki_files/keydist/mcollective',
     match_request_type   => 'regex',
     match_request_method => ['get'],
     allow                => '*',
@@ -131,7 +131,7 @@ class pupmod::master::simp_auth (
 
   puppet_authorization::rule { 'Allow access to each hosts own kerberos keytabs from the pki_files module':
     ensure               => $bool2ensure[$krb5_keytabs_from_host],
-    match_request_path   => '^/puppet/v3/file_(metadata|content)/site_files/krb5_files/files/keytabs/([^/]+)',
+    match_request_path   => '^/puppet/v3/file_(metadata|content)/krb5_files/keytabs/([^/]+)',
     match_request_type   => 'regex',
     match_request_method => ['get'],
     allow                => '$2',
