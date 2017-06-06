@@ -4,7 +4,7 @@ dist
 /pkg
 /spec/fixtures
 /spec/rp_env
-!/spec/hieradata
+!/spec/hieradata/default.yaml
 !/spec/fixtures/site.pp
 /.rspec_system
 /.vagrant
