@@ -21,12 +21,6 @@
 #   The server distribution used. This changes the configuration based on whether
 #   we are using PC1 or PE
 #
-# @param ca_crl_pull_interval
-#   How many times per day to pull the CRL down from the CA via cron.
-#
-#   This uses ip_to_cron to randomize the pull interval so that the CA doesn't
-#   get swarmed.
-#
 # @param certname
 #   The puppet environment name of the system.
 #
@@ -138,7 +132,6 @@ class pupmod (
   Simplib::Port                          $ca_port              = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
   Simplib::Host                          $puppet_server        = simplib::lookup('simp_options::puppet::server', { 'default_value' => "puppet.${facts['domain']}" }),
   Simplib::ServerDistribution            $server_distribution  = simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'PC1' } ),
-  Integer                                $ca_crl_pull_interval = 2,
   Simplib::Host                          $certname             = $facts['fqdn'],
   String                                 $classfile            = '$vardir/classes.txt',
   Stdlib::AbsolutePath                   $confdir              = $::pupmod::params::puppet_config['confdir'],
@@ -179,20 +172,11 @@ class pupmod (
       include '::haveged'
     }
 
-    $l_crl_pull_minute = ip_to_cron(1)
-    $l_crl_pull_hour = ip_to_cron($ca_crl_pull_interval,24)
-
     if $enable_puppet_master {
       include 'pupmod::master'
     }
     package { 'puppet-agent': ensure => $package_ensure }
 
-    cron { 'puppet_crl_pull':
-      command => template('pupmod/commands/crl_download.erb'),
-      user    => 'root',
-      minute  => ip_to_cron(1),
-      hour    => ip_to_cron($ca_crl_pull_interval,24)
-    }
     if $daemonize {
       cron { 'puppetagent': ensure => 'absent' }
 
