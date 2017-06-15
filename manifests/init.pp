@@ -178,7 +178,7 @@ class pupmod (
     validate_re($rundir,'^(\$(?!/)|/).+')
 
     if $ca_crl_pull_interval != 2 {
-      deprecation('pupmod::ca_crl_pull_interval', 'pupmod::ca_crl_pull_interval is depcrecated, the CRL cron job has been removed.')
+      deprecation('pupmod::ca_crl_pull_interval', 'pupmod::ca_crl_pull_interval is deprecated, the CRL cron job has been removed.')
     }
 
     if $haveged {
