@@ -22,6 +22,13 @@ if !ENV.key?( 'TRUSTED_NODE_DATA' )
   ENV['TRUSTED_NODE_DATA']='yes'
 end
 
+
+if ENV['PUPPET_DEBUG']
+  Puppet::Util::Log.level = :debug
+  Puppet::Util::Log.newdestination(:console)
+end
+
+
 default_hiera_config =<<-EOM
 ---
 :backends:

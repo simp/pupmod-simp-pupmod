@@ -1,3 +1,7 @@
+* Wed Jun 14 2017 Nick Miller <nick.miller@onyxpoint.com> - 7.3.2-0
+- Removed Puppet CRL download, the puppet agent now checks for the expiration of
+  the cert automatically
+
 * Mon Jun 05 2017 Nick Markowski <nmarkowski@keywcorp.com> - 7.3.2-0
 - Ensure legacy auth.conf is backed up before removing it. This is a
   follow up to SIMP-3049 based on feedback to SIMP-3196.
