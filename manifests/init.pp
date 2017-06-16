@@ -22,12 +22,7 @@
 #   we are using PC1 or PE
 #
 # @param ca_crl_pull_interval
-#   How many times per day to pull the CRL down from the CA via cron.
-#
-#   This uses ip_to_cron to randomize the pull interval so that the CA doesn't
-#   get swarmed.
-#
-#   NOTE: This parameter is deprecated and will do nothing if specified.
+#   NOTE: This parameter is deprecated and thorw a warning if specified.
 #
 # @param certname
 #   The puppet environment name of the system.
@@ -140,7 +135,7 @@ class pupmod (
   Simplib::Port                          $ca_port              = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
   Simplib::Host                          $puppet_server        = simplib::lookup('simp_options::puppet::server', { 'default_value' => "puppet.${facts['domain']}" }),
   Simplib::ServerDistribution            $server_distribution  = simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'PC1' } ),
-  Integer                                $ca_crl_pull_interval = 2,
+  Optional                               $ca_crl_pull_interval = undef,
   Simplib::Host                          $certname             = $facts['fqdn'],
   String                                 $classfile            = '$vardir/classes.txt',
   Stdlib::AbsolutePath                   $confdir              = $::pupmod::params::puppet_config['confdir'],
@@ -177,7 +172,7 @@ class pupmod (
     validate_re($logdir,'^(\$(?!/)|/).+')
     validate_re($rundir,'^(\$(?!/)|/).+')
 
-    if $ca_crl_pull_interval != 2 {
+    if $ca_crl_pull_interval {
       deprecation('pupmod::ca_crl_pull_interval', 'pupmod::ca_crl_pull_interval is deprecated, the CRL cron job has been removed.')
     }
 
