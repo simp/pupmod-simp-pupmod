@@ -129,7 +129,7 @@ class pupmod::master::simp_auth (
     notify               => Service[$_master_service],
   }
 
-  puppet_authorization::rule { 'Allow access to each hosts own kerberos keytabs from the krb_files module':
+  puppet_authorization::rule { 'Allow access to each hosts own kerberos keytabs from the krb5_files module':
     ensure               => $bool2ensure[$krb5_keytabs_from_host],
     match_request_path   => '^/puppet/v3/file_(metadata|content)/modules/krb5_files/keytabs/([^/]+)',
     match_request_type   => 'regex',

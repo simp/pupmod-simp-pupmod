@@ -57,7 +57,7 @@ describe 'pupmod::master::simp_auth' do
           'allow'                => '$2',
           'sort_order'           => 450,
         }) }
-        it { is_expected.to create_puppet_authorization__rule('Allow access to each hosts own kerberos keytabs from the pki_files module').with({
+        it { is_expected.to create_puppet_authorization__rule('Allow access to each hosts own kerberos keytabs from the krb5_files module').with({
           'ensure'               => 'present',
           'match_request_path'   => '^/puppet/v3/file_(metadata|content)/modules/krb5_files/keytabs/([^/]+)',
           'match_request_type'   => 'regex',
@@ -70,7 +70,7 @@ describe 'pupmod::master::simp_auth' do
 
       context 'on PE' do
         let(:params) {{ :server_distribution => 'PE' }}
-        it { is_expected.to create_puppet_authorization__rule('Allow access to each hosts own kerberos keytabs from the pki_files module').with({
+        it { is_expected.to create_puppet_authorization__rule('Allow access to each hosts own kerberos keytabs from the krb5_files module').with({
           'ensure'               => 'present',
           'match_request_path'   => '^/puppet/v3/file_(metadata|content)/modules/krb5_files/keytabs/([^/]+)',
           'match_request_type'   => 'regex',
