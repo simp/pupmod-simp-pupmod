@@ -19,7 +19,7 @@ describe 'pupmod::master::simp_auth' do
         }) }
         it { is_expected.to create_puppet_authorization__rule('Allow access to the cacerts from the pki_files module from all hosts').with({
           'ensure'               => 'present',
-          'match_request_path'   => '^/puppet/v3/file_(metadata|content)/pki_files/keydist/cacerts',
+          'match_request_path'   => '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/cacerts',
           'match_request_type'   => 'regex',
           'match_request_method' => ['get'],
           'allow'                => '*',
@@ -35,7 +35,7 @@ describe 'pupmod::master::simp_auth' do
         }) }
         it { is_expected.to create_puppet_authorization__rule('Allow access to the mcollective PKI from the pki_files module from all hosts').with({
           'ensure'               => 'present',
-          'match_request_path'   => '^/puppet/v3/file_(metadata|content)/pki_files/keydist/mcollective',
+          'match_request_path'   => '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/mcollective',
           'match_request_type'   => 'regex',
           'match_request_method' => ['get'],
           'allow'                => '*',
@@ -51,15 +51,15 @@ describe 'pupmod::master::simp_auth' do
         }) }
         it { is_expected.to create_puppet_authorization__rule('Allow access to each hosts own kerberos keytabs from the legacy location').with({
           'ensure'               => 'absent',
-          'match_request_path'   => '^/puppet/v3/file_(metadata|content)/pki_files/keytabs/([^/]+)',
+          'match_request_path'   => '^/puppet/v3/file_(metadata|content)/modules/pki_files/keytabs/([^/]+)',
           'match_request_type'   => 'regex',
           'match_request_method' => ['get'],
           'allow'                => '$2',
           'sort_order'           => 450,
         }) }
-        it { is_expected.to create_puppet_authorization__rule('Allow access to each hosts own kerberos keytabs from the pki_files module').with({
+        it { is_expected.to create_puppet_authorization__rule('Allow access to each hosts own kerberos keytabs from the krb5_files module').with({
           'ensure'               => 'present',
-          'match_request_path'   => '^/puppet/v3/file_(metadata|content)/krb5_files/keytabs/([^/]+)',
+          'match_request_path'   => '^/puppet/v3/file_(metadata|content)/modules/krb5_files/keytabs/([^/]+)',
           'match_request_type'   => 'regex',
           'match_request_method' => ['get'],
           'allow'                => '$2',
@@ -70,9 +70,9 @@ describe 'pupmod::master::simp_auth' do
 
       context 'on PE' do
         let(:params) {{ :server_distribution => 'PE' }}
-        it { is_expected.to create_puppet_authorization__rule('Allow access to each hosts own kerberos keytabs from the pki_files module').with({
+        it { is_expected.to create_puppet_authorization__rule('Allow access to each hosts own kerberos keytabs from the krb5_files module').with({
           'ensure'               => 'present',
-          'match_request_path'   => '^/puppet/v3/file_(metadata|content)/krb5_files/keytabs/([^/]+)',
+          'match_request_path'   => '^/puppet/v3/file_(metadata|content)/modules/krb5_files/keytabs/([^/]+)',
           'match_request_type'   => 'regex',
           'match_request_method' => ['get'],
           'allow'                => '$2',
