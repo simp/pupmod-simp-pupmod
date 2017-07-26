@@ -176,7 +176,7 @@ jruby-puppet: {
     # (optional) Authorize access to Puppet master endpoints via rules specified
     # in the legacy Puppet auth.conf file (if true or not specified) or via rules
     # specified in the Puppet Server HOCON-formatted auth.conf (if false).
-    use-legacy-auth-conf: true
+    use-legacy-auth-conf: false
 }
 
 # settings related to HTTP client requests made by Puppet Server
@@ -514,7 +514,7 @@ jruby-puppet: {
     # (optional) Authorize access to Puppet master endpoints via rules specified
     # in the legacy Puppet auth.conf file (if true or not specified) or via rules
     # specified in the Puppet Server HOCON-formatted auth.conf (if false).
-    use-legacy-auth-conf: true
+    use-legacy-auth-conf: false
 }
 
 # settings related to HTTP client requests made by Puppet Server

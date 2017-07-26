@@ -1,4 +1,0 @@
-<%
-  t_ca_server = @ca_server.gsub('$server',@puppet_server)
--%>
-/usr/bin/curl -sS --cert <%= @ssldir %>/certs/<%= @certname %>.pem --key <%= @ssldir %>/private_keys/<%= @certname %>.pem -k -o <%= @ssldir %>/crl.pem -H "Accept: s" https://<%= t_ca_server %>:<%= @ca_port %>/puppet-ca/v1/certificate_revocation_list/ca
