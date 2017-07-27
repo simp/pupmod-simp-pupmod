@@ -7,8 +7,10 @@ If you find any issues, they can be submitted to our [JIRA](https://simp-project
 
 Please read our [Contribution Guide](https://simp-project.atlassian.net/wiki/display/SD/Contributing+to+SIMP) and visit our [developer wiki](https://simp-project.atlassian.net/wiki/display/SD/SIMP+Development+Home).
 
-## Work in Progress
+## Upgrading From 7.3.0 Or Earlier
 
-Please excuse us as we transition this code into the public domain.
+If you intend to upgrade from version 7.3.0-0 or earlier, you should:
 
-Downloads, discussion, and patches are still welcome!
+1. Back up legacy puppet auth.conf, `<puppet confdir>/auth.conf`, before upgrade.
+
+2. Re-produce any custom work done to legacy auth.conf in the new auth.conf, via the `puppet_authorization::rule` define.  The stock rules are managed in `pupmod::master::simp_auth`.
