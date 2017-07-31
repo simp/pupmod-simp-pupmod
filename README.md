@@ -9,8 +9,10 @@ Please read our [Contribution Guide](https://simp-project.atlassian.net/wiki/dis
 
 ## Upgrading From 7.3.0 Or Earlier
 
-If you intend to upgrade from version 7.3.0-0 or earlier, you should:
+Legacy auth.conf, `/etc/puppetlabs/puppet/auth.conf`, has been deprecated.
+`pupmod-simp-pupmod` will back up legacy puppet auth.conf after upgrade.
 
-1. Back up legacy puppet auth.conf, `<puppet confdir>/auth.conf`, before upgrade.
-
-2. Re-produce any custom work done to legacy auth.conf in the new auth.conf, via the `puppet_authorization::rule` define.  The stock rules are managed in `pupmod::master::simp_auth`.
+The puppetserver's auth.conf is now managed by Puppet. You will need to
+re-produce any custom work done to legacy auth.conf in the new auth.conf, via
+the `puppet_authorization::rule` define.  The stock rules are managed in
+`pupmod::master::simp_auth`.
