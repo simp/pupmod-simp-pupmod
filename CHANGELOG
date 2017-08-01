@@ -1,3 +1,9 @@
+* Thu Jul 27 2017 Nick Markowski <nmarkowski@keywcorp.com> - 7.3.2-0
+- README updates:
+  - Informed users of legacy auth.conf deprecation
+  - Provided instructions to reproduce custom auth.conf entries
+    in puppet
+
 * Thu Jun 22 2017 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 7.3.1-0
 - fixed the path to the pki_files and krb_files in the auth.conf
   so remote systems could download files.
