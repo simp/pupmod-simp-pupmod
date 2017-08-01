@@ -100,7 +100,7 @@ puppetlabs.services.ca.certificate-authority-service/certificate-authority-servi
           'owner'   => 'root',
           'group'   => 'puppet',
           'mode'    => '0640',
-          'content' => %q~# This file managed by Puppet
+          'content' => %Q~# This file managed by Puppet
 # Any changes will be removed on the next run
 
 # CA-related settings
@@ -113,7 +113,7 @@ certificate-authority: {
         # have access to the certificate_status endpoint.  Any requests made to
         # this endpoint that do not present a valid client cert mentioned in
         # this list will be denied access.
-        client-whitelist: [foo.example.com]
+        client-whitelist: [#{facts[:fqdn]}]
         authorization-required: true
     }
 }
@@ -128,7 +128,7 @@ certificate-authority: {
           'owner'   => 'root',
           'group'   => 'puppet',
           'mode'    => '0640',
-          'content' => %q~# This file managed by Puppet
+          'content' => %Q~# This file managed by Puppet
 # Any changes will be removed on the next run
 
 # configuration for the JRuby interpreters
@@ -193,7 +193,7 @@ profiler: {
 
 # Settings related to the puppet-admin HTTP API
 puppet-admin: {
-    client-whitelist: [foo.example.com]
+    client-whitelist: [#{facts[:fqdn]}]
 }
 ~,
           'require' => 'Package[puppetserver]',
@@ -232,7 +232,7 @@ web-router-service: {
           'owner'   => 'root',
           'group'   => 'puppet',
           'mode'    => '0640',
-          'content' => %q~# This file managed by Puppet
+          'content' => %Q~# This file managed by Puppet
 # Any changes will be removed on the next run
 webserver: {
   base: {
@@ -240,8 +240,8 @@ webserver: {
     client-auth: need
     ssl-crl-path: /etc/puppetlabs/puppet/ssl/crl.pem
     ssl-ca-cert: /etc/puppetlabs/puppet/ssl/certs/ca.pem
-    ssl-cert: /etc/puppetlabs/puppet/ssl/certs/foo.example.com.pem
-    ssl-key: /etc/puppetlabs/puppet/ssl/private_keys/foo.example.com.pem
+    ssl-cert: /etc/puppetlabs/puppet/ssl/certs/#{facts[:fqdn]}.pem
+    ssl-key: /etc/puppetlabs/puppet/ssl/private_keys/#{facts[:fqdn]}.pem
     ssl-host: 0.0.0.0
     ssl-port: 8140
     default-server: true
@@ -251,8 +251,8 @@ webserver: {
     client-auth: want
     ssl-crl-path: /etc/puppetlabs/puppet/ssl/crl.pem
     ssl-ca-cert: /etc/puppetlabs/puppet/ssl/certs/ca.pem
-    ssl-cert: /etc/puppetlabs/puppet/ssl/certs/foo.example.com.pem
-    ssl-key: /etc/puppetlabs/puppet/ssl/private_keys/foo.example.com.pem
+    ssl-cert: /etc/puppetlabs/puppet/ssl/certs/#{facts[:fqdn]}.pem
+    ssl-key: /etc/puppetlabs/puppet/ssl/private_keys/#{facts[:fqdn]}.pem
     ssl-host: 0.0.0.0
     ssl-port: 8141
   }
@@ -605,7 +605,7 @@ web-router-service: {
             'owner'   => 'root',
             'group'   => 'puppet',
             'mode'    => '0640',
-            'content' => %q~# This file managed by Puppet
+            'content' => %Q~# This file managed by Puppet
 # Any changes will be removed on the next run
 webserver: {
   ca: {
@@ -613,8 +613,8 @@ webserver: {
     client-auth: want
     ssl-crl-path: /etc/puppetlabs/puppet/ssl/crl.pem
     ssl-ca-cert: /etc/puppetlabs/puppet/ssl/certs/ca.pem
-    ssl-cert: /etc/puppetlabs/puppet/ssl/certs/foo.example.com.pem
-    ssl-key: /etc/puppetlabs/puppet/ssl/private_keys/foo.example.com.pem
+    ssl-cert: /etc/puppetlabs/puppet/ssl/certs/#{facts[:fqdn]}.pem
+    ssl-key: /etc/puppetlabs/puppet/ssl/private_keys/#{facts[:fqdn]}.pem
     ssl-host: 0.0.0.0
     ssl-port: 8141
     default-server: true
@@ -634,7 +634,7 @@ webserver: {
             'owner'   => 'root',
             'group'   => 'puppet',
             'mode'    => '0640',
-            'content' => %q~# This file managed by Puppet
+            'content' => %Q~# This file managed by Puppet
 # Any changes will be removed on the next run
 webserver: {
   base: {
@@ -642,8 +642,8 @@ webserver: {
     client-auth: need
     ssl-crl-path: /etc/puppetlabs/puppet/ssl/crl.pem
     ssl-ca-cert: /etc/puppetlabs/puppet/ssl/certs/ca.pem
-    ssl-cert: /etc/puppetlabs/puppet/ssl/certs/foo.example.com.pem
-    ssl-key: /etc/puppetlabs/puppet/ssl/private_keys/foo.example.com.pem
+    ssl-cert: /etc/puppetlabs/puppet/ssl/certs/#{facts[:fqdn]}.pem
+    ssl-key: /etc/puppetlabs/puppet/ssl/private_keys/#{facts[:fqdn]}.pem
     ssl-host: 0.0.0.0
     ssl-port: 8140
     default-server: true
@@ -663,7 +663,7 @@ webserver: {
             'owner'   => 'root',
             'group'   => 'puppet',
             'mode'    => '0640',
-            'content' => %q~# This file managed by Puppet
+            'content' => %Q~# This file managed by Puppet
 # Any changes will be removed on the next run
 webserver: {
   base: {
@@ -671,8 +671,8 @@ webserver: {
     client-auth: want
     ssl-crl-path: /etc/puppetlabs/puppet/ssl/crl.pem
     ssl-ca-cert: /etc/puppetlabs/puppet/ssl/certs/ca.pem
-    ssl-cert: /etc/puppetlabs/puppet/ssl/certs/foo.example.com.pem
-    ssl-key: /etc/puppetlabs/puppet/ssl/private_keys/foo.example.com.pem
+    ssl-cert: /etc/puppetlabs/puppet/ssl/certs/#{facts[:fqdn]}.pem
+    ssl-key: /etc/puppetlabs/puppet/ssl/private_keys/#{facts[:fqdn]}.pem
     ssl-host: 0.0.0.0
     ssl-port: 12345
     default-server: true

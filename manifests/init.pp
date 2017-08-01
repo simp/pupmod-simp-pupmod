@@ -22,7 +22,7 @@
 #   we are using PC1 or PE
 #
 # @param ca_crl_pull_interval
-#   NOTE: This parameter is deprecated and thorw a warning if specified.
+#   NOTE: This parameter is deprecated and throws a warning if specified.
 #
 # @param certname
 #   The puppet environment name of the system.
@@ -361,5 +361,10 @@ class pupmod (
       }
     }
   }
+
+  # Make sure OBE cron job from pupmod versions prior to 7.3.1 is removed.
+  # This resource can be removed when the OBE ca_crl_pull_interval
+  # parameter is removed.
+  cron { 'puppet_crl_pull': ensure => 'absent' }
 }
 # vim: set expandtab ts=2 sw=2:

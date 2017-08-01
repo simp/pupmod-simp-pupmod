@@ -1,3 +1,7 @@
+* Tue Aug 01 2017 Liz Nemsick <lnemsick.simp@gmail.com> - 7.3.2-0
+- Ensure OBE 'puppet_crl_pull' cron job from pupmod versions prior
+  to 7.3.1 is removed.
+
 * Thu Jul 27 2017 Nick Markowski <nmarkowski@keywcorp.com> - 7.3.2-0
 - README updates:
   - Informed users of legacy auth.conf deprecation

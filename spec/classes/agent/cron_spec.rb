@@ -5,7 +5,7 @@ describe 'pupmod::agent::cron' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
 
-      let(:facts) { os_facts }
+      let(:facts) { os_facts.merge(:ipaddress => '10.0.2.15') }
 
       context 'using general parameters' do
         let(:params) {{ :interval => 60 }}

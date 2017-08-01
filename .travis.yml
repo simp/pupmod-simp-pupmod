@@ -13,7 +13,10 @@ cache: bundler
 before_script:
   - bundle update
 bundler_args: --without development system_tests --path .vendor
-before_install: rm Gemfile.lock || true
+before_install: 
+  - rm Gemfile.lock || true
+  - rvm @global do gem uninstall bundler -a -x
+  - rvm @global do gem install bundler -v '~> 1.14.0'
 script:
   - bundle exec rake test
 notifications:
