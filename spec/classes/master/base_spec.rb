@@ -58,8 +58,10 @@ describe 'pupmod::master::base' do
             }
           )
         }
-        puppetserver_clear_environment_cache = File.open("#{File.dirname(__FILE__)}/data/puppetserver_clear_environment_cache.txt", "rb").read;
-        it { is_expected.to contain_file('/usr/local/sbin/puppetserver_clear_environment_cache').with_content(puppetserver_clear_environment_cache) }
+        it { 
+          puppetserver_clear_environment_cache = File.open("#{File.dirname(__FILE__)}/data/puppetserver_clear_environment_cache.txt", "rb").read.gsub('foo.example.com', facts[:fqdn])
+          is_expected.to contain_file('/usr/local/sbin/puppetserver_clear_environment_cache').with_content(puppetserver_clear_environment_cache)
+        }
 
         it { is_expected.to contain_file('/usr/local/sbin/puppetserver_reload').with(
             {
@@ -70,8 +72,10 @@ describe 'pupmod::master::base' do
             }
           )
         }
-        puppetserver_reload = File.open("#{File.dirname(__FILE__)}/data/puppetserver_reload.txt", "rb").read;
-        it { is_expected.to contain_file('/usr/local/sbin/puppetserver_reload').with_content(puppetserver_reload) }
+        it { 
+          puppetserver_reload = File.open("#{File.dirname(__FILE__)}/data/puppetserver_reload.txt", "rb").read.gsub('foo.example.com', facts[:fqdn])
+          is_expected.to contain_file('/usr/local/sbin/puppetserver_reload').with_content(puppetserver_reload) 
+        }
 
         it { is_expected.to contain_group('puppet').with(
             {

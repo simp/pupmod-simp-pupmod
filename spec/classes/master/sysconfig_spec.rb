@@ -10,7 +10,7 @@ describe 'pupmod::master::sysconfig' do
     end
     context "on #{os}" do
 
-      let(:facts){ @extras.merge(os_facts) }
+      let(:facts){ @extras.merge(os_facts).merge(:memorysize_mb => '490.16') }
 
       context 'with default parameters' do
           puppetserver_content = File.open("#{File.dirname(__FILE__)}/data/puppetserver.txt", "rb").read;
