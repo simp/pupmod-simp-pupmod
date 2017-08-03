@@ -1,4 +1,6 @@
 Obsoletes: pupmod-pupmod-test >= 0.0.1
+Requires: pupmod-puppetlabs-puppet_authorization < 1.0.0
+Requires: pupmod-puppetlabs-puppet_authorization >= 0.2.0
 Requires: pupmod-puppetlabs-stdlib < 5.0.0-0
 Requires: pupmod-puppetlabs-stdlib >= 4.13.1-0
 Requires: pupmod-simp-haveged < 1.0.0-0
