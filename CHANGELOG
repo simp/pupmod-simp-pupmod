@@ -1,8 +1,16 @@
-* Tue Aug 01 2017 Liz Nemsick <lnemsick.simp@gmail.com> - 7.3.2-0
+* Mon Sep 11 2017 Liz Nemsick <lnemsick.simp@gmail.com> - 7.4.0-0
+- Add SHA256-based option to generate the minute parameter for
+  a client's puppet agent cron from its IP address. This option
+  is intended mitigate the undesirable clustering of client puppet
+  agent runs, when the number of IPs to be transformed is less
+  than the minute range over which the randomization is requested
+  (60) and/or the client IPs are not linearly assigned.
+
+* Tue Aug 01 2017 Liz Nemsick <lnemsick.simp@gmail.com> - 7.4.0-0
 - Ensure OBE 'puppet_crl_pull' cron job from pupmod versions prior
   to 7.3.1 is removed.
 
-* Thu Jul 27 2017 Nick Markowski <nmarkowski@keywcorp.com> - 7.3.2-0
+* Thu Jul 27 2017 Nick Markowski <nmarkowski@keywcorp.com> - 7.4.0-0
 - README updates:
   - Informed users of legacy auth.conf deprecation
   - Provided instructions to reproduce custom auth.conf entries
