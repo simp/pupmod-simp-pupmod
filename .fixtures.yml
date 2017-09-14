@@ -20,11 +20,7 @@ fixtures:
     rsync: https://github.com/simp/pupmod-simp-rsync
     rsyslog: https://github.com/simp/pupmod-simp-rsyslog
     simpcat: https://github.com/simp/pupmod-simp-simpcat
-#FIXME:  Revert to master, once SIMP-3280 is merged
-#    simplib: https://github.com/simp/pupmod-simp-simplib
-    simplib: 
-      repo: https://github.com/lnemsick-simp/pupmod-simp-simplib
-      branch: SIMP-3280
+    simplib: https://github.com/simp/pupmod-simp-simplib
     stdlib: https://github.com/simp/puppetlabs-stdlib
     puppet_enterprise:
       repo: https://github.com/simp/pupmod-mock-puppet_enterprise

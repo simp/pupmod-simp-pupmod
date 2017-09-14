@@ -58,7 +58,7 @@ describe 'pupmod::agent::cron' do
 
         it { is_expected.to contain_cron('puppetagent').with({
           'command'   => '/usr/local/bin/puppetagent_cron.sh',
-          'minute'    => [11,41],
+          'minute'    => [10,40],
           'hour'      => '*',
           'monthday'  => '*',
           'month'     => '*',

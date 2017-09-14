@@ -46,7 +46,7 @@
 #
 #   Set to one of the randiomization algorithms if you want the minute
 #   to be auto-generated from ``$minute_base``:
-# 
+#
 #   ``ip_mod`` or its backward-compatible alias ``rand`` uses a
 #   IP-modulus-based transformation of the numeric IP representation of
 #   ``$minute_base``, when ``$minute_base`` is an IP address.
@@ -55,11 +55,9 @@
 #   Puppet master exceeds 60 and the hosts have linearly-assigned IP
 #   addresses.
 #
-#   ``sha256`` uses a SHA256-based transformation of either
-#   ``$minute_base`` or, if ``$minute_base`` is an IP address, the
-#   numeric IP representation of ``$minute_base``.  This algorithm
-#   provides general randomization for cases in which ``ip_mod`` yields
-#   undesirable clustering.
+#   ``sha256`` uses a SHA256-based transformation ``$minute_base``.
+#   This algorithm provides general randomization for cases in which
+#   ``ip_mod`` yields undesirable clustering.
 #
 # @param hour
 #   The ``hour`` value for the crontab entry
@@ -98,7 +96,7 @@
 #
 #   * This only takes effect if ``$break_puppet_lock`` is true
 #
-#   * When not set, an appropriate value is computed based on 
+#   * When not set, an appropriate value is computed based on
 #     cron frequency and ``$maxruntime``.
 #
 # @example Configure puppet agent cron to run every 20 minutes
