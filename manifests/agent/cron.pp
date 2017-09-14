@@ -3,13 +3,11 @@
 # @param interval
 #   The cron iteration time (in minutes) for running puppet
 #
-#   * This applies the standard ``*/$interval`` style syntax from cron
+#   * When ``$minute`` is set to 'nil', this applies the standard
+#     ``*/$interval`` style syntax from cron for the minute field.
+#     See ``crontab(5)`` for additional details.
 #
-#   * See ``crontab(5)`` for additional details
-#
-#   * NOTE: This is overridden if ``$minute`` is set to anything other than
-#     ``nil`` or ``rand``.  If this is the case, it is assumed that you want
-#     finer control over your puppet run.
+#   * Otherwise, this value is ignored.
 #
 # @param minute_base
 #   The default artifact to use to auto-generate a cron interval
@@ -25,25 +23,46 @@
 #   * WARNING: If this is the *same* resolved value on all of your systems then
 #     your systems will have the *same* run interval.
 #
+#   * Not used if using ``$interval``
+#
 # @param run_timeframe
 #   The time frame within which you wish to run the puppet agent
 #
 #   * This directly translates to the minute field of the cron job so this
 #     should probably be left at 60
 #
+#   * Not used if using ``$interval``
+#
 # @param runs_per_timeframe
 #   The number of times, per ``$timeframe``, that you want to run the Puppet
 #   Agent.
 #
+#   * Not used if using ``$interval``
+#
 # @param minute
 #   The ``minute`` value for the crontab entry
 #
-#   Set to ``nil`` if you want to use $interval
+#   Set to ``nil`` if you want to only use ``$interval``.
+#
+#   Set to one of the randiomization algorithms if you want the minute
+#   to be auto-generated from ``$minute_base``:
+#
+#   ``ip_mod`` or its backward-compatible alias ``rand`` uses a
+#   IP-modulus-based transformation of the numeric IP representation of
+#   ``$minute_base``, when ``$minute_base`` is an IP address.
+#   Otherwise, it uses a crc32-based transformation of $minute_base.
+#   This algorithm works well when the number of hosts managed by a
+#   Puppet master exceeds 60 and the hosts have linearly-assigned IP
+#   addresses.
+#
+#   ``sha256`` uses a SHA256-based transformation ``$minute_base``.
+#   This algorithm provides general randomization for cases in which
+#   ``ip_mod`` yields undesirable clustering.
 #
 # @param hour
 #   The ``hour`` value for the crontab entry
 #
-#   Not used if using ``$interval``
+#   * Not used if using ``$interval``
 #
 # @param monthday
 #   The ``monthday`` value for the crontab entry
@@ -77,12 +96,36 @@
 #
 #   * This only takes effect if ``$break_puppet_lock`` is true
 #
+#   * When not set, an appropriate value is computed based on
+#     cron frequency and ``$maxruntime``.
+#
+# @example Configure puppet agent cron to run every 20 minutes
+#
+#   class { 'pupmod::agent::cron:
+#     interval => 20,
+#     minute   => 'nil'
+#   }
+#
+# @example Configure puppet agent cron to run once an hour using
+#   the default minute randomization algorithm
+#
+#   class { 'pupmod::agent::cron:
+#     runs_per_timeframe => 1
+#   }
+#
+# @example Configure cron to run once per day at a particular time
+#
+#   class { 'pupmod::agent::cron:
+#     minute => '23'
+#     hour   => '4'
+#   }
+#
 class pupmod::agent::cron (
   Integer[0]            $interval           = 30,
   String                $minute_base        = $facts['ipaddress'],
   Integer[0]            $run_timeframe      = 60,
   Integer[0]            $runs_per_timeframe = 2,
-  Variant[Array,String] $minute             = 'rand',
+  Variant[Array,String] $minute             = 'ip_mod',
   Variant[Array,String] $hour               = '*',
   Variant[Array,String] $monthday           = '*',
   Variant[Array,String] $month              = '*',
@@ -97,9 +140,14 @@ class pupmod::agent::cron (
   cron { 'puppetd': ensure => 'absent' }
 
   case $minute {
-    'rand'  : {
+    # rand = ip_mod for backward compatibility
+    'ip_mod', 'rand' : {
       $_max_disable_base = $maxruntime + ($run_timeframe / $runs_per_timeframe)
-      $_minute           = rand_cron($minute_base,$runs_per_timeframe,$run_timeframe)
+      $_minute           = simplib::rand_cron($minute_base,'ip_mod',$runs_per_timeframe,$run_timeframe-1)
+    }
+    'sha256' : {
+      $_max_disable_base = $maxruntime + ($run_timeframe / $runs_per_timeframe)
+      $_minute           = simplib::rand_cron($minute_base,'sha256',$runs_per_timeframe,$run_timeframe-1)
     }
     'nil'   : {
       $_max_disable_base = $maxruntime + $interval
