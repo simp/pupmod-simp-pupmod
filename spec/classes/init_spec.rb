@@ -147,7 +147,6 @@ describe 'pupmod' do
             context 'with_selinux_disabled' do
               let(:facts) {
                 _facts = @extras.merge(os_facts)
-                _facts[:selinux_current_mode] = 'disabled'
                 _facts[:selinux] = false
 
                 _facts

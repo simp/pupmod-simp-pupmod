@@ -354,10 +354,12 @@ class pupmod (
     else {
       $puppet_agent_sebool = 'puppetagent_manage_all_files'
     }
-    if $::selinux_current_mode and $::selinux_current_mode != 'disabled' {
-      selboolean { $puppet_agent_sebool :
-        persistent => true,
-        value      => 'on'
+    if $::selinux {
+      if $::selinux_current_mode and $::selinux_current_mode != 'disabled' {
+        selboolean { $puppet_agent_sebool :
+          persistent => true,
+          value      => 'on'
+        }
       }
     }
   }

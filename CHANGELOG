@@ -1,3 +1,7 @@
+* Mon Oct 02 2017 Chris Tessmer <chris.tessmer@onyxpoint.com> - 7.4.1-0
+- Fixed bug where `:selinux_config_mode` is tested even when `:selinux` is
+  false.
+
 * Mon Sep 11 2017 Liz Nemsick <lnemsick.simp@gmail.com> - 7.4.0-0
 - Add SHA256-based option to generate the minute parameter for
   a client's puppet agent cron from its IP address. This option
