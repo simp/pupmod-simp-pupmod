@@ -348,13 +348,13 @@ class pupmod (
     }
 
     # Changing SELinux booleans on a minor update is a horrible idea.
-    if ( $::operatingsystem in ['RedHat','CentOS'] ) and ( $::operatingsystemmajrelease < '7' ) {
+    if ( $facts['operatingsystem'] in ['RedHat','CentOS'] ) and ( $facts['operatingsystemmajrelease'] < '7' ) {
       $puppet_agent_sebool = 'puppet_manage_all_files'
     }
     else {
       $puppet_agent_sebool = 'puppetagent_manage_all_files'
     }
-    if $::selinux_current_mode and $::selinux_current_mode != 'disabled' {
+    if $facts['selinux'] and $facts['selinux_current_mode'] and ($facts['selinux_current_mode'] != 'disabled') {
       selboolean { $puppet_agent_sebool :
         persistent => true,
         value      => 'on'
