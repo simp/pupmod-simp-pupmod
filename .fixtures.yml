@@ -25,6 +25,8 @@ fixtures:
     puppet_enterprise:
       repo: https://github.com/simp/pupmod-mock-puppet_enterprise
       ref: 0.3.0
-    puppet_authorization: https://github.com/simp/puppetlabs-puppet_authorization.git
+    puppet_authorization:
+      repo: https://github.com/simp/puppetlabs-puppet_authorization
+      ref: 0.4.0
   symlinks:
     pupmod: "#{source_dir}"
