@@ -15,7 +15,9 @@ fixtures:
     iptables: https://github.com/simp/pupmod-simp-iptables
     logrotate: https://github.com/simp/pupmod-simp-logrotate
     pam: https://github.com/simp/pupmod-simp-pam
-    concat: https://github.com/simp/puppetlabs-concat
+    concat:
+      repo: https://github.com/simp/puppetlabs-concat
+      ref: 3.0.0
     pki: https://github.com/simp/pupmod-simp-pki
     rsync: https://github.com/simp/pupmod-simp-rsync
     rsyslog: https://github.com/simp/pupmod-simp-rsyslog
