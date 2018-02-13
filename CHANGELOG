@@ -1,5 +1,6 @@
 * Fri Feb 09 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.4.2-0
 - Add the missing puppetlabs/inifile dependency to the metadata.json
+- Fixed puppet lint problem
 
 * Mon Oct 02 2017 Chris Tessmer <chris.tessmer@onyxpoint.com> - 7.4.1-0
 - Fixed bug where `:selinux_config_mode` is tested even when `:selinux` is

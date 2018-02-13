@@ -143,11 +143,11 @@ class pupmod::agent::cron (
     # rand = ip_mod for backward compatibility
     'ip_mod', 'rand' : {
       $_max_disable_base = $maxruntime + ($run_timeframe / $runs_per_timeframe)
-      $_minute           = simplib::rand_cron($minute_base,'ip_mod',$runs_per_timeframe,$run_timeframe-1)
+      $_minute           = simplib::rand_cron($minute_base,'ip_mod',$runs_per_timeframe,$run_timeframe - 1)
     }
     'sha256' : {
       $_max_disable_base = $maxruntime + ($run_timeframe / $runs_per_timeframe)
-      $_minute           = simplib::rand_cron($minute_base,'sha256',$runs_per_timeframe,$run_timeframe-1)
+      $_minute           = simplib::rand_cron($minute_base,'sha256',$runs_per_timeframe,$run_timeframe - 1)
     }
     'nil'   : {
       $_max_disable_base = $maxruntime + $interval
