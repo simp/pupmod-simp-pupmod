@@ -1,0 +1,36 @@
+# This file managed by Puppet
+# Any changes will be removed on the next run
+webserver: {
+<% if $pupmod::master::enable_master { -%>
+  base: {
+    access-log-config: /etc/puppetlabs/puppetserver/request-logging.xml
+<%   if $pupmod::master::enable_ca and ($pupmod::master::ca_port == $pupmod::master::masterport) { -%>
+    client-auth: want
+<%   } else { -%>
+    client-auth: need
+<%   } -%>
+    ssl-crl-path: <%= $pupmod::ssldir %>/crl.pem
+    ssl-ca-cert: <%= $pupmod::ssldir %>/certs/ca.pem
+    ssl-cert: <%= $pupmod::ssldir %>/certs/<%= $facts['fqdn'] %>.pem
+    ssl-key: <%= $pupmod::ssldir %>/private_keys/<%= $facts['fqdn'] %>.pem
+    ssl-host: <%= $pupmod::master::bind_address %>
+    ssl-port: <%= $pupmod::master::masterport %>
+    default-server: true
+  }
+<% } -%>
+<% if $pupmod::master::enable_ca and ($pupmod::master::ca_port != $pupmod::master::masterport) { -%>
+  ca: {
+    access-log-config: /etc/puppetlabs/puppetserver/request-logging.xml
+    client-auth: want
+    ssl-crl-path: <%= $pupmod::ssldir %>/crl.pem
+    ssl-ca-cert: <%= $pupmod::ssldir %>/certs/ca.pem
+    ssl-cert: <%= $pupmod::ssldir %>/certs/<%= $facts['fqdn'] %>.pem
+    ssl-key: <%= $pupmod::ssldir %>/private_keys/<%= $facts['fqdn'] %>.pem
+    ssl-host: <%= $pupmod::master::ca_bind_address %>
+    ssl-port: <%= $pupmod::master::ca_port %>
+<%   unless $pupmod::master::enable_master { -%>
+    default-server: true
+<%   } -%>
+  }
+<% } -%>
+}

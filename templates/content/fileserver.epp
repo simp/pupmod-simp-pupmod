@@ -1,0 +1,13 @@
+<%- |
+  String[1] $name,
+  Variant[Array[Simplib::Host],Simplib::Host] $allow,
+  Stdlib::AbsolutePath $path,
+  String[1] $server_version
+| -%>
+[<%= $name %>]
+ path <%= $path %>
+<% if versioncmp($server_version, '5.0.0') < 0 { -%>
+<%  $allow.each |$entry| { -%>
+ allow <%= $entry %><%= "\n" %>
+<%  } -%>
+<% } -%>

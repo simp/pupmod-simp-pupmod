@@ -200,6 +200,6 @@ class pupmod::agent::cron (
     owner   => 'root',
     group   => 'root',
     mode    => '0750',
-    content => template('pupmod/usr/local/bin/puppetagent_cron.erb')
+    content => epp("${module_name}/usr/local/bin/puppetagent_cron")
   }
 }

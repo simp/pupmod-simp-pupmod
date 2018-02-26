@@ -1,5 +1,5 @@
 # This file managed by Puppet
 # Any changes will be removed on the next run
 os-settings: {
-    ruby-load-path: [<%= @ruby_load_path %>]
+    ruby-load-path: [<%= $pupmod::master::ruby_load_path %>]
 }

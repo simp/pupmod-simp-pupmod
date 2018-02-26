@@ -1,7 +1,12 @@
-# This class simply controls settings around client reports on the
-# system.
+# This class simply controls settings around client reports on the system.
 #
 # Most importantly, it allows for purging the reports.
+#
+# @param port
+#   The port upon which to listen for reports.
+#
+# @param vardir
+#   The directory where reports should be stored.
 #
 # @param purge
 #   Whether or not to purge old reports from the system.

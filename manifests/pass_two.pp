@@ -1,15 +1,30 @@
+# A helper defined type for adding processing to fix some issues with Puppet 4+
+# installations.
+#
+# @param namevar
+# @param server_distribution
+# @param confdir
+# @param firewall
+# @param pe_classlist
+# @param pupmod_server
+# @param pupmod_ca_server
+# @param pupmod_ca_port
+# @param pupmod_report
+# @param pupmod_masterport
+#
 # @see comment at manifests/init.pp:244
+#
 define pupmod::pass_two (
-  String $namevar = $name,
-  Simplib::ServerDistribution $server_distribution = 'PC1',
-  Stdlib::AbsolutePath $confdir = '/etc/puppetlabs/puppet',
-  Optional[Boolean] $firewall = undef,
-  Hash $pe_classlist = lookup('pupmod::pe_classlist'),
-  Optional[Simplib::Host] $pupmod_server = '1.2.3.4',
-  Variant[Simplib::Host,Enum['$server']] $pupmod_ca_server = '$server',
-  Simplib::Port $pupmod_ca_port = 8141,
-  Boolean $pupmod_report = false,
-  Simplib::Port $pupmod_masterport = 8140,
+  String                                 $namevar             = $name,
+  Simplib::ServerDistribution            $server_distribution = 'PC1',
+  Stdlib::AbsolutePath                   $confdir             = '/etc/puppetlabs/puppet',
+  Optional[Boolean]                      $firewall            = undef,
+  Hash                                   $pe_classlist        = lookup('pupmod::pe_classlist'),
+  Optional[Simplib::Host]                $pupmod_server       = '1.2.3.4',
+  Variant[Simplib::Host,Enum['$server']] $pupmod_ca_server    = '$server',
+  Simplib::Port                          $pupmod_ca_port      = 8141,
+  Boolean                                $pupmod_report       = false,
+  Simplib::Port                          $pupmod_masterport   = 8140,
 ) {
   if (defined(Class['puppet_enterprise'])) {
     $_server_distribution = 'PE'
@@ -17,8 +32,7 @@ define pupmod::pass_two (
     $_server_distribution = $server_distribution
   }
 
-
-  # These are agent specific variables, that only apply on PC1 systems:
+  # These are agent specific variables, that only apply on Puppet 4+ systems:
 
   if ($_server_distribution == 'PC1') {
     pupmod::conf { 'server':
@@ -55,16 +69,16 @@ define pupmod::pass_two (
 
   $_conf_group = 'puppet'
 
-  # These two maps allow the user and service specifications to occur purely in data
-  # and can be included /only/ if the node is classified into the applicable groups.
-  # this is necessary as a LEI install of PE has several seperate, independent
-  # roles that can be applied, not just master|agent.
+  # These two maps allow the user and service specifications to occur purely in
+  # data and can be included /only/ if the node is classified into the
+  # applicable groups.  this is necessary as a LEI install of PE has several
+  # separate, independent roles that can be applied, not just master|agent.
   #
   # This also prevents us from passing the burden onto the user to classify
   # their nodes with two classes, one for SIMP, and one for PE.
   #
-  # For safety that means that releases of SIMP are only supported on specified PE
-  # releases. We need to have a matrix of supported versions.
+  # For safety that means that releases of SIMP are only supported on specified
+  # PE releases. We need to have a matrix of supported versions.
   if ($_server_distribution == 'PE') {
     $available = $pe_classlist.map |$class, $data| {
       if (defined(Class[$class])) {
@@ -81,11 +95,12 @@ define pupmod::pass_two (
           }
       }
     }
-    $group_notify = unique(flatten(delete_undef_values($notify_resources)))
-    $group_members = unique(flatten(delete_undef_values($available)))
-  } else {
-    $group_notify = undef
-    $group_members = undef
+    $_group_notify = unique(flatten(delete_undef_values($notify_resources)))
+    $_group_members = unique(flatten(delete_undef_values($available)))
+  }
+  else {
+    $_group_notify = undef
+    $_group_members = undef
   }
 
   # All of those functions are required to make this 'safe' and
@@ -95,15 +110,14 @@ define pupmod::pass_two (
     allowdupe => false,
     gid       => '52',
     tag       => 'firstrun',
-    notify    => $group_notify,
-    members   => $group_members,
+    notify    => $_group_notify,
+    members   => $_group_members,
   }
 
-  # We cannot assume that every user is
-  # going to read the SIMP docs before they attempt to classify a
-  # class, and we also cannot assume they know what would happen
-  # if pupmod::master and puppet_enterprise::profile::master
-  # are applied at the same time.
+  # We cannot assume that every user is going to read the SIMP docs before they
+  # attempt to classify a class, and we also cannot assume they know what would
+  # happen if ``pupmod::master`` and ``puppet_enterprise::profile::master`` are
+  # applied at the same time.
   #
   # Hell, I don't even know what would happen. But it would be bad
   # Very, very bad.
@@ -153,12 +167,11 @@ define pupmod::pass_two (
     }
   }
 
-  # Generate firewall rules on a per-class basis.
-  # Basically, only when a node is classified with a role will we poke
-  # a hole in the firewall for it
+  # Generate firewall rules on a per-class basis.  Basically, only when a node
+  # is classified with a role will we poke a hole in the firewall for it
   #
-  # Only create tcp rules since that's all puppet uses. But support it
-  # in the data model anyway
+  # Only create TCP rules since that's all puppet uses. But support it in the
+  # data model anyway
   if ($firewall) {
     if ($_server_distribution == 'PE') {
       $pe_classlist.each |String $class, Hash $data| {

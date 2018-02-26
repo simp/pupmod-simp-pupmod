@@ -49,8 +49,14 @@
 #   consumed resources can be freed for other uses and so that the cron
 #   job can maintain a safe system state over time.
 #
+# @param digest_algorithm
+#   The hash Digest to use for file operations on the system.
+#
 # @param enable_puppet_master
 #   Whether or not to make the system a puppetmaster.
+#
+# @param environmentpath
+#   The path to the directory holding the puppet environments.
 #
 # @param listen
 #   Whether or not to listen for incoming connections to the puppet
@@ -164,6 +170,8 @@ class pupmod (
   Boolean                                $mock                 = false
 ) inherits pupmod::params {
   unless ($mock == true) {
+    simplib::assert_metadata($module_name)
+
     # These regexes match absolute paths or paths that begin with an existing
     # puppet configuration variable, like $vardir
     validate_re($classfile,'^(\$(?!/)|/).+')
@@ -348,7 +356,7 @@ class pupmod (
     }
 
     # Changing SELinux booleans on a minor update is a horrible idea.
-    if ( $facts['operatingsystem'] in ['RedHat','CentOS'] ) and ( $facts['operatingsystemmajrelease'] < '7' ) {
+    if ( $facts['operatingsystem'] in ['RedHat','CentOS','OracleLinux'] ) and ( $facts['operatingsystemmajrelease'] < '7' ) {
       $puppet_agent_sebool = 'puppet_manage_all_files'
     }
     else {

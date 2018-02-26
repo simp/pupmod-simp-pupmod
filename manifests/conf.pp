@@ -12,6 +12,9 @@
 # @param value
 #   The value of the setting to be set.
 #
+# @param confdir
+#   The configuration directory holding the 'puppet.conf' file.
+#
 # @param section
 #   The Sections of the puppet.conf to set.
 #

@@ -1,25 +1,32 @@
 # This file managed by Puppet
 # Any changes will be removed on the next run
 <%
-  admin_api_mountpoint = @admin_api_mountpoint.dup
-  admin_api_mountpoint = "/#{admin_api_mountpoint}" unless admin_api_mountpoint[0].chr == '/'
+  unless $pupmod::master::admin_api_mountpoint[0] == '/' {
+    $admin_api_mountpoint = "/${pupmod::master::admin_api_mountpoint}"
+  }
+  else {
+    $admin_api_mountpoint = $pupmod::master::admin_api_mountpoint
+  }
 -%>
 web-router-service: {
-<% if @enable_ca && (@ca_port != @masterport) -%>
+<% if $pupmod::master::enable_ca and ($pupmod::master::ca_port != $pupmod::master::masterport) { -%>
   "puppetlabs.services.ca.certificate-authority-service/certificate-authority-service": {
      default: {
        route: "/puppet-ca"
        server: "ca"
      }
   }
-<% else -%>
+<% } else { -%>
   "puppetlabs.services.ca.certificate-authority-service/certificate-authority-service": "/puppet-ca"
-<% end -%>
+<% } -%>
 
   "puppetlabs.trapperkeeper.services.status.status-service/status-service": "/status"
   "puppetlabs.services.master.master-service/master-service": "/puppet"
   "puppetlabs.services.legacy-routes.legacy-routes-service/legacy-routes-service": ""
 
   # This controls the mount point for the puppet admin API.
-  "puppetlabs.services.puppet-admin.puppet-admin-service/puppet-admin-service": "<%= admin_api_mountpoint %>"
+  "puppetlabs.services.puppet-admin.puppet-admin-service/puppet-admin-service": "<%= $admin_api_mountpoint %>"
+<%  if versioncmp($pupmod::master::_server_version, '5.1.0') >= 0 { -%>
+  "puppetlabs.trapperkeeper.services.metrics.metrics-service/metrics-webservice": "/metrics"
+<%  } -%>
 }

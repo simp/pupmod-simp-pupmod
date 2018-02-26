@@ -1,6 +1,7 @@
 require 'spec_helper'
 require 'yaml'
 data = YAML.load_file("#{File.dirname(__FILE__)}/data/moduledata.yaml")
+
 describe 'pupmod::pass_two' do
   on_supported_os.each do |os, facts|
     context "on #{os}" do
@@ -49,10 +50,7 @@ describe 'pupmod::pass_two' do
                   'value' => 8141
                 }
               }.each do |key, value|
-                if ($pe_mode == true)
-                  it {
-                    is_expected.to_not contain_pupmod__conf(key)
-                  }
+                if $pe_mode
                   it { is_expected.to_not contain_ini_setting("pupmod_#{key}") }
                 else
                   it {
@@ -66,7 +64,7 @@ describe 'pupmod::pass_two' do
                 end
 
               end
-              if ($pe_mode == false)
+              unless $pe_mode
                 mode = '0640'
               else
                 mode = nil
@@ -90,26 +88,39 @@ describe 'pupmod::pass_two' do
                 'tag'   => 'firstrun',
               }) }
 
-              if ($pe_mode == true)
+
+              if $pe_mode
                 classlist = data['pupmod::pe_classlist'];
                 classlist.each do |key, value|
                   unless (key == 'pupmod' or key == 'pupmod::master')
                     context "when #{key} is included in the catalog" do
                       let(:pre_condition) {
                         if (key == 'puppet_enterprise::profile::master')
-                          ret = "
+                          ret = %{
                             include puppet_enterprise
                             class { 'pupmod':
                               mock => true
                             }
                             include #{key}
-                          "
+                          }
                         else
-                          ret = "
+                          ret = %{
                             include puppet_enterprise
                             include #{key}
-                          "
+                          }
                         end
+
+                        if defined?(data)
+                          _services = []
+                          data['pupmod::pe_classlist'].each_pair { |k,v|
+                            _services += v['services'] if v['services']
+                          }
+
+                          _services.uniq.each do |_service|
+                            ret << %{\nensure_resource('service', '#{_service}')}
+                          end
+                        end
+
                         ret
                       }
 
@@ -149,7 +160,8 @@ describe 'pupmod::pass_two' do
                   end
                 end
               end
-              if ($pe_mode == true)
+
+              if $pe_mode
                 context "with pupmod::master defined" do
                   let(:pre_condition) {
                     '
@@ -161,8 +173,8 @@ describe 'pupmod::pass_two' do
                       include pupmod::master
                     '
                   }
-                  #                   it { is_expected.to compile }
                   it { is_expected.to compile.and_raise_error(/.*pupmod::master is NOT supported on PE masters. Please remove the pupmod::master classification from hiera or the puppet console before proceeding.*/) }
+
                 end
                 context "with pupmod::master not defined" do
                   let(:pre_condition) {

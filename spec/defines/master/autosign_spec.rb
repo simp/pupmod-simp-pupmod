@@ -5,12 +5,15 @@ describe 'pupmod::master::autosign' do
     context "on #{os}" do
       let(:facts) {facts}
 
-      context 'base' do
+      let(:title) { '*.foo.bar' }
+
+      it { is_expected.to contain_concat__fragment("pupmod::master::autosign #{title}").with_content("#{title}\n") }
+
+      context 'with different title' do
         let(:title) { 'autosign_test' }
-        let(:params) {{ :entry => 'foo bar' }}
-        it { is_expected.to contain_simpcat_fragment("autosign+#{title}.autosign").with({
-            :content => "#{title}\n#{params[:entry]}\n"
-        })}
+        let(:params) {{ :entry => 'foo.bar' }}
+
+        it { is_expected.to contain_concat__fragment("pupmod::master::autosign #{title}").with_content("# #{title}\n#{params[:entry]}\n") }
       end
     end
   end

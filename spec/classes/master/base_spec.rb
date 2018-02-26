@@ -14,14 +14,6 @@ describe 'pupmod::master::base' do
 
       context 'with default parameters' do
         it { is_expected.to create_class('pupmod::master::base') }
-        it { is_expected.to contain_simpcat_build('autosign').with(
-            {
-              "quiet" => true,
-              "order" => ['*.autosign'],
-              "target" => "/etc/puppetlabs/puppet/autosign.conf",
-            }
-          )
-        }
         it { is_expected.to contain_exec('puppetserver_reload').with(
             {
               "command" => "/usr/local/sbin/puppetserver_reload",
@@ -30,14 +22,6 @@ describe 'pupmod::master::base' do
           )
         }
         it { is_expected.to contain_file('/etc/puppetlabs/puppet/ssl/ca/ca_crl.pem') }
-        it { is_expected.to contain_file('/etc/puppetlabs/puppetserver/conf.d/autosign.conf').with(
-            {
-              "owner" => "root",
-              "group" => "puppet",
-              "mode" => "0644",
-            }
-          )
-        }
         it { is_expected.to contain_file('/etc/puppetlabs/code/environments').with(
             {
               "ensure" => "directory",
@@ -58,7 +42,7 @@ describe 'pupmod::master::base' do
             }
           )
         }
-        it { 
+        it {
           puppetserver_clear_environment_cache = File.open("#{File.dirname(__FILE__)}/data/puppetserver_clear_environment_cache.txt", "rb").read.gsub('foo.example.com', facts[:fqdn])
           is_expected.to contain_file('/usr/local/sbin/puppetserver_clear_environment_cache').with_content(puppetserver_clear_environment_cache)
         }
@@ -72,9 +56,9 @@ describe 'pupmod::master::base' do
             }
           )
         }
-        it { 
+        it {
           puppetserver_reload = File.open("#{File.dirname(__FILE__)}/data/puppetserver_reload.txt", "rb").read.gsub('foo.example.com', facts[:fqdn])
-          is_expected.to contain_file('/usr/local/sbin/puppetserver_reload').with_content(puppetserver_reload) 
+          is_expected.to contain_file('/usr/local/sbin/puppetserver_reload').with_content(puppetserver_reload)
         }
 
         it { is_expected.to contain_group('puppet').with(
@@ -116,6 +100,7 @@ describe 'pupmod::master::base' do
           )
         }
       end
+
     end
   end
 end
