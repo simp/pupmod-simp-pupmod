@@ -57,7 +57,7 @@
 #   The protocols that are allowed for communication with the Puppet Server. See
 #   the ssl-protocols documentaiton for the Puppet Server for additional details.
 #
-# @param ssl_cipher_suite
+# @param ssl_cipher_suites
 #   The allowed SSL Cipher Suites to be used by the Puppet Server. The allowed
 #   list is Java version dependent and you will need to check the system Java
 #   documentaiton for details.

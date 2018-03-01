@@ -22,24 +22,8 @@ describe 'pupmod::master::simp_auth' do
           'match_request_path'   => '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/cacerts',
           'match_request_type'   => 'regex',
           'match_request_method' => ['get'],
-          'allow'                => '*',
+          'allow'                => 'certname',
           'sort_order'           => 410,
-        }) }
-        it { is_expected.to create_puppet_authorization__rule('Allow access to the mcollective cacerts from the legacy pki module from all hosts').with({
-          'ensure'               => 'absent',
-          'match_request_path'   => '^/puppet/v3/file_(metadata|content)/modules/pki/keydist/mcollective',
-          'match_request_type'   => 'regex',
-          'match_request_method' => ['get'],
-          'allow'                => '*',
-          'sort_order'           => 420,
-        }) }
-        it { is_expected.to create_puppet_authorization__rule('Allow access to the mcollective PKI from the pki_files module from all hosts').with({
-          'ensure'               => 'present',
-          'match_request_path'   => '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/mcollective',
-          'match_request_type'   => 'regex',
-          'match_request_method' => ['get'],
-          'allow'                => '*',
-          'sort_order'           => 430,
         }) }
         it { is_expected.to create_puppet_authorization__rule('Allow access to each hosts own certs from the pki_files module').with({
           'ensure'               => 'present',
