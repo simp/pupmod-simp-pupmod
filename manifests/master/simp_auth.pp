@@ -1,7 +1,7 @@
 # Add SIMP-specific entries to PuppetServer's auth.conf
 #
 # For documentation about *_allow and *_deny, see the puppetserver docs
-# @see https://puppet.com/docs/puppetserver/5.2/config_file_auth.html#allow-allow-unauthenticated-and-deny
+# @see https://puppet.com/docs/puppetserver/2.7/config_file_auth.html#rules
 #
 # @param server_distribution Puppet open source or PE
 #
@@ -21,13 +21,17 @@
 #
 # @param keydist_from_host
 #   If enabled, allow access to each host's own certs from the `pki_files` module
-# @param keydist_from_host_allow
-# @param keydist_from_host_deny
+# @param keydist_from_host_allow Rules that the puppetserver should allow
+#   @see https://puppet.com/docs/puppetserver/2.7/config_file_auth.html#rules
+# @param keydist_from_host_deny Rules that the puppetserver should deny
+#   @see https://puppet.com/docs/puppetserver/2.7/config_file_auth.html#rules
 #
 # @param krb5_keytabs_from_host
 #   If enabled, allow access to each host's own kerberos keytabs from the `pki_files` module
-# @param krb5_keytabs_from_host_allow
-# @param krb5_keytabs_from_host_deny
+# @param krb5_keytabs_from_host_allow Rules that the puppetserver should allow
+#   @see https://puppet.com/docs/puppetserver/2.7/config_file_auth.html#rules
+# @param krb5_keytabs_from_host_deny Rules that the puppetserver should deny
+#   @see https://puppet.com/docs/puppetserver/2.7/config_file_auth.html#rules
 #
 class pupmod::master::simp_auth (
   Simplib::ServerDistribution $server_distribution          = simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'PC1' } ),
@@ -54,6 +58,13 @@ class pupmod::master::simp_auth (
   $bool2ensure = {
     true  => 'present',
     false => 'absent'
+  }
+
+  if $legacy_cacerts_all {
+    simplib::deprecation('pupmod::master::simp_auth::legacy_cacerts_all', 'pupmod::master::simp_auth::legacy_cacerts_all is deprecated and will be removed in a future version')
+  }
+  if $legacy_pki_keytabs_from_host {
+    simplib::deprecation('pupmod::master::simp_auth::legacy_pki_keytabs_from_host', 'pupmod::master::simp_auth::legacy_pki_keytabs_from_host is deprecated and will be removed in a future version')
   }
 
   puppet_authorization::rule { 'Allow access to the PKI cacerts from the legacy pki module from all hosts':
