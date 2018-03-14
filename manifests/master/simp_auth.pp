@@ -16,11 +16,17 @@
 #
 # @param pki_cacerts_all
 #   If enabled, allow access to the cacerts from the `pki_files` module from all hosts
+# @param pki_cacerts_all_rule
+#   The regex rule to match requests against. The provided rule matched requests
+#   coming from the `files/keydist/cacerts` directory from the pki_files module
 # @param pki_cacerts_all_allow
 # @param pki_cacerts_all_deny
 #
 # @param keydist_from_host
 #   If enabled, allow access to each host's own certs from the `pki_files` module
+# @param keydist_from_host_rule
+#   The regex rule to match requests against. The provided rule matched requests
+#   coming from the `files/keydist` directory from the pki_files module
 # @param keydist_from_host_allow Rules that the puppetserver should allow
 #   @see https://puppet.com/docs/puppetserver/2.7/config_file_auth.html#rules
 # @param keydist_from_host_deny Rules that the puppetserver should deny
@@ -28,6 +34,9 @@
 #
 # @param krb5_keytabs_from_host
 #   If enabled, allow access to each host's own kerberos keytabs from the `pki_files` module
+# @param krb5_keytabs_from_host_rule
+#   The regex rule to match requests against. The provided rule matched requests
+#   coming from the `files/keytabs` directory from the krb5_files module
 # @param krb5_keytabs_from_host_allow Rules that the puppetserver should allow
 #   @see https://puppet.com/docs/puppetserver/2.7/config_file_auth.html#rules
 # @param krb5_keytabs_from_host_deny Rules that the puppetserver should deny
@@ -39,12 +48,15 @@ class pupmod::master::simp_auth (
   Boolean                     $legacy_cacerts_all           = false,
   Boolean                     $legacy_pki_keytabs_from_host = false,
   Boolean                     $pki_cacerts_all              = true,
+  NotUndef                    $pki_cacerts_all_rule         = '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/cacerts',
   NotUndef                    $pki_cacerts_all_allow        = 'certname',
   Any                         $pki_cacerts_all_deny         = undef,
   Boolean                     $keydist_from_host            = true,
+  NotUndef                    $keydist_from_host_rule       = '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/([^/]+)',
   NotUndef                    $keydist_from_host_allow      = '$2',
   Any                         $keydist_from_host_deny       = undef,
   Boolean                     $krb5_keytabs_from_host       = true,
+  NotUndef                    $krb5_keytabs_from_host_rule  = '^/puppet/v3/file_(metadata|content)/modules/krb5_files/keytabs/([^/]+)',
   NotUndef                    $krb5_keytabs_from_host_allow = '$2',
   Any                         $krb5_keytabs_from_host_deny  = undef,
 ) {
@@ -91,7 +103,7 @@ class pupmod::master::simp_auth (
 
   puppet_authorization::rule { 'Allow access to the cacerts from the pki_files module from all hosts':
     ensure               => $bool2ensure[$pki_cacerts_all],
-    match_request_path   => '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/cacerts',
+    match_request_path   => $pki_cacerts_all_rule,
     match_request_type   => 'regex',
     match_request_method => ['get'],
     allow                => $pki_cacerts_all_allow,
@@ -103,7 +115,7 @@ class pupmod::master::simp_auth (
 
   puppet_authorization::rule { 'Allow access to each hosts own certs from the pki_files module':
     ensure               => $bool2ensure[$keydist_from_host],
-    match_request_path   => '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/([^/]+)',
+    match_request_path   => $keydist_from_host_rule,
     match_request_type   => 'regex',
     match_request_method => ['get'],
     allow                => $keydist_from_host_allow,
@@ -115,7 +127,7 @@ class pupmod::master::simp_auth (
 
   puppet_authorization::rule { 'Allow access to each hosts own kerberos keytabs from the krb5_files module':
     ensure               => $bool2ensure[$krb5_keytabs_from_host],
-    match_request_path   => '^/puppet/v3/file_(metadata|content)/modules/krb5_files/keytabs/([^/]+)',
+    match_request_path   => $krb5_keytabs_from_host_rule,
     match_request_type   => 'regex',
     match_request_method => ['get'],
     allow                => $krb5_keytabs_from_host_allow,
