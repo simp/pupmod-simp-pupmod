@@ -11,8 +11,16 @@
 # @param legacy_cacerts_all
 #   If enabled, allow access to the PKI cacerts from the legacy `pki` module from all hosts
 #
+# @param legacy_mcollective_all
+#   If enabled, allow access to the mcollective cacerts from the legacy `pki` module from all hosts
+#
 # @param legacy_pki_keytabs_from_host
 #   If enabled, allow access to each host's own kerberos keytabs from the legacy location
+#
+# @param pki_mcollective_all
+#   Type:    Boolean
+#   Default: true
+#   If enabled, allow access to the mcollective PKI from the `pki_files` module from all hosts
 #
 # @param pki_cacerts_all
 #   If enabled, allow access to the cacerts from the `pki_files` module from all hosts
