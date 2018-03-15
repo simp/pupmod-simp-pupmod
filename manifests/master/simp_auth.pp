@@ -46,7 +46,9 @@ class pupmod::master::simp_auth (
   Simplib::ServerDistribution $server_distribution          = simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'PC1' } ),
   Stdlib::AbsolutePath        $auth_conf_path               = '/etc/puppetlabs/puppetserver/conf.d/auth.conf',
   Boolean                     $legacy_cacerts_all           = false,
+  Boolean                     $legacy_mcollective_all       = false,
   Boolean                     $legacy_pki_keytabs_from_host = false,
+  Boolean                     $pki_mcollective_all          = true,
   Boolean                     $pki_cacerts_all              = true,
   NotUndef                    $pki_cacerts_all_rule         = '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/cacerts',
   NotUndef                    $pki_cacerts_all_allow        = 'certname',
@@ -90,6 +92,18 @@ class pupmod::master::simp_auth (
     notify               => Service[$_master_service],
   }
 
+  puppet_authorization::rule { 'Allow access to the mcollective cacerts from the legacy pki module from all hosts':
+    ensure               => $bool2ensure[$legacy_mcollective_all],
+    match_request_path   => '^/puppet/v3/file_(metadata|content)/modules/pki/keydist/mcollective',
+    match_request_type   => 'regex',
+    match_request_method => ['get'],
+    allow                => '*',
+    sort_order           => 420,
+    path                 => $auth_conf_path,
+    notify               => Service[$_master_service],
+  }
+
+
   puppet_authorization::rule { 'Allow access to each hosts own kerberos keytabs from the legacy location':
     ensure               => $bool2ensure[$legacy_pki_keytabs_from_host],
     match_request_path   => '^/puppet/v3/file_(metadata|content)/modules/pki_files/keytabs/([^/]+)',
@@ -97,6 +111,17 @@ class pupmod::master::simp_auth (
     match_request_method => ['get'],
     allow                => '$2',
     sort_order           => 450,
+    path                 => $auth_conf_path,
+    notify               => Service[$_master_service],
+  }
+
+  puppet_authorization::rule { 'Allow access to the mcollective PKI from the pki_files module from all hosts':
+    ensure               => $bool2ensure[$pki_mcollective_all],
+    match_request_path   => '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/mcollective',
+    match_request_type   => 'regex',
+    match_request_method => ['get'],
+    allow                => '*',
+    sort_order           => 430,
     path                 => $auth_conf_path,
     notify               => Service[$_master_service],
   }
