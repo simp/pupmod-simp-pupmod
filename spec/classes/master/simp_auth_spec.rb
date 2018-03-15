@@ -22,7 +22,7 @@ describe 'pupmod::master::simp_auth' do
           'match_request_path'   => '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/cacerts',
           'match_request_type'   => 'regex',
           'match_request_method' => ['get'],
-          'allow'                => '*',
+          'allow'                => 'certname',
           'sort_order'           => 410,
         }) }
         it { is_expected.to create_puppet_authorization__rule('Allow access to the mcollective cacerts from the legacy pki module from all hosts').with({
