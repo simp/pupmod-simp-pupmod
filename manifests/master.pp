@@ -238,7 +238,11 @@ class pupmod::master (
   $_server_version = pupmod::server_version()
 
   if ($mock == false) {
-    $service = 'puppetserver'
+    $service = $server_distribution ? {
+      'PE'    => 'pe-puppetserver',
+      default => 'puppetserver',
+    }
+
     include '::pupmod'
     class { '::pupmod::master::sysconfig':
       service => $service,
