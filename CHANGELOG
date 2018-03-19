@@ -1,4 +1,4 @@
-* Tue Mar 06 2018 Nick Miller <nick.miller@onyxpoint.com> - 7.4.2-0
+* Tue Mar 06 2018 Nick Miller <nick.miller@onyxpoint.com> - 7.5.0-0
 - pupmod::master::simp_auth
   - Allow tweaking `allow` and `deny` rules for supported keydist auth rules
   - Removed Mcollective auth rules
@@ -18,7 +18,7 @@
   overload the server in terms of either processor power or memory capabilities
 - Added OracleLinux support
 
-* Fri Feb 09 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.4.2-0
+* Fri Feb 09 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.5.0-0
 - Add the missing puppetlabs/inifile dependency to the metadata.json
 - Fixed puppet-lint problem
 
