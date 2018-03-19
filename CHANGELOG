@@ -1,3 +1,10 @@
+* Tue Mar 06 2018 Nick Miller <nick.miller@onyxpoint.com> - 7.4.2-0
+- pupmod::master::simp_auth
+  - Allow tweaking `allow` and `deny` rules for supported keydist auth rules
+  - Removed Mcollective auth rules
+  - Changed `$pki_cacerts_all`'s auth rule from `*` to `certname`
+  - Deprecated `$legacy_cacerts_all` and `$legacy_pki_keytabs_from_host`
+
 * Fri Mar 02 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.5.0-0
 - Updated to support Puppet 5
   - Fixed issues with the puppetserver configuration that could have broken
@@ -7,21 +14,13 @@
   incorrect files
 - Updated all puppet strings documentation
 - Converted all templates to EPP
-- Added process limits on the number of JRuby instances started designed to no
+- Added process limits on the number of JRuby instances started designed to not
   overload the server in terms of either processor power or memory capabilities
 - Added OracleLinux support
 
-* Tue Mar 06 2018 Nick Miller <nick.miller@onyxpoint.com> - 7.4.2-0
-- pupmod::master::simp_auth
-  - Allow tweaking `allow` and `deny` rules for supported keydist auth rules
-  - Removed Mcollective auth rules
-  - Changed `$pki_cacerts_all`'s auth rule from `*` to `certname`
-  - Deprecated `$legacy_cacerts_all` and `$legacy_pki_keytabs_from_host`
-
 * Fri Feb 09 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.4.2-0
-
 - Add the missing puppetlabs/inifile dependency to the metadata.json
-- Fixed puppet lint problem
+- Fixed puppet-lint problem
 
 * Mon Oct 02 2017 Chris Tessmer <chris.tessmer@onyxpoint.com> - 7.4.1-0
 - Fixed bug where `:selinux_config_mode` is tested even when `:selinux` is
