@@ -1,0 +1,35 @@
+<%
+  # Variable Mangling #
+  if $pupmod::master::sysconfig::java_max_memory[-1] == '%' {
+    $java_mem_mb = Integer($facts['memorysize_mb'] * ($pupmod::master::sysconfig::java_max_memory[0,-2]/100.0))
+    $java_max_memory = "${java_mem_mb}m"
+  }
+
+  if $pupmod::master::sysconfig::java_start_memory {
+    $java_start_memory = $pupmod::master::sysconfig::java_start_memory
+  }
+  else {
+    $java_start_memory = $java_max_memory
+  }
+
+  if $pupmod::master::sysconfig::extra_java_args {
+    $extra_java_args = join($pupmod::master::sysconfig::extra_java_args, ' ')
+  }
+  else {
+    $extra_java_args = ''
+  }
+-%>
+# Location of your Java binary (version 7 or higher)
+JAVA_BIN="<%= $pupmod::master::sysconfig::java_bin %>"
+
+# Modify this if you'd like to change the memory allocation, enable JMX, etc
+JAVA_ARGS="-Xms<%= $java_start_memory %> -Xmx<%= $java_max_memory %> -Djava.io.tmpdir=<%= $pupmod::master::sysconfig::_java_temp_dir %> <%= $extra_java_args %>"
+
+# These normally shouldn't need to be edited if using OS packages
+USER="puppet"
+GROUP="puppet"
+INSTALL_DIR="<%= $pupmod::master::sysconfig::install_dir %>"
+CONFIG="<%= $pupmod::master::sysconfig::config %>"
+BOOTSTRAP_CONFIG="<%= join($pupmod::master::sysconfig::bootstrap_config, ',') %>"
+SERVICE_STOP_RETRIES=<%= $pupmod::master::sysconfig::service_stop_retries %>
+START_TIMEOUT="<%= $pupmod::master::sysconfig::start_timeout %>"

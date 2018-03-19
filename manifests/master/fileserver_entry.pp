@@ -15,11 +15,18 @@ define pupmod::master::fileserver_entry (
   Variant[Array[Simplib::Host],Simplib::Host] $allow,
   Stdlib::AbsolutePath $path
 ) {
+  include 'pupmod::master'
 
-  $l_name = inline_template("<%= '${name}'.gsub('/','_') %>")
+  ensure_resource('concat', "${pupmod::confdir}/fileserver.conf", {
+    'ensure' => 'present',
+    'owner'  => 'root',
+    'group'  => 'puppet',
+    'mode'   => '0640',
+    'notify' => Service[$::pupmod::master::service]
+  })
 
-  simpcat_fragment { "fileserver+${l_name}.fileserver":
-    content => template('pupmod/content/fileserver.erb')
+  concat::fragment { "pupmod::master::fileserver_entry ${name}":
+    target  => "${pupmod::confdir}/fileserver.conf",
+    content => epp("${module_name}/content/fileserver", { 'name' => $name, 'path' => $path, 'allow' => $allow, 'server_version' => $pupmod::master::_server_version })
   }
-
 }

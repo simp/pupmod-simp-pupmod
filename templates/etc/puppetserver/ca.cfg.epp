@@ -1,7 +1,11 @@
 # This file managed by Puppet
 # Any changes will be removed on the next run
-<% if @enable_ca -%>
+<% if $pupmod::master::enable_ca { -%>
 puppetlabs.services.ca.certificate-authority-service/certificate-authority-service
-<% else -%>
+<%  if versioncmp($pupmod::master::_server_version, '5.1.0') >= 0 { -%>
+puppetlabs.trapperkeeper.services.watcher.filesystem-watch-service/filesystem-watch-service
+<%  } -%>
+<% } -%>
+<% else { -%>
 puppetlabs.services.ca.certificate-authority-disabled-service/certificate-authority-disabled-service
-<% end -%>
+<% } -%>

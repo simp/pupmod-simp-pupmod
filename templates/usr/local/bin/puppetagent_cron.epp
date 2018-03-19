@@ -8,7 +8,7 @@ filedate=0;
 puppet_run_lockfile="$(puppet config print agent_catalog_run_lockfile)";
 puppet_disable_lockfile="$(puppet config print agent_disabled_lockfile)";
 
-<% if @break_puppet_lock -%>
+<% if $pupmod::agent::cron::break_puppet_lock { -%>
 # This handles forcibly enabling puppet agent if _max_disable_time is exceeded.
 if [ -f "${puppet_disable_lockfile}" ]; then
 
@@ -30,12 +30,12 @@ if [ -f "${puppet_disable_lockfile}" ]; then
   # about it.
   # If you want to disable puppet then disable the cron job and the service and
   # set the lockfile.
-  if [[ ${pup_status} -ne 0 && $(( ${now} - ${filedate} )) -gt <%= @_max_disable_time * 60 %> ]]; then
+  if [[ ${pup_status} -ne 0 && $(( ${now} - ${filedate} )) -gt <%= $pupmod::agent::cron::_max_disable_time * 60 %> ]]; then
     /bin/logger -s -p 'local6.warn' -t 'puppet' "Puppet disable forcibly unlocked.";
     /bin/rm -f "${puppet_disable_lockfile}";
   fi
 fi
-<% end -%>
+<% } -%>
 
 # This handles puppet processes which have been running longer than maxruntime
 if [ -f "${puppet_run_lockfile}" ]; then
@@ -47,7 +47,7 @@ if [ -f "${puppet_run_lockfile}" ]; then
   filedate=$(stat --printf="%Z" ${puppet_run_lockfile});
 
   # If we've gotten here, then Puppet has not completed within threshold
-  if [[ -n "${pup_status}" && $(( ${now} - ${filedate} )) -gt <%= @maxruntime * 60 %> ]]; then
+  if [[ -n "${pup_status}" && $(( ${now} - ${filedate} )) -gt <%= $pupmod::agent::cron::maxruntime * 60 %> ]]; then
     pkill -x puppet;
     wait;
     /bin/logger -s -p 'local6.warn' -t 'puppet' "Puppet processes forcibly killed.";

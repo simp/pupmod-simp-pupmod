@@ -1,0 +1,4 @@
+-a always,exit -F dir=<%= $pupmod::master::confdir %> -F uid!=puppet -p wa -k Puppet_Config
+-a always,exit -F dir=<%= $pupmod::master::logdir %> -F uid!=puppet -p wa -k Puppet_Log
+-a always,exit -F dir=<%= $pupmod::master::rundir %> -F uid!=puppet -p wa -k Puppet_Run
+-a always,exit -F dir=<%= $pupmod::master::ssldir %> -F uid!=puppet -p wa -k Puppet_SSL

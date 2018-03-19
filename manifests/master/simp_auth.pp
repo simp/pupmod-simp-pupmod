@@ -3,24 +3,28 @@
 # For documentation about *_allow and *_deny, see the puppetserver docs
 # @see https://puppet.com/docs/puppetserver/2.7/config_file_auth.html#rules
 #
-# @param server_distribution Puppet open source or PE
+# @param server_distribution
+#   The server distribution that is being managed.
 #
 # @param auth_conf_path
 #   The location to the puppet master's auth.conf
 #
 # @param legacy_cacerts_all
-#   If enabled, allow access to the PKI cacerts from the legacy `pki` module from all hosts
+#   Allow access to the PKI cacerts from the legacy `pki` module from all hosts
 #
 # @param legacy_mcollective_all
-#   If enabled, allow access to the mcollective cacerts from the legacy `pki` module from all hosts
+#   Allow access to the mcollective cacerts from the legacy `pki` module from
+#   all hosts
 #
 # @param legacy_pki_keytabs_from_host
-#   If enabled, allow access to each host's own kerberos keytabs from the legacy location
+#   Allow access to each host's own kerberos keytabs from the legacy location
+#
+# @param pki_cacerts_all
+#   Allow access to the cacerts from the `pki_files` module from all hosts
 #
 # @param pki_mcollective_all
-#   Type:    Boolean
-#   Default: true
-#   If enabled, allow access to the mcollective PKI from the `pki_files` module from all hosts
+#   Allow access to the mcollective PKI from the `pki_files` module from all
+#   hosts
 #
 # @param pki_cacerts_all
 #   If enabled, allow access to the cacerts from the `pki_files` module from all hosts
@@ -50,6 +54,7 @@
 # @param krb5_keytabs_from_host_deny Rules that the puppetserver should deny
 #   @see https://puppet.com/docs/puppetserver/2.7/config_file_auth.html#rules
 #
+#
 class pupmod::master::simp_auth (
   Simplib::ServerDistribution $server_distribution          = simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'PC1' } ),
   Stdlib::AbsolutePath        $auth_conf_path               = '/etc/puppetlabs/puppetserver/conf.d/auth.conf',
@@ -70,7 +75,6 @@ class pupmod::master::simp_auth (
   NotUndef                    $krb5_keytabs_from_host_allow = '$2',
   Any                         $krb5_keytabs_from_host_deny  = undef,
 ) {
-
   $_master_service = $server_distribution ? {
     'PE'    => 'pe-puppetserver',
     default => 'puppetserver',

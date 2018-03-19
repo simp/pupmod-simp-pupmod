@@ -1,6 +1,6 @@
 {
   "name": "simp-pupmod",
-  "version": "7.4.2",
+  "version": "7.5.0",
   "author": "SIMP Team",
   "summary": "A puppet module to manage puppetserver and puppet agents",
   "license": "Apache-2.0",
@@ -19,7 +19,7 @@
   "dependencies": [
     {
       "name": "simp/haveged",
-      "version_requirement": ">= 0.3.2 < 1.0.0"
+      "version_requirement": ">= 0.4.5 < 1.0.0"
     },
     {
       "name": "puppetlabs/stdlib",
@@ -34,15 +34,15 @@
       "version_requirement": ">= 0.2.0 < 1.0.0"
     },
     {
+      "name": "puppetlabs/concat",
+      "version_requirement": ">= 3.0.0 < 5.0.0"
+    },
+    {
       "name": "simp/iptables",
-      "version_requirement": ">= 6.0.0 < 7.0.0"
+      "version_requirement": ">= 6.1.2 < 7.0.0"
     },
     {
       "name": "simp/logrotate",
-      "version_requirement": ">= 6.0.0 < 7.0.0"
-    },
-    {
-      "name": "simp/simpcat",
       "version_requirement": ">= 6.0.0 < 7.0.0"
     },
     {
@@ -61,7 +61,7 @@
   "requirements": [
     {
       "name": "puppet",
-      "version_requirement": ">= 4.7.0 < 5.0.0"
+      "version_requirement": ">= 4.7.0 < 6.0.0"
     }
   ],
   "operatingsystem_support": [
@@ -74,6 +74,13 @@
     },
     {
       "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "6",
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "OracleLinux",
       "operatingsystemrelease": [
         "6",
         "7"

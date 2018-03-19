@@ -5,17 +5,6 @@
 class pupmod::master::base {
   include '::pupmod::master'
 
-  $masterport = $::pupmod::master::masterport
-  $admin_api_mountpoint = $::pupmod::master::admin_api_mountpoint
-
-  $auto_fragdir = simpcat_fragmentdir('autosign')
-  simpcat_build { 'autosign':
-    quiet  => true,
-    order  => ['*.autosign'],
-    target => "${::pupmod::confdir}/autosign.conf",
-    notify => Service[$::pupmod::master::service]
-  }
-
   exec { 'puppetserver_reload':
     command     => '/usr/local/sbin/puppetserver_reload',
     refreshonly => true,
@@ -35,30 +24,32 @@ class pupmod::master::base {
     recurselimit => 1
   }
 
-  file { "${::pupmod::master::confdir}/autosign.conf":
-    owner     => 'root',
-    group     => 'puppet',
-    mode      => '0644',
-    subscribe => Simpcat_build['autosign']
-  }
-
   # Some simple helper scripts
   file { '/usr/local/sbin/puppetserver_clear_environment_cache':
     ensure  => 'file',
     owner   => 'root',
     group   => 'root',
     mode    => '0700',
-    content => template('pupmod/usr/local/sbin/puppetserver_clear_environment_cache.erb')
+    content => epp("${module_name}/usr/local/sbin/puppetserver_clear_environment_cache", {
+      'masterport'           => $pupmod::master::masterport,
+      'admin_api_mountpoint' => $pupmod::master::admin_api_mountpoint
+      })
   }
+
+  $_puppetserver_reload_cmd = @(END)
+    #!/bin/sh
+    PATH=/opt/puppetlabs/bin:$PATH
+
+    puppetserver reload
+    | END
 
   file { '/usr/local/sbin/puppetserver_reload':
     ensure  => 'file',
     owner   => 'root',
     group   => 'root',
     mode    => '0700',
-    content => template('pupmod/usr/local/sbin/puppetserver_reload.erb')
+    content => $_puppetserver_reload_cmd
   }
-
 
   package { $::pupmod::master::service:
     ensure => $::pupmod::master::package_ensure,

@@ -23,9 +23,6 @@ pupmod::pe_classlist:
       - proto: tcp
         port: 8081
   puppet_enterprise::profile::console:
-    users:
-      - pe-webserver
-      - pe-console-services
     services:
       - pe-console-services
       - pe-nginx
