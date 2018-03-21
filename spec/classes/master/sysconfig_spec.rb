@@ -38,7 +38,12 @@ describe 'pupmod::master::sysconfig' do
               )
             }
 
-            it { is_expected.to contain_pe_ini_subsetting('pupmod::master::sysconfig::javatempdir').with_value(%r{/pserver_tmp$}) }
+            it 'sets $tmpdir via a pe_ini_subsetting resource' do
+              expect(catalogue).to contain_pe_ini_subsetting('pupmod::master::sysconfig::javatempdir').with(
+                'value' => %r{/pserver_tmp$},
+                'path'  => '/etc/sysconfig/pe-puppetserver',
+              )
+            end
           else
             let(:facts){ @extras.merge(os_facts).merge(:memorysize_mb => '490.16') }
 

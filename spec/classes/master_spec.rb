@@ -377,6 +377,20 @@ describe 'pupmod::master' do
         end
 
         describe "with non-default parameters" do
+          context 'when server_distribution => PE' do
+            let(:params) {{:server_distribution => 'PE'}}
+
+            it { is_expected.to contain_service('pe-puppetserver') }
+            it { is_expected.not_to contain_service('puppetserver') }
+          end
+
+          context 'when server_distribution => PC1' do
+            let(:params) {{:server_distribution => 'PC1'}}
+
+            it { is_expected.to contain_service('puppetserver') }
+            it { is_expected.not_to contain_service('pe-puppetserver') }
+          end
+
           context 'with enable_ca => false' do
             let(:params) {{:enable_ca => false}}
 

@@ -1,6 +1,6 @@
 {
   "name": "simp-pupmod",
-  "version": "7.5.0",
+  "version": "7.5.1",
   "author": "SIMP Team",
   "summary": "A puppet module to manage puppetserver and puppet agents",
   "license": "Apache-2.0",
@@ -27,7 +27,7 @@
     },
     {
       "name": "puppetlabs/inifile",
-      "version_requirement": ">= 1.6.0 < 3.0.0" 
+      "version_requirement": ">= 1.6.0 < 3.0.0"
     },
     {
       "name": "puppetlabs/puppet_authorization",
@@ -74,13 +74,6 @@
     },
     {
       "operatingsystem": "RedHat",
-      "operatingsystemrelease": [
-        "6",
-        "7"
-      ]
-    },
-    {
-      "operatingsystem": "OracleLinux",
       "operatingsystemrelease": [
         "6",
         "7"
