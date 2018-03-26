@@ -64,7 +64,7 @@ class pupmod::master::simp_auth (
   Boolean                     $pki_mcollective_all          = true,
   Boolean                     $pki_cacerts_all              = true,
   NotUndef                    $pki_cacerts_all_rule         = '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/cacerts',
-  NotUndef                    $pki_cacerts_all_allow        = 'certname',
+  NotUndef                    $pki_cacerts_all_allow        = '*',
   Any                         $pki_cacerts_all_deny         = undef,
   Boolean                     $keydist_from_host            = true,
   NotUndef                    $keydist_from_host_rule       = '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/([^/]+)',
