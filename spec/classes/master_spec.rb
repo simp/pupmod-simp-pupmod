@@ -652,4 +652,3 @@ describe 'pupmod::master' do
     end
   end
 end
-

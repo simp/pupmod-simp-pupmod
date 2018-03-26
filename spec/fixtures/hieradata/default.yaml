@@ -1,5 +1,0 @@
----
-pupmod::puppet_server: '1.2.3.4'
-apache::rsync_server: '127.0.0.1'
-apache::ssl::client_nets: '127.0.0.1/32'
-use_fips: true
