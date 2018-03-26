@@ -1,8 +1,8 @@
-* Mon Mar 19 2018 Lucas Yamanishi <lucas.yamanishi@onyxpoint.com> - 7.5.1-0
+* Mon Mar 19 2018 Lucas Yamanishi <lucas.yamanishi@onyxpoint.com> - 7.5.0-0
 - Fix service name and related resources on Puppet Enterprise (PE)
   - Fix `$tmpdir` setting on PE
   - Fix Puppetserver service management on PE
-- Remove support for Oracle Enterprise Linux, which was added prematurely.
+- Remove support for Oracle Enterprise Linux
 
 * Tue Mar 06 2018 Nick Miller <nick.miller@onyxpoint.com> - 7.5.0-0
 - pupmod::master::simp_auth

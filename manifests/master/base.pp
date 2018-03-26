@@ -79,6 +79,6 @@ class pupmod::master::base {
     membership => 'inclusive',
     shell      => '/sbin/nologin',
     tag        => 'firstrun',
-    require    => Package['puppetserver']
+    require    => Package[$::pupmod::master::service]
   }
 }
