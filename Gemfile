@@ -27,6 +27,7 @@ group :development do
   gem 'puppet-blacksmith'
   gem 'guard-rake'
   gem 'pry'
+  gem 'pry-byebug'
   gem 'pry-doc'
 
   # `listen` is a dependency of `guard`
@@ -37,5 +38,5 @@ end
 group :system_tests do
   gem 'beaker'
   gem 'beaker-rspec'
-  gem 'simp-beaker-helpers', ENV.fetch('SIMP_BEAKER_HELPERS_VERSION', '~> 1.7')
+  gem 'simp-beaker-helpers', ENV.fetch('SIMP_BEAKER_HELPERS_VERSION', '~> 1.10')
 end
