@@ -2,8 +2,8 @@
 - Fix service name and related resources on Puppet Enterprise (PE)
   - Fix `$tmpdir` setting on PE
   - Fix Puppetserver service management on PE
-- Remove support for Oracle Enterprise Linux
 - Fix default for pupmod::master::simp_auth::pki_cacerts_all_allow
+  - `certname` back to `*`
 
 * Tue Mar 06 2018 Nick Miller <nick.miller@onyxpoint.com> - 7.5.0-0
 - pupmod::master::simp_auth
