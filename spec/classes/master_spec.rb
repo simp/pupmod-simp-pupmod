@@ -378,7 +378,7 @@ describe 'pupmod::master' do
 
         describe "with non-default parameters" do
           context 'when server_distribution => PE' do
-            let(:params) {{:server_distribution => 'PE'}}
+            let(:hieradata) { 'pe' }
 
             it { is_expected.to contain_service('pe-puppetserver') }
             it { is_expected.not_to contain_service('puppetserver') }
@@ -652,4 +652,3 @@ describe 'pupmod::master' do
     end
   end
 end
-
