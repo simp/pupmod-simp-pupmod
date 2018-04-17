@@ -1,0 +1,7 @@
+● puppet.service - Puppet agent
+   Loaded: loaded (/usr/lib/systemd/system/puppet.service; disabled; vendor preset: disabled)
+   Active: active (running) since Tue 2018-04-17 14:30:50 EDT; 5s ago
+ Main PID: 22354
+   CGroup: /system.slice/puppet.service
+           ├─22354 n/a
+           └─22389 n/a

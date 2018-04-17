@@ -1,0 +1,3 @@
+● puppet.service - Puppet agent
+   Loaded: loaded (/usr/lib/systemd/system/puppet.service; disabled; vendor preset: disabled)
+   Active: inactive (dead)

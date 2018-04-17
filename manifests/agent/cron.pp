@@ -202,4 +202,19 @@ class pupmod::agent::cron (
     mode    => '0750',
     content => epp("${module_name}/usr/local/bin/puppetagent_cron")
   }
+
+  file { '/usr/local/bin/careful_puppet_service_shutdown.sh':
+    ensure  => 'file',
+    mode    => '0750',
+    owner   => 'root',
+    group   => 'root',
+    content => epp("${module_name}/usr/local/bin/careful_puppet_service_shutdown")
+  }
+
+  if $facts['puppet_service_enabled'] or $facts['puppet_service_started'] {
+    exec { 'careful_puppet_service_shutdown':
+      command => '/usr/local/bin/careful_puppet_service_shutdown.sh &',
+      require => File['/usr/local/bin/careful_puppet_service_shutdown.sh']
+    }
+  }
 }
