@@ -12,7 +12,7 @@ describe 'puppet_service_enabled', :type => :fact do
   context 'with systemd on linux' do
     before do
       Facter.fact(:kernel).stubs(:value).returns(:linux)
-      Facter.add(:service_provider) { setcode { 'systemd' } }
+      Facter.add(:init_systems) { setcode { 'systemd' } }
     end
 
     context 'with puppet service on' do
@@ -41,7 +41,7 @@ describe 'puppet_service_enabled', :type => :fact do
   context 'without systemd on linux' do
     before do
       Facter.fact(:kernel).stubs(:value).returns(:linux)
-      Facter.add(:service_provider) { setcode { 'sysv' } }
+      Facter.add(:init_systems) { setcode { 'sysv' } }
     end
 
     context 'with puppet service on' do

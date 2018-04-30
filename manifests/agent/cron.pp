@@ -211,6 +211,9 @@ class pupmod::agent::cron (
     content => epp("${module_name}/usr/local/bin/careful_puppet_service_shutdown")
   }
 
+# If cron is enabled make sure puppet service is disabled.  Start in background
+# because disabling puppet service will kill all instances of puppet running.
+# See https://tickets.puppetlabs.com/browse/PUP-1320 for more information
   if $facts['puppet_service_enabled'] or $facts['puppet_service_started'] {
     exec { 'careful_puppet_service_shutdown':
       command => '/usr/local/bin/careful_puppet_service_shutdown.sh &',
