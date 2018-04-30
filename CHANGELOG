@@ -1,3 +1,8 @@
+* Tue Apr 17 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 7.6.0-0
+- Added line in puppet cron to shutdown/disable puppet client service.
+- Added check in agent/cron manifest to disable and stop puppet client service
+  so it would not run multiple times on newly kickstarted systems.
+
 * Mon Mar 19 2018 Lucas Yamanishi <lucas.yamanishi@onyxpoint.com> - 7.5.0-0
 - Fix service name and related resources on Puppet Enterprise (PE)
   - Fix `$tmpdir` setting on PE

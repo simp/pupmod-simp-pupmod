@@ -57,5 +57,9 @@ fi
 
 # Run Puppet if we don't have any locks
 if [ ! -f "${puppet_disable_lockfile}" ] && [ ! -f "${puppet_run_lockfile}" ]; then
+  # Disable puppet client service so puppet only cronjob runs puppet client.
+  # Can't make a service resource in puppet.  See https://tickets.puppetlabs.com/browse/PUP-1320.
+  puppet resource service puppet enable=false ensure=false 2>&1 > /dev/null
+  # Run the puppet agent.
   puppet agent --onetime --no-daemonize --no-show_diff;
 fi
