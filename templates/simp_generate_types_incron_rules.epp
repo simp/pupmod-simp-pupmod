@@ -1,0 +1,13 @@
+<%- |
+  Boolean                     $trigger_on_puppetserver_update,
+  Array[Stdlib::AbsolutePath] $trigger_paths,
+  Stdlib::AbsolutePath        $simp_generate_types
+| -%>
+<% if $trigger_on_puppetserver_update { -%>
+/opt/puppetlabs/server/apps/puppetserver/bin IN_MODIFY,IN_NO_LOOP <%= $simp_generate_types %> -p all -s
+<% } -%>
+<%
+  $trigger_paths.each |Stdlib::AbsolutePath $path| {
+-%>
+<%= $path %> IN_MODIFY,IN_CREATE,IN_NO_LOOP <%= $simp_generate_types %> -p $@/$# -s
+<% } -%>

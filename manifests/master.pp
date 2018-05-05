@@ -244,11 +244,16 @@ class pupmod::master (
     }
 
     include '::pupmod'
+
     class { '::pupmod::master::sysconfig':
       service => $service,
     }
+
     include '::pupmod::master::reports'
     include '::pupmod::master::base'
+    include '::pupmod::master::generate_types'
+
+    Class['::pupmod::master::generate_types'] -> Service[$service]
     Class['::pupmod::master::sysconfig'] ~> Service[$service]
 
     $_conf_base = dirname($confdir)

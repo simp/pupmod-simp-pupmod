@@ -174,11 +174,12 @@ class pupmod (
 
     # These regexes match absolute paths or paths that begin with an existing
     # puppet configuration variable, like $vardir
-    validate_re($classfile,'^(\$(?!/)|/).+')
-    validate_re($confdir,'^(\$(?!/)|/).+')
-    validate_re($environmentpath,'^(\$(?!/)|/).+')
-    validate_re($logdir,'^(\$(?!/)|/).+')
-    validate_re($rundir,'^(\$(?!/)|/).+')
+
+    assert_type(Pattern['^(\$(?!/)|/).+'], $classfile)
+    assert_type(Pattern['^(\$(?!/)|/).+'], $confdir)
+    assert_type(Pattern['^(\$(?!/)|/).+'], $environmentpath)
+    assert_type(Pattern['^(\$(?!/)|/).+'], $logdir)
+    assert_type(Pattern['^(\$(?!/)|/).+'], $rundir)
 
     if $ca_crl_pull_interval {
       deprecation('pupmod::ca_crl_pull_interval', 'pupmod::ca_crl_pull_interval is deprecated, the CRL cron job has been removed.')

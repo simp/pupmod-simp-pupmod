@@ -1,3 +1,17 @@
+* Fri May 04 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.6.0-0
+- Changed some 'validate_re' statements to 'assert_type' to remove deprecation
+  warnings
+- Added 'pupmod::master::generate_types' which:
+  - Adds a script, /usr/local/sbin/simp_generate_types that will run 'puppet
+    generate types' either on all environments (when first distributed by
+    Puppet) or per environment
+  - Adds incron hooks to run 'simp_generate_types' when Ruby files in any
+    puppet type have been updated
+  - Adds incron hooks to run 'simp_generate_types' on any new environment
+  - Adds incron hooks to run 'simp_generate_types' on *all* environments if the
+    puppetserver binary is updated
+  - All errors are logged to syslog
+
 * Tue Apr 17 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 7.6.0-0
 - Added line in puppet cron to shutdown/disable puppet client service.
 - Added check in agent/cron manifest to disable and stop puppet client service
