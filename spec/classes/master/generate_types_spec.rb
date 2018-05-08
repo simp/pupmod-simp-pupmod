@@ -20,8 +20,9 @@ describe 'pupmod::master::generate_types' do
       context 'with default input' do
         let(:valid_output){[
           '/opt/puppetlabs/server/apps/puppetserver/bin IN_MODIFY,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p all -s',
-          '/etc/puppetlabs/code/environments IN_MODIFY,IN_CREATE,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p "$@" -s',
-          '/etc/puppetlabs/code/environments/*/modules/*/lib/**/*.rb IN_MODIFY,IN_CREATE,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p "$@" -s'
+          '/opt/puppetlabs/puppet/bin/puppet IN_MODIFY,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p all -s',
+          '/etc/puppetlabs/code/environments IN_MODIFY,IN_CREATE,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p $@/$# -s',
+          '/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.rb IN_MODIFY,IN_CREATE,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p $@/$# -s'
         ].join("\n")}
 
         it_behaves_like 'generate_types tests'
@@ -33,8 +34,23 @@ describe 'pupmod::master::generate_types' do
         }}
 
         let(:valid_output){[
-          '/etc/puppetlabs/code/environments IN_MODIFY,IN_CREATE,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p "$@" -s',
-          '/etc/puppetlabs/code/environments/*/modules/*/lib/**/*.rb IN_MODIFY,IN_CREATE,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p "$@" -s'
+          '/opt/puppetlabs/puppet/bin/puppet IN_MODIFY,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p all -s',
+          '/etc/puppetlabs/code/environments IN_MODIFY,IN_CREATE,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p $@/$# -s',
+          '/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.rb IN_MODIFY,IN_CREATE,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p $@/$# -s'
+        ].join("\n")}
+
+        it_behaves_like 'generate_types tests'
+      end
+
+      context 'when disabling puppet triggers' do
+        let(:params){{
+          :trigger_on_puppet_update => false
+        }}
+
+        let(:valid_output){[
+          '/opt/puppetlabs/server/apps/puppetserver/bin IN_MODIFY,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p all -s',
+          '/etc/puppetlabs/code/environments IN_MODIFY,IN_CREATE,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p $@/$# -s',
+          '/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.rb IN_MODIFY,IN_CREATE,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p $@/$# -s'
         ].join("\n")}
 
         it_behaves_like 'generate_types tests'
@@ -49,10 +65,11 @@ describe 'pupmod::master::generate_types' do
 
         let(:valid_output){[
           '/opt/puppetlabs/server/apps/puppetserver/bin IN_MODIFY,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p all -s',
-          '/path/one IN_MODIFY,IN_CREATE,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p "$@" -s',
-          '/path/one/*/modules/*/lib/**/*.rb IN_MODIFY,IN_CREATE,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p "$@" -s',
-          '/path/two IN_MODIFY,IN_CREATE,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p "$@" -s',
-          '/path/two/*/modules/*/lib/**/*.rb IN_MODIFY,IN_CREATE,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p "$@" -s'
+          '/opt/puppetlabs/puppet/bin/puppet IN_MODIFY,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p all -s',
+          '/path/one IN_MODIFY,IN_CREATE,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p $@/$# -s',
+          '/path/one/*/modules/*/lib/puppet/type/*.rb IN_MODIFY,IN_CREATE,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p $@/$# -s',
+          '/path/two IN_MODIFY,IN_CREATE,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p $@/$# -s',
+          '/path/two/*/modules/*/lib/puppet/type/*.rb IN_MODIFY,IN_CREATE,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p $@/$# -s'
         ].join("\n")}
 
         it_behaves_like 'generate_types tests'

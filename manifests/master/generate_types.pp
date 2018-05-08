@@ -8,6 +8,10 @@
 #   Run ``puppet generate types`` on all environments if the ``puppetserver``
 #   application is updated
 #
+# @param trigger_on_puppet_update
+#   Run ``puppet generate types`` on all environments if the ``puppet``
+#   application is updated
+#
 # @param trigger_paths
 #   The paths that should be watched
 #
@@ -16,9 +20,10 @@
 #   * Puppet Environment Paths
 #
 class pupmod::master::generate_types (
-  Boolean                     $enable = true,
+  Boolean                     $enable                         = true,
   Boolean                     $trigger_on_puppetserver_update = true,
-  Array[Stdlib::AbsolutePath] $trigger_paths = pupmod::generate_types_munge([
+  Boolean                     $trigger_on_puppet_update       = true,
+  Array[Stdlib::AbsolutePath] $trigger_paths                  = pupmod::generate_types_munge([
                                 '/PUPPET_ENVIRONMENTPATH',
                                 '/PUPPET_ENVIRONMENTPATH/*/modules/*/lib/puppet/type/*.rb'
                               ])
@@ -47,6 +52,7 @@ class pupmod::master::generate_types (
         "${module_name}/simp_generate_types_incron_rules.epp",
         {
           'trigger_on_puppetserver_update' => $trigger_on_puppetserver_update,
+          'trigger_on_puppet_update'       => $trigger_on_puppet_update,
           'trigger_paths'                  => $trigger_paths,
           'simp_generate_types'            => $_generate_types_path
         }
