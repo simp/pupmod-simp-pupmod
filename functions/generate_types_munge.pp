@@ -3,7 +3,7 @@
 # remaining path parts.
 #
 # @example with a multi-part ``environmentpath`` of ``/here:/there``
-#   pupmod::generate_types_munge( ['PUPPET_ENVIRONMENTPATH'/foo/bar] )
+#   pupmod::generate_types_munge( ['PUPPET_ENVIRONMENTPATH/foo/bar'] )
 #
 #   returns: [ '/here/foo/bar', '/there/foo/bar' ]
 #
