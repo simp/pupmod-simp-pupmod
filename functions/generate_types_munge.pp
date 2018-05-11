@@ -15,7 +15,7 @@
 #   ``PUPPET_ENVIRONMENTPATH``
 #
 # @return [Array[Stdlib::AbsolutePath]]
-#   The puppet server version
+#   The expanded paths
 #
 function pupmod::generate_types_munge (
   Array[Stdlib::AbsolutePath] $to_process,
