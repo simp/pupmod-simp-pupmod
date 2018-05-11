@@ -15,6 +15,7 @@ environment_paths = Dir.glob(
 options = OpenStruct.new
 options.quiet = false
 options.path = nil
+options.delay = 0
 options.syslog = false
 options.target_environments = []
 
@@ -34,6 +35,9 @@ OptionParser.new do |opts|
   end
   opts.on('-l', '--logfile LOGFILE') do |file|
     options.logfile = file
+  end
+  opts.on('-d', '--delay SECONDS') do |delay|
+    options.delay = delay.to_i
   end
   opts.on('-s', '--syslog') do
     options.syslog = true
@@ -82,7 +86,18 @@ output = []
 current_umask = File.umask
 File.umask(0022)
 
+delay = options.delay/options.target_environments.count.to_f
+
 options.target_environments.each do |env|
+  sleep(delay)
+
+  # Prevent running on the same environment simultaneously
+  next unless %{ps --no-headers -o args -wwC #{puppet_cmd}}.
+                lines.
+                grep(/generate types/).
+                grep(/--environment\s+#{env}(\s+|$)/).
+                empty?
+
   output += %x{#{puppet_cmd} generate types --environment #{env} 2>&1}.strip.lines
 end
 

@@ -1,6 +1,7 @@
 <%- |
   Boolean                     $trigger_on_puppetserver_update,
   Boolean                     $trigger_on_puppet_update,
+  Integer[0]                  $delay,
   Array[Stdlib::AbsolutePath] $trigger_paths,
   Stdlib::AbsolutePath        $simp_generate_types
 | -%>

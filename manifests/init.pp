@@ -143,7 +143,7 @@ class pupmod (
   Simplib::ServerDistribution            $server_distribution  = simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'PC1' } ),
   Optional                               $ca_crl_pull_interval = undef,
   Simplib::Host                          $certname             = $facts['fqdn'],
-  String                                 $classfile            = '$vardir/classes.txt',
+  String[0]                              $classfile            = '$vardir/classes.txt',
   Stdlib::AbsolutePath                   $confdir              = $::pupmod::params::puppet_config['confdir'],
   Boolean                                $daemonize            = false,
   Enum['md5','sha256']                   $digest_algorithm     = 'sha256',
@@ -154,9 +154,9 @@ class pupmod (
   Simplib::Port                          $masterport           = 8140,
   Boolean                                $report               = false,
   Stdlib::AbsolutePath                   $rundir               = $::pupmod::params::puppet_config['rundir'],
-  Integer                                $runinterval          = 1800,
+  Integer[0]                             $runinterval          = 1800,
   Boolean                                $splay                = false,
-  Optional[Integer]                      $splaylimit           = undef,
+  Optional[Integer[1]]                   $splaylimit           = undef,
   Simplib::Host                          $srv_domain           = $facts['domain'],
   Stdlib::AbsolutePath                   $ssldir               = $::pupmod::params::puppet_config['ssldir'],
   Simplib::Syslog::Facility              $syslogfacility       = 'local6',
@@ -166,20 +166,16 @@ class pupmod (
   Boolean                                $fips                 = simplib::lookup('simp_options::fips', { 'default_value' => false }),
   Boolean                                $firewall             = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Hash                                   $pe_classlist         = {},
-  String                                 $package_ensure       = simplib::lookup('simp_options::package_ensure' , { 'default_value' => 'installed'}),
+  String[1]                              $package_ensure       = simplib::lookup('simp_options::package_ensure' , { 'default_value' => 'installed'}),
   Boolean                                $mock                 = false
 ) inherits pupmod::params {
   unless ($mock == true) {
     simplib::assert_metadata($module_name)
 
-    # These regexes match absolute paths or paths that begin with an existing
+    # This regex matches absolute paths or paths that begin with an existing
     # puppet configuration variable, like $vardir
 
     assert_type(Pattern['^(\$(?!/)|/).+'], $classfile)
-    assert_type(Pattern['^(\$(?!/)|/).+'], $confdir)
-    assert_type(Pattern['^(\$(?!/)|/).+'], $environmentpath)
-    assert_type(Pattern['^(\$(?!/)|/).+'], $logdir)
-    assert_type(Pattern['^(\$(?!/)|/).+'], $rundir)
 
     if $ca_crl_pull_interval {
       deprecation('pupmod::ca_crl_pull_interval', 'pupmod::ca_crl_pull_interval is deprecated, the CRL cron job has been removed.')

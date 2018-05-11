@@ -9,6 +9,8 @@ describe 'incron driven puppet generate types'  do
       }
 
       it 'should have run `puppet generate types`' do
+        # Generate types sleeps for 30 seconds by default
+        sleep(35)
         expect(host.file_exist?(incron_cache)).to be true
       end
 
