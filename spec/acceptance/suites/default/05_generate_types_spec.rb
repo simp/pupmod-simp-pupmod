@@ -10,8 +10,7 @@ describe 'incron driven puppet generate types'  do
 
       it 'should have run `puppet generate types`' do
         # Generate types sleeps for 30 seconds by default
-        sleep(35)
-        expect(host.file_exist?(incron_cache)).to be true
+        retry_on(host, "ls -al #{incron_cache}", :max_retries => 35)
       end
 
       it 'should not recreate the resource cache after deletion' do
@@ -22,16 +21,14 @@ describe 'incron driven puppet generate types'  do
       it 'should create the resource cache in a new environment' do
         on(host, "cp -r #{environment_path}/production #{environment_path}/new_environment")
         # Give it some time to generate everything
-        sleep(15)
-        expect(host.file_exist?("#{environment_path}/new_environment/.resource_types")).to be true
+        retry_on(host, "ls -al #{environment_path}/new_environment/.resource_types", :max_retries => 35)
       end
 
       it 'should recreate the resource cache if a library is updated' do
         on(host, "echo '' >> #{environment_path}/production/modules/incron/lib/puppet/type/incron_system_table.rb")
 
         # Give it some time to update
-        sleep(5)
-        expect(host.file_exist?(incron_cache)).to be true
+        retry_on(host, "ls -al #{incron_cache}", :max_retries => 35)
       end
     end
   end

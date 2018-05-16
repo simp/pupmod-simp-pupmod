@@ -175,29 +175,28 @@ pup5.latest-unit:
   <<: *setup_bundler_env
   <<: *spec_tests
 
-# Has no acceptance tests yet
 #
 # Acceptance tests
 # ==============================================================================
-#acceptance-default:
-#  stage: acceptance
-#  tags:
-#    - beaker
-#  <<: *cache_bundler
-#  <<: *setup_bundler_env
-#  variables:
-#    PUPPET_VERSION: '4.10'
-#  script:
-#    - bundle exec rake beaker:suites[default]
-#
-#acceptance-fips-default:
-#  stage: acceptance
-#  tags:
-#    - beaker
-#  <<: *cache_bundler
-#  <<: *setup_bundler_env
-#  variables:
-#    PUPPET_VERSION: '4.10'
-#    BEAKER_fips: 'yes'
-#  script:
-#    - bundle exec rake beaker:suites[default]
+acceptance-default:
+  stage: acceptance
+  tags:
+    - beaker
+  <<: *cache_bundler
+  <<: *setup_bundler_env
+  variables:
+    PUPPET_VERSION: '~> 4.10.0'
+  script:
+    - bundle exec rake beaker:suites[default]
+
+acceptance-fips-default:
+  stage: acceptance
+  tags:
+    - beaker
+  <<: *cache_bundler
+  <<: *setup_bundler_env
+  variables:
+    PUPPET_VERSION: '~> 4.10.0'
+    BEAKER_fips: 'yes'
+  script:
+    - bundle exec rake beaker:suites[default]
