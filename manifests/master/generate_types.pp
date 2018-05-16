@@ -12,6 +12,12 @@
 #   Run ``puppet generate types`` on all environments if the ``puppet``
 #   application is updated
 #
+# @param delay
+#   Wait this number of seconds prior to running ``puppet generate types``
+#
+#   * While not perfect, this can help alleviate race conditions with large
+#     module deployments
+#
 # @param trigger_paths
 #   The paths that should be watched
 #
@@ -23,9 +29,14 @@ class pupmod::master::generate_types (
   Boolean                     $enable                         = true,
   Boolean                     $trigger_on_puppetserver_update = true,
   Boolean                     $trigger_on_puppet_update       = true,
+  Integer[0]                  $delay                          = 30,
   Array[Stdlib::AbsolutePath] $trigger_paths                  = pupmod::generate_types_munge([
+                                # Handles the creation of new environments
                                 '/PUPPET_ENVIRONMENTPATH',
-                                '/PUPPET_ENVIRONMENTPATH/*/modules/*/lib/puppet/type/*.rb'
+                                # Handles the creation of new modules
+                                '/PUPPET_ENVIRONMENTPATH/*/modules',
+                                # Handles the modification of existing types
+                                '/PUPPET_ENVIRONMENTPATH/*/modules/*/lib/puppet/type'
                               ])
 ){
 
@@ -42,7 +53,7 @@ class pupmod::master::generate_types (
     }
 
     exec { 'simp_generate_types':
-      command     => "${_generate_types_path} -p all",
+      command     => "${_generate_types_path} -d ${delay} -p all &",
       logoutput   => true,
       refreshonly => true
     }
@@ -53,6 +64,7 @@ class pupmod::master::generate_types (
         {
           'trigger_on_puppetserver_update' => $trigger_on_puppetserver_update,
           'trigger_on_puppet_update'       => $trigger_on_puppet_update,
+          'delay'                          => $delay,
           'trigger_paths'                  => $trigger_paths,
           'simp_generate_types'            => $_generate_types_path
         }
