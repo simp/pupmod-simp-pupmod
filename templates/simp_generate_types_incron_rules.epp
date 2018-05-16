@@ -1,0 +1,18 @@
+<%- |
+  Boolean                     $trigger_on_puppetserver_update,
+  Boolean                     $trigger_on_puppet_update,
+  Integer[0]                  $delay,
+  Array[Stdlib::AbsolutePath] $trigger_paths,
+  Stdlib::AbsolutePath        $simp_generate_types
+| -%>
+<% if $trigger_on_puppetserver_update { -%>
+/opt/puppetlabs/server/apps/puppetserver/bin IN_MODIFY,IN_NO_LOOP <%= $simp_generate_types %> -p all -s -d <%= $delay %>
+<% } -%>
+<% if $trigger_on_puppet_update { -%>
+/opt/puppetlabs/puppet/bin/puppet IN_MODIFY,IN_NO_LOOP <%= $simp_generate_types %> -p all -s -d <%= $delay %>
+<% } -%>
+<%
+  $trigger_paths.each |Stdlib::AbsolutePath $path| {
+-%>
+<%= $path %> IN_MODIFY,IN_CREATE,IN_NO_LOOP <%= $simp_generate_types %> -p $@/$# -s -d <%= $delay %>
+<% } -%>

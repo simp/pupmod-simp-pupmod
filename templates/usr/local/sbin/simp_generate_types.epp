@@ -1,0 +1,119 @@
+#!/opt/puppetlabs/puppet/bin/ruby
+
+require 'ostruct'
+require 'optparse'
+require 'syslog/logger'
+
+log = Syslog::Logger.new(File.basename(__FILE__))
+
+puppet_cmd = '/opt/puppetlabs/bin/puppet'
+
+environment_paths = Dir.glob(
+  %x{#{puppet_cmd} config print --section=master environmentpath}.strip.split(':').map{|x| x + '/*'}
+)
+
+options = OpenStruct.new
+options.quiet = false
+options.path = nil
+options.delay = 0
+options.syslog = false
+options.target_environments = []
+
+OptionParser.new do |opts|
+  opts.on('-p', '--path TGT_PATH') do |path|
+    options.path = path
+
+    if path == 'all'
+      options.target_environments = environment_paths.compact
+    else
+      options.target_environments = Array(environment_paths.find do |env|
+        path.start_with?(env)
+      end).compact
+    end
+
+    options.target_environments.map!{|e| File.basename(e)}
+  end
+  opts.on('-l', '--logfile LOGFILE') do |file|
+    options.logfile = file
+  end
+  opts.on('-d', '--delay SECONDS') do |delay|
+    options.delay = delay.to_i
+  end
+  opts.on('-s', '--syslog') do
+    options.syslog = true
+  end
+  opts.on('-q', '--quiet') do
+    options.quiet = true
+  end
+  opts.on('-h', '--help', 'This help message') do
+    puts opts
+    exit
+  end
+
+  options.help = opts.help
+
+  end.parse!
+
+fh = File.open(options.logfile, 'w') if options.logfile
+
+unless options.path
+  msg = "Error: You must pass a path"
+
+  $stderr.puts msg
+  $stderr.puts options.help
+
+  log.error(msg) if options.syslog
+
+  fh.puts(msg) if fh
+
+  exit 1
+end
+
+if options.target_environments.empty?
+  msg = "Error: Could not find environment for '#{options.path}'"
+
+  $stderr.puts msg
+
+  log.error(msg) if options.syslog
+
+  fh.puts(msg) if fh
+
+  exit 1
+end
+
+output = []
+
+current_umask = File.umask
+File.umask(0022)
+
+delay = options.delay/options.target_environments.count.to_f
+
+options.target_environments.each do |env|
+  sleep(delay)
+
+  # Prevent running on the same environment simultaneously
+  next unless %{ps --no-headers -o args -wwC #{puppet_cmd}}.
+                lines.
+                grep(/generate types/).
+                grep(/--environment\s+#{env}(\s+|$)/).
+                empty?
+
+  output += %x{#{puppet_cmd} generate types --environment #{env} 2>&1}.strip.lines
+end
+
+output = output.compact.uniq.map(&:strip)
+output.select!{|x| x.include?('Error:')}
+
+File.umask(current_umask)
+
+unless output.empty?
+  $stderr.puts output.join("\n") unless options.quiet
+
+  fh.puts(output.join("\n")) if fh
+
+  output.each do |line|
+    log.error(line) if options.syslog
+  end
+
+  exit 2
+end

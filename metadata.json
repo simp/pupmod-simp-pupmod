@@ -38,6 +38,10 @@
       "version_requirement": ">= 3.0.0 < 5.0.0"
     },
     {
+      "name": "simp/incron",
+      "version_requirement": ">= 0.2.1 < 1.0.0"
+    },
+    {
       "name": "simp/iptables",
       "version_requirement": ">= 6.1.2 < 7.0.0"
     },
