@@ -1,7 +1,7 @@
 * Fri May 04 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.6.0-0
 - Changed some 'validate_re' statements to 'assert_type' to remove deprecation
   warnings
-- Added 'pupmod::master::generate_types' which:
+- Added 'pupmod::master::generate_types' (enabled by default) which:
   - Adds a script, /usr/local/sbin/simp_generate_types that will run 'puppet
     generate types' either on all environments (when first distributed by
     Puppet) or per environment
