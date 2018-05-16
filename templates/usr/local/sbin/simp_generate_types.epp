@@ -92,7 +92,7 @@ options.target_environments.each do |env|
   sleep(delay)
 
   # Prevent running on the same environment simultaneously
-  next unless %{ps --no-headers -o args -wwC #{puppet_cmd}}.
+  next unless %x{ps --no-headers -o args -wwC #{puppet_cmd}}.
                 lines.
                 grep(/generate types/).
                 grep(/--environment\s+#{env}(\s+|$)/).
