@@ -1,40 +1,41 @@
 ---
 fixtures:
   repositories:
-    apache: https://github.com/simp/pupmod-simp-apache
     auditd: https://github.com/simp/pupmod-simp-auditd
-    augeasproviders_base: https://github.com/simp/augeasproviders_base
     augeasproviders_core: https://github.com/simp/augeasproviders_core
     augeasproviders_grub: https://github.com/simp/augeasproviders_grub
     augeasproviders_puppet: https://github.com/simp/augeasproviders_puppet
-    augeasproviders_ssh: https://github.com/simp/augeasproviders_ssh
     haveged: https://github.com/simp/pupmod-simp-haveged
     incron: https://github.com/simp/pupmod-simp-incron
     inifile: https://github.com/simp/puppetlabs-inifile
     iptables: https://github.com/simp/pupmod-simp-iptables
-    logrotate: https://github.com/simp/pupmod-simp-logrotate
-    pam: https://github.com/simp/pupmod-simp-pam
     concat:
       # master is beyond 4.1.1, but has breaking changes to
       # how fragments are ordered (MODULES-6625)
       repo: https://github.com/simp/puppetlabs-concat
       ref: 4.1.1
-    oddjob: https://github.com/simp/pupmod-simp-oddjob
-    pki: https://github.com/simp/pupmod-simp-pki
-    rsync: https://github.com/simp/pupmod-simp-rsync
-    rsyslog: https://github.com/simp/pupmod-simp-rsyslog
-    simpcat: https://github.com/simp/pupmod-simp-simpcat
     simplib: https://github.com/simp/pupmod-simp-simplib
-    simp_options: https://github.com/simp/pupmod-simp-simp_options
     stdlib: https://github.com/simp/puppetlabs-stdlib
-    stunnel: https://github.com/simp/pupmod-simp-stunnel
-    sudo: https://github.com/simp/pupmod-simp-sudo
-    tcpwrappers: https://github.com/simp/pupmod-simp-tcpwrappers
+    pam: https://github.com/simp/pupmod-simp-pam
     puppet_enterprise:
       repo: https://github.com/simp/pupmod-mock-puppet_enterprise
       ref: 0.3.0
     puppet_authorization:
       repo: https://github.com/simp/puppetlabs-puppet_authorization
       ref: 0.4.0
+
+    # Fixtures needed for the acceptance test
+    # apache: https://github.com/simp/pupmod-simp-apache
+    augeasproviders_ssh: https://github.com/simp/augeasproviders_ssh
+    # logrotate: https://github.com/simp/pupmod-simp-logrotate
+    # oddjob: https://github.com/simp/pupmod-simp-oddjob
+    # pki: https://github.com/simp/pupmod-simp-pki
+    # rsync: https://github.com/simp/pupmod-simp-rsync
+    # rsyslog: https://github.com/simp/pupmod-simp-rsyslog
+    # simpcat: https://github.com/simp/pupmod-simp-simpcat
+    # simp_options: https://github.com/simp/pupmod-simp-simp_options
+    # stunnel: https://github.com/simp/pupmod-simp-stunnel
+    sudo: https://github.com/simp/pupmod-simp-sudo
+    # tcpwrappers: https://github.com/simp/pupmod-simp-tcpwrappers
   symlinks:
     pupmod: "#{source_dir}"
