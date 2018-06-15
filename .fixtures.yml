@@ -25,17 +25,7 @@ fixtures:
       ref: 0.4.0
 
     # Fixtures needed for the acceptance test
-    # apache: https://github.com/simp/pupmod-simp-apache
     augeasproviders_ssh: https://github.com/simp/augeasproviders_ssh
-    # logrotate: https://github.com/simp/pupmod-simp-logrotate
-    # oddjob: https://github.com/simp/pupmod-simp-oddjob
-    # pki: https://github.com/simp/pupmod-simp-pki
-    # rsync: https://github.com/simp/pupmod-simp-rsync
-    # rsyslog: https://github.com/simp/pupmod-simp-rsyslog
-    # simpcat: https://github.com/simp/pupmod-simp-simpcat
-    # simp_options: https://github.com/simp/pupmod-simp-simp_options
-    # stunnel: https://github.com/simp/pupmod-simp-stunnel
     sudo: https://github.com/simp/pupmod-simp-sudo
-    # tcpwrappers: https://github.com/simp/pupmod-simp-tcpwrappers
   symlinks:
     pupmod: "#{source_dir}"
