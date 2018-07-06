@@ -1,3 +1,7 @@
+* Thu Jun 14 2018 Nick Miller <nick.miller@onyxpoint.com> - 7.6.0-0
+- Cleanup unneeded fixtures and update CI assets
+- Remove unused simp/tcpwrappers and simp/logrotate dependencies
+
 * Fri May 04 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.6.0-0
 - Changed some 'validate_re' statements to 'assert_type' to remove deprecation
   warnings

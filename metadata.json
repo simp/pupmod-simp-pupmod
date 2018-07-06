@@ -46,19 +46,11 @@
       "version_requirement": ">= 6.1.2 < 7.0.0"
     },
     {
-      "name": "simp/logrotate",
-      "version_requirement": ">= 6.0.0 < 7.0.0"
-    },
-    {
       "name": "simp/simplib",
       "version_requirement": ">= 3.5.0 < 4.0.0"
     },
     {
       "name": "simp/pki",
-      "version_requirement": ">= 6.0.0 < 7.0.0"
-    },
-    {
-      "name": "simp/tcpwrappers",
       "version_requirement": ">= 6.0.0 < 7.0.0"
     }
   ],

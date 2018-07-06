@@ -28,10 +28,6 @@ describe 'install environment via r10k and puppetserver' do
     sshd_config { 'PermitRootLogin'    : value => 'yes' }
     sshd_config { 'AuthorizedKeysFile' : value => '.ssh/authorized_keys' }
 
-    include 'tcpwrappers'
-
-    tcpwrappers::allow { 'sshd': pattern => 'ALL' }
-
     iptables::listen::tcp_stateful { 'allow_ssh':
       trusted_nets => ['ALL'],
       dports       => 22
