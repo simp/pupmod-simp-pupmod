@@ -1,4 +1,4 @@
-* Thu Jun 14 2018 Nick Miller <nick.miller@onyxpoint.com> - 7.6.0-0
+* Thu Jun 14 2018 Nick Miller <nick.miller@onyxpoint.com> - 7.6.1-0
 - Cleanup unneeded fixtures and update CI assets
 - Remove unused simp/tcpwrappers and simp/logrotate dependencies
 
