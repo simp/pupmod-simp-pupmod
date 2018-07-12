@@ -1,4 +1,4 @@
-* Thu July 12 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.6.1-0
+* Thu Jul 12 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.6.1-0
 - Fixed the new `simp_generate_types` script to ensure that the permissions on
   the created directory are correctly set.
 
