@@ -2,11 +2,14 @@
 
 require 'ostruct'
 require 'optparse'
+require 'fileutils'
 require 'syslog/logger'
 
 log = Syslog::Logger.new(File.basename(__FILE__))
 
 puppet_cmd = '/opt/puppetlabs/bin/puppet'
+
+puppet_group = %x(#{puppet_cmd} config print --section=master group).strip
 
 environment_paths = Dir.glob(
   %x{#{puppet_cmd} config print --section=master environmentpath}.strip.split(':').map{|x| x + '/*'}
@@ -27,11 +30,12 @@ OptionParser.new do |opts|
       options.target_environments = environment_paths.compact
     else
       options.target_environments = Array(environment_paths.find do |env|
-        path.start_with?(env)
+        path.start_with?("#{env}/")
       end).compact
     end
 
-    options.target_environments.map!{|e| File.basename(e)}
+    # Convert each discovered environment into a hash noting the path and environment name
+    options.target_environments.map!{|e| { :path => e, :env_name => File.basename(e) }}
   end
   opts.on('-l', '--logfile LOGFILE') do |file|
     options.logfile = file
@@ -95,10 +99,20 @@ options.target_environments.each do |env|
   next unless %x{ps --no-headers -o args -wwC #{puppet_cmd}}.
                 lines.
                 grep(/generate types/).
-                grep(/--environment\s+#{env}(\s+|$)/).
+                grep(/--environment\s+#{env[:env_name]}(\s+|$)/).
                 empty?
 
-  output += %x{#{puppet_cmd} generate types --environment #{env} 2>&1}.strip.lines
+  begin
+    output += %x{#{puppet_cmd} generate types --environment #{env[:env_name]} 2>&1}.strip.lines
+  ensure
+    resource_types_dir = File.join(env[:path], '.resource_types')
+
+    if File.exist?(resource_types_dir)
+      FileUtils.chown_R(nil, puppet_group, resource_types_dir)
+      FileUtils.chmod_R('g+r,o-rwx', resource_types_dir)
+      FileUtils.chmod('g+x', resource_types_dir)
+    end
+  end
 end
 
 output = output.compact.uniq.map(&:strip)
