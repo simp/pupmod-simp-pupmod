@@ -380,12 +380,46 @@ describe 'pupmod::master' do
           context 'when server_distribution => PE' do
             let(:hieradata) { 'pe' }
 
+            it 'sets $tmpdir via a pe_ini_subsetting resource' do
+              let(:facts){
+                @extras.merge(os_facts).merge(
+                    :memorysize_mb => '490.16',
+                    :pe_build      => '2016.1.0'
+                )
+              }
+              expect(catalogue).to contain_pe_ini_subsetting('pupmod::master::sysconfig::javatempdir').with(
+                  'value' => %r{/pserver_tmp$},
+                  'path'  => '/etc/sysconfig/pe-puppetserver',
+                  )
+            end
+
             it { is_expected.to contain_service('pe-puppetserver') }
             it { is_expected.not_to contain_service('puppetserver') }
           end
 
           context 'when server_distribution => PC1' do
             let(:params) {{:server_distribution => 'PC1'}}
+            let(:facts){ @extras.merge(os_facts).merge(:memorysize_mb => '490.16') }
+
+            puppetserver_content = File.open("#{File.dirname(__FILE__)}/master/data/puppetserver.txt", "rb").read
+
+            it { is_expected.to contain_file('/etc/sysconfig/puppetserver').with(
+                {
+                    'owner'   => 'root',
+                    'group'   => 'puppet',
+                    'mode'    => '0640',
+                    'content' => puppetserver_content
+                }
+            )}
+            it { is_expected.to create_class('pupmod::master::sysconfig') }
+            it { is_expected.to contain_file('/opt/puppetlabs/puppet/cache/pserver_tmp').with(
+                {
+                    'owner'  => 'puppet',
+                    'group'  => 'puppet',
+                    'ensure' => 'directory',
+                    'mode'   => '0750'
+                }
+            )}
 
             it { is_expected.to contain_service('puppetserver') }
             it { is_expected.not_to contain_service('pe-puppetserver') }

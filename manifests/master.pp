@@ -244,11 +244,7 @@ class pupmod::master (
     }
 
     include '::pupmod'
-
-    class { '::pupmod::master::sysconfig':
-      service => $service,
-    }
-
+    include '::pupmod::master::sysconfig'
     include '::pupmod::master::reports'
     include '::pupmod::master::base'
     include '::pupmod::master::generate_types'

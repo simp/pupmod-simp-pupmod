@@ -66,14 +66,17 @@ class pupmod::master::sysconfig (
   Integer                        $service_stop_retries = 60,
   Integer                        $start_timeout        = 120,
   Simplib::ServerDistribution    $server_distribution  = 'PC1',
-  String                         $service              = $server_distribution ? { 'PE' => 'pe-puppetserver', default => 'puppetserver'},
+  String                         $service              = $::pupmod::master::service,
   String                         $user                 = 'puppet',
   String                         $group                = 'puppet',
   Boolean                        $mock                 = false
-) inherits pupmod {
+) {
+  assert_private()
+
   unless (mock == true) {
+
     if empty($java_temp_dir) {
-      $_java_temp_dir = "${::pupmod::vardir}/pserver_tmp"
+      $_java_temp_dir = "${::pupmod::master::vardir}/pserver_tmp"
     }
     else {
       $_java_temp_dir = $java_temp_dir
