@@ -1,5 +1,7 @@
 require 'spec_helper'
 require 'yaml'
+require 'pry'
+require 'pry-byebug'
 data = YAML.load_file("#{File.dirname(__FILE__)}/data/moduledata.yaml")
 
 describe 'pupmod::pass_two' do
@@ -129,6 +131,7 @@ describe 'pupmod::pass_two' do
                         users.each do |user|
                           it "should contain Group[puppet] with user #{user} in the members array" do
                             members = catalogue.resource('group', 'puppet').send(:parameters)[:members]
+                            binding.pry
                             expect(members.find { |x| x =~ Regexp.new("#{user}")}).to be_truthy
                           end
                         end

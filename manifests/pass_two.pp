@@ -16,7 +16,7 @@
 #
 define pupmod::pass_two (
   String                                 $namevar             = $name,
-  Simplib::ServerDistribution            $server_distribution = 'PC1',
+  Simplib::ServerDistribution            $server_distribution = $::pupmod::server_distribution,
   Stdlib::AbsolutePath                   $confdir             = '/etc/puppetlabs/puppet',
   Optional[Boolean]                      $firewall            = undef,
   Hash                                   $pe_classlist        = lookup('pupmod::pe_classlist'),

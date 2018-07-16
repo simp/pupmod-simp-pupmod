@@ -65,10 +65,10 @@ class pupmod::master::sysconfig (
   Optional[Array[String]]        $extra_java_args      = undef,
   Integer                        $service_stop_retries = 60,
   Integer                        $start_timeout        = 120,
-  Simplib::ServerDistribution    $server_distribution  = 'PC1',
+  Simplib::ServerDistribution    $server_distribution  = $::pupmod::master::server_distribution,
   String                         $service              = $::pupmod::master::service,
-  String                         $user                 = 'puppet',
-  String                         $group                = 'puppet',
+  String                         $user                 = pick(fact('puppet_settings.master.user'), 'puppet'),
+  String                         $group                = pick(fact('puppet_settings.master.group'), 'puppet'),
   Boolean                        $mock                 = false
 ) {
   assert_private()

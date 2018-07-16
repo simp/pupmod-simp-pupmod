@@ -378,15 +378,16 @@ describe 'pupmod::master' do
 
         describe "with non-default parameters" do
           context 'when server_distribution => PE' do
-            let(:hieradata) { 'pe' }
+            let(:params) {{:server_distribution => 'PE'}}
+
+            let(:facts){
+              @extras.merge(os_facts).merge(
+                  :memorysize_mb => '490.16',
+                  :pe_build      => '2016.1.0'
+              )
+            }
 
             it 'sets $tmpdir via a pe_ini_subsetting resource' do
-              let(:facts){
-                @extras.merge(os_facts).merge(
-                    :memorysize_mb => '490.16',
-                    :pe_build      => '2016.1.0'
-                )
-              }
               expect(catalogue).to contain_pe_ini_subsetting('pupmod::master::sysconfig::javatempdir').with(
                   'value' => %r{/pserver_tmp$},
                   'path'  => '/etc/sysconfig/pe-puppetserver',
@@ -412,7 +413,7 @@ describe 'pupmod::master' do
                 }
             )}
             it { is_expected.to create_class('pupmod::master::sysconfig') }
-            it { is_expected.to contain_file('/opt/puppetlabs/puppet/cache/pserver_tmp').with(
+            it { is_expected.to contain_file('/opt/puppetlabs/server/data/puppetserver/pserver_tmp').with(
                 {
                     'owner'  => 'puppet',
                     'group'  => 'puppet',
