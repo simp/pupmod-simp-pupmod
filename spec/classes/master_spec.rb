@@ -461,7 +461,6 @@ describe 'pupmod::master' do
                       include puppet_enterprise
                       class { 'pupmod':
                         server_distribution => 'PE',
-                        mock => true
                       }
                       class { 'pupmod::master::sysconfig':
                         server_distribution => 'PE',
