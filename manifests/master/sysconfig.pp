@@ -65,7 +65,8 @@ class pupmod::master::sysconfig (
   Optional[Array[String]]        $extra_java_args      = undef,
   Integer                        $service_stop_retries = 60,
   Integer                        $start_timeout        = 120,
-  Simplib::ServerDistribution    $server_distribution  = $::pupmod::master::server_distribution,
+  String                         $server_distribution  = simplib::lookup('simp_options::puppet::server_distribution', {
+    'default_value' => 'PC1' }),
   String                         $service              = $::pupmod::master::service,
   String                         $user                 = pick(fact('puppet_settings.master.user'), 'puppet'),
   String                         $group                = pick(fact('puppet_settings.master.group'), 'puppet'),
@@ -93,21 +94,21 @@ class pupmod::master::sysconfig (
       if (has_key($facts, 'pe_build')) {
         if (SemVer($facts['pe_build']) < SemVer('2016.4.0')) {
           pe_ini_subsetting { 'pupmod::master::sysconfig::javatempdir':
-            path              => '/etc/sysconfig/pe-puppetserver',
-            section           => '',
-            setting           => 'JAVA_ARGS',
-            subsetting        => '-Djava.io.tmpdir',
-            quote_char        => '"',
-            value             => "=${_java_temp_dir}",
-            key_val_separator => '=',
-            notify            => Service[$service],
+          path => '/etc/sysconfig/pe-puppetserver',
+          section           => '',
+          setting => 'JAVA_ARGS',
+          subsetting => '-Djava.io.tmpdir',
+          quote_char => '"',
+          value => "=${_java_temp_dir}",
+          key_val_separator => '=',
+          notify => Service[$service],
           }
         }
       }
     }
     else {
       file { "/etc/sysconfig/${service}":
-        owner   => 'root',
+        owner     => 'root',
         group   => 'puppet',
         mode    => '0640',
         content => epp("${module_name}/etc/sysconfig/puppetserver"),

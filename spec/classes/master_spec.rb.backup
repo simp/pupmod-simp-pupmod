@@ -397,10 +397,10 @@ describe 'pupmod::master' do
 
             let(:pre_condition) {
               'include ::pupmod'
-              'include ::pupmod::params'
               'include ::puppet_enterprise'
-              'include ::pupmod::master::sysconfig'
               }
+
+            let(:title) { "main" }
 
             it 'sets $tmpdir via a pe_ini_subsetting resource' do
               expect(catalogue).to contain_pe_ini_subsetting('pupmod::master::sysconfig::javatempdir').with(
