@@ -1,5 +1,7 @@
 require 'spec_helper'
-
+require 'yaml'
+require 'pry'
+require 'pry-byebug'
 audit_content = File.open("#{File.dirname(__FILE__)}/data/auditd.txt", "rb").read;
 data = YAML.load_file("#{File.dirname(__FILE__)}/data/moduledata.yaml")
 
@@ -164,6 +166,7 @@ describe 'pupmod' do
                   $pe_mode = false
                 end
                 let(:title) { "main" }
+
                 {
                     'server' => {
                         'value' => '1.2.3.4'
@@ -202,39 +205,42 @@ describe 'pupmod' do
                   mode = nil
                 end
                 it { is_expected.to contain_file('/etc/puppetlabs/puppet').with({
-                  'ensure' => 'directory',
-                  'owner'  => 'root',
-                  'group'  => 'puppet',
-                  'mode'   => mode,
-                }) }
+                                                                                    'ensure' => 'directory',
+                                                                                    'owner'  => 'root',
+                                                                                    'group'  => 'puppet',
+                                                                                    'mode'   => mode,
+                                                                                }) }
                 it { is_expected.to contain_file('/etc/puppetlabs/puppet/puppet.conf').with({
-                  'ensure' => 'file',
-                  'owner'  => 'root',
-                  'group'  => 'puppet',
-                  'mode'   => mode
-                }) }
+                                                                                                'ensure' => 'file',
+                                                                                                'owner'  => 'root',
+                                                                                                'group'  => 'puppet',
+                                                                                                'mode'   => mode
+                                                                                            }) }
                 it { is_expected.to contain_group('puppet').with({
-                  'ensure' => 'present',
-                  'allowdupe'  => false,
-                  'gid'  => '52',
-                  'tag'   => 'firstrun',
-                }) }
+                                                                     'ensure' => 'present',
+                                                                     'allowdupe'  => false,
+                                                                     'gid'  => '52',
+                                                                     'tag'   => 'firstrun',
+                                                                 }) }
 
 
                 if $pe_mode
                   classlist = data['pupmod::pe_classlist'];
                   classlist.each do |key, value|
-                    unless (key == 'pupmod' or key == 'pupmod::master' or key == 'puppet_enterprise::profile::master')
+                    unless (key == 'pupmod' or key == 'pupmod::master')
+                      if (key == 'puppet_enterprise::profile::master')
+                        let(:params) {{ :server_distribution => distribution, :puppet_server => '1.2.3.4', :enable_puppet_master => true}}
+                      end
                       context "when #{key} is included in the catalog" do
                         let(:pre_condition) {
                           ret = %{
-                                  include puppet_enterprise
-                                  include #{key}
+                            include puppet_enterprise
+                            include #{key}
                           }
 
                           if defined?(data)
                             _services = []
-                            data['pupmod::pe_classlist'].each_pair {|k, v|
+                            data['pupmod::pe_classlist'].each_pair { |k,v|
                               _services += v['services'] if v['services']
                             }
 
@@ -251,7 +257,7 @@ describe 'pupmod' do
                           users.each do |user|
                             it "should contain Group[puppet] with user #{user} in the members array" do
                               members = catalogue.resource('group', 'puppet').send(:parameters)[:members]
-                              expect(members.find {|x| x =~ Regexp.new("#{user}")}).to be_truthy
+                              expect(members.find { |x| x =~ Regexp.new("#{user}")}).to be_truthy
                             end
                           end
                         end
@@ -262,7 +268,7 @@ describe 'pupmod' do
                             it "should contain Group[puppet] that notifies Service[#{service}]" do
                               notify = catalogue.resource('group', 'puppet').send(:parameters)[:notify]
                               regex = Regexp.new("#{service}")
-                              expect(notify.find {|x| x.to_s =~ Regexp.new(regex)}).to be_truthy
+                              expect(notify.find { |x| x.to_s =~ Regexp.new(regex)}).to be_truthy
                             end
                           end
                         end
@@ -275,8 +281,61 @@ describe 'pupmod' do
                                   'firewall' => true
                               }
                             }
-                            it {is_expected.to contain_iptables__listen__tcp_stateful("#{key} - #{rule['proto']} - #{rule['port']}").with({'dports' => rule['port']})}
+                            it { is_expected.to contain_iptables__listen__tcp_stateful("#{key} - #{rule['proto']} - #{rule['port']}").with({ 'dports' => rule['port']})}
                           end
+                        end
+                      end
+                    end
+                  end
+                end
+
+                if $pe_mode
+                  context "with pupmod::master defined" do
+                    let(:params) {{ :server_distribution => distribution, :puppet_server => '1.2.3.4', :enable_puppet_master => true}}
+
+                    let(:pre_condition) {
+                      '
+                      include ::puppet_enterprise
+                      include ::puppet_enterprise::profile::master
+                    '
+                    }
+                    it {is_expected.to compile.and_raise_error(/.*pupmod::master is NOT supported on PE masters. Please remove the pupmod::master classification from hiera or the puppet console before proceeding.*/) }
+
+                  end
+                  context "with pupmod::master not defined" do
+                    let(:params) {{ :server_distribution => distribution, :puppet_server => '1.2.3.4', :enable_puppet_master => false}}
+
+                    let(:pre_condition) {
+                      '
+                      include ::puppet_enterprise
+                      include ::puppet_enterprise::profile::master
+                    '
+                    }
+                    it { is_expected.to compile }
+                    it { is_expected.to contain_class("pupmod::params")}
+                    {
+                        "2015.1.1" => true,
+                        "2015.20.1" => true,
+                        "2016.1.0" => true,
+                        "2016.2.0" => true,
+                        "2016.4.0" => false,
+                        "2016.4.1" => false,
+                        "2016.5.1" => false,
+                        "2017.1.0" => false,
+                        "2017.20.1" => false,
+                        "2018.1.0" => false,
+                        "2020.1.0" => false,
+                        "2021.1.0" => false,
+                    }.each do |pe_version, tmpdir|
+                      it { is_expected.to contain_file("/opt/puppetlabs/server/data/puppetserver/pserver_tmp")}
+                      context "when pe_version == #{pe_version}" do
+                        let (:facts) do
+                          { "pe_build" => pe_version }.merge(facts)
+                        end
+                        if (tmpdir == true)
+                          it { is_expected.to contain_pe_ini_subsetting("pupmod::master::sysconfig::javatempdir")}
+                        else
+                          it { is_expected.to_not contain_pe_ini_subsetting("pupmod::master::sysconfig::javatempdir")}
                         end
                       end
                     end
