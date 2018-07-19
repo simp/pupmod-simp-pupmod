@@ -8,6 +8,7 @@ describe 'pupmod::master::sysconfig' do
           'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf'
       }}}
     end
+
     context "on #{os}" do
 
       ['PE', 'PC1'].each do |server_distribution|
@@ -47,18 +48,21 @@ describe 'pupmod::master::sysconfig' do
           else
             let(:facts){ @extras.merge(os_facts).merge(:memorysize_mb => '490.16') }
 
-            puppetserver_content = File.open("#{File.dirname(__FILE__)}/data/puppetserver.txt", "rb").read
+            it do
+              puppetserver_content = File.read("#{File.dirname(__FILE__)}/data/puppetserver.txt")
+              puppetserver_content.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
+                File.dirname(facts[:puppet_settings][:master][:server_datadir]))
 
-            it { is_expected.to contain_file('/etc/sysconfig/puppetserver').with(
-              {
+              is_expected.to contain_file('/etc/sysconfig/puppetserver').with( {
                 'owner'   => 'root',
                 'group'   => 'puppet',
                 'mode'    => '0640',
                 'content' => puppetserver_content
-              }
-            )}
+              } )
+            end
+
             it { is_expected.to create_class('pupmod::master::sysconfig') }
-            it { is_expected.to contain_file('/opt/puppetlabs/puppet/cache/pserver_tmp').with(
+            it { is_expected.to contain_file("#{File.dirname(facts[:puppet_settings][:master][:server_datadir])}/pserver_tmp").with(
               {
                 'owner'  => 'puppet',
                 'group'  => 'puppet',

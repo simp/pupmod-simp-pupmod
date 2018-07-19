@@ -19,7 +19,7 @@ describe 'incron driven puppet generate types'  do
       end
 
       it 'should create the resource cache in a new environment' do
-        on(host, "cp -r #{environment_path}/production #{environment_path}/new_environment")
+        on(host, "cp -ra #{environment_path}/production #{environment_path}/new_environment")
         # Give it some time to generate everything
         retry_on(host, "ls -al #{environment_path}/new_environment/.resource_types", :max_retries => 35)
       end
