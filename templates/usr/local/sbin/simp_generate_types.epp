@@ -29,6 +29,7 @@ OptionParser.new do |opts|
     if path == 'all'
       options.target_environments = environment_paths.compact
     else
+      path << '/' if (File.directory?(path) and path[-1] != '/')
       options.target_environments = Array(environment_paths.find do |env|
         path.start_with?("#{env}/")
       end).compact
@@ -56,7 +57,7 @@ OptionParser.new do |opts|
 
   options.help = opts.help
 
-  end.parse!
+end.parse!
 
 fh = File.open(options.logfile, 'w') if options.logfile
 

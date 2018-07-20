@@ -73,7 +73,8 @@ class pupmod::master::sysconfig (
 ) inherits pupmod {
   unless (mock == true) {
     if empty($java_temp_dir) {
-      $_java_temp_dir = "${::pupmod::vardir}/pserver_tmp"
+      # puppet_settings.master.server_datadir is not always present, but its parent is
+      $_java_temp_dir = "${dirname(fact('puppet_settings.master.server_datadir'))}/pserver_tmp"
     }
     else {
       $_java_temp_dir = $java_temp_dir
