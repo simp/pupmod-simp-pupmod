@@ -1,3 +1,6 @@
+* Mon Sep 10 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.7.0-0
+- Update Hiera 4 to Hiera 5
+
 * Thu Jul 19 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.6.1-0
 - Fixed bug in which the JAVA tmpdir path for the puppetserver was
   incorrectly set.  This could cause puppetserver RPM upgrades to fail.
