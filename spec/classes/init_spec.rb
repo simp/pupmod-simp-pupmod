@@ -24,6 +24,13 @@ describe 'pupmod' do
             it { is_expected.not_to contain_class('haveged') }
             it { is_expected.to contain_package('puppet-agent').with_ensure('installed') }
             it { is_expected.to contain_class('pupmod::agent::cron') }
+            it { is_expected.to contain_service('puppet').with({
+              'ensure'     => 'stopped',
+              'enable'     => false,
+              'hasrestart' => true,
+              'hasstatus'  => true,
+              'subscribe'  => 'File[/etc/puppetlabs/puppet/puppet.conf]'
+            }) }
             it { is_expected.to contain_pupmod__conf('agent_daemonize').with({
               'section' => 'agent',
               'setting' => 'daemonize',
@@ -178,8 +185,7 @@ describe 'pupmod' do
                 'ensure'     => 'running',
                 'enable'     => true,
                 'hasrestart' => true,
-                'hasstatus'  => false,
-                'status'     => '/usr/bin/test `/bin/ps --no-headers -fC puppetd,"puppet agent" | /usr/bin/wc -l` -ge 1 -a ! `/bin/ps --no-headers -fC puppetd,"puppet agent" | /bin/grep -c "no-daemonize"` -ge 1',
+                'hasstatus'  => true,
                 'subscribe'  => 'File[/etc/puppetlabs/puppet/puppet.conf]'
               }) }
             end

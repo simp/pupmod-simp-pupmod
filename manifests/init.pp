@@ -192,23 +192,17 @@ class pupmod (
 
     if $daemonize {
       cron { 'puppetagent': ensure => 'absent' }
-
-      # This has been designed to explicitly be the antithesis of the
-      # cron in the 'false' statement above.
-      #
-      # Anything else is wholly irrelevant, since it's puppet checking
-      # on itself while it's running.
-      service { 'puppet':
-        ensure     => 'running',
-        enable     => true,
-        hasrestart => true,
-        hasstatus  => false,
-        status     => '/usr/bin/test `/bin/ps --no-headers -fC puppetd,"puppet agent" | /usr/bin/wc -l` -ge 1 -a ! `/bin/ps --no-headers -fC puppetd,"puppet agent" | /bin/grep -c "no-daemonize"` -ge 1',
-        subscribe  => File["${confdir}/puppet.conf"]
-      }
     }
     else {
       include 'pupmod::agent::cron'
+    }
+
+    service { 'puppet':
+      ensure     => $daemonize ? { true => running, default => stopped },
+      enable     => $daemonize,
+      hasrestart => true,
+      hasstatus  => true,
+      subscribe  => File["${confdir}/puppet.conf"]
     }
 
     pupmod::conf { 'agent_daemonize':
