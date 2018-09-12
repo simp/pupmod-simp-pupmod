@@ -191,14 +191,18 @@ class pupmod (
     package { 'puppet-agent': ensure => $package_ensure }
 
     if $daemonize {
+      $_puppet_service_ensure = 'running'
+
       cron { 'puppetagent': ensure => 'absent' }
     }
     else {
+      $_puppet_service_ensure = 'stopped'
+
       include 'pupmod::agent::cron'
     }
 
     service { 'puppet':
-      ensure     => $daemonize ? { true => running, default => stopped },
+      ensure     => $_puppet_service_ensure,
       enable     => $daemonize,
       hasrestart => true,
       hasstatus  => true,
