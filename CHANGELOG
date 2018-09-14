@@ -1,3 +1,7 @@
+* Tue Sep 11 2018 Steven Pritchard <steven.pritchard@onyxpoint.com> - 7.7.1-0
+- Unconditionally manages the puppet service
+- Remove the (apparently) broken status logic on the puppet service
+
 * Mon Sep 10 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.7.0-0
 - Update Hiera 4 to Hiera 5
 
