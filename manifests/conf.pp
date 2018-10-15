@@ -21,7 +21,7 @@
 # @param ensure
 #  Determines whether the specified setting should exist.
 #
-# @author Trevor Vaughan <tvaughan@onyxpoint.com>
+# @author https://github.com/simp/pupmod-simp-pupmod/graphs/contributors
 #
 define pupmod::conf (
   String $setting,
