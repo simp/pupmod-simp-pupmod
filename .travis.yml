@@ -11,6 +11,7 @@ language: ruby
 cache: bundler
 sudo: false
 
+
 bundler_args: --without development system_tests --path .vendor
 
 notifications:
@@ -53,12 +54,12 @@ jobs:
 
     - stage: deploy
       rvm: 2.4.4
+      if: 'fork = false AND tag = true'
       script:
         - true
       before_deploy:
         - "export PUPMOD_METADATA_VERSION=`ruby -r json -e \"puts JSON.parse(File.read('metadata.json')).fetch('version')\"`"
         - '[[ $TRAVIS_TAG =~ ^simp-${PUPMOD_METADATA_VERSION}$|^${PUPMOD_METADATA_VERSION}$ ]]'
-
       deploy:
         - provider: releases
           api_key:
