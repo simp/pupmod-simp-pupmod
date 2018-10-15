@@ -10,7 +10,7 @@ describe 'pupmod::master' do
     }}}
   end
 
-  puppetserver_versions = ['2.7.0', '5.0.0', '5.1.0']
+  puppetserver_versions = ['5.3.5' '5.0.0', '2.7.0']
 
   on_supported_os.each do |os, os_facts|
     puppetserver_versions.each do |puppetserver_version|
@@ -294,11 +294,20 @@ describe 'pupmod::master' do
             }
           end
 
-          it { is_expected.to contain_pupmod__conf('trusted_server_facts').with({
-            'setting' => 'trusted_server_facts',
-            'value'   => true,
-            'notify'  => 'Service[puppetserver]'
-          }) }
+          it 'handles `trusted_server_facts` correctly for the Puppet version' do
+            if (Puppet.version.split('.').first >= '5')
+              is_expected.to contain_pupmod__conf('trusted_server_facts').with({
+                'ensure' => 'absent'
+              })
+            else
+              is_expected.to contain_pupmod__conf('trusted_server_facts').with({
+                'ensure'  => 'present',
+                'setting' => 'trusted_server_facts',
+                'value'   => true,
+                'notify'  => 'Service[puppetserver]'
+              })
+            end
+          end
 
           it { is_expected.to contain_pupmod__conf('master_environmentpath').with({
             'section' => 'master',

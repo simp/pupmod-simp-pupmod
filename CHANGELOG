@@ -1,3 +1,7 @@
+* Mon Oct 15 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - 7.8.0-0
+- Add `ensure` parameter to `pupmod::conf``
+- Ensure that `trusted_server_facts` is removed for Puppet 5.+ (PUP-6112)
+
 * Tue Sep 11 2018 Steven Pritchard <steven.pritchard@onyxpoint.com> - 7.7.1-0
 - Unconditionally manages the puppet service
 - Remove the (apparently) broken status logic on the puppet service
