@@ -18,18 +18,23 @@
 # @param section
 #   The Sections of the puppet.conf to set.
 #
-# @author Trevor Vaughan <tvaughan@onyxpoint.com>
+# @param ensure
+#  Determines whether the specified setting should exist.
+#
+# @author https://github.com/simp/pupmod-simp-pupmod/graphs/contributors
 #
 define pupmod::conf (
   String $setting,
   Scalar $value,
   String $confdir,
-  String $section = 'main'
+  String $section = 'main',
+  Enum['present', 'absent'] $ensure = 'present',
 ) {
 
   $l_name = "${module_name}_${name}"
 
   ini_setting { $l_name:
+    ensure  => $ensure,
     path    => "${confdir}/puppet.conf",
     section => $section,
     setting => $setting,

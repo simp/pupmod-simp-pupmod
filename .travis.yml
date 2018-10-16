@@ -1,11 +1,16 @@
 # The testing matrix considers ruby/puppet versions supported by SIMP and PE:
 # ------------------------------------------------------------------------------
-#  release    pup   ruby      eol
-# PE 2017.2   4.10  2.1.9  TBD
+#  release    pup   ruby   eol
+# SIMP 6.2    4.10  2.1.9  TBD
+# PE 2016.4   ""    ""     2018/12/31
+# PE 2017.3   5.3   2.4.4  2018/12/31
+# SIMP 6.3    5.5   ""     TBD
+# PE 2018.1   ""    ""     2020/05/??
 ---
 language: ruby
 cache: bundler
 sudo: false
+
 
 bundler_args: --without development system_tests --path .vendor
 
@@ -23,7 +28,7 @@ before_install:
 jobs:
   include:
     - stage: check
-      rvm: 2.4.1
+      rvm: 2.4.4
       env: STRICT_VARIABLES=yes TRUSTED_NODE_DATA=yes PUPPET_VERSION="~> 5"
       script:
         - bundle exec rake check:dot_underscore
@@ -36,8 +41,8 @@ jobs:
         - bundle exec puppet module build
 
     - stage: spec
-      rvm: 2.4.1
-      env: STRICT_VARIABLES=yes TRUSTED_NODE_DATA=yes PUPPET_VERSION="~> 5.0"
+      rvm: 2.4.4
+      env: STRICT_VARIABLES=yes TRUSTED_NODE_DATA=yes PUPPET_VERSION="~> 5.5.0"
       script:
         - bundle exec rake spec
 
@@ -48,13 +53,13 @@ jobs:
         - bundle exec rake spec
 
     - stage: deploy
-      rvm: 2.4.1
+      rvm: 2.4.4
+      if: 'fork = false AND tag = true'
       script:
         - true
       before_deploy:
         - "export PUPMOD_METADATA_VERSION=`ruby -r json -e \"puts JSON.parse(File.read('metadata.json')).fetch('version')\"`"
         - '[[ $TRAVIS_TAG =~ ^simp-${PUPMOD_METADATA_VERSION}$|^${PUPMOD_METADATA_VERSION}$ ]]'
-
       deploy:
         - provider: releases
           api_key:
@@ -69,5 +74,5 @@ jobs:
             secure: "OhZAD0tAMFjcLziw9DNVExzGWIg6vZFgGHgLKwGgkF7w4cb2VCZ/sk0v1viMcGsutIrt3WguJjqAHPblk08dMx4NtTDzBI49IwcRZ4aapu1gpa7KuytXHbEsaM+tw75W3GftC7JTq4NyHgnhG3HB13iQFPMj55VRPZufNVsCGDIgtQGmUlwHaltpV57qUJyk/q4KBauq3uOb8DmAWG05PUgayXpPLwahKZ71LFRLKR6Q0/5jFdz081nOcaPCf7ZgxX16MoCUjtk6NUD9S3e9EbgxBDfIeELTpXp/LlOZkopSlas3NAT3ksWG3gUpKjBXTTY9H/vaoNxOABvFvz2uiTbcSwGo2wI/UwBECG75fDmKbVpqyGxFmmJNtMK40HPEf4JfC1IBJy/mzxL0/ugcHDpKOOACO7DbknnDi53pkWa1RGBNRja3X/GUBF7zsqTX21v9QvTUOEQm8wwO4N5l6Dv7Tf+IAFY8pUmA2RLNGHrYjkd40gWCTnHAoG8G9UekHrVwHcfZqiAmGmisDkjNQAXIP434oXIPrZJG1X3+8vPz45NKOC7Zf5juzDz+FOtryWcB9WKEFF7zDU8rQrDu3CSH0bM+GKXdIaEeCUgsLcqs0wVdR1xTpRf04j+YZJEgEydJzJ+LY5YH4oBwur/uSK2RxN92kcZGRL97i22/4AA="
           on:
             tags: true
-            rvm: 2.4.1
+            rvm: 2.4.4
             condition: '($SKIP_FORGE_PUBLISH != true)'

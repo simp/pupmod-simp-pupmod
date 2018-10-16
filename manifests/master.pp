@@ -351,7 +351,14 @@ class pupmod::master (
       notify  => Service[$service]
     }
 
+    # `trusted_server_facts` deprecated in Puppet 5.0.0 (PUP-6112)
+    $_trusted_server_facts_ensure = (versioncmp($facts['puppetversion'], '5.0')) ? {
+      -1      => 'present',
+      default => 'absent',
+    }
+
     pupmod::conf { 'trusted_server_facts':
+      ensure  => $_trusted_server_facts_ensure,
       confdir => $puppet_confdir,
       setting => 'trusted_server_facts',
       value   => true,
