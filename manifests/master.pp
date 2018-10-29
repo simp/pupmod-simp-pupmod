@@ -389,11 +389,26 @@ class pupmod::master (
       notify  => Service[$service]
     }
 
+    # `[master] ca` is deprecated, as of Puppet 5.5.6 (SIMP-5456), and removed
+    # in Puppet 6 (PUP-9158).  All
+    if versioncmp($facts['puppetversion'], '6.0') >= 0 {
+      $_ensure_master_ca = 'absent'
+    }
+    elsif versioncmp($facts['puppetversion'], '5.5.6') {
+      $_ensure_master_ca = $enable_ca ? {
+        true    => 'absent',
+        default => 'present',
+      }
+    } else {
+      $_ensure_master_ca = 'present'
+    }
+
     pupmod::conf { 'master_ca':
       section => 'master',
-      confdir => $puppet_confdir,
       setting => 'ca',
       value   => $enable_ca,
+      confdir => $puppet_confdir,
+      ensure  => $_ensure_master_ca,
       notify  => Service[$service]
     }
 

@@ -42,7 +42,7 @@ jobs:
 
     - stage: spec
       rvm: 2.4.4
-      env: STRICT_VARIABLES=yes TRUSTED_NODE_DATA=yes PUPPET_VERSION="~> 5.5.0"
+      env: STRICT_VARIABLES=yes TRUSTED_NODE_DATA=yes PUPPET_VERSION="~> 5.5.7"
       script:
         - bundle exec rake spec
 
