@@ -10,7 +10,7 @@ describe 'pupmod::master' do
     }}}
   end
 
-  puppetserver_versions = ['5.3.5' '5.0.0', '2.7.0']
+  puppetserver_versions = ['5.3.5', '5.0.0', '2.7.0']
 
   on_supported_os.each do |os, os_facts|
     puppetserver_versions.each do |puppetserver_version|
@@ -39,6 +39,7 @@ describe 'pupmod::master' do
           let(:ca_cfg_lines) { catalogue.resource("File[#{ca_cfg}]")['content'].lines.map(&:strip).select{|l| l !~ /^\s*(#.+)?$/} }
 
           it { is_expected.to compile.with_all_deps }
+
           it { is_expected.to create_class('pupmod') }
           it { is_expected.to create_class('pupmod::master::sysconfig') }
           it { is_expected.to create_class('pupmod::master::reports') }
@@ -330,12 +331,20 @@ describe 'pupmod::master' do
             'notify'  => 'Service[puppetserver]'
           }) }
 
-          it { is_expected.to contain_pupmod__conf('master_ca').with({
-            'section' => 'master',
-            'setting' => 'ca',
-            'value'   => true,
-            'notify'  => 'Service[puppetserver]'
-          }) }
+          if (Gem::Version.new(Puppet.version) >= Gem::Version.new('5.5.6'))
+            it 'ensures that "[master] ca" is absent when Puppet >= 5.5.6' do
+              is_expected.to contain_pupmod__conf('master_ca').with_ensure('absent')
+            end
+          else
+            it 'ensures that "[master] ca = true" is absent when Puppet < 5.5.6' do
+              is_expected.to contain_pupmod__conf('master_ca').with({
+                'section' => 'master',
+                'setting' => 'ca',
+                'value'   => true,
+                'notify'  => 'Service[puppetserver]',
+              })
+            end
+          end
 
           it { is_expected.to contain_pupmod__conf('master_ca_port').with({
             'section' => 'master',
