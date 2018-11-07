@@ -1,3 +1,7 @@
+* Mon Oct 29 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - 7.7.0-0
+- Remove deprecated `[master] ca` setting when `ca = true` in Puppet 5.5.6+
+- Remove `[master] ca` setting in Puppet 6+
+
 * Mon Oct 15 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - 7.7.0-0
 - Add `ensure` parameter to `pupmod::conf``
 - Ensure that `trusted_server_facts` is removed for Puppet 5.+ (PUP-6112)
