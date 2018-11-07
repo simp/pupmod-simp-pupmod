@@ -226,7 +226,6 @@ pup5.5.7-fips:
 pup5.5.7-oel:
   <<: *pup_5_5_7
   <<: *acceptance_base
-  <<: *only_with_SIMP_FULL_MATRIX
   script:
     - 'bundle exec rake beaker:suites[default,oel]'
 

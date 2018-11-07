@@ -1,6 +1,3 @@
-# ------------------------------------------------------------------------------
-# NOTE: SIMP Puppet rake tasks support ruby 2.1.9
-# ------------------------------------------------------------------------------
 gem_sources = ENV.fetch('GEM_SERVERS','https://rubygems.org').split(/[, ]+/)
 
 gem_sources.each { |gem_source| source gem_source }
@@ -21,18 +18,9 @@ group :test do
 end
 
 group :development do
-  gem 'travis'
-  gem 'travis-lint'
-  gem 'travish'
-  gem 'puppet-blacksmith'
-  gem 'guard-rake'
   gem 'pry'
   gem 'pry-byebug'
   gem 'pry-doc'
-
-  # `listen` is a dependency of `guard`
-  # from `listen` 3.1+, `ruby_dep` requires Ruby version >= 2.2.3, ~> 2.2
-  gem 'listen', '~> 3.0.6'
 end
 
 group :system_tests do
