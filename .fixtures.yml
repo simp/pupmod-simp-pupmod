@@ -15,10 +15,17 @@ fixtures:
     incron: https://github.com/simp/pupmod-simp-incron
     inifile: https://github.com/simp/puppetlabs-inifile
     iptables: https://github.com/simp/pupmod-simp-iptables
-    concat: https://github.com/simp/puppetlabs-concat
     selinux_core:
       repo: https://github.com/simp/pupmod-puppetlabs-selinux_core
       puppet_version: ">= 6.0.0"
+    compliance_markup:
+      repo: "https://github.com/simp/pupmod-simp-compliance_markup"
+      branch: "testing_hotfix_06062019"
+    concat:
+      # master is beyond 4.1.1, but has breaking changes to
+      # how fragments are ordered (MODULES-6625)
+      repo: https://github.com/simp/puppetlabs-concat
+      ref: 4.1.1
     simplib: https://github.com/simp/pupmod-simp-simplib
     stdlib: https://github.com/simp/puppetlabs-stdlib
     pam: https://github.com/simp/pupmod-simp-pam

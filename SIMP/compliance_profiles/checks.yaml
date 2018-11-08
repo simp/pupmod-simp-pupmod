@@ -1,0 +1,342 @@
+---
+version: 2.0.0
+checks:
+  oval:com.puppet.forge.simp.pupmod.agent.cron.hour:
+    settings:
+      parameter: pupmod::agent::cron::hour
+      value: "*"
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:CM-3:3: true
+    identifiers:
+      nist_800_53_rev4:
+      - CM-3:3
+  oval:com.puppet.forge.simp.pupmod.agent.cron.interval:
+    settings:
+      parameter: pupmod::agent::cron::interval
+      value: 30
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:CM-3:3: true
+    identifiers:
+      nist_800_53_rev4:
+      - CM-3:3
+  oval:com.puppet.forge.simp.pupmod.agent.cron.month:
+    settings:
+      parameter: pupmod::agent::cron::month
+      value: "*"
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:CM-3:3: true
+    identifiers:
+      nist_800_53_rev4:
+      - CM-3:3
+  oval:com.puppet.forge.simp.pupmod.agent.cron.monthday:
+    settings:
+      parameter: pupmod::agent::cron::monthday
+      value: "*"
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:CM-3:3: true
+    identifiers:
+      nist_800_53_rev4:
+      - CM-3:3
+  oval:com.puppet.forge.simp.pupmod.agent.cron.run_timeframe:
+    settings:
+      parameter: pupmod::agent::cron::run_timeframe
+      value: 60
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:CM-3:3: true
+    identifiers:
+      nist_800_53_rev4:
+      - CM-3:3
+  oval:com.puppet.forge.simp.pupmod.agent.cron.weekday:
+    settings:
+      parameter: pupmod::agent::cron::weekday
+      value: "*"
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:CM-3:3: true
+    identifiers:
+      nist_800_53_rev4:
+      - CM-3:3
+  oval:com.puppet.forge.simp.pupmod.confdir:
+    settings:
+      parameter: pupmod::confdir
+      value: "/etc/puppetlabs/puppet"
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:CM-6: true
+    identifiers:
+      nist_800_53_rev4:
+      - CM-6
+  oval:com.puppet.forge.simp.pupmod.daemonize:
+    settings:
+      parameter: pupmod::daemonize
+      value: false
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:CM-6: true
+    identifiers:
+      nist_800_53_rev4:
+      - CM-6
+  oval:com.puppet.forge.simp.pupmod.digest_algorithm:
+    settings:
+      parameter: pupmod::digest_algorithm
+      value: sha256
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:SI-7: true
+      nist_800_53_rev4:SI-7:1: true
+      nist_800_53_rev4:SI-7:6: true
+    identifiers:
+      nist_800_53_rev4:
+      - SI-7
+      - SI-7:1
+      - SI-7:6
+  oval:com.puppet.forge.simp.pupmod.environmentpath:
+    settings:
+      parameter: pupmod::environmentpath
+      value: "/etc/puppetlabs/code/environments"
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:CM-6: true
+    identifiers:
+      nist_800_53_rev4:
+      - CM-6
+  oval:com.puppet.forge.simp.pupmod.logdir:
+    settings:
+      parameter: pupmod::logdir
+      value: "/var/log/puppetlabs/puppet"
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AU-3: true
+      disa_stig: true
+      RHEL-07-030010: true
+      SRG-OS-000038-GPOS-00016: true
+      cci:CCI-000131: true
+      cci:CCI-000126: true
+    identifiers:
+      nist_800_53_rev4:
+      - AU-3
+      disa_stig:
+      - RHEL-07-030010
+      - SRG-OS-000038-GPOS-00016
+      - CCI-000131
+      - CCI-000126
+  oval:com.puppet.forge.simp.pupmod.master.auditd:
+    settings:
+      parameter: pupmod::master::auditd
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AU-3:2: true
+      nist_800_53_rev4:AU-4:1: true
+      nist_800_53_rev4:AU-9: true
+      disa_stig: true
+      RHEL-07-030310: true
+      SRG-OS-000327-GPOS-00127: true
+      cci:CCI-002234: true
+    identifiers:
+      nist_800_53_rev4:
+      - AU-3:2
+      - AU-4:1
+      - AU-9
+      disa_stig:
+      - RHEL-07-030310
+      - SRG-OS-000327-GPOS-00127
+      - CCI-002234
+  oval:com.puppet.forge.simp.pupmod.master.bind_address:
+    settings:
+      parameter: pupmod::master::bind_address
+      value: 0.0.0.0
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:CM-7: true
+    identifiers:
+      nist_800_53_rev4:
+      - CM-7
+  oval:com.puppet.forge.simp.pupmod.master.ca_bind_address:
+    settings:
+      parameter: pupmod::master::ca_bind_address
+      value: 0.0.0.0
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:CM-7: true
+    identifiers:
+      nist_800_53_rev4:
+      - CM-7
+  oval:com.puppet.forge.simp.pupmod.master.daemonize:
+    settings:
+      parameter: pupmod::master::daemonize
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:CM-6: true
+    identifiers:
+      nist_800_53_rev4:
+      - CM-6
+  oval:com.puppet.forge.simp.pupmod.master.environmentpath:
+    settings:
+      parameter: pupmod::master::environmentpath
+      value: "/etc/puppetlabs/code/environments"
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:CM-6: true
+    identifiers:
+      nist_800_53_rev4:
+      - CM-6
+  oval:com.puppet.forge.simp.pupmod.master.firewall:
+    settings:
+      parameter: pupmod::master::firewall
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:CM-7: true
+      disa_stig: true
+      RHEL-07-040920: true
+      SRG-OS-000480-GPOS-00227: true
+      cci:CCI-000366: true
+    identifiers:
+      nist_800_53_rev4:
+      - CM-7
+      disa_stig:
+      - RHEL-07-040920
+      - SRG-OS-000480-GPOS-00227
+      - CCI-000366
+  oval:com.puppet.forge.simp.pupmod.master.reports.purge:
+    settings:
+      parameter: pupmod::master::reports::purge
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AU-4: true
+      nist_800_53_rev4:AU-5:b: true
+      nist_800_53_rev4:AU-11: true
+    identifiers:
+      nist_800_53_rev4:
+      - AU-4
+      - AU-5:b
+      - AU-11
+  oval:com.puppet.forge.simp.pupmod.master.reports.purge_keep_days:
+    settings:
+      parameter: pupmod::master::reports::purge_keep_days
+      value: 7
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AU-4: true
+      nist_800_53_rev4:AU-5:b: true
+      nist_800_53_rev4:AU-11: true
+    identifiers:
+      nist_800_53_rev4:
+      - AU-4
+      - AU-5:b
+      - AU-11
+  oval:com.puppet.forge.simp.pupmod.master.ssl_protocols:
+    settings:
+      parameter: pupmod::master::ssl_protocols
+      value:
+      - TLSv1
+      - TLSv1.1
+      - TLSv1.2
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:SC-8: true
+      nist_800_53_rev4:SC-8:1: true
+      nist_800_53_rev4:SC-8:2: true
+      nist_800_53_rev4:SC-23: true
+    identifiers:
+      nist_800_53_rev4:
+      - SC-8
+      - SC-8:1
+      - SC-8:2
+      - SC-23
+  oval:com.puppet.forge.simp.pupmod.master.sysconfig.java_max_memory:
+    settings:
+      parameter: pupmod::master::sysconfig::java_max_memory
+      value: 50%
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:SC-5: true
+      nist_800_53_rev4:CM-6: true
+    identifiers:
+      nist_800_53_rev4:
+      - SC-5
+      - CM-6
+  oval:com.puppet.forge.simp.pupmod.master.syslog:
+    settings:
+      parameter: pupmod::master::syslog
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AU-3:2: true
+      nist_800_53_rev4:AU-4:1: true
+      nist_800_53_rev4:AU-9: true
+      disa_stig: true
+      RHEL-07-030770: true
+      SRG-OS-000480-GPOS-00227: true
+      cci:CCI-000366: true
+    identifiers:
+      nist_800_53_rev4:
+      - AU-3:2
+      - AU-4:1
+      - AU-9
+      disa_stig:
+      - RHEL-07-030770
+      - SRG-OS-000480-GPOS-00227
+      - CCI-000366
+  oval:com.puppet.forge.simp.pupmod.master.syslog_message_format:
+    settings:
+      parameter: pupmod::master::syslog_message_format
+      value: "%logger[%thread]: %msg"
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AU-2: true
+      disa_stig: true
+      RHEL-07-030770: true
+      SRG-OS-000480-GPOS-00227: true
+      cci:CCI-000366: true
+    identifiers:
+      nist_800_53_rev4:
+      - AU-2
+      disa_stig:
+      - RHEL-07-030770
+      - SRG-OS-000480-GPOS-00227
+      - CCI-000366
+  oval:com.puppet.forge.simp.pupmod.syslogfacility:
+    settings:
+      parameter: pupmod::syslogfacility
+      value: local6
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AU-3:2: true
+      nist_800_53_rev4:AU-4:1: true
+      nist_800_53_rev4:AU-9: true
+      disa_stig: true
+      RHEL-07-030770: true
+      SRG-OS-000480-GPOS-00227: true
+      cci:CCI-000366: true
+    identifiers:
+      nist_800_53_rev4:
+      - AU-3:2
+      - AU-4:1
+      - AU-9
+      disa_stig:
+      - RHEL-07-030770
+      - SRG-OS-000480-GPOS-00227
+      - CCI-000366
+  oval:com.puppet.forge.simp.pupmod.vardir:
+    settings:
+      parameter: pupmod::vardir
+      value: "/opt/puppetlabs/puppet/cache"
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:CM-6: true
+      disa_stig: true
+      CM-6: true
+    identifiers:
+      nist_800_53_rev4:
+      - CM-6
+      disa_stig:
+      - CM-6
