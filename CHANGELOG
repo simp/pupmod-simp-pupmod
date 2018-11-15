@@ -1,3 +1,8 @@
+* Thu Nov 15 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.7.0-0
+- Fix warning about automatic data type munging in the puppet server sysconfig
+  template
+- Add workaround for Puppet 5 background exec issue to the generate_types exec
+
 * Mon Oct 29 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - 7.7.0-0
 - Remove deprecated `[master] ca` setting when `ca = true` in Puppet 5.5.6+
 - Remove `[master] ca` setting in Puppet 6+

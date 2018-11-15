@@ -1,7 +1,7 @@
 <%
   # Variable Mangling #
   if $pupmod::master::sysconfig::java_max_memory[-1] == '%' {
-    $java_mem_mb = Integer($facts['memorysize_mb'] * ($pupmod::master::sysconfig::java_max_memory[0,-2]/100.0))
+    $java_mem_mb = Integer(Numeric($facts['memorysize_mb']) * (Numeric($pupmod::master::sysconfig::java_max_memory[0,-2])/100.00))
     $java_max_memory = "${java_mem_mb}m"
   }
 
