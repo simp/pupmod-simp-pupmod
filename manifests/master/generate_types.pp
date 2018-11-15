@@ -53,8 +53,7 @@ class pupmod::master::generate_types (
     }
 
     exec { 'simp_generate_types':
-      command     => "${_generate_types_path} -d ${delay} -p all &",
-      logoutput   => true,
+      command     => "${_generate_types_path} -d ${delay} -p all > /dev/null 2>&1 &",
       refreshonly => true
     }
 
