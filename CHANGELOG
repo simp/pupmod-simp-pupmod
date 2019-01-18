@@ -1,6 +1,15 @@
+* Fri Jan 23 2019 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.7.1-0
+- Fix bug where some SSL settings could not be set for the puppet server
+  `webserver` components.
+- Added the following *advanced usage* parameters in case users need to set
+  parameters that are not presently managed to work around future issues:
+  - pupmod::master::server_webserver_options
+  - pupmod::master::ca_webserver_options
+
 * Tue Jan 22 2019 Brandon Riden <brandon.riden@onyxpoint.com> - 7.7.1-0
 - Set pupmod::master::generate_types: enable => false by default to fix
   bug causing puppet servers to crash.
+  - pupmod::master::extra_webserver_sections
 
 * Thu Nov 15 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.7.0-0
 - Fix warning about automatic data type munging in the puppet server sysconfig

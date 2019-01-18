@@ -1,6 +1,10 @@
 require 'spec_helper_acceptance'
 
 describe 'incron driven puppet generate types'  do
+  before(:each) {
+    skip "Awaiting fix for SIMP-5974"
+  }
+
   hosts_with_role(hosts, 'master').each do |host|
     context "on #{host}" do
       let(:environment_path) { host.puppet[:environmentpath] }

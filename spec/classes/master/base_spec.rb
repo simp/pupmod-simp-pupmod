@@ -72,7 +72,7 @@ describe 'pupmod::master::base' do
         }
         it { is_expected.to contain_package('puppetserver').with(
             {
-              "ensure" => "latest",
+              "ensure" => "installed",
             }
           )
         }
