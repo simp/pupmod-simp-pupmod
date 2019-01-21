@@ -3,52 +3,44 @@
 require 'ostruct'
 require 'optparse'
 require 'fileutils'
+require 'timeout'
 require 'syslog/logger'
 
-log = Syslog::Logger.new(File.basename(__FILE__))
+PUPPET_CMD = '/opt/puppetlabs/bin/puppet'
+WRITE_LOCK = '/var/run/simp_generate_types.readlock'
+GENERATE_LOCK = '/var/run/simp_generate_types.generatelock'
+CMD_NAME = File.basename($0)
 
-puppet_cmd = '/opt/puppetlabs/bin/puppet'
-
-puppet_group = %x(#{puppet_cmd} config print --section=master group).strip
-
-environment_paths = Dir.glob(
-  %x{#{puppet_cmd} config print --section=master environmentpath}.strip.split(':').map{|x| x + '/*'}
-)
+LOG = Syslog::Logger.new(File.basename(__FILE__))
 
 options = OpenStruct.new
 options.quiet = false
 options.path = nil
-options.delay = 0
+options.generate = false
+options.delay = 10
 options.syslog = false
-options.target_environments = []
 
 OptionParser.new do |opts|
   opts.on('-p', '--path TGT_PATH') do |path|
     options.path = path
-
-    if path == 'all'
-      options.target_environments = environment_paths.compact
-    else
-      path << '/' if (File.directory?(path) and path[-1] != '/')
-      options.target_environments = Array(environment_paths.find do |env|
-        path.start_with?("#{env}/")
-      end).compact
-    end
-
-    # Convert each discovered environment into a hash noting the path and environment name
-    options.target_environments.map!{|e| { :path => e, :env_name => File.basename(e) }}
   end
-  opts.on('-l', '--logfile LOGFILE') do |file|
+  opts.on('-g', '--generate', 'Read TGT_PATH and process all items') do
+    options.generate = true
+  end
+  opts.on('-l', '--logfile LOGFILE', 'Output to this logfile') do |file|
     options.logfile = file
   end
-  opts.on('-d', '--delay SECONDS') do |delay|
+  opts.on('-d', '--delay SECONDS', 'Default: 10 - Wait a random number of seconds up to this limit before starting the reader') do |delay|
     options.delay = delay.to_i
   end
-  opts.on('-s', '--syslog') do
+  opts.on('-s', '--syslog', 'Write to syslog') do
     options.syslog = true
   end
-  opts.on('-q', '--quiet') do
+  opts.on('-q', '--quiet', 'No terminal output') do
     options.quiet = true
+  end
+  opts.on('-m', '--message MESSAGE', 'The message to be written to TGT_PATH from -p') do |msg|
+    options.message = msg.strip
   end
   opts.on('-h', '--help', 'This help message') do
     puts opts
@@ -56,79 +48,165 @@ OptionParser.new do |opts|
   end
 
   options.help = opts.help
-
 end.parse!
 
-fh = File.open(options.logfile, 'w') if options.logfile
+def lock(lockfile)
+  File.open(lockfile, 'w'){|fh| fh.puts(Process.pid)}
+end
+
+def unlock(lockfile)
+  FileUtils.rm_f(lockfile) if File.exist?(lockfile)
+end
+
+def wait_and_lock(lockfile, timeout=30)
+  if File.exist?(lockfile)
+    begin
+      Timeout::timeout(timeout) do
+        while(File.exist?(lockfile)) do
+          sleep(2)
+        end
+      end
+    rescue Timeout::TimeoutError
+      LOG.error("Timed out waiting for '#{lockfile}' to release. Please remove the file manually if no '#{File.basename(CMD_NAME)}' processes are running.")
+
+      exit 1
+    end
+  end
+
+  at_exit { unlock(lockfile) }
+
+  lock(lockfile)
+end
+
+def log_err(msg, options)
+  $stderr.puts Array(msg).join("\n") unless options.quiet
+
+  log(msg, options)
+end
+
+def log(msg, options)
+  msg = Array(msg)
+
+  @logfile ||= File.open(options.logfile, 'a+') if options.logfile
+
+  @logfile.puts(msg.join("\n")) if @logfile
+  
+  msg.each do |line|
+    LOG.error(line) if options.syslog
+  end
+end
+
+def process_paths(to_process, options)
+  to_process.map!(&:strip)
+
+  target_environments = []
+
+  environment_paths = Dir.glob(
+    %x{#{PUPPET_CMD} config print --log_level=err --section=master environmentpath}.strip.split(':').map{|x| x + '/*'}
+  )
+
+  if to_process.any?{|path| path.casecmp('all')==0}
+    target_environments = environment_paths.compact
+  else
+    to_process.each do |path|
+      if environment_paths.include?(path) || environment_paths.any?{|env_path| path.start_with?("#{env_path}/")}
+        target_environments << path
+      end
+    end
+
+    to_process = to_process.sort.uniq
+  end
+
+  if target_environments.empty?
+    msg = 'Error: Could not find any target environments'
+    log_err(msg, options)
+    exit 1
+  end
+  
+  # Convert each discovered environment into a hash noting the path and environment name
+  target_environments.map!{|e| { :path => e, :env_name => File.basename(e) }}
+
+  output = []
+  
+  current_umask = File.umask
+  File.umask(0022)
+  
+  puppet_group = %x(#{PUPPET_CMD} config print --log_level=err --section=master group).strip
+  
+  target_environments.each do |env|
+    begin
+      log("Generating Types for #{env[:env_name]}", options)
+
+      output += %x{#{PUPPET_CMD} generate types --log_level=err --environment #{env[:env_name]} 2>&1}.strip.lines
+    ensure
+      resource_types_dir = File.join(env[:path], '.resource_types')
+  
+      if File.exist?(resource_types_dir)
+        FileUtils.chown_R(nil, puppet_group, resource_types_dir)
+        FileUtils.chmod_R('g+r,o-rwx', resource_types_dir)
+        FileUtils.chmod('g+x', resource_types_dir)
+      end
+    end
+
+    # Give each environment a couple of seconds to process to reduce load on the server
+    sleep(2)
+  end
+  
+  output = output.compact.uniq.map(&:strip)
+  output.select!{|x| x.include?('Error:')}
+  
+  File.umask(current_umask)
+  
+  unless output.empty?
+    log_err(output, options)
+    exit 2
+  end
+end
 
 unless options.path
   msg = "Error: You must pass a path"
 
-  $stderr.puts msg
-  $stderr.puts options.help
-
-  log.error(msg) if options.syslog
-
-  fh.puts(msg) if fh
+  log_err([msg, options.help], options)
 
   exit 1
 end
 
-if options.target_environments.empty?
-  msg = "Error: Could not find environment for '#{options.path}'"
-
-  $stderr.puts msg
-
-  log.error(msg) if options.syslog
-
-  fh.puts(msg) if fh
-
-  exit 1
-end
-
-output = []
-
-current_umask = File.umask
-File.umask(0022)
-
-delay = options.delay/options.target_environments.count.to_f
-
-options.target_environments.each do |env|
-  sleep(delay)
-
-  # Prevent running on the same environment simultaneously
-  next unless %x{ps --no-headers -o args -wwC #{puppet_cmd}}.
-                lines.
-                grep(/generate types/).
-                grep(/--environment\s+#{env[:env_name]}(\s+|$)/).
-                empty?
+if options.message
+  wait_and_lock(WRITE_LOCK)
 
   begin
-    output += %x{#{puppet_cmd} generate types --environment #{env[:env_name]} 2>&1}.strip.lines
-  ensure
-    resource_types_dir = File.join(env[:path], '.resource_types')
+    top_dir = File.dirname(options.path)
 
-    if File.exist?(resource_types_dir)
-      FileUtils.chown_R(nil, puppet_group, resource_types_dir)
-      FileUtils.chmod_R('g+r,o-rwx', resource_types_dir)
-      FileUtils.chmod('g+x', resource_types_dir)
-    end
+    FileUtils.mkdir_p(top_dir) unless File.exist?(top_dir)
+
+    File.open(options.path, 'a+', 0640) { |fh|
+      fh.puts(options.message)
+      fh.flush
+    }
+  rescue => e
+    LOG.error("Could not open file '#{options.path}' for writing: #{e}")
   end
-end
+elsif options.generate
+  sleep(options.delay)
 
-output = output.compact.uniq.map(&:strip)
-output.select!{|x| x.include?('Error:')}
+  wait_and_lock(WRITE_LOCK)
 
-File.umask(current_umask)
+  if File.exist?(options.path)
 
-unless output.empty?
-  $stderr.puts output.join("\n") unless options.quiet
+    # Read everything into memory for processing and remove the record file
+    to_process = File.read(options.path)
+    FileUtils.rm_f(options.path)
 
-  fh.puts(output.join("\n")) if fh
+    # Unlock the system so that the writers can continue as necessary
+    unlock(WRITE_LOCK)
 
-  output.each do |line|
-    log.error(line) if options.syslog
+    wait_and_lock(GENERATE_LOCK, 300)
+
+    process_paths(to_process.lines.sort.uniq, options)
+
+    unlock(GENERATE_LOCK)
   end
-
-  exit 2
+else
+   # This scenario is really meant for running things by hand
+   process_paths(Array(options.path), options)
 end

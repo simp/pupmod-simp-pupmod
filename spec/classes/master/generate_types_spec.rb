@@ -1,5 +1,4 @@
 require 'spec_helper'
-
 describe 'pupmod::master::generate_types' do
   shared_examples_for 'generate_types tests' do
     it { is_expected.to compile.with_all_deps }

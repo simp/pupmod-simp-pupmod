@@ -1,0 +1,6 @@
+<%- |
+  Stdlib::AbsolutePath $simp_generate_types,
+  Integer[0]           $delay,
+  Stdlib::AbsolutePath $run_dir
+| -%>
+<%= $run_dir %> IN_CREATE,IN_MODIFY,IN_CLOSE_WRITE,IN_MOVED_TO,IN_ONLYDIR,recursive=false <%= $simp_generate_types %> -d <%= $delay %> -s -g -p $@/$#

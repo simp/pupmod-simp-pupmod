@@ -1,4 +1,8 @@
 * Fri Jan 23 2019 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.7.1-0
+- Fixed issues with incron rules and the simp_generate_types calls.
+  - This was mostly due to bugs in the newer version of incrond. However, this
+    module is now extensively tested for safety but will only trigger type
+    generation on environment creation or updates to the puppet binaries.
 - Fix bug where some SSL settings could not be set for the puppet server
   `webserver` components.
 - Added the following *advanced usage* parameters in case users need to set
