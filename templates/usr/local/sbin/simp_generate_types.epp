@@ -90,7 +90,7 @@ def log(msg, options)
   @logfile ||= File.open(options.logfile, 'a+') if options.logfile
 
   @logfile.puts(msg.join("\n")) if @logfile
-  
+
   msg.each do |line|
     LOG.error(line) if options.syslog
   end
@@ -122,17 +122,17 @@ def process_paths(to_process, options)
     log_err(msg, options)
     exit 1
   end
-  
+
   # Convert each discovered environment into a hash noting the path and environment name
   target_environments.map!{|e| { :path => e, :env_name => File.basename(e) }}
 
   output = []
-  
+
   current_umask = File.umask
   File.umask(0022)
-  
+
   puppet_group = %x(#{PUPPET_CMD} config print --log_level=err --section=master group).strip
-  
+
   target_environments.each do |env|
     begin
       log("Generating Types for #{env[:env_name]}", options)
@@ -140,7 +140,7 @@ def process_paths(to_process, options)
       output += %x{#{PUPPET_CMD} generate types --log_level=err --environment #{env[:env_name]} 2>&1}.strip.lines
     ensure
       resource_types_dir = File.join(env[:path], '.resource_types')
-  
+
       if File.exist?(resource_types_dir)
         FileUtils.chown_R(nil, puppet_group, resource_types_dir)
         FileUtils.chmod_R('g+r,o-rwx', resource_types_dir)
@@ -151,12 +151,12 @@ def process_paths(to_process, options)
     # Give each environment a couple of seconds to process to reduce load on the server
     sleep(2)
   end
-  
+
   output = output.compact.uniq.map(&:strip)
   output.select!{|x| x.include?('Error:')}
-  
+
   File.umask(current_umask)
-  
+
   unless output.empty?
     log_err(output, options)
     exit 2
