@@ -94,7 +94,7 @@ class pupmod::master::generate_types (
           'run_dir'             => $run_dir
         }
       ),
-      require => [
+      require        => [
         File[$run_dir],
         File[$_generate_types_path]
       ]
@@ -115,7 +115,7 @@ class pupmod::master::generate_types (
           'run_dir'             => $run_dir
         }
       ),
-      require => [
+      require        => [
         File[$run_dir],
         File[$_generate_types_path]
       ]
@@ -136,7 +136,7 @@ class pupmod::master::generate_types (
           'run_dir'             => $run_dir
         }
       ),
-      require => [
+      require        => [
         File[$run_dir],
         File[$_generate_types_path]
       ]
@@ -156,7 +156,7 @@ class pupmod::master::generate_types (
         'run_dir'             => $run_dir
       }
     ),
-    require => [
+    require        => [
       File[$run_dir],
       File[$_generate_types_path]
     ]

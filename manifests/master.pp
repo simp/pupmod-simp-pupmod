@@ -481,11 +481,11 @@ class pupmod::master (
     }
 
     pupmod::conf { 'master_ca':
-      section => 'master',
+      ensure  => $_ensure_master_ca,
       setting => 'ca',
       value   => $enable_ca,
       confdir => $puppet_confdir,
-      ensure  => $_ensure_master_ca,
+      section => 'master',
       notify  => Service[$service]
     }
 
