@@ -39,7 +39,7 @@
 #   ``simp_generate_types`` process
 #
 class pupmod::master::generate_types (
-  Boolean                     $enable                         = false,
+  Boolean                     $enable                         = true,
   Boolean                     $trigger_on_puppetserver_update = true,
   Stdlib::AbsolutePath        $puppetserver_exe               = '/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver',
   Boolean                     $trigger_on_puppet_update       = true,
