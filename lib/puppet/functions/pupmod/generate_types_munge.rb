@@ -26,11 +26,11 @@ Puppet::Functions.create_function(:'pupmod::generate_types_munge') do
   end
 
   def generate_types_munge_legacy(to_process, environment_paths=nil)
-    get_environmentpaths.map { |environment_path|
+    get_environmentpaths(environment_paths).map { |environment_path|
       to_process.map { |target|
         target.gsub(/\/?PUPPET_ENVIRONMENTPATH/, environment_path)
       }
-    }.flatten
+    }.flatten.uniq
   end
 
   # @example with a multi-part ``environmentpath`` of ``/here:/there``
