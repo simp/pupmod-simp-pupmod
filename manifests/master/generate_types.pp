@@ -26,7 +26,7 @@
 #   * Puppet Environment Paths
 #
 class pupmod::master::generate_types (
-  Boolean                     $enable                         = true,
+  Boolean                     $enable                         = false,
   Boolean                     $trigger_on_puppetserver_update = true,
   Boolean                     $trigger_on_puppet_update       = true,
   Integer[0]                  $delay                          = 30,
