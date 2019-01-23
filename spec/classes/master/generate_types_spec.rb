@@ -18,6 +18,16 @@ describe 'pupmod::master::generate_types' do
       let(:facts){ os_facts }
 
       context 'with default input' do
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_file('/usr/local/sbin/simp_generate_types').with_ensure('absent') }
+        it { is_expected.not_to contain_exec('simp_generate_types') }
+        it { is_expected.to contain_incron__system_table('simp_generate_types').with_enable(false) }
+      end
+
+      context 'when enabling generate_types' do
+        let(:params){{
+            :enable => true
+        }}
         let(:valid_output){[
           '/opt/puppetlabs/server/apps/puppetserver/bin IN_MODIFY,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p all -s -d 30',
           '/opt/puppetlabs/puppet/bin/puppet IN_MODIFY,IN_NO_LOOP /usr/local/sbin/simp_generate_types -p all -s -d 30',
@@ -29,8 +39,9 @@ describe 'pupmod::master::generate_types' do
         it_behaves_like 'generate_types tests'
       end
 
-      context 'when disabling puppetserver triggers' do
+      context 'when disabling puppetserver triggers with generate_types enabled' do
         let(:params){{
+          :enable => true,
           :trigger_on_puppetserver_update => false
         }}
 
@@ -44,8 +55,9 @@ describe 'pupmod::master::generate_types' do
         it_behaves_like 'generate_types tests'
       end
 
-      context 'when disabling puppet triggers' do
+      context 'when disabling puppet triggers with generate_types enabled' do
         let(:params){{
+          :enable => true,
           :trigger_on_puppet_update => false
         }}
 
@@ -59,7 +71,10 @@ describe 'pupmod::master::generate_types' do
         it_behaves_like 'generate_types tests'
       end
 
-      context 'with a split environmentpath input' do
+      context 'with a split environmentpath input with generate_types enabled' do
+        let(:params){{
+            :enable => true
+        }}
         let(:facts){
           os_facts.merge({
             :puppet_environmentpath => '/path/one:/path/two'
@@ -78,17 +93,6 @@ describe 'pupmod::master::generate_types' do
         ].join("\n")}
 
         it_behaves_like 'generate_types tests'
-      end
-
-      context 'when disabling generate_types' do
-        let(:params){{
-          :enable => false
-        }}
-
-        it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_file('/usr/local/sbin/simp_generate_types').with_ensure('absent') }
-        it { is_expected.not_to contain_exec('simp_generate_types') }
-        it { is_expected.to contain_incron__system_table('simp_generate_types').with_enable(false) }
       end
     end
   end
