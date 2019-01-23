@@ -146,7 +146,7 @@ class pupmod::master::generate_types (
     incron::system_table { 'simp_generate_types_new_environment': enable => false }
   }
 
-  incron::system_table { 'simp_generate_types_update_trigger':
+  incron::system_table { 'simp_generate_types':
     enable         => $enable,
     custom_content => epp(
       "${module_name}/simp_generate_types_incron_rules/update_trigger.epp",
