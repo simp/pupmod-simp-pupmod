@@ -1,4 +1,4 @@
-* Fri Jan 23 2019 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.7.1-0
+* Fri Jan 23 2019 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.7.2-0
 - Fixed issues with incron rules and the simp_generate_types calls.
   - This was mostly due to bugs in the newer version of incrond. However, this
     module is now extensively tested for safety but will only trigger type
