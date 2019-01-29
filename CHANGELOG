@@ -1,4 +1,4 @@
-* Fri Jan 23 2019 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.7.1-0
+* Fri Jan 25 2019 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.7.1-0
 - Fix bug where some SSL settings could not be set for the puppet server
   `webserver` components.
 - Added the following *advanced usage* parameters in case users need to set
