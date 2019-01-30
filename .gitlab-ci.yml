@@ -44,12 +44,11 @@ variables:
 # - Try to use cached and local resources before downloading dependencies
 # --------------------------------------
 .setup_bundler_env: &setup_bundler_env
-#  Disabled until we can figure out what is poisioning it
-#  cache:
-#    untracked: true
-#    key: "${CI_PROJECT_NAMESPACE}_ruby-${MATRIX_RUBY_VERSION}_bundler"
-#    paths:
-#      - '.vendor'
+  cache:
+    untracked: true
+    key: "${CI_PROJECT_NAMESPACE}_ruby-${MATRIX_RUBY_VERSION}_bundler"
+    paths:
+      - '.vendor'
   before_script:
     - 'ruby -e "puts %(Environment Variables:\n  * #{ENV.keys.grep(/PUPPET|SIMP|BEAKER|MATRIX/).map{|v| %(#{v} = #{ENV[v]})}.join(%(\n  * ))})"'
     - 'declare GEM_BUNDLER_VER=(-v "~> ${BUNDLER_VERSION:-1.17.0}")'
@@ -71,7 +70,7 @@ variables:
 #-----------------------------------------------------------------------
 
 .pup_4: &pup_4
-  image: 'ruby:2.4'
+  image: 'ruby:2.1'
   variables:
     PUPPET_VERSION: '~> 4.0'
     MATRIX_RUBY_VERSION: '2.1'
