@@ -8,9 +8,15 @@
 #   Run ``puppet generate types`` on all environments if the ``puppetserver``
 #   application is updated
 #
+# @param puppetserver_exe
+#   Fully qualified path to the ``puppetserver`` executable
+#
 # @param trigger_on_puppet_update
 #   Run ``puppet generate types`` on all environments if the ``puppet``
 #   application is updated
+#
+# @param puppet_exe
+#   Fully qualified path to the ``puppet`` executable
 #
 # @param trigger_on_new_environment
 #   Run ``puppet generate types`` on new environments as soon as they are
@@ -26,13 +32,23 @@
 #     module deployments
 #
 # @param trigger_paths
-#   The paths that should be watched
+#   Trigger paths to apply when ``$trigger_on_new_environment`` is true.
 #
 #   WARNING: Do *not* watch a large number of paths here!
-#
+#   * New format is a hash of the paths that should be watched and the
+#     corresponding incron flags to apply to each path.
+#   * Deprecated format is a list of paths to watch. The incron flags to apply
+#     are hardcoded to ['IN_MODIFY', 'IN_CREATE', 'IN_NO_LOOP'].
 #   * Ruby ``Dir`` compatible path globs are supported
-#   * The string ``PUPPET_ENVIRONMENTPATH`` will be substituted with all known
-#   * Puppet Environment Paths
+#   * Use pupmod::generate_types_munge() to substitute the string
+#     ``PUPPET_ENVIRONMENTPATH`` with all known Puppet environment paths.
+#     (See ``$trigger_paths``default below for a usage example).
+#   * Default watches for the creation of new environments in all known
+#     Puppet environment paths.  Previously, the default watched
+#     not only for new environments, but for any new modules within
+#     an existing environment and any type changes within any module
+#     within any existing environment.  However, this proved to be a
+#     performance issue for some sites with large numbers of environments.
 #
 # @param run_dir
 #   The directory to use for saving state and metadata for the
@@ -43,8 +59,8 @@ class pupmod::master::generate_types (
   Boolean                     $trigger_on_puppetserver_update = true,
   Stdlib::AbsolutePath        $puppetserver_exe               = '/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver',
   Boolean                     $trigger_on_puppet_update       = true,
-  Boolean                     $trigger_on_new_environment     = true,
   Stdlib::AbsolutePath        $puppet_exe                     = '/opt/puppetlabs/puppet/bin/puppet',
+  Boolean                     $trigger_on_new_environment     = true,
   Integer[0]                  $delay                          = 30,
   Variant[
     # For backward compatibility
