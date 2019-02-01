@@ -14,11 +14,12 @@ CMD_NAME = File.basename($0)
 LOG = Syslog::Logger.new(File.basename(__FILE__))
 
 options = OpenStruct.new
-options.quiet = false
-options.path = nil
+options.delay    = 10
 options.generate = false
-options.delay = 10
-options.syslog = false
+options.path     = nil
+options.quiet    = false
+options.syslog   = false
+options.timeout  = 300
 
 OptionParser.new do |opts|
   opts.on('-p', '--path TGT_PATH') do |path|
@@ -36,6 +37,13 @@ OptionParser.new do |opts|
   opts.on('-s', '--syslog', 'Write to syslog') do
     options.syslog = true
   end
+  opts.on('-t', '--timeout TIMEOUT',
+          'Seconds to wait for a current run to complete before force-unlocking and continuing.',
+          '  * Default: 300',
+          '  * Minimum: 5'
+         ) do |tmout|
+    options.timeout = [5, tmout.to_i].max
+  end
   opts.on('-q', '--quiet', 'No terminal output') do
     options.quiet = true
   end
@@ -51,29 +59,70 @@ OptionParser.new do |opts|
 end.parse!
 
 def lock(lockfile)
-  File.open(lockfile, 'w'){|fh| fh.puts(Process.pid)}
+  locked = false
+
+  # From the API documentation for File/flock as the safe method for write
+  # locking
+  fh = File.open(lockfile, File::RDWR|File::CREAT, 0640)
+
+  locked = fh.flock(File::LOCK_NB|File::LOCK_EX)
+  if locked
+    fh.rewind
+
+    fh.puts(Process.pid)
+
+    fh.flush
+    fh.truncate(fh.pos)
+    fh.close
+  end
+
+  return locked
 end
 
-def unlock(lockfile)
-  FileUtils.rm_f(lockfile) if File.exist?(lockfile)
+def unlock(lockfile, target_pid=nil)
+  if File.exist?(lockfile)
+    pid = 0
+
+    fh = File.open(lockfile, 'r')
+    pid = fh.read.strip.to_i
+
+    # Don't kill yourself
+    if target_pid.nil? && (pid != Process.pid)
+      fh.flock(File::LOCK_EX)
+
+      # Never try to kill PID < 2!
+      if pid > 1
+        begin
+          Process.kill(9, pid)
+
+          LOG.warn("Force unlocked '#{pid}'")
+        rescue => e
+          LOG.warn("Attempt to kill process '#{pid}' during unlock of '#{lockfile}' failed: #{e}")
+        end
+
+        File.delete(fh)
+      end
+    elsif target_pid == pid
+      fh.flock(File::LOCK_NB|File::LOCK_EX)
+      File.delete(fh)
+    end
+  end
 end
 
 def wait_and_lock(lockfile, timeout=30)
   if File.exist?(lockfile)
     begin
       Timeout::timeout(timeout) do
-        while(File.exist?(lockfile)) do
+        until lock(lockfile) do
           sleep(2)
         end
       end
     rescue Timeout::TimeoutError
-      LOG.error("Timed out waiting for '#{lockfile}' to release. Please remove the file manually if no '#{File.basename(CMD_NAME)}' processes are running.")
-
-      exit 1
+      unlock(lockfile)
     end
   end
 
-  at_exit { unlock(lockfile) }
+  at_exit { unlock(lockfile, Process.pid) }
 
   lock(lockfile)
 end
@@ -200,7 +249,7 @@ elsif options.generate
     # Unlock the system so that the writers can continue as necessary
     unlock(WRITE_LOCK)
 
-    wait_and_lock(GENERATE_LOCK, 300)
+    wait_and_lock(GENERATE_LOCK, options.timeout)
 
     process_paths(to_process.lines.sort.uniq, options)
 
