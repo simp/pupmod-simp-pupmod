@@ -86,8 +86,8 @@ describe 'incron driven puppet generate types'  do
         expect(host.file_exist?(incron_cache)).to_not be true
       end
 
-      it 'should not crash the system when creating 1000 new environments' do
-        on(host, "for x in {1..1000}; do cp -rl #{environment_path}/production #{environment_path}/testenv$x; done")
+      it 'should not crash the system when creating 100 new environments' do
+        on(host, "for x in {1..100}; do cp -rl #{environment_path}/production #{environment_path}/testenv$x; done")
         wait_for_generate_types(host)
 
         on(host, "ls #{environment_path} | wc -l")
