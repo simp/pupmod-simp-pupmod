@@ -279,6 +279,7 @@ describe 'pupmod::master' do
                   'ssl-key'           => "/etc/puppetlabs/puppet/ssl/private_keys/#{facts[:fqdn]}.pem",
                   'ssl-host'          => '0.0.0.0',
                   'ssl-port'          => 8140,
+                  'ssl-protocols'     => 'TLSv1,TLSv1.1,TLSv1.2',
                   'default-server'    => true
                 },
                 'ca'   => {
@@ -289,10 +290,74 @@ describe 'pupmod::master' do
                   'ssl-cert'          => "/etc/puppetlabs/puppet/ssl/certs/#{facts[:fqdn]}.pem",
                   'ssl-key'           => "/etc/puppetlabs/puppet/ssl/private_keys/#{facts[:fqdn]}.pem",
                   'ssl-host'          => '0.0.0.0',
-                  'ssl-port'          => 8141
+                  'ssl-port'          => 8141,
+                  'ssl-protocols'     => 'TLSv1,TLSv1.1,TLSv1.2',
                 }
               )
             }
+            it { expect(webserver_conf_hash['webserver']['base']['cipher-suites']).to be_nil }
+            it { expect(webserver_conf_hash['webserver']['ca']['cipher-suites']).to be_nil }
+
+            context 'when setting the cipher suites' do
+              let(:params) {{
+                :ssl_cipher_suites => ['TLS_RSA_WITH_AES_256_CBC_SHA256', 'TLS_RSA_WITH_AES_128_CBC_SHA256']
+              }}
+
+              it { expect(webserver_conf_hash['webserver']['base']['cipher-suites']).to eq(params[:ssl_cipher_suites].join(',')) }
+              it { expect(webserver_conf_hash['webserver']['ca']['cipher-suites']).to eq(params[:ssl_cipher_suites].join(',')) }
+            end
+
+            context 'when setting aribtrary webserver options' do
+              let(:params) {{
+                # Simple setting override
+                :server_webserver_options => {
+                  'port' => '1212'
+                },
+                # Complex setting
+                :ca_webserver_options => {
+                  'static-content' => '[{ resource: "./web-assets", path: "/assets" }]'
+                }
+              }}
+
+              it { expect(webserver_conf_hash['webserver']['base']['port']).to eq(1212) }
+              it {
+                expect(webserver_conf_hash['webserver']['ca']['static-content']).to eq([{
+                  'resource' => './web-assets',
+                  'path'     => '/assets'
+                }])
+              }
+            end
+
+            context 'when adding new webserver sections' do
+              let(:params) {{
+                # Simple setting override
+                :extra_webserver_sections => {
+                  'bob' => {
+                    'port' => '1212',
+                    'static-content' => '[{ resource: "./web-assets", path: "/assets" }]'
+                  },
+                  'alice' => {
+                    'port' => '2345',
+                    'static-content' => '[{ resource: "./other-web-assets", path: "/other-assets" }]'
+                  }
+                }
+              }}
+
+              it { expect(webserver_conf_hash['webserver']['bob']['port']).to eq(1212) }
+              it {
+                expect(webserver_conf_hash['webserver']['bob']['static-content']).to eq([{
+                  'resource' => './web-assets',
+                  'path'     => '/assets'
+                }])
+              }
+              it { expect(webserver_conf_hash['webserver']['alice']['port']).to eq(2345) }
+              it {
+                expect(webserver_conf_hash['webserver']['alice']['static-content']).to eq([{
+                  'resource' => './other-web-assets',
+                  'path'     => '/other-assets'
+                }])
+              }
+            end
           end
 
           it 'handles `trusted_server_facts` correctly for the Puppet version' do
@@ -542,7 +607,7 @@ describe 'pupmod::master' do
           context 'with empty ssl_protocols, non-empty ssl_cipher_suites, and multiple admin_api_whitelist entries' do
             let(:params) {{
               :ssl_protocols => [],
-              :ssl_cipher_suites => ['suite1', 'suite2'],
+              :ssl_cipher_suites => ['TLS_RSA_WITH_AES_256_CBC_SHA256', 'TLS_RSA_WITH_AES_128_CBC_SHA256'],
               :admin_api_whitelist => ['foo.example.com', 'bar.example.com']
             }}
 

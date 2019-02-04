@@ -1,6 +1,6 @@
 {
   "name": "simp-pupmod",
-  "version": "7.7.1",
+  "version": "7.8.0",
   "author": "SIMP Team",
   "summary": "A puppet module to manage puppetserver and puppet agents",
   "license": "Apache-2.0",
@@ -39,7 +39,7 @@
     },
     {
       "name": "simp/incron",
-      "version_requirement": ">= 0.2.1 < 1.0.0"
+      "version_requirement": ">= 0.4.0 < 1.0.0"
     },
     {
       "name": "simp/iptables",

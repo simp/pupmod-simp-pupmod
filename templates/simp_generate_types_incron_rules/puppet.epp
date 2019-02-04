@@ -1,0 +1,6 @@
+<%- |
+  Stdlib::Absolutepath $puppet_exe,
+  Stdlib::AbsolutePath $simp_generate_types,
+  Stdlib::AbsolutePath $run_dir
+| -%>
+<%= $puppet_exe %> IN_MODIFY,IN_NO_LOOP <%= $simp_generate_types %> -s -p <%= $run_dir %>/to_process -m ALL

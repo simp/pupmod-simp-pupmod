@@ -1,4 +1,4 @@
-# This file managed by Puppet
+# This file managed by Puppet (Class[pupmod::master])
 # Any changes will be removed on the next run
 webserver: {
 <% if $pupmod::master::enable_master { -%>
@@ -11,11 +11,23 @@ webserver: {
 <%   } -%>
     ssl-crl-path: <%= $pupmod::ssldir %>/crl.pem
     ssl-ca-cert: <%= $pupmod::ssldir %>/certs/ca.pem
-    ssl-cert: <%= $pupmod::ssldir %>/certs/<%= $facts['fqdn'] %>.pem
-    ssl-key: <%= $pupmod::ssldir %>/private_keys/<%= $facts['fqdn'] %>.pem
+    ssl-cert: <%= $pupmod::master::ssldir %>/certs/<%= $facts['fqdn'] %>.pem
+    ssl-key: <%= $pupmod::master::ssldir %>/private_keys/<%= $facts['fqdn'] %>.pem
     ssl-host: <%= $pupmod::master::bind_address %>
     ssl-port: <%= $pupmod::master::masterport %>
+    ssl-protocols: "<%= join($pupmod::master::ssl_protocols,',') %>"
+<%   if $pupmod::master::ssl_cipher_suites { -%>
+    cipher-suites: "<%= join($pupmod::master::ssl_cipher_suites,',') -%>"
+<%   } -%>
     default-server: true
+<%   if $pupmod::master::server_webserver_options { -%>
+    # The following options were passed in directly by the
+    # $pupmod::master::server_webserver_options parameter and do not have any
+    # validation
+<%     $pupmod::master::server_webserver_options.each |String $key, String $value| { -%>
+    <%= $key %>: <%= $value %>
+<%     } -%>
+<%   } -%>
   }
 <% } -%>
 <% if $pupmod::master::enable_ca and ($pupmod::master::ca_port != $pupmod::master::masterport) { -%>
@@ -24,13 +36,35 @@ webserver: {
     client-auth: want
     ssl-crl-path: <%= $pupmod::ssldir %>/crl.pem
     ssl-ca-cert: <%= $pupmod::ssldir %>/certs/ca.pem
-    ssl-cert: <%= $pupmod::ssldir %>/certs/<%= $facts['fqdn'] %>.pem
-    ssl-key: <%= $pupmod::ssldir %>/private_keys/<%= $facts['fqdn'] %>.pem
+    ssl-cert: <%= $pupmod::master::ssldir %>/certs/<%= $facts['fqdn'] %>.pem
+    ssl-key: <%= $pupmod::master::ssldir %>/private_keys/<%= $facts['fqdn'] %>.pem
     ssl-host: <%= $pupmod::master::ca_bind_address %>
     ssl-port: <%= $pupmod::master::ca_port %>
+    ssl-protocols: "<%= join($pupmod::master::ssl_protocols,',') %>"
+<%   if $pupmod::master::ssl_cipher_suites { -%>
+    cipher-suites: "<%= join($pupmod::master::ssl_cipher_suites,',') -%>"
+<%   } -%>
 <%   unless $pupmod::master::enable_master { -%>
     default-server: true
 <%   } -%>
+<%   if $pupmod::master::ca_webserver_options { -%>
+    # The following options were passed in directly by the
+    # $pupmod::master::ca_webserver_options parameter and do not have any
+    # validation
+<%     $pupmod::master::ca_webserver_options.each |String $key, String $value| { -%>
+    <%= $key %>: <%= $value %>
+<%     } -%>
+<%   } -%>
   }
 <% } -%>
+<%
+  if $pupmod::master::extra_webserver_sections {
+    $pupmod::master::extra_webserver_sections.each |String $section_name, Hash $section_content| {
+-%>
+  <%= $section_name %>: {
+<%    $section_content.each |String $key, String $value| { -%>
+    <%= $key %>: <%= $value %>
+<% } -%>
+  }
+<% }} -%>
 }

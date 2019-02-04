@@ -70,7 +70,7 @@ variables:
 #-----------------------------------------------------------------------
 
 .pup_4: &pup_4
-  image: 'ruby:2.4'
+  image: 'ruby:2.1'
   variables:
     PUPPET_VERSION: '~> 4.0'
     MATRIX_RUBY_VERSION: '2.1'
