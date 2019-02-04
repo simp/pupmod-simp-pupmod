@@ -175,6 +175,8 @@ def process_paths(to_process, options)
     exit 1
   end
 
+  target_environments.sort!.uniq!
+
   # Convert each discovered environment into a hash noting the path and environment name
   target_environments.map!{|e|
     {
