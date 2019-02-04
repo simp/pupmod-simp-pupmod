@@ -88,14 +88,14 @@ def unlock(lockfile, target_pid=nil)
 
     # Don't kill yourself
     if target_pid.nil? && (pid != Process.pid)
-      fh.flock(File::LOCK_EX)
-
       # Never try to kill PID < 2!
       if pid > 1
         begin
           Process.kill(9, pid)
 
           LOG.warn("Force unlocked '#{pid}'")
+        rescue Errno::ESRCH
+          # noop: process exited while trying to kill it
         rescue => e
           LOG.warn("Attempt to kill process '#{pid}' during unlock of '#{lockfile}' failed: #{e}")
         end
@@ -103,7 +103,6 @@ def unlock(lockfile, target_pid=nil)
         File.delete(fh)
       end
     elsif target_pid == pid
-      fh.flock(File::LOCK_NB|File::LOCK_EX)
       File.delete(fh)
     end
   end
@@ -158,12 +157,16 @@ def process_paths(to_process, options)
     target_environments = environment_paths.compact
   else
     to_process.each do |path|
-      if environment_paths.include?(path) || environment_paths.any?{|env_path| path.start_with?("#{env_path}/")}
+      if environment_paths.include?(path)
         target_environments << path
+      else
+        tgt_env = environment_paths.find {|env_path| path.start_with?("#{env_path}/")}
+
+        if tgt_env
+          target_environments << tgt_env
+        end
       end
     end
-
-    to_process = to_process.sort.uniq
   end
 
   if target_environments.empty?
@@ -173,7 +176,12 @@ def process_paths(to_process, options)
   end
 
   # Convert each discovered environment into a hash noting the path and environment name
-  target_environments.map!{|e| { :path => e, :env_name => File.basename(e) }}
+  target_environments.map!{|e|
+    {
+      :path => e,
+      :env_name => File.basename(e)
+    }
+  }
 
   output = []
 
@@ -236,11 +244,12 @@ if options.message
     LOG.error("Could not open file '#{options.path}' for writing: #{e}")
   end
 elsif options.generate
-  sleep(options.delay)
-
-  wait_and_lock(WRITE_LOCK)
+  if options.delay > 0
+    sleep(rand(1..options.delay))
+  end
 
   if File.exist?(options.path)
+    wait_and_lock(WRITE_LOCK)
 
     # Read everything into memory for processing and remove the record file
     to_process = File.read(options.path)
