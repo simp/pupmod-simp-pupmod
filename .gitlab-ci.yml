@@ -69,12 +69,6 @@ variables:
 # Puppet Versions
 #-----------------------------------------------------------------------
 
-.pup_4: &pup_4
-  image: 'ruby:2.1'
-  variables:
-    PUPPET_VERSION: '~> 4.0'
-    MATRIX_RUBY_VERSION: '2.1'
-
 .pup_4_10: &pup_4_10
   image: 'ruby:2.1'
   variables:
@@ -163,7 +157,7 @@ sanity_checks:
 #-----------------------------------------------------------------------
 
 pup4-lint:
-  <<: *pup_4
+  <<: *pup_4_10
   <<: *lint_tests
 
 pup5-lint:

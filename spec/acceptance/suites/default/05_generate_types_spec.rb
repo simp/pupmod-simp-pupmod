@@ -93,11 +93,17 @@ describe 'incron driven puppet generate types'  do
         on(host, "ls #{environment_path} | wc -l")
       end
 
-      it 'should have generated types on the new environments' do
+      it 'should have generated some types on the new environments without locking the system' do
         wait_for_generate_types(host)
 
-        # This will return 0 if all environments have been generated
-        on(host, "ls #{environment_path}/testenv{1..100}/.resource_types")
+        # Success here means that the system did not lock up and at least some
+        # types were generated. The Changelog for the relevant version has been
+        # updated to cover `puppet generate types` and this is simply a
+        # stop-gap to prevent killing systems until we can get to r10k.
+
+        num_generated = on(host, "ls -d #{environment_path}/testenv{1..100}/.resource_types 2>/dev/null | wc -l", :accept_all_exit_codes => true).output.lines.last.strip.to_i
+
+        expect(num_generated).to be > 1
       end
     end
   end
