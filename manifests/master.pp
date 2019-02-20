@@ -328,55 +328,32 @@ class pupmod::master (
 
     $_conf_base = dirname($confdir)
 
-    file { $_conf_base:
+    file { '/var/log/puppetserver':
+      ensure => 'directory'
+    }
+
+    file { [$_conf_base, $confdir, $codedir, $rundir, $ssldir]:
       ensure => 'directory',
       owner  => 'root',
       group  => 'puppet',
       mode   => '0640'
     }
 
-    file { $confdir:
-      ensure => 'directory',
-      owner  => 'root',
-      group  => 'puppet',
-      mode   => '0640'
-    }
+    file {
+      default:
+        ensure  => 'file',
+        owner   => 'root',
+        group   => 'puppet',
+        mode    => '0640',
+        require => Package[$service],
+        notify  => Service[$service];
 
-    file { $codedir:
-      ensure => 'directory',
-      owner  => 'root',
-      group  => 'puppet',
-      mode   => '0640'
-    }
-
-    file { "${_conf_base}/services.d/ca.cfg":
-      ensure  => 'file',
-      owner   => 'root',
-      group   => 'puppet',
-      mode    => '0640',
-      content => epp("${module_name}/etc/puppetserver/ca.cfg"),
-      require => Package[$service],
-      notify  => Service[$service]
-    }
-
-    file { "${_conf_base}/logback.xml":
-      ensure  => 'file',
-      owner   => 'root',
-      group   => 'puppet',
-      mode    => '0640',
-      content => epp("${module_name}/etc/puppetserver/logback.xml"),
-      require => Package[$service],
-      notify  => Service[$service]
-    }
-
-    file { "${confdir}/ca.conf":
-      ensure  => 'file',
-      owner   => 'root',
-      group   => 'puppet',
-      mode    => '0640',
-      content => epp("${module_name}/etc/puppetserver/conf.d/ca.conf"),
-      require => Package[$service],
-      notify  => Service[$service]
+      "${_conf_base}/services.d/ca.cfg": content => epp("${module_name}/etc/puppetserver/ca.cfg");
+      "${_conf_base}/logback.xml":       content => epp("${module_name}/etc/puppetserver/logback.xml");
+      "${confdir}/ca.conf":              content => epp("${module_name}/etc/puppetserver/conf.d/ca.conf");
+      "${confdir}/puppetserver.conf":    content => epp("${module_name}/etc/puppetserver/conf.d/puppetserver.conf");
+      "${confdir}/web-routes.conf":      content => epp("${module_name}/etc/puppetserver/conf.d/web-routes.conf");
+      "${confdir}/webserver.conf":       content => epp("${module_name}/etc/puppetserver/conf.d/webserver.conf");
     }
 
     if $ruby_load_path {
@@ -389,36 +366,6 @@ class pupmod::master (
         require => Package[$service],
         notify  => Service[$service]
       }
-    }
-
-    file { "${confdir}/puppetserver.conf":
-      ensure  => 'file',
-      owner   => 'root',
-      group   => 'puppet',
-      mode    => '0640',
-      content => epp("${module_name}/etc/puppetserver/conf.d/puppetserver.conf"),
-      require => Package[$service],
-      notify  => Service[$service]
-    }
-
-    file { "${confdir}/web-routes.conf":
-      ensure  => 'file',
-      owner   => 'root',
-      group   => 'puppet',
-      mode    => '0640',
-      content => epp("${module_name}/etc/puppetserver/conf.d/web-routes.conf"),
-      require => Package[$service],
-      notify  => Service[$service]
-    }
-
-    file { "${confdir}/webserver.conf":
-      ensure  => 'file',
-      owner   => 'root',
-      group   => 'puppet',
-      mode    => '0640',
-      content => epp("${module_name}/etc/puppetserver/conf.d/webserver.conf"),
-      require => Package[$service],
-      notify  => Service[$service]
     }
 
     # `trusted_server_facts` deprecated in Puppet 5.0.0 (PUP-6112)

@@ -59,11 +59,29 @@ describe 'pupmod::master' do
             'mode'   => '0640'
           }) }
 
+          it { is_expected.to contain_file('/etc/puppetlabs/puppet/ssl').with({
+            'ensure' => 'directory',
+            'owner'  => 'root',
+            'group'  => 'puppet',
+            'mode'   => '0640'
+          }) }
+
+          it { is_expected.to contain_file('/var/run/puppetlabs/puppetserver').with({
+            'ensure' => 'directory',
+            'owner'  => 'root',
+            'group'  => 'puppet',
+            'mode'   => '0640'
+          }) }
+
           it { is_expected.to contain_file('/etc/puppetlabs/code').with({
             'ensure' => 'directory',
             'owner'  => 'root',
             'group'  => 'puppet',
             'mode'   => '0640'
+          }) }
+
+          it { is_expected.to contain_file('/var/log/puppetserver').with({
+            'ensure' => 'directory',
           }) }
 
           it { is_expected.to contain_file(ca_cfg).with({
