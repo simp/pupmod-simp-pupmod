@@ -25,7 +25,7 @@
 #   NOTE: This parameter is deprecated and throws a warning if specified.
 #
 # @param certname
-#   The puppet environment name of the system.
+#   The puppet certificate CN name of the system.
 #
 #   See http://docs.puppetlabs.com/references/latest/configuration.html for
 #   additional details.
@@ -134,6 +134,9 @@
 # @param package_ensure
 #   String used to specify 'latest', 'installed', or a specific version of the puppet-agent package
 #
+# @param set_environment
+#   Set the environment on the system to the currently running environment
+#
 # @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 class pupmod (
@@ -167,6 +170,7 @@ class pupmod (
   Boolean                                $firewall             = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Hash                                   $pe_classlist         = {},
   String[1]                              $package_ensure       = simplib::lookup('simp_options::package_ensure' , { 'default_value' => 'installed'}),
+  Boolean                                $set_environment      = true,
   Boolean                                $mock                 = false
 ) inherits pupmod::params {
   unless ($mock == true) {
@@ -254,12 +258,6 @@ class pupmod (
     }
     Pupmod::Pass_two <| |>
 
-    pupmod::conf { 'splay':
-      confdir => $confdir,
-      setting => 'splay',
-      value   => $splay
-    }
-
     if !empty($splaylimit) {
       pupmod::conf { 'splaylimit':
         confdir => $confdir,
@@ -268,76 +266,56 @@ class pupmod (
       }
     }
 
-    pupmod::conf { 'syslogfacility':
-      confdir => $confdir,
-      setting => 'syslogfacility',
-      value   => $syslogfacility
+    if $set_environment and $environment != 'bolt_catalog' {
+      pupmod::conf { 'environment':
+        confdir => $confdir,
+        setting => 'environment',
+        value   => $environment
+      }
     }
 
-    pupmod::conf { 'srv_domain':
-      confdir => $confdir,
-      setting => 'srv_domain',
-      value   => $srv_domain
-    }
+    pupmod::conf {
+      default: confdir => $confdir;
 
-    pupmod::conf { 'certname':
-      confdir => $confdir,
-      setting => 'certname',
-      value   => $certname
-    }
-
-    pupmod::conf { 'vardir':
-      confdir => $confdir,
-      setting => 'vardir',
-      value   => $vardir
-    }
-
-    pupmod::conf { 'classfile':
-      confdir => $confdir,
-      setting => 'classfile',
-      value   => $classfile
-    }
-
-    pupmod::conf { 'confdir':
-      confdir => $confdir,
-      setting => 'confdir',
-      value   => $confdir,
-    }
-
-    pupmod::conf { 'logdir':
-      confdir => $confdir,
-      setting => 'logdir',
-      value   => $logdir
-    }
-
-    pupmod::conf { 'rundir':
-      confdir => $confdir,
-      setting => 'rundir',
-      value   => $rundir
-    }
-
-    pupmod::conf { 'runinterval':
-      confdir => $confdir,
-      setting => 'runinterval',
-      value   => $runinterval
-    }
-
-    pupmod::conf { 'ssldir':
-      confdir => $confdir,
-      setting => 'ssldir',
-      value   => $ssldir
-    }
-
-    pupmod::conf { 'stringify_facts':
-      confdir => $confdir,
-      setting => 'stringify_facts',
-      value   => false
-    }
-
-    pupmod::conf { 'digest_algorithm':
-      confdir => $confdir,
-      setting => 'digest_algorithm',
-      value   => $digest_algorithm
+      'splay':
+        setting => 'splay',
+        value   => $splay;
+      'syslogfacility':
+        setting => 'syslogfacility',
+        value   => $syslogfacility;
+      'srv_domain':
+        setting => 'srv_domain',
+        value   => $srv_domain;
+      'certname':
+        setting => 'certname',
+        value   => $certname;
+      'vardir':
+        setting => 'vardir',
+        value   => $vardir;
+      'classfile':
+        setting => 'classfile',
+        value   => $classfile;
+      'confdir':
+        setting => 'confdir',
+        value   => $confdir,;
+      'logdir':
+        setting => 'logdir',
+        value   => $logdir;
+      'rundir':
+        setting => 'rundir',
+        value   => $rundir;
+      'runinterval':
+        setting => 'runinterval',
+        value   => $runinterval;
+      'ssldir':
+        setting => 'ssldir',
+        value   => $ssldir;
+      'stringify_facts':
+        setting => 'stringify_facts',
+        value   => false;
+      'digest_algorithm':
+        setting => 'digest_algorithm',
+        value   => $digest_algorithm;
     }
 
     # This is to allow the hosts to boot faster.  It should probably be
