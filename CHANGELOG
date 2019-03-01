@@ -1,3 +1,9 @@
+* Fri Mar 08 2019 Nick Miller <nick.miller@onyxpoint.com> - 7.9.0-0
+- Added Puppet 6 support
+- Add management of $ssldir and $rundir
+- Ensure that the puppet client environment is set to that which is provided by
+  the server by default.
+
 * Thu Mar 07 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 7.9.0-0
 - Add fact to list all the jruby jar files in the puppetserver installation
   directory.
@@ -13,9 +19,6 @@
   ini_setting type
 - Expanded the upper limit of the concat and stdlib Puppet module versions
 - Updated a URL in the README.md
-
-* Wed Feb 20 2019 Nick Miller <nick.miller@onyxpoint.com> - 7.9.0-0
-- Add management of $ssldir, $rundir, and /var/log/puppetserver
 
 * Fri Jan 25 2019 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.8.0-0
 - Fixed issues with incron rules and the simp_generate_types calls.

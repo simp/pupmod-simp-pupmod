@@ -266,7 +266,7 @@ class pupmod (
       }
     }
 
-    if $set_environment and $environment != 'bolt_catalog' {
+    if $set_environment and ( ! simplib::in_bolt() ) {
       pupmod::conf { 'environment':
         confdir => $confdir,
         setting => 'environment',
@@ -348,4 +348,3 @@ class pupmod (
   # parameter is removed.
   cron { 'puppet_crl_pull': ensure => 'absent' }
 }
-# vim: set expandtab ts=2 sw=2:
