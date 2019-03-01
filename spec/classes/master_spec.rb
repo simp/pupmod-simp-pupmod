@@ -80,10 +80,6 @@ describe 'pupmod::master' do
             'mode'   => '0640'
           }) }
 
-          it { is_expected.to contain_file('/var/log/puppetserver').with({
-            'ensure' => 'directory',
-          }) }
-
           it { is_expected.to contain_file(ca_cfg).with({
             'ensure'  => 'file',
             'owner'   => 'root',

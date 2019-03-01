@@ -328,10 +328,6 @@ class pupmod::master (
 
     $_conf_base = dirname($confdir)
 
-    file { '/var/log/puppetserver':
-      ensure => 'directory'
-    }
-
     file { [$_conf_base, $confdir, $codedir, $rundir, $ssldir]:
       ensure => 'directory',
       owner  => 'root',
