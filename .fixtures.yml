@@ -9,11 +9,7 @@ fixtures:
     incron: https://github.com/simp/pupmod-simp-incron
     inifile: https://github.com/simp/puppetlabs-inifile
     iptables: https://github.com/simp/pupmod-simp-iptables
-    concat:
-      # master is beyond 4.1.1, but has breaking changes to
-      # how fragments are ordered (MODULES-6625)
-      repo: https://github.com/simp/puppetlabs-concat
-      ref: 4.1.1
+    concat: https://github.com/simp/puppetlabs-concat
     simplib: https://github.com/simp/pupmod-simp-simplib
     stdlib: https://github.com/simp/puppetlabs-stdlib
     pam: https://github.com/simp/pupmod-simp-pam
@@ -22,7 +18,7 @@ fixtures:
       ref: 0.3.0
     puppet_authorization:
       repo: https://github.com/simp/puppetlabs-puppet_authorization
-      ref: 0.4.0
+      ref: 0.5.0
 
     # Fixtures needed for the acceptance test
     augeasproviders_ssh: https://github.com/simp/augeasproviders_ssh
