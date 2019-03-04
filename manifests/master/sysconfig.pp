@@ -67,8 +67,8 @@ class pupmod::master::sysconfig (
   Integer                        $start_timeout        = 120,
   Simplib::ServerDistribution    $server_distribution  = 'PC1',
   String                         $service              = $server_distribution ? { 'PE' => 'pe-puppetserver', default => 'puppetserver'},
-  String                         $user                 = 'puppet',
-  String                         $group                = 'puppet',
+  String                         $user                 = $facts['puppet_settings']['master']['user'],
+  String                         $group                = $facts['puppet_settings']['master']['group'],
   Boolean                        $mock                 = false
 ) inherits pupmod {
   unless (mock == true) {
@@ -106,7 +106,7 @@ class pupmod::master::sysconfig (
     else {
       file { "/etc/sysconfig/${service}":
         owner   => 'root',
-        group   => 'puppet',
+        group   => $group,
         mode    => '0640',
         content => epp("${module_name}/etc/sysconfig/puppetserver"),
         notify  => Service[$service]

@@ -18,7 +18,7 @@ define pupmod::master::autosign (
   ensure_resource('concat', "${pupmod::confdir}/autosign.conf", {
     'ensure' => 'present',
     'owner'  => 'root',
-    'group'  => 'puppet',
+    'group'  => $facts['puppet_settings']['master']['group'],
     'mode'   => '0640',
     'notify' => Service[$::pupmod::master::service]
   })
