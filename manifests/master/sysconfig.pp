@@ -19,6 +19,10 @@
 # @param java_max_memory
 #   The maximum amount of memory to allocate within the system.
 #
+# @param jruby9k
+#   Whether to use jruby9k for foss puppet server. (Does not affect PE.)
+# @see https://puppet.com/docs/puppetserver/5.0/configuration.html#enabling-jruby-9k:
+#
 # @param java_temp_dir
 #   The temporary directory to be used for periodic executables.
 #
@@ -62,6 +66,7 @@ class pupmod::master::sysconfig (
   Optional[Pupmod::Memory]       $java_start_memory    = undef,
   Pupmod::Memory                 $java_max_memory      = '50%',
   Optional[Stdlib::AbsolutePath] $java_temp_dir        = undef,
+  Boolean                        $jruby9k              = true,
   Optional[Array[String]]        $extra_java_args      = undef,
   Integer                        $service_stop_retries = 60,
   Integer                        $start_timeout        = 120,
@@ -87,6 +92,8 @@ class pupmod::master::sysconfig (
       mode   => '0750'
     }
 
+
+
     if ($server_distribution == 'PE') {
       if (has_key($facts, 'pe_build')) {
         if (SemVer($facts['pe_build']) < SemVer('2016.4.0')) {
@@ -104,6 +111,12 @@ class pupmod::master::sysconfig (
       }
     }
     else {
+      # If set to use jruby9k only use if file exists
+      $_use_jruby9k =  $jruby9k  ? {
+        true    =>  $facts['jruby9k_exists'],
+        default => false
+      }
+
       file { "/etc/sysconfig/${service}":
         owner   => 'root',
         group   => $group,
