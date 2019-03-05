@@ -353,7 +353,7 @@ class pupmod::master (
       default:
         ensure  => 'file',
         owner   => 'root',
-        group  => $facts['puppet_settings']['master']['group'],
+        group   => $facts['puppet_settings']['master']['group'],
         mode    => '0640',
         require => Package[$service],
         notify  => Service[$service];
@@ -370,7 +370,7 @@ class pupmod::master (
       file { "${confdir}/os-settings.conf":
         ensure  => 'file',
         owner   => 'root',
-        group  => $facts['puppet_settings']['master']['group'],
+        group   => $facts['puppet_settings']['master']['group'],
         mode    => '0640',
         content => epp("${module_name}/etc/puppetserver/conf.d/os-settings.conf"),
         require => Package[$service],
