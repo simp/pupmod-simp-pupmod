@@ -20,7 +20,7 @@ define pupmod::master::fileserver_entry (
   ensure_resource('concat', "${pupmod::confdir}/fileserver.conf", {
     'ensure' => 'present',
     'owner'  => 'root',
-    'group'  => 'puppet',
+    'group'  => $facts['puppet_settings']['master']['group'],
     'mode'   => '0640',
     'notify' => Service[$::pupmod::master::service]
   })

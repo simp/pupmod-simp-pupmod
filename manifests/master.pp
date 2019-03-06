@@ -308,6 +308,8 @@ class pupmod::master (
 ) inherits ::pupmod {
 
   $_server_version = pupmod::server_version()
+  $_puppet_user = $facts['puppet_settings']['master']['user']
+  $_puppet_group = $facts['puppet_settings']['master']['group']
 
   if ($mock == false) {
     $service = $server_distribution ? {
@@ -328,18 +330,32 @@ class pupmod::master (
 
     $_conf_base = dirname($confdir)
 
-    file { [$_conf_base, $confdir, $codedir, $rundir, $ssldir]:
+    file { [$_conf_base, $confdir, $codedir]:
       ensure => 'directory',
       owner  => 'root',
-      group  => 'puppet',
+      group  => $_puppet_group,
       mode   => '0640'
+    }
+
+    # Mode is managed by puppet itself
+    file { $rundir:
+      ensure => 'directory',
+      owner  => $_puppet_user,
+      group  => $_puppet_group
+    }
+
+    # Mode is managed by puppet itself
+    file { $ssldir:
+      ensure => 'directory',
+      owner  => $_puppet_user,
+      group  => $_puppet_group
     }
 
     file {
       default:
         ensure  => 'file',
         owner   => 'root',
-        group   => 'puppet',
+        group   => $_puppet_group,
         mode    => '0640',
         require => Package[$service],
         notify  => Service[$service];
@@ -356,7 +372,7 @@ class pupmod::master (
       file { "${confdir}/os-settings.conf":
         ensure  => 'file',
         owner   => 'root',
-        group   => 'puppet',
+        group   => $_puppet_group,
         mode    => '0640',
         content => epp("${module_name}/etc/puppetserver/conf.d/os-settings.conf"),
         require => Package[$service],

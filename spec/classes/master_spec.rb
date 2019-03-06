@@ -61,16 +61,14 @@ describe 'pupmod::master' do
 
           it { is_expected.to contain_file('/etc/puppetlabs/puppet/ssl').with({
             'ensure' => 'directory',
-            'owner'  => 'root',
-            'group'  => 'puppet',
-            'mode'   => '0640'
+            'owner'  => 'puppet',
+            'group'  => 'puppet'
           }) }
 
           it { is_expected.to contain_file('/var/run/puppetlabs/puppetserver').with({
             'ensure' => 'directory',
-            'owner'  => 'root',
-            'group'  => 'puppet',
-            'mode'   => '0640'
+            'owner'  => 'puppet',
+            'group'  => 'puppet'
           }) }
 
           it { is_expected.to contain_file('/etc/puppetlabs/code').with({

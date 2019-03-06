@@ -18,7 +18,7 @@ class pupmod::master::base {
   file { $::pupmod::master::environmentpath:
     ensure       => 'directory',
     owner        => 'root',
-    group        => 'puppet',
+    group        => $facts['puppet_settings']['master']['group'],
     mode         => 'u=rwx,g=rwx,o-rwx',
     recurse      => true,
     recurselimit => 1
