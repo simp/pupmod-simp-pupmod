@@ -53,7 +53,6 @@ class pupmod::master::base {
 
   package { $::pupmod::master::service:
     ensure => $::pupmod::master::package_ensure,
-    before => File[$::pupmod::confdir],
     notify => Service[$::pupmod::master::service]
   }
 

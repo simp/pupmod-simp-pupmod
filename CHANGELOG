@@ -1,3 +1,9 @@
+* Wed Mar 06 2019 Liz Nemsick <lnemsick.simp@gmail.com> - 7.8.1-0
+- Update minimum version of inifile Puppet module to 2.5.0
+- Fix dependency cycle in a full SIMP system that was introduced by
+  the new autorequire of the parent directory of an INI file in the
+  ini_setting type
+
 * Wed Feb 20 2019 Nick Miller <nick.miller@onyxpoint.com> - 7.8.1-0
 - Add management of $ssldir, $rundir, and /var/log/puppetserver
 
