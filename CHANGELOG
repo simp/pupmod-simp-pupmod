@@ -1,3 +1,7 @@
+* Thu Mar 07 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 7.9.0-0
+- Update the default Jruby instance for puppetserver  opensource to jruby 9k.
+- Allow to select the old version if desired.
+
 * Wed Mar 06 2019 Liz Nemsick <lnemsick.simp@gmail.com> - 7.8.1-0
 - Update minimum version of inifile Puppet module to 2.5.0
 - Fix dependency cycle in a full SIMP system that was introduced by
