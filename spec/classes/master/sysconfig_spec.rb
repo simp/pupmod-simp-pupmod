@@ -52,7 +52,12 @@ describe 'pupmod::master::sysconfig' do
               let(:params) { default_params }
               let(:facts){ @extras.merge(os_facts).merge({
                 :memorysize_mb => '490.16',
-                :jruby9k_exists => true } )}
+                :puppetserver_jruby => {
+                  'dir' => '/opt/puppetlabs/server/apps/puppetserver',
+                  'jarfiles' => ['x.jar','y.jar', 'jruby-9k.jar']
+                  }
+                 })
+              }
               it do
                 puppetserver_content = File.read("#{File.dirname(__FILE__)}/data/puppetserver-j9.txt")
                 puppetserver_content.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
@@ -80,7 +85,12 @@ describe 'pupmod::master::sysconfig' do
               let(:params) { default_params }
               let(:facts){ @extras.merge(os_facts).merge({
                 :memorysize_mb => '490.16',
-                :jruby9k_exists => false } )}
+                :puppetserver_jruby => {
+                  'dir' => '/opt/puppetlabs/server/apps/puppetserver',
+                  'jarfiles' => ['x.jar','y.jar']
+                  }
+                })
+              }
               it do
                 puppetserver_content_without_jruby.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
                   File.dirname(facts[:puppet_settings][:master][:server_datadir]))
@@ -94,8 +104,24 @@ describe 'pupmod::master::sysconfig' do
               end
             end
 
-            context 'set jruby9k to false' do
-              let(:params) { default_params.merge({:jruby9k => false}) }
+            context 'set jrubyjar set to default ' do
+              let(:params) { default_params.merge({:jruby_jar => 'default'}) }
+              let(:facts){ @extras.merge(os_facts).merge(:memorysize_mb => '490.16') }
+
+              it do
+                puppetserver_content_without_jruby.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
+                  File.dirname(facts[:puppet_settings][:master][:server_datadir]))
+
+                is_expected.to contain_file('/etc/sysconfig/puppetserver').with( {
+                  'owner'   => 'root',
+                  'group'   => 'puppet',
+                  'mode'    => '0640',
+                  'content' => puppetserver_content_without_jruby
+                } )
+              end
+            end
+            context 'set jruby jar set and no fact ' do
+              let(:params) { default_params.merge({:jruby_jar => 'x.jar'}) }
               let(:facts){ @extras.merge(os_facts).merge(:memorysize_mb => '490.16') }
 
               it do

@@ -19,8 +19,9 @@
 # @param java_max_memory
 #   The maximum amount of memory to allocate within the system.
 #
-# @param jruby9k
-#   Whether to use jruby9k for foss puppet server. (Does not affect PE.)
+# @param jruby_jar
+#   The name of the jar file located in /opt/puppetlabs/apps/puppetserver
+# to use. To use the default enter 'default'. (Does not affect PE.)
 # @see https://puppet.com/docs/puppetserver/5.0/configuration.html#enabling-jruby-9k:
 #
 # @param java_temp_dir
@@ -66,7 +67,7 @@ class pupmod::master::sysconfig (
   Optional[Pupmod::Memory]       $java_start_memory    = undef,
   Pupmod::Memory                 $java_max_memory      = '50%',
   Optional[Stdlib::AbsolutePath] $java_temp_dir        = undef,
-  Boolean                        $jruby9k              = true,
+  String                         $jruby_jar            = 'jruby-9k.jar',
   Optional[Array[String]]        $extra_java_args      = undef,
   Integer                        $service_stop_retries = 60,
   Integer                        $start_timeout        = 120,
@@ -111,10 +112,15 @@ class pupmod::master::sysconfig (
       }
     }
     else {
-      # If set to use jruby9k only use if file exists
-      $_use_jruby9k =  $jruby9k  ? {
-        true    =>  $facts['jruby9k_exists'],
-        default => false
+      # Use alternate jruby file  only if file exists
+      # in the installation directory defined in the puppetserver_jruby fact.
+      if $jruby_jar != 'default' and $facts['puppetserver_jruby'] {
+        $_jruby_jar = member($facts['puppetserver_jruby']['jarfiles'], $jruby_jar) ? {
+          true  => "${facts['puppetserver_jruby']['dir']}/${jruby_jar}",
+          false => 'default'
+        }
+      } else {
+        $_jruby_jar = 'default'
       }
 
       file { "/etc/sysconfig/${service}":
