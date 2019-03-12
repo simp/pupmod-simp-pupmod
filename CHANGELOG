@@ -1,9 +1,10 @@
 * Thu Mar 07 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 7.9.0-0
-- Add fact to list all the jruby jar files in the installtion directory/
-- Allow user to change the jar file used to run puppet by indicationg the
-  jar file they want to use.
+- Add fact to list all the jruby jar files in the puppetserver installation
+  directory.
+- Allow user to change the jar file used to run puppetserver via 
+  pupmod::master::sysconfig::jruby_jar.
 - Change the default jar file for puppetserver to jruby-9k.jar for
-  foss server.  (It is already set to that for PE.)
+  the FOSS puppetserver.  (It is already set to that for PE.)
 
 * Wed Mar 06 2019 Liz Nemsick <lnemsick.simp@gmail.com> - 7.9.0-0
 - Update minimum version of inifile Puppet module to 2.5.0
