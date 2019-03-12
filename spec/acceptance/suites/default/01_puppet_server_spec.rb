@@ -59,8 +59,9 @@ describe 'install environment via r10k and puppetserver' do
         apply_manifest_on(master, master_manifest, :catch_changes => true )
       end
 
-      it 'should be able to run puppet on itself' do
-        on(master, 'puppet agent -t')
+      it 'should be running jruby 9' do
+        result = on(master, 'puppetserver ruby --version')
+        expect(result.stdout).to include('jruby 9')
       end
     end
   end

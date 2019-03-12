@@ -1,4 +1,12 @@
-* Wed Mar 06 2019 Liz Nemsick <lnemsick.simp@gmail.com> - 7.8.1-0
+* Thu Mar 07 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 7.9.0-0
+- Add fact to list all the jruby jar files in the puppetserver installation
+  directory.
+- Allow user to change the jar file used to run puppetserver via 
+  pupmod::master::sysconfig::jruby_jar.
+- Change the default jar file for puppetserver to jruby-9k.jar for
+  the FOSS puppetserver.  (It is already set to that for PE.)
+
+* Wed Mar 06 2019 Liz Nemsick <lnemsick.simp@gmail.com> - 7.9.0-0
 - Update minimum version of inifile Puppet module to 2.5.0
 - Fix dependency cycle in a full SIMP system that was introduced by
   the new autorequire of the parent directory of an INI file in the
@@ -6,7 +14,7 @@
 - Expanded the upper limit of the concat and stdlib Puppet module versions
 - Updated a URL in the README.md
 
-* Wed Feb 20 2019 Nick Miller <nick.miller@onyxpoint.com> - 7.8.1-0
+* Wed Feb 20 2019 Nick Miller <nick.miller@onyxpoint.com> - 7.9.0-0
 - Add management of $ssldir, $rundir, and /var/log/puppetserver
 
 * Fri Jan 25 2019 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.8.0-0
