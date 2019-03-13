@@ -13,7 +13,6 @@
 # PE 2019.0     6.0      2.5.1  2019-08-31^^^
 #
 # *** = Modules created for SIMP 6.3+ are not required to support Puppet < 5.5
-# ^^^ = SIMP doesn't support 6 yet; tests are info-only and allowed to fail
 
 ---
 language: ruby
@@ -44,9 +43,6 @@ global:
   - STRICT_VARIABLES=yes
 
 jobs:
-  allow_failures:
-    - name: 'Latest Puppet 6.x (allowed to fail)'
-
   include:
     - stage: check
       name: 'Syntax, style, and validation checks'
@@ -91,7 +87,7 @@ jobs:
         - bundle exec rake spec
 
     - stage: spec
-      name: 'Latest Puppet 6.x (allowed to fail)'
+      name: 'Latest Puppet 6.x'
       rvm: 2.5.1
       env: PUPPET_VERSION="~> 6.0"
       script:

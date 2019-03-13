@@ -14,7 +14,6 @@
 # PE 2019.0     6.0      2.5.1  2019-08-31^^^
 #
 # *** = Modules created for SIMP 6.3+ are not required to support Puppet < 5.5
-# ^^^ = SIMP doesn't support 6 yet; tests are info-only and allowed to fail
 ---
 stages:
   - 'sanity'
@@ -97,7 +96,6 @@ variables:
     MATRIX_RUBY_VERSION: '2.4'
 
 .pup_6: &pup_6
-  allow_failure: true
   image: 'ruby:2.5'
   variables:
     PUPPET_VERSION: '~> 6.0'

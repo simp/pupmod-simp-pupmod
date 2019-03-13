@@ -42,6 +42,13 @@ describe 'pupmod' do
               'value' => false
             }) }
             it { is_expected.not_to contain_pupmod__conf('splaylimit') }
+
+            it { is_expected.to contain_pupmod__conf('environment').with({
+              'section' => 'main',
+              'setting' => 'environment',
+              'value' => 'rp_env'
+            }) }
+
             it { is_expected.to contain_pupmod__conf('syslogfacility').with({
               'setting' => 'syslogfacility',
               'value' => 'local6'
@@ -165,6 +172,11 @@ describe 'pupmod' do
                 it { is_expected.not_to contain_selboolean('puppetagent_manage_all_files') }
               end
             end
+
+            context 'running from bolt' do
+              let(:environment) { 'bolt_catalog'}
+              it { is_expected.not_to contain_pupmod__conf('environment') }
+            end
           end
 
           describe "with non-default parameters" do
@@ -200,6 +212,10 @@ describe 'pupmod' do
               it { is_expected.to contain_ini_setting("pupmod_splaylimit") }
             end
 
+            context 'with set_environment disabled' do
+              let(:params) {{ :set_environment => false }}
+              it { is_expected.not_to contain_pupmod__conf('environment') }
+            end
           end
         end
       end
