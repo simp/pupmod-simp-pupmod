@@ -121,18 +121,18 @@
 #   }
 #
 class pupmod::agent::cron (
-  Integer[0]            $interval           = 30,
-  String                $minute_base        = $facts['ipaddress'],
-  Integer[0]            $run_timeframe      = 60,
-  Integer[0]            $runs_per_timeframe = 2,
-  Variant[Array,String] $minute             = 'ip_mod',
-  Variant[Array,String] $hour               = '*',
-  Variant[Array,String] $monthday           = '*',
-  Variant[Array,String] $month              = '*',
-  Variant[Array,String] $weekday            = '*',
-  Integer[1]            $maxruntime         = 240,
-  Boolean               $break_puppet_lock  = true,
-  Optional[Integer[1]]  $max_disable_time   = undef
+  Integer[0]                              $interval           = 30,
+  String                                  $minute_base        = $facts['ipaddress'],
+  Integer[0]                              $run_timeframe      = 60,
+  Integer[0]                              $runs_per_timeframe = 2,
+  Variant[Simplib::Cron::Minute,String]   $minute             = 'ip_mod',
+  Variant[Simplib::Cron::Hour,String]     $hour               = '*',
+  Variant[Simplib::Cron::MonthDay,String] $monthday           = '*',
+  Variant[Simplib::Cron::Month,String]    $month              = '*',
+  Variant[Simplib::Cron::Weekday,String]  $weekday            = '*',
+  Integer[1]                              $maxruntime         = 240,
+  Boolean                                 $break_puppet_lock  = true,
+  Optional[Integer[1]]                    $max_disable_time   = undef
 ) {
 
   include '::pupmod'
