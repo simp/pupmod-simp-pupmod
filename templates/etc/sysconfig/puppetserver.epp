@@ -24,6 +24,7 @@ JAVA_BIN="<%= $pupmod::master::sysconfig::java_bin %>"
 
 # Modify this if you'd like to change the memory allocation, enable JMX, etc
 JAVA_ARGS="-Xms<%= $java_start_memory %> -Xmx<%= $java_max_memory %> -Djava.io.tmpdir=<%= $pupmod::master::sysconfig::_java_temp_dir %> <%= $extra_java_args %>"
+JAVA_ARGS_CLI="-Xms<%= $java_start_memory %> -Xmx<%= $java_max_memory %> -Djava.io.tmpdir=<%= $pupmod::master::sysconfig::_java_temp_dir %> <%= $extra_java_args %>"
 
 <% if $pupmod::master::sysconfig::_jruby_jar != 'default' { -%>
 JRUBY_JAR="<%= $pupmod::master::sysconfig::_jruby_jar %>"
