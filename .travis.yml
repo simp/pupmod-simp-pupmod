@@ -37,7 +37,9 @@ addons:
 
 before_install:
   - rm -f Gemfile.lock
-  - gem install -v '~> 1.16' bundler
+  - gem install -v '~> 1.14' bundler
+  - gem uninstall -i /home/travis/.rvm/gems/ruby-2.4.4@global -v '>= 1.15' bundler || true
+  - gem uninstall -i /home/travis/.rvm/gems/ruby-2.5.1@global -v '>= 1.15' bundler || true
 
 global:
   - STRICT_VARIABLES=yes
