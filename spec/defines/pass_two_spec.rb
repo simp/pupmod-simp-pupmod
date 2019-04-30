@@ -209,10 +209,12 @@ describe 'pupmod::pass_two' do
                       let (:facts) do
                         { "pe_build" => pe_version }.merge(facts)
                       end
-                      if (tmpdir == true)
-                        it { is_expected.to contain_pe_ini_subsetting("pupmod::master::sysconfig::javatempdir")}
-                      else
-                        it { is_expected.to_not contain_pe_ini_subsetting("pupmod::master::sysconfig::javatempdir")}
+                      ['JAVA_ARGS', 'JAVA_ARGS_CLI'].each do |setting|
+                        if (tmpdir == true)
+                          it { is_expected.to contain_pe_ini_subsetting("pupmod::master::sysconfig::javatempdir for #{setting}")}
+                        else
+                          it { is_expected.to_not contain_pe_ini_subsetting("pupmod::master::sysconfig::javatempdir for #{setting}")}
+                        end
                       end
                     end
                   end

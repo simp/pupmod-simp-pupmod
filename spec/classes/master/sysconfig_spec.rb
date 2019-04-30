@@ -42,10 +42,13 @@ describe 'pupmod::master::sysconfig' do
             }
 
             it 'sets $tmpdir via a pe_ini_subsetting resource' do
-              expect(catalogue).to contain_pe_ini_subsetting('pupmod::master::sysconfig::javatempdir').with(
-                'value' => %r{/pserver_tmp$},
-                'path'  => '/etc/sysconfig/pe-puppetserver',
-              )
+              ['JAVA_ARGS', 'JAVA_ARGS_CLI'].each do |setting|
+                expect(catalogue).to contain_pe_ini_subsetting("pupmod::master::sysconfig::javatempdir for #{setting}").with(
+                  'path'    => '/etc/sysconfig/pe-puppetserver',
+                  'setting' => setting,
+                  'value'   => %r{/pserver_tmp$},
+                )
+              end
             end
           else
             context 'on PC1 with default params' do
