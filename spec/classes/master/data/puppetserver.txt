@@ -3,6 +3,7 @@ JAVA_BIN="/usr/bin/java"
 
 # Modify this if you'd like to change the memory allocation, enable JMX, etc
 JAVA_ARGS="-Xms245m -Xmx245m -Djava.io.tmpdir=%PUPPETSERVER_JAVA_TMPDIR_ROOT%/pserver_tmp "
+JAVA_ARGS_CLI="-Xms245m -Xmx245m -Djava.io.tmpdir=%PUPPETSERVER_JAVA_TMPDIR_ROOT%/pserver_tmp "
 
 # These normally shouldn't need to be edited if using OS packages
 USER="puppet"

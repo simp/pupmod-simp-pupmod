@@ -98,15 +98,17 @@ class pupmod::master::sysconfig (
     if ($server_distribution == 'PE') {
       if (has_key($facts, 'pe_build')) {
         if (SemVer($facts['pe_build']) < SemVer('2016.4.0')) {
-          pe_ini_subsetting { 'pupmod::master::sysconfig::javatempdir':
-            path              => '/etc/sysconfig/pe-puppetserver',
-            section           => '',
-            setting           => 'JAVA_ARGS',
-            subsetting        => '-Djava.io.tmpdir',
-            quote_char        => '"',
-            value             => "=${_java_temp_dir}",
-            key_val_separator => '=',
-            notify            => Service[$service],
+          ['JAVA_ARGS', 'JAVA_ARGS_CLI'].each |String $setting| {
+            pe_ini_subsetting { "pupmod::master::sysconfig::javatempdir for ${setting}":
+              path              => '/etc/sysconfig/pe-puppetserver',
+              section           => '',
+              setting           => $setting,
+              subsetting        => '-Djava.io.tmpdir',
+              quote_char        => '"',
+              value             => "=${_java_temp_dir}",
+              key_val_separator => '=',
+              notify            => Service[$service],
+            }
           }
         }
       }
