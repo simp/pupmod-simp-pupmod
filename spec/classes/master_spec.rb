@@ -184,6 +184,11 @@ describe 'pupmod::master' do
               puppetserver_tgt_hash = {
                 'ruby-load-path'                  => [ '/opt/puppetlabs/puppet/lib/ruby/vendor_ruby' ],
                 'gem-home'                        => '/opt/puppetlabs/server/data/puppetserver/jruby-gems',
+                'gem-path'                        => [
+                  '/opt/puppetlabs/server/data/puppetserver/jruby-gems',
+                  '/opt/puppetlabs/server/data/puppetserver/vendored-jruby-gems',
+                  '/opt/puppetlabs/puppet/lib/ruby/vendor_gems',
+                ],
                 'master-conf-dir'                 => '/etc/puppetlabs/puppet',
                 'master-code-dir'                 => '/etc/puppetlabs/code',
                 'master-run-dir'                  => '/var/run/puppetlabs/puppetserver',

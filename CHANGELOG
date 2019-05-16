@@ -1,3 +1,7 @@
+* Fri May 17 2019 Robert Vincent <robert.vincent@conning.com> - 7.10.1-0
+- Add missing gem-path setting to puppetserver.conf templae.
+
+
 * Mon Mar 25 2019 Joseph Sharkey <shark.bruhaha@gmail.com> - 7.10.0-0
 - Standardized cron datatypes to use the Simplib::Cron::### types.  This
   allows more flexibility in cron scheduling.
