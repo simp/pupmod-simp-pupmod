@@ -48,7 +48,7 @@ jobs:
   include:
     - stage: check
       name: 'Syntax, style, and validation checks'
-      rvm: 2.4.4
+      rvm: 2.4.5
       env: PUPPET_VERSION="~> 5.5"
       script:
         - bundle exec rake check:dot_underscore
@@ -61,21 +61,14 @@ jobs:
         - bundle exec puppet module build
 
     - stage: spec
-      name: 'Puppet 4.10 (SIMP 6.2, PE 2016.4)'
-      rvm: 2.1.9
-      env: PUPPET_VERSION="~> 4.10.0"
-      script:
-        - bundle exec rake spec
-
-    - stage: spec
       name: 'Puppet 5.3 (PE 2017.3)'
-      rvm: 2.4.4
+      rvm: 2.4.5
       env: PUPPET_VERSION="~> 5.3.0"
       script:
         - bundle exec rake spec
 
     - stage: spec
-      rvm: 2.4.4
+      rvm: 2.4.5
       name: 'Puppet 5.5 (SIMP 6.3, PE 2018.1)'
       env: PUPPET_VERSION="~> 5.5.0"
       script:
@@ -83,7 +76,7 @@ jobs:
 
     - stage: spec
       name: 'Latest Puppet 5.x'
-      rvm: 2.4.4
+      rvm: 2.4.5
       env: PUPPET_VERSION="~> 5.0"
       script:
         - bundle exec rake spec
@@ -96,7 +89,7 @@ jobs:
         - bundle exec rake spec
 
     - stage: deploy
-      rvm: 2.4.4
+      rvm: 2.4.5
       script:
         - true
       before_deploy:
