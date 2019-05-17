@@ -1,7 +1,6 @@
 * Fri May 17 2019 Robert Vincent <robert.vincent@conning.com> - 7.10.1-0
 - Add missing gem-path setting to puppetserver.conf templae.
 
-
 * Mon Mar 25 2019 Joseph Sharkey <shark.bruhaha@gmail.com> - 7.10.0-0
 - Standardized cron datatypes to use the Simplib::Cron::### types.  This
   allows more flexibility in cron scheduling.
@@ -15,7 +14,7 @@
 * Thu Mar 07 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 7.9.0-0
 - Add fact to list all the jruby jar files in the puppetserver installation
   directory.
-- Allow user to change the jar file used to run puppetserver via 
+- Allow user to change the jar file used to run puppetserver via
   pupmod::master::sysconfig::jruby_jar.
 - Change the default jar file for puppetserver to jruby-9k.jar for
   the FOSS puppetserver.  (It is already set to that for PE.)
