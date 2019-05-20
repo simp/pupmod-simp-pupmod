@@ -11,6 +11,13 @@ jruby-puppet: {
     # used by the `puppetserver gem` command line tool.
     gem-home: /opt/puppetlabs/server/data/puppetserver/jruby-gems
 
+<%  if versioncmp($pupmod::master::_server_version, '6.0.0') >= 0 { -%>
+    # This setting defines the complete "GEM_PATH" for jruby.  If set, it should include
+    # the gem-home directory as well as any other directories that gems can be loaded
+    # from (including the vendored gems directory for gems that ship with puppetserver)
+    gem-path: [${jruby-puppet.gem-home}, "/opt/puppetlabs/server/data/puppetserver/vendored-jruby-gems", "/opt/puppetlabs/puppet/lib/ruby/vendor_gems"]
+<%  } -%>
+
     # PLEASE NOTE: Use caution when modifying the below settings. Modifying
     # these settings will change the value of the corresponding Puppet settings
     # for Puppet Server, but not for the Puppet CLI tools. This likely will not

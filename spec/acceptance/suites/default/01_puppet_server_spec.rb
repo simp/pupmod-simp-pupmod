@@ -63,6 +63,13 @@ describe 'install environment via r10k and puppetserver' do
         result = on(master, 'puppetserver ruby --version')
         expect(result.stdout).to include('jruby 9')
       end
+
+      context 'when using puppetserver gems' do
+        it 'should have hiera-eyaml available' do
+          result = on(master, 'puppetserver gem list --local hiera-eyaml')
+          expect(result.stdout).to include('hiera-eyaml')
+        end
+      end
     end
   end
 end

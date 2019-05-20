@@ -10,7 +10,7 @@ describe 'pupmod::master' do
     }}}
   end
 
-  puppetserver_versions = ['5.3.5', '5.0.0', '2.7.0']
+  puppetserver_versions = ['6.1.0', '5.3.5', '5.0.0', '2.7.0']
 
   on_supported_os.each do |os, os_facts|
     puppetserver_versions.each do |puppetserver_version|
@@ -202,6 +202,14 @@ describe 'pupmod::master' do
                 puppetserver_tgt_hash['max-retry-delay']       = 1800
                 puppetserver_tgt_hash['profiling-mode']        = 'off'
                 puppetserver_tgt_hash['profiling-output-file'] = '/opt/puppetlabs/server/data/puppetserver/server_jruby_profiling'
+              end
+
+              if puppetserver_version >= '6.0.0'
+                puppetserver_tgt_hash['gem-path'] = [
+                  '/opt/puppetlabs/server/data/puppetserver/jruby-gems',
+                  '/opt/puppetlabs/server/data/puppetserver/vendored-jruby-gems',
+                  '/opt/puppetlabs/puppet/lib/ruby/vendor_gems'
+                ]
               end
 
               expect(puppetserver_conf_hash['jruby-puppet']).to eq(puppetserver_tgt_hash)
