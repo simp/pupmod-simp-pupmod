@@ -108,7 +108,6 @@ define pupmod::pass_two (
   group { $_conf_group:
     ensure    => 'present',
     allowdupe => false,
-    gid       => '52',
     tag       => 'firstrun',
     notify    => $_group_notify,
     members   => $_group_members,

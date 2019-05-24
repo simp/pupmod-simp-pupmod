@@ -1,3 +1,6 @@
+* Tue May 28 2019 Liz Nemsick <lnemsick.simp@gmail.com> - 7.10.1-0
+- No longer hardcode the puppet uid and puppet gid to 52.
+
 * Fri May 17 2019 Robert Vincent <robert.vincent@conning.com> - 7.10.1-0
 - Add missing gem-path setting to puppetserver.conf template.
 
