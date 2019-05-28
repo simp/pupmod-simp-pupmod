@@ -84,7 +84,6 @@ describe 'pupmod::pass_two' do
               it { is_expected.to contain_group('puppet').with({
                 'ensure' => 'present',
                 'allowdupe'  => false,
-                'gid'  => '52',
                 'tag'   => 'firstrun',
               }) }
 

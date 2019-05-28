@@ -65,7 +65,6 @@ describe 'pupmod::master::base' do
             {
               "ensure" => "present",
               "allowdupe" => false,
-              "gid" => "52",
               "tag" => "firstrun",
             }
           )
@@ -90,7 +89,6 @@ describe 'pupmod::master::base' do
               "ensure" => "present",
               "allowdupe" => false,
               "comment" => "Puppet User",
-              "uid" => "52",
               "gid" => "puppet",
               "home" => "/opt/puppetlabs/server/data/puppetserver",
               "membership" => "inclusive",

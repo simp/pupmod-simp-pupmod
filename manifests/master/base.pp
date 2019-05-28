@@ -72,7 +72,6 @@ class pupmod::master::base {
     ensure     => 'present',
     allowdupe  => false,
     comment    => 'Puppet User',
-    uid        => '52',
     gid        => 'puppet',
     home       => $pupmod::master::vardir,
     membership => 'inclusive',
