@@ -18,9 +18,7 @@ fixtures:
     selinux_core:
       repo: https://github.com/simp/pupmod-puppetlabs-selinux_core
       puppet_version: ">= 6.0.0"
-    compliance_markup:
-      repo: "https://github.com/simp/pupmod-simp-compliance_markup"
-      branch: "testing_hotfix_06062019"
+    compliance_markup: https://github.com/simp/pupmod-simp-compliance_markup
     concat:
       # master is beyond 4.1.1, but has breaking changes to
       # how fragments are ordered (MODULES-6625)
