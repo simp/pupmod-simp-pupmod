@@ -136,29 +136,6 @@ checks:
       - SRG-OS-000038-GPOS-00016
       - CCI-000131
       - CCI-000126
-  oval:com.puppet.forge.simp.pupmod.master.auditd:
-    settings:
-      parameter: pupmod::master::auditd
-      value: true
-    type: puppet-class-parameter
-    controls:
-      nist_800_53:rev4: true
-      nist_800_53:rev4:AU-3:2: true
-      nist_800_53:rev4:AU-4:1: true
-      nist_800_53:rev4:AU-9: true
-      disa_stig: true
-      RHEL-07-030310: true
-      SRG-OS-000327-GPOS-00127: true
-      cci:CCI-002234: true
-    identifiers:
-      nist_800_53:rev4:
-      - AU-3:2
-      - AU-4:1
-      - AU-9
-      disa_stig:
-      - RHEL-07-030310
-      - SRG-OS-000327-GPOS-00127
-      - CCI-002234
   oval:com.puppet.forge.simp.pupmod.master.bind_address:
     settings:
       parameter: pupmod::master::bind_address
@@ -203,25 +180,6 @@ checks:
     identifiers:
       nist_800_53:rev4:
       - CM-6
-  oval:com.puppet.forge.simp.pupmod.master.firewall:
-    settings:
-      parameter: pupmod::master::firewall
-      value: true
-    type: puppet-class-parameter
-    controls:
-      nist_800_53:rev4: true
-      nist_800_53:rev4:CM-7: true
-      disa_stig: true
-      RHEL-07-040920: true
-      SRG-OS-000480-GPOS-00227: true
-      cci:CCI-000366: true
-    identifiers:
-      nist_800_53:rev4:
-      - CM-7
-      disa_stig:
-      - RHEL-07-040920
-      - SRG-OS-000480-GPOS-00227
-      - CCI-000366
   oval:com.puppet.forge.simp.pupmod.master.reports.purge:
     settings:
       parameter: pupmod::master::reports::purge
@@ -285,29 +243,6 @@ checks:
       nist_800_53:rev4:
       - SC-5
       - CM-6
-  oval:com.puppet.forge.simp.pupmod.master.syslog:
-    settings:
-      parameter: pupmod::master::syslog
-      value: true
-    type: puppet-class-parameter
-    controls:
-      nist_800_53:rev4: true
-      nist_800_53:rev4:AU-3:2: true
-      nist_800_53:rev4:AU-4:1: true
-      nist_800_53:rev4:AU-9: true
-      disa_stig: true
-      RHEL-07-030770: true
-      SRG-OS-000480-GPOS-00227: true
-      cci:CCI-000366: true
-    identifiers:
-      nist_800_53:rev4:
-      - AU-3:2
-      - AU-4:1
-      - AU-9
-      disa_stig:
-      - RHEL-07-030770
-      - SRG-OS-000480-GPOS-00227
-      - CCI-000366
   oval:com.puppet.forge.simp.pupmod.master.syslog_message_format:
     settings:
       parameter: pupmod::master::syslog_message_format
