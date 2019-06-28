@@ -1,3 +1,6 @@
+* Fri Jun 28 2019 Bob Vincent <pillarsdotnet@gmail.com> - 7.10.2-0
+- Add ca params for auth-extensions and subject-alt-names.
+
 * Tue May 28 2019 Liz Nemsick <lnemsick.simp@gmail.com> - 7.10.1-0
 - No longer hardcode the puppet uid and puppet gid to 52.
 

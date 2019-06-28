@@ -5,6 +5,12 @@
 # @param bind_address
 #   The IP address to which the Puppet Master process should bind
 #
+# @param ca_allow_auth_extensions
+#   If true, allows the CA to sign certificates with authorization extensions.
+#
+# @param ca_allow_alt_names
+#   If true, allows the CA to sign certificates with subject alternative names.
+#
 # @param ca_bind_address
 #   The IP address to which the Puppet CA process should bind
 #
@@ -256,6 +262,8 @@
 #
 class pupmod::master (
   Simplib::IP                                         $bind_address                    = '0.0.0.0',
+  Boolean                                             $ca_allow_auth_extensions        = false,
+  Boolean                                             $ca_allow_alt_names              = false,
   Simplib::IP                                         $ca_bind_address                 = '0.0.0.0',
   Boolean                                             $auditd                          = simplib::lookup('simp_options::auditd', { 'default_value' => false }),
   Simplib::Port                                       $ca_port                         = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
