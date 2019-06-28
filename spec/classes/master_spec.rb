@@ -592,7 +592,7 @@ describe 'pupmod::master' do
               it { expect(ca_conf_hash).to have_key('certificate-authority') }
               it { expect(ca_conf_hash['certificate-authority']).to have_key('allow-authorization-extensions') }
               it {
-                expect(ca_conf_hash['certificate-authority']['allow-authorization-extensions']).to have_value(true)
+                expect(ca_conf_hash['certificate-authority']['allow-authorization-extensions']).to be(true)
               }
             end
           end
@@ -616,7 +616,7 @@ describe 'pupmod::master' do
               it { expect(ca_conf_hash).to have_key('certificate-authority') }
               it { expect(ca_conf_hash['certificate-authority']).to have_key('allow-subject-alt-names') }
               it {
-                expect(ca_conf_hash['certificate-authority']['allow-subject-alt-names']).to have_value(true)
+                expect(ca_conf_hash['certificate-authority']['allow-subject-alt-names']).to be(true)
               }
             end
           end
