@@ -5,11 +5,9 @@
 # https://puppet.com/docs/pe/2018.1/overview/getting_support_for_pe.html
 # ------------------------------------------------------------------------------
 # Release       Puppet   Ruby   EOL
-# SIMP 6.2      4.10     2.1.9  TBD
-# PE 2016.4     4.10     2.1.9  2018-12-31 (LTS)
-# PE 2017.3     5.3      2.4.4  2018-12-31
-# SIMP 6.3      5.5      2.4.4  TBD***
-# PE 2018.1     5.5      2.4.4  2020-05 (LTS)***
+# PE 2017.3     5.3      2.4.5  2018-12-31
+# SIMP 6.3      5.5      2.4.5  TBD***
+# PE 2018.1     5.5      2.4.5  2020-05 (LTS)***
 # PE 2019.0     6.0      2.5.1  2019-08-31^^^
 #
 # *** = Modules created for SIMP 6.3+ are not required to support Puppet < 5.5
@@ -37,9 +35,8 @@ addons:
 
 before_install:
   - rm -f Gemfile.lock
-  - gem install -v '~> 1.14' bundler
-  - gem uninstall -i /home/travis/.rvm/gems/ruby-2.4.4@global -v '>= 1.15' bundler || true
-  - gem uninstall -i /home/travis/.rvm/gems/ruby-2.5.1@global -v '>= 1.15' bundler || true
+  - for x in ${HOME}/.rvm/gems/*; do gem uninstall -I -x -i "${x}" -v '>= 1.17' bundler || true; gem uninstall -I -x -i "${x}@global" -v '>= 1.17' bundler || true; done
+  - gem install -v '~> 1.17' bundler
 
 global:
   - STRICT_VARIABLES=yes
@@ -49,7 +46,7 @@ jobs:
     - stage: check
       name: 'Syntax, style, and validation checks'
       rvm: 2.4.5
-      env: PUPPET_VERSION="~> 5.5"
+      env: PUPPET_VERSION="~> 5"
       script:
         - bundle exec rake check:dot_underscore
         - bundle exec rake check:test_file

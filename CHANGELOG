@@ -1,3 +1,6 @@
+* Fri Jun 28 2019 Steven Pritchard <steven.pritchard@onypoint.com> - 7.11.0-0
+- Add v2 compliance_markup data
+
 * Fri Jun 28 2019 Bob Vincent <pillarsdotnet@gmail.com> - 7.10.2-0
 - Add ca params for auth-extensions and subject-alt-names.
 
