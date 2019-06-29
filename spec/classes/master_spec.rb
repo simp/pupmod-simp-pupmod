@@ -573,6 +573,54 @@ describe 'pupmod::master' do
           }) }
           end
 
+          context 'with ca_allow_auth_extensions' do
+            let(:params) {{:ca_allow_auth_extensions => true}}
+
+            context 'when processing ca.conf' do
+              let(:ca_conf) { '/etc/puppetlabs/puppetserver/conf.d/ca.conf' }
+              let(:ca_conf_hash) { Hocon.parse(catalogue.resource("File[#{ca_conf}]")['content']) }
+
+              it { is_expected.to contain_file('/etc/puppetlabs/puppetserver/conf.d/ca.conf').with({
+                'ensure'  => 'file',
+                'owner'   => 'root',
+                'group'   => 'puppet',
+                'mode'    => '0640',
+                'require' => 'Package[puppetserver]',
+                'notify'  => 'Service[puppetserver]'
+              }) }
+
+              it { expect(ca_conf_hash).to have_key('certificate-authority') }
+              it { expect(ca_conf_hash['certificate-authority']).to have_key('allow-authorization-extensions') }
+              it {
+                expect(ca_conf_hash['certificate-authority']['allow-authorization-extensions']).to be(true)
+              }
+            end
+          end
+
+          context 'with ca_allow_alt_names' do
+            let(:params) {{:ca_allow_alt_names => true}}
+
+            context 'when processing ca.conf' do
+              let(:ca_conf) { '/etc/puppetlabs/puppetserver/conf.d/ca.conf' }
+              let(:ca_conf_hash) { Hocon.parse(catalogue.resource("File[#{ca_conf}]")['content']) }
+
+              it { is_expected.to contain_file('/etc/puppetlabs/puppetserver/conf.d/ca.conf').with({
+                'ensure'  => 'file',
+                'owner'   => 'root',
+                'group'   => 'puppet',
+                'mode'    => '0640',
+                'require' => 'Package[puppetserver]',
+                'notify'  => 'Service[puppetserver]'
+              }) }
+
+              it { expect(ca_conf_hash).to have_key('certificate-authority') }
+              it { expect(ca_conf_hash['certificate-authority']).to have_key('allow-subject-alt-names') }
+              it {
+                expect(ca_conf_hash['certificate-authority']['allow-subject-alt-names']).to be(true)
+              }
+            end
+          end
+
           context 'with multiple entries in ca_status_whitelist' do
             let(:params) {{:ca_status_whitelist => ['1.2.3.4', '5.6.7.8']}}
 

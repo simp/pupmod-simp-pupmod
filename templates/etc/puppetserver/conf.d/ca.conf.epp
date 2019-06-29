@@ -4,6 +4,13 @@
 # CA-related settings
 certificate-authority: {
 
+<% if $pupmod::master::ca_allow_auth_extensions { -%>
+    allow-authorization-extensions: true
+<% } -%>
+<% if $pupmod::master::ca_allow_alt_names { -%>
+    allow-subject-alt-names: true
+<% } -%>
+
     # settings for the certificate_status HTTP endpoint
     certificate-status: {
 
