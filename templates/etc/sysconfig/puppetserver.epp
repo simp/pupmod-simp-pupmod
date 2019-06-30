@@ -4,6 +4,9 @@
     $java_mem_mb = Integer(Numeric($facts['memorysize_mb']) * (Numeric($pupmod::master::sysconfig::java_max_memory[0,-2])/100.00))
     $java_max_memory = "${java_mem_mb}m"
   }
+  else {
+    $java_max_memory = $pupmod::master::sysconfig::java_max_memory
+  }
 
   if $pupmod::master::sysconfig::java_start_memory {
     $java_start_memory = $pupmod::master::sysconfig::java_start_memory
