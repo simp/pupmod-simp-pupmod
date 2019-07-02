@@ -34,6 +34,10 @@
       "version_requirement": ">= 0.2.0 < 1.0.0"
     },
     {
+      "name": "puppetlabs/hocon",
+      "version_requirement": ">= 0.9.3 < 2.0.0"
+    },
+    {
       "name": "puppetlabs/concat",
       "version_requirement": ">= 3.0.0 < 6.0.0"
     },
