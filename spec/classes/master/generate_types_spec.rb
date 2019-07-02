@@ -5,7 +5,7 @@ describe 'pupmod::master::generate_types' do
     it { is_expected.to compile.with_all_deps }
     it { is_expected.to create_file('/usr/local/sbin/simp_generate_types') }
     it { is_expected.to create_file('/var/run/simp_generate_types') }
-    it { is_expected.to create_exec('simp_generate_types').that_subscribes_to('File[/usr/local/sbin/simp_generate_types]') }
+    it { is_expected.to create_exec('simp_generate_types').that_requires('File[/usr/local/sbin/simp_generate_types]') }
     it { is_expected.to create_exec('simp_generate_types').that_requires('File[/var/run/simp_generate_types]') }
     it { is_expected.to create_incron__system_table('simp_generate_types').that_requires('File[/usr/local/sbin/simp_generate_types]') }
     it { is_expected.to create_incron__system_table('simp_generate_types').that_requires('File[/var/run/simp_generate_types]') }
