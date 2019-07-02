@@ -56,6 +56,12 @@ class pupmod::master::base {
     notify => Service[$::pupmod::master::service]
   }
 
+  $auth_conf = '/etc/puppetlabs/puppetserver/conf.d/auth.conf'
+
+  puppet_authorization { $auth_conf:
+    version => 1,
+  }
+
   service { $::pupmod::master::service:
     ensure     => 'running',
     enable     => true,
@@ -64,7 +70,8 @@ class pupmod::master::base {
     require    => [
       Package[$::pupmod::master::service],
       Group['puppet'],
-      Class['pupmod::master::sysconfig']
+      Class['pupmod::master::sysconfig'],
+      Puppet_authorization[$auth_conf],
     ]
   }
 
