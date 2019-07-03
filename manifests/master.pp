@@ -333,7 +333,7 @@ class pupmod::master (
     include '::pupmod::master::base'
     include '::pupmod::master::generate_types'
 
-    Service[$service] -> Class['::pupmod::master::generate_types']
+    Service[$service] ~> Class['::pupmod::master::generate_types']
     Service[$service] -> Exec['puppetserver_reload']
     Service[$service] ~> Exec <| title == 'simp_generate_types' |>
     Class['::pupmod::master::sysconfig'] ~> Service[$service]
