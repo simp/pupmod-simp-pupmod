@@ -49,6 +49,12 @@ describe 'pupmod' do
               'value' => 'rp_env'
             }) }
 
+            it { is_expected.to contain_ini_setting('remove environment from main').with({
+              'ensure' => 'absent',
+              'section' => 'main',
+              'setting' => 'environment'
+            }) }
+
             it { is_expected.to contain_pupmod__conf('syslogfacility').with({
               'setting' => 'syslogfacility',
               'value' => 'local6'
