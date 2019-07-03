@@ -335,7 +335,6 @@ class pupmod::master (
 
     Service[$service] ~> Class['::pupmod::master::generate_types']
     Service[$service] -> Exec['puppetserver_reload']
-    Service[$service] ~> Exec <| title == 'simp_generate_types' |>
     Class['::pupmod::master::sysconfig'] ~> Service[$service]
 
     $_conf_base = dirname($confdir)
