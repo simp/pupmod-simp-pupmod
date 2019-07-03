@@ -27,7 +27,7 @@ define pupmod::conf (
   String $setting,
   Scalar $value,
   String $confdir,
-  String $section = 'main',
+  String $section = $setting ? { 'environment' => 'agent', default => 'main' },
   Enum['present', 'absent'] $ensure = 'present',
 ) {
 
