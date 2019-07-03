@@ -44,7 +44,7 @@ describe 'pupmod' do
             it { is_expected.not_to contain_pupmod__conf('splaylimit') }
 
             it { is_expected.to contain_pupmod__conf('environment').with({
-              'section' => 'main',
+              'section' => 'agent',
               'setting' => 'environment',
               'value' => 'rp_env'
             }) }
