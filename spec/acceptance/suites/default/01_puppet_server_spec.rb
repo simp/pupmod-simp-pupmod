@@ -51,8 +51,6 @@ describe 'install environment via r10k and puppetserver' do
 
       it 'should apply the master manifest' do
         apply_manifest_on(master, master_manifest, :accept_all_exit_codes => true)
-        # Work around incron bug
-        apply_manifest_on(master, master_manifest, :accept_all_exit_codes => true)
       end
 
       it 'should be idempotent' do
