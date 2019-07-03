@@ -24,10 +24,6 @@ describe 'pupmod::master::sysconfig' do
             svc
           }
 
-          let(:pre_condition) {
-            %{ service{ #{puppetserver_svc}: } }
-          }
-
           let(:default_params){{
             :server_distribution => server_distribution
           }}

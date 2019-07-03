@@ -21,7 +21,6 @@ describe 'pupmod::master::base' do
             }
           )
         }
-        it { is_expected.to contain_file('/etc/puppetlabs/puppet/ssl/ca/ca_crl.pem') }
         it { is_expected.to contain_file('/etc/puppetlabs/code/environments').with(
             {
               "ensure" => "directory",
@@ -91,7 +90,6 @@ describe 'pupmod::master::base' do
               "comment" => "Puppet User",
               "gid" => "puppet",
               "home" => "/opt/puppetlabs/server/data/puppetserver",
-              "membership" => "inclusive",
               "shell" => "/sbin/nologin",
               "tag" => "firstrun",
             }

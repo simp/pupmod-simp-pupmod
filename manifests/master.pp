@@ -27,7 +27,7 @@
 #   An array of networks from which to allow access to the master.
 #
 # @param server_distribution
-#   The version of the server that is being managed.
+#   *Deprecated*: The version of the server that is being managed.
 #
 #   * PC1 covers everything after Puppet 3
 #
@@ -273,16 +273,16 @@ class pupmod::master (
   Boolean                                             $daemonize                       = true,
   Boolean                                             $enable_ca                       = true,
   Boolean                                             $enable_master                   = true,
-  Stdlib::AbsolutePath                                $environmentpath                 = $::pupmod::environmentpath,
+  Stdlib::AbsolutePath                                $environmentpath                 = $pupmod::environmentpath,
   Boolean                                             $freeze_main                     = false,
   Simplib::Port                                       $masterport                      = 8140,
-  Stdlib::AbsolutePath                                $puppet_confdir                  = $::pupmod::confdir,
-  Stdlib::AbsolutePath                                $confdir                         = $::pupmod::params::master_config['confdir'],
-  Stdlib::AbsolutePath                                $codedir                         = $::pupmod::params::master_config['codedir'],
-  Stdlib::AbsolutePath                                $vardir                          = $::pupmod::params::master_config['vardir'],
-  Stdlib::AbsolutePath                                $rundir                          = $::pupmod::params::master_config['rundir'],
-  Stdlib::AbsolutePath                                $logdir                          = $::pupmod::params::master_config['logdir'],
-  Stdlib::AbsolutePath                                $ssldir                          = $::pupmod::ssldir,
+  Stdlib::AbsolutePath                                $puppet_confdir                  = $pupmod::confdir,
+  Stdlib::AbsolutePath                                $confdir                         = $pupmod::params::master_config['confdir'],
+  Stdlib::AbsolutePath                                $codedir                         = $pupmod::params::master_config['codedir'],
+  Stdlib::AbsolutePath                                $vardir                          = $pupmod::params::master_config['vardir'],
+  Stdlib::AbsolutePath                                $rundir                          = $pupmod::params::master_config['rundir'],
+  Stdlib::AbsolutePath                                $logdir                          = $pupmod::params::master_config['logdir'],
+  Stdlib::AbsolutePath                                $ssldir                          = $pupmod::ssldir,
   Boolean                                             $use_legacy_auth_conf            = false,
   Integer[0]                                          $max_queued_requests             = 10,
   Integer[1]                                          $max_retry_delay                 = 1800,
@@ -313,29 +313,23 @@ class pupmod::master (
   Optional[Hash[String[1],String[1]]]                 $ca_webserver_options            = undef,
   Optional[Hash[String[1],Hash[String[1],String[1]]]] $extra_webserver_sections        = undef,
   Boolean                                             $mock                            = false
-) inherits ::pupmod {
+) inherits pupmod {
 
   $_server_version = pupmod::server_version()
   $_puppet_user = $facts['puppet_settings']['master']['user']
   $_puppet_group = $facts['puppet_settings']['master']['group']
 
   if ($mock == false) {
-    $service = $server_distribution ? {
-      'PE'    => 'pe-puppetserver',
-      default => 'puppetserver',
-    }
+    include 'pupmod::master::install'
+    include 'pupmod::master::sysconfig'
+    include 'pupmod::master::reports'
+    include 'pupmod::master::base'
+    include 'pupmod::master::service'
+    include 'pupmod::master::generate_types'
 
-    class { '::pupmod::master::sysconfig':
-      service => $service,
-    }
-
-    include '::pupmod::master::reports'
-    include '::pupmod::master::base'
-    include '::pupmod::master::generate_types'
-
-    Service[$service] ~> Class['::pupmod::master::generate_types']
-    Service[$service] -> Exec['puppetserver_reload']
-    Class['::pupmod::master::sysconfig'] ~> Service[$service]
+    Class['pupmod::master::install'] ~> Class['pupmod::master::service']
+    Class['pupmod::master::sysconfig'] ~> Class['pupmod::master::service']
+    Class['pupmod::master::service'] ~> Class['pupmod::master::generate_types']
 
     $_conf_base = dirname($confdir)
 
@@ -366,8 +360,8 @@ class pupmod::master (
         owner   => 'root',
         group   => $_puppet_group,
         mode    => '0640',
-        require => Package[$service],
-        notify  => Service[$service];
+        require => Class['pupmod::master::install'],
+        notify  => Class['pupmod::master::service'];
 
       "${_conf_base}/services.d/ca.cfg": content => epp("${module_name}/etc/puppetserver/ca.cfg");
       "${_conf_base}/logback.xml":       content => epp("${module_name}/etc/puppetserver/logback.xml");
@@ -384,8 +378,8 @@ class pupmod::master (
         group   => $_puppet_group,
         mode    => '0640',
         content => epp("${module_name}/etc/puppetserver/conf.d/os-settings.conf"),
-        require => Package[$service],
-        notify  => Service[$service]
+        require => Class['pupmod::master::install'],
+        notify  => Class['pupmod::master::service']
       }
     }
 
@@ -400,7 +394,7 @@ class pupmod::master (
       confdir => $puppet_confdir,
       setting => 'trusted_server_facts',
       value   => true,
-      notify  => Service[$service]
+      notify  => Class['pupmod::master::service']
     }
 
     pupmod::conf { 'master_environmentpath':
@@ -408,7 +402,7 @@ class pupmod::master (
       confdir => $puppet_confdir,
       setting => 'environmentpath',
       value   => $environmentpath,
-      notify  => Service[$service]
+      notify  => Class['pupmod::master::service']
     }
 
     pupmod::conf { 'master_daemonize':
@@ -416,7 +410,7 @@ class pupmod::master (
       confdir => $puppet_confdir,
       setting => 'daemonize',
       value   => $daemonize,
-      notify  => Service[$service]
+      notify  => Class['pupmod::master::service']
     }
 
     pupmod::conf { 'master_masterport':
@@ -424,7 +418,7 @@ class pupmod::master (
       confdir => $puppet_confdir,
       setting => 'masterport',
       value   => $masterport,
-      notify  => Service[$service]
+      notify  => Class['pupmod::master::service']
     }
 
     # `[master] ca` is deprecated, as of Puppet 5.5.6 (SIMP-5456), and removed
@@ -454,7 +448,7 @@ class pupmod::master (
       value   => $enable_ca,
       confdir => $puppet_confdir,
       section => 'master',
-      notify  => Service[$service]
+      notify  => Class['pupmod::master::service']
     }
 
     pupmod::conf { 'master_ca_port':
@@ -462,7 +456,7 @@ class pupmod::master (
       confdir => $puppet_confdir,
       setting => 'ca_port',
       value   => $ca_port,
-      notify  => Service[$service]
+      notify  => Class['pupmod::master::service']
     }
 
     pupmod::conf { 'ca_ttl':
@@ -470,10 +464,10 @@ class pupmod::master (
       confdir => $puppet_confdir,
       setting => 'ca_ttl',
       value   => $ca_ttl,
-      notify  => Service[$service]
+      notify  => Class['pupmod::master::service']
     }
 
-    if $::pupmod::fips {
+    if $pupmod::fips {
       $_keylength = 2048
     }
     else {
@@ -485,7 +479,7 @@ class pupmod::master (
       confdir => $puppet_confdir,
       setting => 'keylength',
       value   => $_keylength,
-      notify  => Service[$service]
+      notify  => Class['pupmod::master::service']
     }
 
     pupmod::conf { 'freeze_main':
@@ -495,11 +489,11 @@ class pupmod::master (
       # potential configurations.
       value   => false,
       #value   => $freeze_main,
-      notify  => Service[$service]
+      notify  => Class['pupmod::master::service']
     }
 
     if $auditd {
-      include '::auditd'
+      include 'auditd'
 
       auditd::rule { 'puppet_master':
         content => epp("${module_name}/puppet-auditd-rules")
@@ -507,7 +501,7 @@ class pupmod::master (
     }
 
     if $firewall {
-      include '::iptables'
+      include 'iptables'
 
       if $enable_master {
         iptables::listen::tcp_stateful { 'allow_puppet':

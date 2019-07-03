@@ -47,9 +47,6 @@
 # @param server_distribution
 #   The Puppet distribution that is being managed.
 #
-# @param service
-#   The ``puppetserver`` service name.
-#
 # @param user
 #   The ``user`` that the ``puppetserver`` service will run as.
 #
@@ -72,11 +69,13 @@ class pupmod::master::sysconfig (
   Integer                        $service_stop_retries = 60,
   Integer                        $start_timeout        = 120,
   Simplib::ServerDistribution    $server_distribution  = 'PC1',
-  String                         $service              = $server_distribution ? { 'PE' => 'pe-puppetserver', default => 'puppetserver'},
   String                         $user                 = $facts['puppet_settings']['master']['user'],
   String                         $group                = $facts['puppet_settings']['master']['group'],
   Boolean                        $mock                 = false
 ) inherits pupmod {
+
+  include 'pupmod::master::service'
+
   unless (mock == true) {
     if empty($java_temp_dir) {
       # puppet_settings.master.server_datadir is not always present, but its parent is
@@ -93,8 +92,6 @@ class pupmod::master::sysconfig (
       mode   => '0750'
     }
 
-
-
     if ($server_distribution == 'PE') {
       if (has_key($facts, 'pe_build')) {
         if (SemVer($facts['pe_build']) < SemVer('2016.4.0')) {
@@ -107,7 +104,7 @@ class pupmod::master::sysconfig (
               quote_char        => '"',
               value             => "=${_java_temp_dir}",
               key_val_separator => '=',
-              notify            => Service[$service],
+              notify            => Class['pupmod::master::service']
             }
           }
         }
@@ -125,12 +122,12 @@ class pupmod::master::sysconfig (
         $_jruby_jar = 'default'
       }
 
-      file { "/etc/sysconfig/${service}":
+      file { "/etc/sysconfig/${pupmod::master::service::service_name}":
         owner   => 'root',
         group   => $group,
         mode    => '0640',
         content => epp("${module_name}/etc/sysconfig/puppetserver"),
-        notify  => Service[$service]
+        notify  => Class['pupmod::master::service']
       }
     }
   }

@@ -44,7 +44,7 @@ describe 'pupmod::master' do
           it { is_expected.to create_class('pupmod::master::sysconfig') }
           it { is_expected.to create_class('pupmod::master::reports') }
           it { is_expected.to create_class('pupmod::master::base') }
-          it { is_expected.to contain_class('pupmod::master::sysconfig').that_comes_before('Service[puppetserver]') }
+          it { is_expected.to contain_class('pupmod::master::sysconfig').that_comes_before('Class[Pupmod::Master::Service]') }
           it { is_expected.to contain_file('/etc/puppetlabs/puppetserver').with({
             'ensure' => 'directory',
             'owner'  => 'root',
@@ -83,8 +83,8 @@ describe 'pupmod::master' do
             'owner'   => 'root',
             'group'   => 'puppet',
             'mode'    => '0640',
-            'require' => 'Package[puppetserver]',
-            'notify'  => 'Service[puppetserver]'
+            'require' => 'Class[Pupmod::Master::Install]',
+            'notify'  => 'Class[Pupmod::Master::Service]'
           }) }
 
           if puppetserver_version >= '5.1.0'
@@ -103,8 +103,8 @@ describe 'pupmod::master' do
             'owner'   => 'root',
             'group'   => 'puppet',
             'mode'    => '0640',
-            'require' => 'Package[puppetserver]',
-            'notify'  => 'Service[puppetserver]',
+            'require' => 'Class[Pupmod::Master::Install]',
+            'notify'  => 'Class[Pupmod::Master::Service]',
             'content' => %q~<!--
   This file managed by Puppet.
   Any changes will be erased at the next run.
@@ -148,8 +148,8 @@ describe 'pupmod::master' do
               'owner'   => 'root',
               'group'   => 'puppet',
               'mode'    => '0640',
-              'require' => 'Package[puppetserver]',
-              'notify'  => 'Service[puppetserver]'
+              'require' => 'Class[Pupmod::Master::Install]',
+              'notify'  => 'Class[Pupmod::Master::Service]'
             }) }
 
             it { expect(ca_conf_hash).to have_key('certificate-authority') }
@@ -174,8 +174,8 @@ describe 'pupmod::master' do
               'owner'   => 'root',
               'group'   => 'puppet',
               'mode'    => '0640',
-              'require' => 'Package[puppetserver]',
-              'notify'  => 'Service[puppetserver]'
+              'require' => 'Class[Pupmod::Master::Install]',
+              'notify'  => 'Class[Pupmod::Master::Service]'
             }) }
 
             it { expect(puppetserver_conf_hash).to have_key('jruby-puppet') }
@@ -246,8 +246,8 @@ describe 'pupmod::master' do
               'owner'   => 'root',
               'group'   => 'puppet',
               'mode'    => '0640',
-              'require' => 'Package[puppetserver]',
-              'notify'  => 'Service[puppetserver]'
+              'require' => 'Class[Pupmod::Master::Install]',
+              'notify'  => 'Class[Pupmod::Master::Service]'
             }) }
 
             it { expect(web_routes_conf_hash).to have_key('web-router-service') }
@@ -283,8 +283,8 @@ describe 'pupmod::master' do
               'owner'   => 'root',
               'group'   => 'puppet',
               'mode'    => '0640',
-              'require' => 'Package[puppetserver]',
-              'notify'  => 'Service[puppetserver]'
+              'require' => 'Class[Pupmod::Master::Install]',
+              'notify'  => 'Class[Pupmod::Master::Service]'
             }) }
 
             it { expect(webserver_conf_hash).to have_key('webserver') }
@@ -390,7 +390,7 @@ describe 'pupmod::master' do
                 'ensure'  => 'present',
                 'setting' => 'trusted_server_facts',
                 'value'   => true,
-                'notify'  => 'Service[puppetserver]'
+                'notify'  => 'Class[Pupmod::Master::Service]'
               })
             end
           end
@@ -399,21 +399,21 @@ describe 'pupmod::master' do
             'section' => 'master',
             'setting' => 'environmentpath',
             'value'   => '/etc/puppetlabs/code/environments',
-            'notify'  => 'Service[puppetserver]'
+            'notify'  => 'Class[Pupmod::Master::Service]'
           }) }
 
           it { is_expected.to contain_pupmod__conf('master_daemonize').with({
             'section' => 'master',
             'setting' => 'daemonize',
             'value'   => 'true',
-            'notify'  => 'Service[puppetserver]'
+            'notify'  => 'Class[Pupmod::Master::Service]'
           }) }
 
           it { is_expected.to contain_pupmod__conf('master_masterport').with({
             'section' => 'master',
             'setting' => 'masterport',
             'value'   => 8140,
-            'notify'  => 'Service[puppetserver]'
+            'notify'  => 'Class[Pupmod::Master::Service]'
           }) }
 
           if (Gem::Version.new(Puppet.version) >= Gem::Version.new('5.5.6'))
@@ -426,7 +426,7 @@ describe 'pupmod::master' do
                 'section' => 'master',
                 'setting' => 'ca',
                 'value'   => true,
-                'notify'  => 'Service[puppetserver]',
+                'notify'  => 'Class[Pupmod::Master::Service]',
               })
             end
           end
@@ -435,14 +435,14 @@ describe 'pupmod::master' do
             'section' => 'master',
             'setting' => 'ca_port',
             'value'   => 8141,
-            'notify'  => 'Service[puppetserver]'
+            'notify'  => 'Class[Pupmod::Master::Service]'
           }) }
 
           it { is_expected.to contain_pupmod__conf('ca_ttl').with({
             'section' => 'master',
             'setting' => 'ca_ttl',
             'value'   => '10y',
-            'notify'  => 'Service[puppetserver]'
+            'notify'  => 'Class[Pupmod::Master::Service]'
           }) }
 
           # fips_enabled fact take precedence over hieradata use_fips
@@ -450,13 +450,13 @@ describe 'pupmod::master' do
             'section' => 'master',
             'setting' => 'keylength',
             'value'   => 4096,
-            'notify'  => 'Service[puppetserver]'
+            'notify'  => 'Class[Pupmod::Master::Service]'
           }) }
 
           it { is_expected.to contain_pupmod__conf('freeze_main').with({
             'setting' => 'freeze_main',
             'value'   => false,
-            'notify'  => 'Service[puppetserver]'
+            'notify'  => 'Class[Pupmod::Master::Service]'
           }) }
           it { is_expected.to contain_ini_setting("pupmod_master_environmentpath") }
 
@@ -517,8 +517,8 @@ describe 'pupmod::master' do
                 'owner'   => 'root',
                 'group'   => 'puppet',
                 'mode'    => '0640',
-                'require' => 'Package[puppetserver]',
-                'notify'  => 'Service[puppetserver]'
+                'require' => 'Class[Pupmod::Master::Install]',
+                'notify'  => 'Class[Pupmod::Master::Service]'
               }) }
 
                 it { expect(ca_cfg_lines).to eq ([
@@ -534,8 +534,8 @@ describe 'pupmod::master' do
               'owner'   => 'root',
               'group'   => 'puppet',
               'mode'    => '0640',
-              'require' => 'Package[puppetserver]',
-              'notify'  => 'Service[puppetserver]',
+              'require' => 'Class[Pupmod::Master::Install]',
+              'notify'  => 'Class[Pupmod::Master::Service]',
               'content' => %q~<!--
   This file managed by Puppet.
   Any changes will be erased at the next run.
@@ -585,8 +585,8 @@ describe 'pupmod::master' do
                 'owner'   => 'root',
                 'group'   => 'puppet',
                 'mode'    => '0640',
-                'require' => 'Package[puppetserver]',
-                'notify'  => 'Service[puppetserver]'
+                'require' => 'Class[Pupmod::Master::Install]',
+                'notify'  => 'Class[Pupmod::Master::Service]'
               }) }
 
               it { expect(ca_conf_hash).to have_key('certificate-authority') }
@@ -609,8 +609,8 @@ describe 'pupmod::master' do
                 'owner'   => 'root',
                 'group'   => 'puppet',
                 'mode'    => '0640',
-                'require' => 'Package[puppetserver]',
-                'notify'  => 'Service[puppetserver]'
+                'require' => 'Class[Pupmod::Master::Install]',
+                'notify'  => 'Class[Pupmod::Master::Service]'
               }) }
 
               it { expect(ca_conf_hash).to have_key('certificate-authority') }
@@ -633,8 +633,8 @@ describe 'pupmod::master' do
                 'owner'   => 'root',
                 'group'   => 'puppet',
                 'mode'    => '0640',
-                'require' => 'Package[puppetserver]',
-                'notify'  => 'Service[puppetserver]'
+                'require' => 'Class[Pupmod::Master::Install]',
+                'notify'  => 'Class[Pupmod::Master::Service]'
               }) }
 
               it { expect(ca_conf_hash).to have_key('certificate-authority') }
@@ -659,8 +659,8 @@ describe 'pupmod::master' do
                 'owner'   => 'root',
                 'group'   => 'puppet',
                 'mode'    => '0640',
-                'require' => 'Package[puppetserver]',
-                'notify'  => 'Service[puppetserver]'
+                'require' => 'Class[Pupmod::Master::Install]',
+                'notify'  => 'Class[Pupmod::Master::Service]'
               }) }
 
               it { expect(os_settings_conf_hash).to have_key('os-settings') }
