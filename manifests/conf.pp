@@ -37,17 +37,6 @@ define pupmod::conf (
 ) {
   $l_name = "${module_name}_${name}"
 
-  if $setting == 'environment' {
-    if !defined(Ini_setting['remove environment from main']) {
-      ini_setting { 'remove environment from main':
-        ensure  => absent,
-        path    => "${confdir}/puppet.conf",
-        section => 'main',
-        setting => 'environment'
-      }
-    }
-  }
-
   ini_setting { $l_name:
     ensure  => $ensure,
     path    => "${confdir}/puppet.conf",

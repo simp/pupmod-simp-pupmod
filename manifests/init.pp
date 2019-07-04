@@ -75,6 +75,10 @@
 # @param masterport
 #   The port where the Puppet Master should be contacted.
 #
+# @param remove_environment_from_main
+#   If true (default), ensures that the main section of puppet.conf does not
+#   contain an environment setting.
+#
 # @param report
 #   Whether or not to send reports to the report server. This is
 #   disabled by default to allow users to reduce network load unless
@@ -271,6 +275,16 @@ class pupmod (
         confdir => $confdir,
         setting => 'environment',
         value   => $environment
+      }
+    }
+
+    if $remove_environment_from_main {
+      pupmod::conf { 'remove environment from main':
+        ensure  => 'absent',
+        section => 'main',
+        confdir => $confdir,
+        setting => 'environment',
+        value   => null,
       }
     }
 
