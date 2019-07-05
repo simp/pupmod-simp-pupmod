@@ -7,8 +7,7 @@ class pupmod::master::service(
 ) {
 
   if pupmod::server_distribution() != 'PE' {
-    service { 'Puppet Server':
-      name       => $service_name,
+    service { $service_name:
       ensure     => 'running',
       enable     => true,
       hasrestart => true,

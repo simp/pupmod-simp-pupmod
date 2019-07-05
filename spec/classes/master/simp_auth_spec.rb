@@ -7,20 +7,6 @@ describe 'pupmod::master::simp_auth' do
 
       ['PE', 'PC1'].each do |server_distribution|
         context "server distribution '#{server_distribution}'" do
-          let(:puppetserver_svc) {
-            svc = 'puppetserver'
-
-            if server_distribution == 'PE'
-              svc = 'pe-puppetserver'
-            end
-
-            svc
-          }
-
-          let(:pre_condition) {
-            %{ service{ #{puppetserver_svc}: } }
-          }
-
           let(:params) {{
             :server_distribution => server_distribution
           }}
@@ -83,7 +69,7 @@ describe 'pupmod::master::simp_auth' do
             'match_request_method' => ['get'],
             'allow'                => '$2',
             'sort_order'           => 460,
-            'notify'               => "Service[#{puppetserver_svc}]"
+            'notify'               => "Class[Pupmod::Master::Service]"
           }) }
           it { is_expected.to create_file('/etc/puppetlabs/puppet/auth.conf').with_ensure('absent') }
         end

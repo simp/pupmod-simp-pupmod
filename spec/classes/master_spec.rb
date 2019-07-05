@@ -483,7 +483,6 @@ describe 'pupmod::master' do
           context 'when server_distribution => PE' do
             let(:hieradata) { 'pe' }
 
-            it { is_expected.to contain_service('pe-puppetserver') }
             it { is_expected.not_to contain_service('puppetserver') }
           end
 

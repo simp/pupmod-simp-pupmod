@@ -1,3 +1,12 @@
+* Thu Jul 04 2019 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.11.0-0
+- Add a pupmod::server_distribution function for more accurately determining
+  the version of the puppet server installed on the target system.
+- Refactor some of the underlying code to use the new function and be safer for
+  PE installations.
+
+* Thu Jul 01 2019 Bob Vincent <pillarsdotnet@gmail.com> - 7.11.0-0
+- Fix ordering issues with managing the Puppet Server
+
 * Fri Jun 28 2019 Steven Pritchard <steven.pritchard@onypoint.com> - 7.11.0-0
 - Add v2 compliance_markup data
 
