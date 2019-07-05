@@ -1,4 +1,4 @@
-# Manage entries in the /etc/puppet/fileserver.conf file.
+# @summary Manage entries in the /etc/puppet/fileserver.conf file.
 #
 # @param name
 #   The name of the [] segment.
@@ -8,8 +8,6 @@
 #
 # @param path
 #   The filesystem path to which this segment should point.
-#
-# @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 define pupmod::master::fileserver_entry (
   Variant[Array[Simplib::Host],Simplib::Host] $allow,
@@ -22,7 +20,7 @@ define pupmod::master::fileserver_entry (
     'owner'  => 'root',
     'group'  => $facts['puppet_settings']['master']['group'],
     'mode'   => '0640',
-    'notify' => Service[$::pupmod::master::service]
+    'notify' => Class['pupmod::master::service']
   })
 
   concat::fragment { "pupmod::master::fileserver_entry ${name}":

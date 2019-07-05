@@ -134,8 +134,7 @@ class pupmod::agent::cron (
   Boolean                                 $break_puppet_lock  = true,
   Optional[Integer[1]]                    $max_disable_time   = undef
 ) {
-
-  include '::pupmod'
+  include 'pupmod'
 
   cron { 'puppetd': ensure => 'absent' }
 

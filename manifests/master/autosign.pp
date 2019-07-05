@@ -12,7 +12,6 @@
 define pupmod::master::autosign (
   Optional[Pattern['^(\*\.)?\S+$']] $entry = undef
 ) {
-
   include 'pupmod::master'
 
   ensure_resource('concat', "${pupmod::confdir}/autosign.conf", {
@@ -20,7 +19,7 @@ define pupmod::master::autosign (
     'owner'  => 'root',
     'group'  => $facts['puppet_settings']['master']['group'],
     'mode'   => '0640',
-    'notify' => Service[$::pupmod::master::service]
+    'notify' => Class['pupmod::master::service']
   })
 
   if $entry {

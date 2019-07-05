@@ -94,8 +94,8 @@ class pupmod::master::generate_types (
     exec { 'simp_generate_types':
       command     => "${_generate_types_path} -d ${delay} -s -p all",
       refreshonly => true,
+      require     => File[$run_dir],
       subscribe   => File[$_generate_types_path],
-      require     => File[$run_dir]
     }
   }
 

@@ -23,7 +23,7 @@
     },
     {
       "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 4.19.0 < 6.0.0"
+      "version_requirement": ">= 4.19.0 < 7.0.0"
     },
     {
       "name": "puppetlabs/inifile",
@@ -32,6 +32,10 @@
     {
       "name": "puppetlabs/puppet_authorization",
       "version_requirement": ">= 0.2.0 < 1.0.0"
+    },
+    {
+      "name": "puppetlabs/hocon",
+      "version_requirement": ">= 0.9.3 < 2.0.0"
     },
     {
       "name": "puppetlabs/concat",

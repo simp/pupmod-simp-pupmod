@@ -4,7 +4,7 @@
 # @see https://puppet.com/docs/puppetserver/2.7/config_file_auth.html#rules
 #
 # @param server_distribution
-#   The server distribution that is being managed.
+#   Deprecated: The server distribution that is being managed.
 #
 # @param auth_conf_path
 #   The location to the puppet master's auth.conf
@@ -56,29 +56,26 @@
 #
 #
 class pupmod::master::simp_auth (
-  Simplib::ServerDistribution $server_distribution          = simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'PC1' } ),
-  Stdlib::AbsolutePath        $auth_conf_path               = '/etc/puppetlabs/puppetserver/conf.d/auth.conf',
-  Boolean                     $legacy_cacerts_all           = false,
-  Boolean                     $legacy_mcollective_all       = false,
-  Boolean                     $legacy_pki_keytabs_from_host = false,
-  Boolean                     $pki_mcollective_all          = true,
-  Boolean                     $pki_cacerts_all              = true,
-  NotUndef                    $pki_cacerts_all_rule         = '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/cacerts',
-  NotUndef                    $pki_cacerts_all_allow        = '*',
-  Any                         $pki_cacerts_all_deny         = undef,
-  Boolean                     $keydist_from_host            = true,
-  NotUndef                    $keydist_from_host_rule       = '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/([^/]+)',
-  NotUndef                    $keydist_from_host_allow      = '$2',
-  Any                         $keydist_from_host_deny       = undef,
-  Boolean                     $krb5_keytabs_from_host       = true,
-  NotUndef                    $krb5_keytabs_from_host_rule  = '^/puppet/v3/file_(metadata|content)/modules/krb5_files/keytabs/([^/]+)',
-  NotUndef                    $krb5_keytabs_from_host_allow = '$2',
-  Any                         $krb5_keytabs_from_host_deny  = undef,
+  Optional[Simplib::ServerDistribution] $server_distribution          = undef,
+  Stdlib::AbsolutePath                  $auth_conf_path               = '/etc/puppetlabs/puppetserver/conf.d/auth.conf',
+  Boolean                               $legacy_cacerts_all           = false,
+  Boolean                               $legacy_mcollective_all       = false,
+  Boolean                               $legacy_pki_keytabs_from_host = false,
+  Boolean                               $pki_mcollective_all          = true,
+  Boolean                               $pki_cacerts_all              = true,
+  NotUndef                              $pki_cacerts_all_rule         = '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/cacerts',
+  NotUndef                              $pki_cacerts_all_allow        = '*',
+  Any                                   $pki_cacerts_all_deny         = undef,
+  Boolean                               $keydist_from_host            = true,
+  NotUndef                              $keydist_from_host_rule       = '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/([^/]+)',
+  NotUndef                              $keydist_from_host_allow      = '$2',
+  Any                                   $keydist_from_host_deny       = undef,
+  Boolean                               $krb5_keytabs_from_host       = true,
+  NotUndef                              $krb5_keytabs_from_host_rule  = '^/puppet/v3/file_(metadata|content)/modules/krb5_files/keytabs/([^/]+)',
+  NotUndef                              $krb5_keytabs_from_host_allow = '$2',
+  Any                                   $krb5_keytabs_from_host_deny  = undef,
 ) {
-  $_master_service = $server_distribution ? {
-    'PE'    => 'pe-puppetserver',
-    default => 'puppetserver',
-  }
+  include 'pupmod::master::service'
 
   # translates the parameter, which is a boolean, to the ensure parameter for the define
   $bool2ensure = {
@@ -101,7 +98,7 @@ class pupmod::master::simp_auth (
     allow                => '*',
     sort_order           => 400,
     path                 => $auth_conf_path,
-    notify               => Service[$_master_service],
+    notify               => Class['pupmod::master::service']
   }
 
   puppet_authorization::rule { 'Allow access to the mcollective cacerts from the legacy pki module from all hosts':
@@ -112,7 +109,7 @@ class pupmod::master::simp_auth (
     allow                => '*',
     sort_order           => 420,
     path                 => $auth_conf_path,
-    notify               => Service[$_master_service],
+    notify               => Class['pupmod::master::service']
   }
 
 
@@ -124,7 +121,7 @@ class pupmod::master::simp_auth (
     allow                => '$2',
     sort_order           => 450,
     path                 => $auth_conf_path,
-    notify               => Service[$_master_service],
+    notify               => Class['pupmod::master::service']
   }
 
   puppet_authorization::rule { 'Allow access to the mcollective PKI from the pki_files module from all hosts':
@@ -135,7 +132,7 @@ class pupmod::master::simp_auth (
     allow                => '*',
     sort_order           => 430,
     path                 => $auth_conf_path,
-    notify               => Service[$_master_service],
+    notify               => Class['pupmod::master::service']
   }
 
   puppet_authorization::rule { 'Allow access to the cacerts from the pki_files module from all hosts':
@@ -147,7 +144,7 @@ class pupmod::master::simp_auth (
     deny                 => $pki_cacerts_all_deny,
     sort_order           => 410,
     path                 => $auth_conf_path,
-    notify               => Service[$_master_service],
+    notify               => Class['pupmod::master::service']
   }
 
   puppet_authorization::rule { 'Allow access to each hosts own certs from the pki_files module':
@@ -159,7 +156,7 @@ class pupmod::master::simp_auth (
     deny                 => $keydist_from_host_deny,
     sort_order           => 440,
     path                 => $auth_conf_path,
-    notify               => Service[$_master_service],
+    notify               => Class['pupmod::master::service']
   }
 
   puppet_authorization::rule { 'Allow access to each hosts own kerberos keytabs from the krb5_files module':
@@ -171,7 +168,7 @@ class pupmod::master::simp_auth (
     deny                 => $krb5_keytabs_from_host_deny,
     sort_order           => 460,
     path                 => $auth_conf_path,
-    notify               => Service[$_master_service],
+    notify               => Class['pupmod::master::service']
   }
 
   # The puppet-agent package drops off this file for some reason, and it comes
@@ -181,6 +178,6 @@ class pupmod::master::simp_auth (
   file { '/etc/puppetlabs/puppet/auth.conf':
     ensure => absent,
     backup => true,
-    notify => Service[$_master_service]
+    notify => Class['pupmod::master::service']
   }
 }

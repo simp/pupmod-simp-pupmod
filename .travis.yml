@@ -58,32 +58,132 @@ jobs:
         - bundle exec puppet module build
 
     - stage: spec
-      name: 'Puppet 5.3 (PE 2017.3)'
+      name: 'Puppet 5.3 (PE 2017.3) - Classes'
       rvm: 2.4.5
       env: PUPPET_VERSION="~> 5.3.0"
       script:
-        - bundle exec rake spec
+        - bundle exec rake spec_prep
+        - bundle exec rspec spec/classes
+
+    - stage: spec
+      name: 'Puppet 5.3 (PE 2017.3) - Defines'
+      rvm: 2.4.5
+      env: PUPPET_VERSION="~> 5.3.0"
+      script:
+        - bundle exec rake spec_prep
+        - bundle exec rspec spec/defines
+
+    - stage: spec
+      name: 'Puppet 5.3 (PE 2017.3) - Functions'
+      rvm: 2.4.5
+      env: PUPPET_VERSION="~> 5.3.0"
+      script:
+        - bundle exec rake spec_prep
+        - bundle exec rspec spec/functions
+
+    - stage: spec
+      name: 'Puppet 5.3 (PE 2017.3) - Unit'
+      rvm: 2.4.5
+      env: PUPPET_VERSION="~> 5.3.0"
+      script:
+        - bundle exec rake spec_prep
+        - bundle exec rspec spec/unit
 
     - stage: spec
       rvm: 2.4.5
-      name: 'Puppet 5.5 (SIMP 6.3, PE 2018.1)'
+      name: 'Puppet 5.5 (SIMP 6.3, PE 2018.1) - Classes'
       env: PUPPET_VERSION="~> 5.5.0"
       script:
-        - bundle exec rake spec
+        - bundle exec rake spec_prep
+        - bundle exec rspec spec/classes
 
     - stage: spec
-      name: 'Latest Puppet 5.x'
+      rvm: 2.4.5
+      name: 'Puppet 5.5 (SIMP 6.3, PE 2018.1) - Defines'
+      env: PUPPET_VERSION="~> 5.5.0"
+      script:
+        - bundle exec rake spec_prep
+        - bundle exec rspec spec/defines
+
+    - stage: spec
+      rvm: 2.4.5
+      name: 'Puppet 5.5 (SIMP 6.3, PE 2018.1) - Functions'
+      env: PUPPET_VERSION="~> 5.5.0"
+      script:
+        - bundle exec rake spec_prep
+        - bundle exec rspec spec/functions
+
+    - stage: spec
+      rvm: 2.4.5
+      name: 'Puppet 5.5 (SIMP 6.3, PE 2018.1) - Unit'
+      env: PUPPET_VERSION="~> 5.5.0"
+      script:
+        - bundle exec rake spec_prep
+        - bundle exec rspec spec/unit
+
+    - stage: spec
+      name: 'Latest Puppet 5.x - Classes'
       rvm: 2.4.5
       env: PUPPET_VERSION="~> 5.0"
       script:
-        - bundle exec rake spec
+        - bundle exec rake spec_prep
+        - bundle exec rspec spec/classes
 
     - stage: spec
-      name: 'Latest Puppet 6.x'
+      name: 'Latest Puppet 5.x - Defines'
+      rvm: 2.4.5
+      env: PUPPET_VERSION="~> 5.0"
+      script:
+        - bundle exec rake spec_prep
+        - bundle exec rspec spec/defines
+
+    - stage: spec
+      name: 'Latest Puppet 5.x - Functions'
+      rvm: 2.4.5
+      env: PUPPET_VERSION="~> 5.0"
+      script:
+        - bundle exec rake spec_prep
+        - bundle exec rspec spec/functions
+
+    - stage: spec
+      name: 'Latest Puppet 5.x - Unit'
+      rvm: 2.4.5
+      env: PUPPET_VERSION="~> 5.0"
+      script:
+        - bundle exec rake spec_prep
+        - bundle exec rspec spec/unit
+
+    - stage: spec
+      name: 'Latest Puppet 6.x - Classes'
       rvm: 2.5.1
       env: PUPPET_VERSION="~> 6.0"
       script:
-        - bundle exec rake spec
+        - bundle exec rake spec_prep
+        - bundle exec rspec spec/classes
+
+    - stage: spec
+      name: 'Latest Puppet 6.x - Defines'
+      rvm: 2.5.1
+      env: PUPPET_VERSION="~> 6.0"
+      script:
+        - bundle exec rake spec_prep
+        - bundle exec rspec spec/defines
+
+    - stage: spec
+      name: 'Latest Puppet 6.x - Functions'
+      rvm: 2.5.1
+      env: PUPPET_VERSION="~> 6.0"
+      script:
+        - bundle exec rake spec_prep
+        - bundle exec rspec spec/functions
+
+    - stage: spec
+      name: 'Latest Puppet 6.x - Unit'
+      rvm: 2.5.1
+      env: PUPPET_VERSION="~> 6.0"
+      script:
+        - bundle exec rake spec_prep
+        - bundle exec rspec spec/unit
 
     - stage: deploy
       rvm: 2.4.5

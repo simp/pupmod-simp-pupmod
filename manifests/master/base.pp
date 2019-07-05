@@ -1,21 +1,20 @@
-# A break out of the mostly static files used by the Puppet master.
-#
-# @author Trevor Vaughan <tvaughan@onyxpoint.com>
+# @summary A break out of the mostly static files used by the Puppet master.
 #
 class pupmod::master::base {
-  include '::pupmod::master'
+  include 'pupmod::master'
+  include 'pupmod::master::install'
+  include 'pupmod::master::service'
+
+  Class['pupmod::master::install'] ~> Class['pupmod::master::service']
 
   exec { 'puppetserver_reload':
     command     => '/usr/local/sbin/puppetserver_reload',
     refreshonly => true,
+    subscribe   => Class['pupmod::master::service'],
     require     => File['/usr/local/sbin/puppetserver_reload']
   }
 
-  file { "${::pupmod::ssldir}/ca/ca_crl.pem":
-    notify => Service[$::pupmod::master::service]
-  }
-
-  file { $::pupmod::master::environmentpath:
+  file { $pupmod::master::environmentpath:
     ensure       => 'directory',
     owner        => 'root',
     group        => $facts['puppet_settings']['master']['group'],
@@ -33,7 +32,8 @@ class pupmod::master::base {
     content => epp("${module_name}/usr/local/sbin/puppetserver_clear_environment_cache", {
       'masterport'           => $pupmod::master::masterport,
       'admin_api_mountpoint' => $pupmod::master::admin_api_mountpoint
-      })
+      }
+    )
   }
 
   $_puppetserver_reload_cmd = @(END)
@@ -51,21 +51,10 @@ class pupmod::master::base {
     content => $_puppetserver_reload_cmd
   }
 
-  package { $::pupmod::master::service:
-    ensure => $::pupmod::master::package_ensure,
-    notify => Service[$::pupmod::master::service]
-  }
+  $auth_conf = '/etc/puppetlabs/puppetserver/conf.d/auth.conf'
 
-  service { $::pupmod::master::service:
-    ensure     => 'running',
-    enable     => true,
-    hasrestart => true,
-    hasstatus  => true,
-    require    => [
-      Package[$::pupmod::master::service],
-      Group['puppet'],
-      Class['pupmod::master::sysconfig']
-    ]
+  puppet_authorization { $auth_conf:
+    version => 1,
   }
 
   user { 'puppet':
@@ -74,9 +63,8 @@ class pupmod::master::base {
     comment    => 'Puppet User',
     gid        => 'puppet',
     home       => $pupmod::master::vardir,
-    membership => 'inclusive',
     shell      => '/sbin/nologin',
     tag        => 'firstrun',
-    require    => Package[$::pupmod::master::service]
+    require    => Class['pupmod::master::install']
   }
 }

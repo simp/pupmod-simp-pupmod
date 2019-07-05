@@ -143,7 +143,7 @@ class pupmod (
   Variant[Simplib::Host,Enum['$server']] $ca_server            = simplib::lookup('simp_options::puppet::ca', { 'default_value' => '$server' }),
   Simplib::Port                          $ca_port              = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
   Simplib::Host                          $puppet_server        = simplib::lookup('simp_options::puppet::server', { 'default_value' => "puppet.${facts['domain']}" }),
-  Simplib::ServerDistribution            $server_distribution  = simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'PC1' } ),
+  Simplib::ServerDistribution            $server_distribution  = pupmod::server_distribution(false), # Can't self-reference in this lookup
   Optional                               $ca_crl_pull_interval = undef,
   Simplib::Host                          $certname             = $facts['fqdn'],
   String[0]                              $classfile            = '$vardir/classes.txt',

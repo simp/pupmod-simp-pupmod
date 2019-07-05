@@ -24,6 +24,9 @@ fixtures:
       # how fragments are ordered (MODULES-6625)
       repo: https://github.com/simp/puppetlabs-concat
       ref: 4.1.1
+    hocon:
+      repo: https://github.com/puppetlabs/puppetlabs-hocon
+      ref: 1.0.1
     logrotate: https://github.com/simp/pupmod-simp-logrotate
     pki: https://github.com/simp/pupmod-simp-pki
     rsyslog: https://github.com/simp/pupmod-simp-rsyslog
