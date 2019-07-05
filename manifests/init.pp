@@ -75,10 +75,6 @@
 # @param masterport
 #   The port where the Puppet Master should be contacted.
 #
-# @param remove_environment_from_main
-#   If true (default), ensures that the main section of puppet.conf does not
-#   contain an environment setting.
-#
 # @param report
 #   Whether or not to send reports to the report server. This is
 #   disabled by default to allow users to reduce network load unless
@@ -141,6 +137,11 @@
 # @param set_environment
 #   Set the environment on the system to the currently running environment
 #
+#   * This will automatically purge the `environment` setting from the `main`
+#     section of the configuration to prevent issues from arising when running
+#     various puppet tools. To prevent this from happening, you may set this to
+#     `no_clean` and the entry will be preserved if present.
+#
 # @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 class pupmod (
@@ -174,7 +175,7 @@ class pupmod (
   Boolean                                $firewall             = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Hash                                   $pe_classlist         = {},
   String[1]                              $package_ensure       = simplib::lookup('simp_options::package_ensure' , { 'default_value' => 'installed'}),
-  Boolean                                $set_environment      = true,
+  Variant[Boolean, Enum['no_clean']]     $set_environment      = true,
   Boolean                                $mock                 = false
 ) inherits pupmod::params {
   unless ($mock == true) {
@@ -270,21 +271,23 @@ class pupmod (
       }
     }
 
-    if $set_environment and ( ! simplib::in_bolt() ) {
-      pupmod::conf { 'environment':
-        confdir => $confdir,
-        setting => 'environment',
-        value   => $environment
+    if $set_environment {
+      unless ($set_environment == 'no_clean') {
+        pupmod::conf { 'remove environment from main':
+          ensure  => 'absent',
+          section => 'main',
+          confdir => $confdir,
+          setting => 'environment',
+          value   => null
+        }
       }
-    }
 
-    if $remove_environment_from_main {
-      pupmod::conf { 'remove environment from main':
-        ensure  => 'absent',
-        section => 'main',
-        confdir => $confdir,
-        setting => 'environment',
-        value   => null,
+      unless simplib::in_bolt() {
+        pupmod::conf { 'environment':
+          confdir => $confdir,
+          setting => 'environment',
+          value   => $environment
+        }
       }
     }
 
