@@ -8,6 +8,14 @@ describe 'pupmod::pass_two' do
       let(:facts) do
         facts
       end
+
+      let(:assert_private_shim) { <<-EOM
+        function assert_private { true }
+      EOM
+      }
+
+      let(:pre_condition) { assert_private_shim }
+
       [
         'PC1',
         'PE'
@@ -19,7 +27,11 @@ describe 'pupmod::pass_two' do
           ].each do |pe_included|
             context "with puppet_enterprise in the catalog is #{pe_included}" do
               if (pe_included == true)
-                let(:pre_condition) { 'include ::puppet_enterprise' }
+                let(:pre_condition) {<<-EOM
+                  #{assert_private_shim}
+                  include ::puppet_enterprise
+                  EOM
+                }
               end
               if (pe_included == true or distribution == 'PE')
                 $pe_mode = true
@@ -96,6 +108,7 @@ describe 'pupmod::pass_two' do
                       let(:pre_condition) {
                         if (key == 'puppet_enterprise::profile::master')
                           ret = %{
+                            #{assert_private_shim}
                             include puppet_enterprise
                             class { 'pupmod':
                               mock => true
@@ -104,6 +117,7 @@ describe 'pupmod::pass_two' do
                           }
                         else
                           ret = %{
+                            #{assert_private_shim}
                             include puppet_enterprise
                             include #{key}
                           }
@@ -162,28 +176,28 @@ describe 'pupmod::pass_two' do
 
               if $pe_mode
                 context "with pupmod::master defined" do
-                  let(:pre_condition) {
-                    '
+                  let(:pre_condition) {<<-EOM
+                      #{assert_private_shim}
                       include ::puppet_enterprise
                       include ::puppet_enterprise::profile::master
                       class { "::pupmod":
                         mock => true
                       }
                       include pupmod::master
-                    '
+                    EOM
                   }
                   it { is_expected.to compile.and_raise_error(/.*pupmod::master is NOT supported on PE masters. Please remove the pupmod::master classification from hiera or the puppet console before proceeding.*/) }
 
                 end
                 context "with pupmod::master not defined" do
-                  let(:pre_condition) {
-                    '
+                  let(:pre_condition) {<<-EOM
+                      #{assert_private_shim}
                       include ::puppet_enterprise
                       include ::puppet_enterprise::profile::master
                       class { "::pupmod":
                         mock => true
                       }
-                    '
+                    EOM
                   }
                   it { is_expected.to compile }
                   it { is_expected.to contain_class("pupmod::master::sysconfig")}

@@ -56,7 +56,7 @@
 #
 #
 class pupmod::master::simp_auth (
-  Simplib::ServerDistribution $server_distribution          = simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'PC1' } ),
+  Simplib::ServerDistribution $server_distribution          = pupmod::server_distribution(),
   Stdlib::AbsolutePath        $auth_conf_path               = '/etc/puppetlabs/puppetserver/conf.d/auth.conf',
   Boolean                     $legacy_cacerts_all           = false,
   Boolean                     $legacy_mcollective_all       = false,

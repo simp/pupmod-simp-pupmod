@@ -268,7 +268,7 @@ class pupmod::master (
   Boolean                                             $auditd                          = simplib::lookup('simp_options::auditd', { 'default_value' => false }),
   Simplib::Port                                       $ca_port                         = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
   Simplib::NetList                                    $trusted_nets                    = simplib::lookup('simp_options::trusted_nets', { 'default_value' => ['127.0.0.1','::1'] }),
-  String                                              $server_distribution             = simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'PC1' } ),
+  String                                              $server_distribution             = pupmod::server_distribution(),
   Pupmod::CaTTL                                       $ca_ttl                          = '10y',
   Boolean                                             $daemonize                       = true,
   Boolean                                             $enable_ca                       = true,

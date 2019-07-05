@@ -1,5 +1,7 @@
-# A helper defined type for adding processing to fix some issues with Puppet 4+
-# installations.
+# @summary A helper defined type for adding processing to fix some issues with
+# Puppet 4+ installations.
+#
+# @private
 #
 # @param namevar
 # @param server_distribution
@@ -16,7 +18,7 @@
 #
 define pupmod::pass_two (
   String                                 $namevar             = $name,
-  Simplib::ServerDistribution            $server_distribution = 'PC1',
+  Simplib::ServerDistribution            $server_distribution = pupmod::server_distribution(),
   Stdlib::AbsolutePath                   $confdir             = '/etc/puppetlabs/puppet',
   Optional[Boolean]                      $firewall            = undef,
   Hash                                   $pe_classlist        = lookup('pupmod::pe_classlist'),
@@ -26,6 +28,8 @@ define pupmod::pass_two (
   Boolean                                $pupmod_report       = false,
   Simplib::Port                          $pupmod_masterport   = 8140,
 ) {
+  assert_private()
+
   if (defined(Class['puppet_enterprise'])) {
     $_server_distribution = 'PE'
   } else {
@@ -124,11 +128,7 @@ define pupmod::pass_two (
     if (defined(Class['pupmod::master'])) {
       fail('pupmod::master is NOT supported on PE masters. Please remove the pupmod::master classification from hiera or the puppet console before proceeding')
     } else {
-      class { 'pupmod::master::sysconfig':
-        server_distribution => 'PE',
-        service             => 'pe-puppetserver',
-        user                => 'pe-puppet',
-      }
+      include 'pupmod::master::sysconfig'
     }
   }
   if (defined(Class['pupmod::master'])) {

@@ -68,7 +68,7 @@ class pupmod::master::sysconfig (
   Optional[Array[String]]        $extra_java_args      = undef,
   Integer                        $service_stop_retries = 60,
   Integer                        $start_timeout        = 120,
-  Simplib::ServerDistribution    $server_distribution  = 'PC1',
+  Simplib::ServerDistribution    $server_distribution  = pupmod::server_distribution(),
   String                         $user                 = $facts['puppet_settings']['master']['user'],
   String                         $group                = $facts['puppet_settings']['master']['group'],
   Boolean                        $mock                 = false
