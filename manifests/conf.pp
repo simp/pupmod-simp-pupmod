@@ -16,7 +16,12 @@
 #   The configuration directory holding the 'puppet.conf' file.
 #
 # @param section
-#   The Sections of the puppet.conf to set.
+#   The Section of the puppet.conf to set.
+#
+#   * If ``$setting`` is trying to be set to ``environment``, then this will be
+#     forced to ``agent`` to work around various puppet command bugs.
+#
+#   @see https://simp-project.atlassian.net/browse/SIMP-6820
 #
 # @param ensure
 #  Determines whether the specified setting should exist.
@@ -27,10 +32,9 @@ define pupmod::conf (
   String $setting,
   Scalar $value,
   String $confdir,
-  String $section = 'main',
+  String $section = $setting ? { 'environment' => 'agent', default => 'main' },
   Enum['present', 'absent'] $ensure = 'present',
 ) {
-
   $l_name = "${module_name}_${name}"
 
   ini_setting { $l_name:

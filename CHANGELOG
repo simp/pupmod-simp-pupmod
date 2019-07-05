@@ -4,7 +4,11 @@
 - Refactor some of the underlying code to use the new function and be safer for
   PE installations.
 
-* Thu Jul 01 2019 Bob Vincent <pillarsdotnet@gmail.com> - 7.11.0-0
+* Wed Jul 03 2019 Bob Vincent <pillarsdotnet@gmail.com> - 7.11.0-0
+- Ensure that the 'environment' setting in puppet.conf is forced into the
+  'agent' section.
+- Ensure that the 'environment' setting in puppet.conf does not exist in the
+  'main' section.
 - Fix ordering issues with managing the Puppet Server
 
 * Fri Jun 28 2019 Steven Pritchard <steven.pritchard@onypoint.com> - 7.11.0-0

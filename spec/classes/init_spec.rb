@@ -44,9 +44,15 @@ describe 'pupmod' do
             it { is_expected.not_to contain_pupmod__conf('splaylimit') }
 
             it { is_expected.to contain_pupmod__conf('environment').with({
-              'section' => 'main',
+              'section' => 'agent',
               'setting' => 'environment',
               'value' => 'rp_env'
+            }) }
+
+            it { is_expected.to contain_pupmod__conf('remove environment from main').with({
+              'ensure' => 'absent',
+              'section' => 'main',
+              'setting' => 'environment'
             }) }
 
             it { is_expected.to contain_pupmod__conf('syslogfacility').with({
