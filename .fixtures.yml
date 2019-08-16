@@ -29,9 +29,7 @@ fixtures:
     simp_options: https://github.com/simp/pupmod-simp-simp_options
     simplib: https://github.com/simp/pupmod-simp-simplib
     stdlib: https://github.com/simp/puppetlabs-stdlib
-    systemd:
-      repo: https://github.com/simp/puppet-systemd
-      branch: simp-master
+    systemd: https://github.com/simp/puppet-systemd
     pam: https://github.com/simp/pupmod-simp-pam
     puppet_enterprise:
       repo: https://github.com/simp/pupmod-mock-puppet_enterprise
