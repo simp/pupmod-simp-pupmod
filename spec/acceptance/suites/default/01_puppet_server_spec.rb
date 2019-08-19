@@ -35,8 +35,14 @@ describe 'install environment via r10k and puppetserver' do
     EOF
   }
 
+
+
   hosts_with_role(hosts, 'master').each do |master|
     context "on #{master}" do
+      it 'should enable SIMP and SIMP dependencies repos' do
+        install_simp_repos(master)
+      end
+
       it 'should install puppetserver' do
         master.install_package('puppetserver')
       end
