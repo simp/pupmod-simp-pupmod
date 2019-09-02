@@ -78,8 +78,10 @@ describe 'pupmod::pass_two' do
               end
               unless $pe_mode
                 mode = '0640'
+                group = 'puppet'
               else
                 mode = nil
+                group = nil
               end
               it { is_expected.to contain_file('/etc/puppetlabs/puppet').with({
                 'ensure' => 'directory',
@@ -90,7 +92,7 @@ describe 'pupmod::pass_two' do
               it { is_expected.to contain_file('/etc/puppetlabs/puppet/puppet.conf').with({
                 'ensure' => 'file',
                 'owner'  => 'root',
-                'group'  => 'puppet',
+                'group'  => group,
                 'mode'   => mode
               }) }
               it { is_expected.to contain_group('puppet').with({
