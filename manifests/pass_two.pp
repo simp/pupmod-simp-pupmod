@@ -71,7 +71,7 @@ define pupmod::pass_two (
     }
   }
 
-  $_conf_group = 'puppet'
+  $_conf_group = $facts['puppet_settings']['master']['group']
 
   # These two maps allow the user and service specifications to occur purely in
   # data and can be included /only/ if the node is classified into the
@@ -137,10 +137,13 @@ define pupmod::pass_two (
     }
   }
 
+  # These items are managed on different files by both the FOSS and PE versions
   if ($_server_distribution == 'PC1') {
     $shared_mode = '0640'
+    $shared_group = $_conf_group
   } elsif ($_server_distribution == 'PE') {
     $shared_mode = undef
+    $shared_group = undef
   }
   file { $confdir:
     ensure => 'directory',
@@ -152,7 +155,7 @@ define pupmod::pass_two (
   file { "${confdir}/puppet.conf":
     ensure => 'file',
     owner  => 'root',
-    group  => $_conf_group,
+    group  => $shared_group,
     mode   => $shared_mode
   }
 
