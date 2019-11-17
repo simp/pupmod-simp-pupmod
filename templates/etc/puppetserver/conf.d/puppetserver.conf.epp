@@ -101,7 +101,7 @@ jruby-puppet: {
     # (optional) set the output file to direct JRuby profiler output. Should be
     # a fully qualified path writable by the service user. If not set will
     # default to a random name inside the service working directory.
-    profiling-output-file: <%= $pupmod::master::profiling_output_file %>
+    profiler-output-file: <%= $pupmod::master::profiler_output_file %>
 <% } -%>
 }
 
