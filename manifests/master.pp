@@ -143,7 +143,7 @@
 #
 #   * Only functional on ``puppetserver`` >= 5.4.1
 #
-# @param profiling_output_file
+# @param profiler_output_file
 #   The file to use when outputting server profiling information
 #
 #   * Only functional on ``puppetserver`` >= 5.4.1
@@ -299,7 +299,7 @@ class pupmod::master (
   Optional[Array[Pupmod::Master::SSLCipherSuites]]    $ssl_cipher_suites               = undef,
   Boolean                                             $enable_profiler                 = false,
   Pupmod::ProfilingMode                               $profiling_mode                  = 'off',
-  Stdlib::AbsolutePath                                $profiling_output_file           = "${vardir}/server_jruby_profiling",
+  Stdlib::AbsolutePath                                $profiler_output_file           = "${vardir}/server_jruby_profiling",
   Array[Simplib::Hostname]                            $admin_api_whitelist             = [$facts['fqdn']],
   String                                              $admin_api_mountpoint            = '/puppet-admin-api',
   Boolean                                             $log_to_file                     = false,

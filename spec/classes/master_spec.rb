@@ -201,7 +201,7 @@ describe 'pupmod::master' do
                 puppetserver_tgt_hash['max-queued-requests']   = 10
                 puppetserver_tgt_hash['max-retry-delay']       = 1800
                 puppetserver_tgt_hash['profiling-mode']        = 'off'
-                puppetserver_tgt_hash['profiling-output-file'] = '/opt/puppetlabs/server/data/puppetserver/server_jruby_profiling'
+                puppetserver_tgt_hash['profiler-output-file'] = '/opt/puppetlabs/server/data/puppetserver/server_jruby_profiling'
               end
 
               if puppetserver_version >= '6.0.0'
