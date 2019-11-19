@@ -1,6 +1,10 @@
+* Tue Nov 19 2019 Luke Stigdon <git@lukestigdon.com> - 7.11.1-0
+- Correct pupmod::master::profiler_output_file option name
+
 * Mon Sep 02 2019 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.11.1-0
 - Ensure that pupmod::pass_two does not conflict with the internal PE
   configuration code for group ownership of puppet.conf
+- Support simp-simplib < 5
 
 * Fri Aug 02 2019 Robert Vincent <pillarsdotnet@gmail.com> - 7.11.1-0
 - Support puppetlabs/concat 6.x and puppetlabs/inifile 3.x.
