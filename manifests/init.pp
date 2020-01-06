@@ -21,9 +21,6 @@
 #   The server distribution used. This changes the configuration based on whether
 #   we are using PC1 or PE
 #
-# @param ca_crl_pull_interval
-#   NOTE: This parameter is deprecated and throws a warning if specified.
-#
 # @param certname
 #   The puppet certificate CN name of the system.
 #
@@ -149,7 +146,6 @@ class pupmod (
   Simplib::Port                          $ca_port              = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
   Simplib::Host                          $puppet_server        = simplib::lookup('simp_options::puppet::server', { 'default_value' => "puppet.${facts['domain']}" }),
   Simplib::ServerDistribution            $server_distribution  = pupmod::server_distribution(false), # Can't self-reference in this lookup
-  Optional                               $ca_crl_pull_interval = undef,
   Simplib::Host                          $certname             = $facts['fqdn'],
   String[0]                              $classfile            = '$vardir/classes.txt',
   Stdlib::AbsolutePath                   $confdir              = $::pupmod::params::puppet_config['confdir'],
@@ -185,10 +181,6 @@ class pupmod (
     # puppet configuration variable, like $vardir
 
     assert_type(Pattern['^(\$(?!/)|/).+'], $classfile)
-
-    if $ca_crl_pull_interval {
-      deprecation('pupmod::ca_crl_pull_interval', 'pupmod::ca_crl_pull_interval is deprecated, the CRL cron job has been removed.')
-    }
 
     if $haveged {
       include '::haveged'
@@ -243,7 +235,7 @@ class pupmod (
     # The workaround is to take advantage of the fact that the puppet
     # catalog compiler takes multiple passes, a first pass for most
     # classes to be evaluated, and a second pass for resource collection
-    # staetments. Basically by creating a virtual defined type and realizing
+    # statements. Basically by creating a virtual defined type and realizing
     # it immediately, we 'throw' any puppet code in the defined type into the
     # next pass of the compiler.
     #
@@ -359,9 +351,4 @@ class pupmod (
       }
     }
   }
-
-  # Make sure OBE cron job from pupmod versions prior to 7.3.1 is removed.
-  # This resource can be removed when the OBE ca_crl_pull_interval
-  # parameter is removed.
-  cron { 'puppet_crl_pull': ensure => 'absent' }
 }

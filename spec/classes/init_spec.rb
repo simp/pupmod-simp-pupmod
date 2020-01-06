@@ -162,8 +162,6 @@ describe 'pupmod' do
               end
             end
 
-            it { is_expected.to contain_cron('puppet_crl_pull').with_ensure('absent') }
-
             context 'with_selinux_disabled' do
               let(:facts) {
                 _facts = @extras.merge(os_facts)

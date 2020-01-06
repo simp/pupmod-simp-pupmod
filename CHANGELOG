@@ -1,3 +1,7 @@
+* Mon Jan 06 2020 Michael Morrone <michael.morrone@onyxpoint.com> - 7.12.0-0
+- Remove deprecated CRL pull chron job
+- Remove support for legacy pki module
+
 * Tue Nov 19 2019 Luke Stigdon <git@lukestigdon.com> - 7.11.1-0
 - Correct pupmod::master::profiler_output_file option name
 
