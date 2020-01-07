@@ -2,11 +2,11 @@
 #
 # This is mainly a stub class for hooking other classes along the way
 # with a small bit of logic to flex the system toward being a Puppet
-# master or client.
+# master or client.  It manages Puppet and Facter configurations.
 #
-# All parameters are, by default, written to the [main] config block
-# of the configuration file. Selective options may be written to their
-# respective components as necessary for deconfliction.
+# All Puppet configuration parameters are, by default, written to the
+# [main] config block of the Puppet configuration file. Selective options
+# may be written to their respective components as necessary for deconfliction.
 #
 # @param ca_port
 #   The port where the remote CA should be contacted.
@@ -119,6 +119,22 @@
 # @param vardir
 #   The directory where puppet will store all of its 'variable' data.
 #
+# @param manage_facter_conf
+#   Whether to manage the Facter configuration file.
+#
+# @param facter_conf_dir
+#   Directory containing the Facter configuration file.
+#
+# @param facter_options
+#   Hash of Facter configuration options.
+#   - Only applies when `manage_facter_conf` is `true`.
+#   - Each primary key is a section in the Facter configuration file
+#     (e.g., 'facts', 'global', 'cli')
+#   - When the configuration for a section is empty, that section will
+#     be removed entirely from the Facter configuration file.
+#   - See https://puppet.com/docs/facter/latest/configuring_facter.html
+#     for details on how to configure Facter.
+#
 # @param mock
 #   If true, disable all code.
 #
@@ -139,7 +155,7 @@
 #     various puppet tools. To prevent this from happening, you may set this to
 #     `no_clean` and the entry will be preserved if present.
 #
-# @author Trevor Vaughan <tvaughan@onyxpoint.com>
+# @author https://github.com/simp/pupmod-simp-pupmod/graphs/contributors
 #
 class pupmod (
   Variant[Simplib::Host,Enum['$server']] $ca_server            = simplib::lookup('simp_options::puppet::ca', { 'default_value' => '$server' }),
@@ -172,6 +188,9 @@ class pupmod (
   Hash                                   $pe_classlist         = {},
   String[1]                              $package_ensure       = simplib::lookup('simp_options::package_ensure' , { 'default_value' => 'installed'}),
   Variant[Boolean, Enum['no_clean']]     $set_environment      = true,
+  Boolean                                $manage_facter_conf   = false,
+  Stdlib::Absolutepath                   $facter_conf_dir      = '/etc/puppetlabs/facter',
+  Hash                                   $facter_options,      # module data
   Boolean                                $mock                 = false
 ) inherits pupmod::params {
   unless ($mock == true) {
@@ -349,6 +368,10 @@ class pupmod (
         persistent => true,
         value      => 'on'
       }
+    }
+
+    if $manage_facter_conf {
+      include 'pupmod::facter::conf'
     }
   }
 }

@@ -1,5 +1,7 @@
 # Split out the 'service' for cleaner dependency ordering
 #
+# @param service_name Name of the puppetserver service
+#
 # @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 class pupmod::master::service(

@@ -74,6 +74,56 @@ describe 'install environment via r10k and puppetserver' do
           expect(result.stdout).to include('hiera-eyaml')
         end
       end
+
+      context 'when managing facter.conf' do
+        let(:disable_block_hieradata) {
+          <<-EOS
+            pupmod::manage_facter_conf: true
+            pupmod::facter_options:
+              facts:
+                blocklist:
+                  - hypervisors
+          EOS
+        }
+
+        let(:enable_block_hieradata) { 'pupmod::manage_facter_conf: true' }
+
+        it 'should provide hypervisors facts initially' do
+          hypervisors = fact_on(master, 'hypervisors')
+          exists = !(hypervisors.nil? || hypervisors.empty?)
+          expect(exists).to be true
+        end
+
+        it 'should create config to disable hypervisors fact block' do
+          set_hieradata_on(master, disable_block_hieradata)
+          apply_manifest_on(master, master_manifest, :accept_all_exit_codes => true)
+        end
+
+        it 'should be idempotent' do
+          apply_manifest_on(master, master_manifest, :catch_changes => true )
+        end
+
+        it 'should no longer provide hypervisors facts' do
+          hypervisors = fact_on(master, 'hypervisors')
+          exists = !(hypervisors.nil? || hypervisors.empty?)
+          expect(exists).to be false
+        end
+
+        it 'should create config to re-enable hypervisors fact block' do
+          set_hieradata_on(master, enable_block_hieradata)
+          apply_manifest_on(master, master_manifest, :accept_all_exit_codes => true)
+        end
+
+        it 'should be idempotent' do
+          apply_manifest_on(master, master_manifest, :catch_changes => true )
+        end
+
+        it 'should provide hypervisors facts again' do
+          hypervisors = fact_on(master, 'hypervisors')
+          exists = !(hypervisors.nil? || hypervisors.empty?)
+          expect(exists).to be true
+        end
+      end
     end
   end
 end

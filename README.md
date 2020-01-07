@@ -4,6 +4,20 @@
 [![Puppet Forge Downloads](https://img.shields.io/puppetforge/dt/simp/pupmod.svg)](https://forge.puppetlabs.com/simp/pupmod)
 [![Build Status](https://travis-ci.org/simp/pupmod-simp-pupmod.svg)](https://travis-ci.org/simp/pupmod-simp-pupmod)
 
+#### Table of Contents
+
+<!-- vim-markdown-toc GFM -->
+
+* [Overview](#overview)
+* [This is a SIMP module](#this-is-a-simp-module)
+* [Module Description](#module-description)
+* [Upgrade Considerations](#upgrade-considerations)
+
+<!-- vim-markdown-toc -->
+
+
+## Overview
+
 ## This is a SIMP module
 
 This module is a component of the [System Integrity Management Platform](https://simp-project.com),
@@ -13,7 +27,13 @@ If you find any issues, they can be submitted to our [JIRA](https://simp-project
 
 Please read our [Contribution Guide](https://simp.readthedocs.io/en/stable/contributors_guide/index.html).
 
-## Upgrading From 7.3.0 Or Earlier
+## Module Description
+
+See [REFERENCE.md](REFERENCE.md) for more details.
+
+## Upgrade Considerations
+
+### Upgrading From 7.3.0 Or Earlier
 
 Legacy auth.conf, `/etc/puppetlabs/puppet/auth.conf`, has been deprecated.
 `pupmod-simp-pupmod` will back up legacy puppet auth.conf after upgrade.

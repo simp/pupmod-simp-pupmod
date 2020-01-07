@@ -1,3 +1,4 @@
+# puppetserver log levels
 type Pupmod::LogLevel = Enum[
   'TRACE',
   'DEBUG',

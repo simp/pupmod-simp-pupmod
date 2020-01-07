@@ -1,7 +1,11 @@
 ---
+pupmod::facter_options:
+  facts: {}
+  global: {}
+  cli: {}
 pupmod::pe_classlist:
   pupmod:
-   users:
+    users:
       - root
   pupmod::master:
     users:
@@ -101,5 +105,7 @@ pupmod::pe_classlist:
       - proto: tcp
         port: 8170
 lookup_options:
+  pupmod::facter_options:
+    merge: deep
   pupmod::pe_classlist:
     merge: hash
