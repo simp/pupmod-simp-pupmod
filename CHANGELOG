@@ -1,3 +1,13 @@
+* Mon Jan 06 2020 Michael Morrone <michael.morrone@onyxpoint.com> - 8.0.0-0
+- Removed the deprecated CA CRL pull cron job and the corresponding
+  pupmod::ca_crl_pull_interval parameter
+- Removed deprecated auth.conf support for the legacy pki module and
+  the corresponding parameters:
+  - pupmod::master::simp_auth::legacy_cacerts_all
+  - pupmod::master::simp_auth::legacy_mcollective_all
+  - pupmod::master::simp_auth::legacy_pki_keytabs_from_host
+- Removed the deprecated pupmod::master::simp_auth::server_distribution parameter
+
 * Tue Nov 19 2019 Luke Stigdon <git@lukestigdon.com> - 7.11.1-0
 - Correct pupmod::master::profiler_output_file option name
 

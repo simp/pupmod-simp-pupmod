@@ -131,11 +131,6 @@ define pupmod::pass_two (
       include 'pupmod::master::sysconfig'
     }
   }
-  if (defined(Class['pupmod::master'])) {
-    class { 'pupmod::master::simp_auth':
-      server_distribution => $_server_distribution
-    }
-  }
 
   # These items are managed on different files by both the FOSS and PE versions
   if ($_server_distribution == 'PC1') {
@@ -145,6 +140,7 @@ define pupmod::pass_two (
     $shared_mode = undef
     $shared_group = undef
   }
+
   file { $confdir:
     ensure => 'directory',
     owner  => 'root',
@@ -195,5 +191,5 @@ define pupmod::pass_two (
         }
       }
     }
-    }
+  }
 }

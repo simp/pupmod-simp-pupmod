@@ -3,21 +3,8 @@
 # For documentation about *_allow and *_deny, see the puppetserver docs
 # @see https://puppet.com/docs/puppetserver/2.7/config_file_auth.html#rules
 #
-# @param server_distribution
-#   Deprecated: The server distribution that is being managed.
-#
 # @param auth_conf_path
 #   The location to the puppet master's auth.conf
-#
-# @param legacy_cacerts_all
-#   Allow access to the PKI cacerts from the legacy `pki` module from all hosts
-#
-# @param legacy_mcollective_all
-#   Allow access to the mcollective cacerts from the legacy `pki` module from
-#   all hosts
-#
-# @param legacy_pki_keytabs_from_host
-#   Allow access to each host's own kerberos keytabs from the legacy location
 #
 # @param pki_cacerts_all
 #   Allow access to the cacerts from the `pki_files` module from all hosts
@@ -56,11 +43,7 @@
 #
 #
 class pupmod::master::simp_auth (
-  Optional[Simplib::ServerDistribution] $server_distribution          = undef,
   Stdlib::AbsolutePath                  $auth_conf_path               = '/etc/puppetlabs/puppetserver/conf.d/auth.conf',
-  Boolean                               $legacy_cacerts_all           = false,
-  Boolean                               $legacy_mcollective_all       = false,
-  Boolean                               $legacy_pki_keytabs_from_host = false,
   Boolean                               $pki_mcollective_all          = true,
   Boolean                               $pki_cacerts_all              = true,
   NotUndef                              $pki_cacerts_all_rule         = '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/cacerts',
@@ -81,47 +64,6 @@ class pupmod::master::simp_auth (
   $bool2ensure = {
     true  => 'present',
     false => 'absent'
-  }
-
-  if $legacy_cacerts_all {
-    simplib::deprecation('pupmod::master::simp_auth::legacy_cacerts_all', 'pupmod::master::simp_auth::legacy_cacerts_all is deprecated and will be removed in a future version')
-  }
-  if $legacy_pki_keytabs_from_host {
-    simplib::deprecation('pupmod::master::simp_auth::legacy_pki_keytabs_from_host', 'pupmod::master::simp_auth::legacy_pki_keytabs_from_host is deprecated and will be removed in a future version')
-  }
-
-  puppet_authorization::rule { 'Allow access to the PKI cacerts from the legacy pki module from all hosts':
-    ensure               => $bool2ensure[$legacy_cacerts_all],
-    match_request_path   => '^/puppet/v3/file_(metadata|content)/modules/pki/keydist/cacerts',
-    match_request_type   => 'regex',
-    match_request_method => ['get'],
-    allow                => '*',
-    sort_order           => 400,
-    path                 => $auth_conf_path,
-    notify               => Class['pupmod::master::service']
-  }
-
-  puppet_authorization::rule { 'Allow access to the mcollective cacerts from the legacy pki module from all hosts':
-    ensure               => $bool2ensure[$legacy_mcollective_all],
-    match_request_path   => '^/puppet/v3/file_(metadata|content)/modules/pki/keydist/mcollective',
-    match_request_type   => 'regex',
-    match_request_method => ['get'],
-    allow                => '*',
-    sort_order           => 420,
-    path                 => $auth_conf_path,
-    notify               => Class['pupmod::master::service']
-  }
-
-
-  puppet_authorization::rule { 'Allow access to each hosts own kerberos keytabs from the legacy location':
-    ensure               => $bool2ensure[$legacy_pki_keytabs_from_host],
-    match_request_path   => '^/puppet/v3/file_(metadata|content)/modules/pki_files/keytabs/([^/]+)',
-    match_request_type   => 'regex',
-    match_request_method => ['get'],
-    allow                => '$2',
-    sort_order           => 450,
-    path                 => $auth_conf_path,
-    notify               => Class['pupmod::master::service']
   }
 
   puppet_authorization::rule { 'Allow access to the mcollective PKI from the pki_files module from all hosts':
