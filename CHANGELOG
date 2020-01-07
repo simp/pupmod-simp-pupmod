@@ -1,4 +1,4 @@
-* Mon Jan 06 2020 Michael Morrone <michael.morrone@onyxpoint.com> - 7.12.0-0
+* Mon Jan 06 2020 Michael Morrone <michael.morrone@onyxpoint.com> - 8.0.0-0
 - Removed deprecated CA CRL pull cron job
 - Removed deprecated auth.conf support for legacy pki module
 - Removed deprecated simp_auth::server_distribution parameter
