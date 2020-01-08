@@ -115,6 +115,35 @@ checks:
     identifiers:
       nist_800_53:rev4:
       - CM-6
+  oval:com.puppet.forge.simp.pupmod.facter_options:
+    settings:
+      parameter: pupmod::facter_options
+      value:
+        facts:
+          blocklist:
+          - EC2
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-20: true
+      nist_800_53:rev4:SC-38: true
+    identifiers:
+      nist_800_53:rev4:
+      - AC-20
+      - SC-38
+  oval:com.puppet.forge.simp.pupmod.manage_facter_conf:
+    settings:
+      parameter: pupmod::manage_facter_conf
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-20: true
+      nist_800_53:rev4:SC-38: true
+    identifiers:
+      nist_800_53:rev4:
+      - AC-20
+      - SC-38
   oval:com.puppet.forge.simp.pupmod.logdir:
     settings:
       parameter: pupmod::logdir

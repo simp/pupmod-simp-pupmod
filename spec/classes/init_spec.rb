@@ -162,6 +162,8 @@ describe 'pupmod' do
               end
             end
 
+            it { is_expected.not_to contain_class('pupmod::facter::conf') }
+
             context 'with_selinux_disabled' do
               let(:facts) {
                 _facts = @extras.merge(os_facts)
@@ -219,6 +221,11 @@ describe 'pupmod' do
             context 'with set_environment disabled' do
               let(:params) {{ :set_environment => false }}
               it { is_expected.not_to contain_pupmod__conf('environment') }
+            end
+
+            context 'with manage_facter_conf => true' do
+              let(:params) {{ :manage_facter_conf => true }}
+              it { is_expected.to contain_class('pupmod::facter::conf') }
             end
           end
         end

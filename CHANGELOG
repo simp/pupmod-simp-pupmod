@@ -1,3 +1,6 @@
+* Wed Jan 08 2020 Liz Nemsick <lnemsick.simp@gmail.com> - 8.0.0-0
+- Added optional management of the Facter configuration file.
+
 * Mon Jan 06 2020 Michael Morrone <michael.morrone@onyxpoint.com> - 8.0.0-0
 - Removed the deprecated CA CRL pull cron job and the corresponding
   pupmod::ca_crl_pull_interval parameter
