@@ -135,6 +135,7 @@ RSpec.configure do |c|
     end
 
     # ensure the user running these tests has an accessible environmentpath
+    Puppet[:digest_algorithm] = 'sha256'
     Puppet[:environmentpath] = @spec_global_env_temp
     Puppet[:user] = Etc.getpwuid(Process.uid).name
     Puppet[:group] = Etc.getgrgid(Process.gid).name

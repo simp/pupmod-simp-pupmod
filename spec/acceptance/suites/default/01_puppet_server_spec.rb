@@ -37,10 +37,12 @@ describe 'install environment via r10k and puppetserver' do
 
 
 
-  hosts_with_role(hosts, 'master').each do |master|
+  hosts_with_role(hosts, 'simp_master').each do |master|
     context "on #{master}" do
       it 'should enable SIMP and SIMP dependencies repos' do
         install_simp_repos(master)
+
+        master.install_package('epel-release')
       end
 
       it 'should install puppetserver' do
@@ -53,6 +55,10 @@ describe 'install environment via r10k and puppetserver' do
 
       it 'should enable trusted_server_facts' do
         on(master, 'puppet config --section master set trusted_server_facts true')
+      end
+
+      it 'should correct the permissions' do
+        on(master, 'chown -R puppet:puppet /etc/puppetlabs/code')
       end
 
       it 'should apply the master manifest' do

@@ -25,22 +25,22 @@ describe 'incron driven puppet generate types'  do
     end
   end
 
-  hosts_with_role(hosts, 'master').each do |host|
+  hosts_with_role(hosts, 'simp_master').each do |host|
     context "on #{host}" do
       let(:environment_path) { host.puppet[:environmentpath] }
-      let(:incron_cache) {
+      let(:resource_types_cache) {
         "#{environment_path}/production/.resource_types"
       }
 
       it 'should have run `puppet generate types`' do
         wait_for_generate_types(host)
 
-        on(host, "ls -al #{incron_cache}")
+        on(host, "ls -al #{resource_types_cache}")
       end
 
       it 'should not recreate the resource cache after deletion' do
-        on(host, "rm -rf #{incron_cache}")
-        expect(host.file_exist?(incron_cache)).to_not be true
+        on(host, "rm -rf #{resource_types_cache}")
+        expect(host.file_exist?(resource_types_cache)).to_not be true
       end
 
       it 'should create the resource cache in a new environment' do
@@ -83,7 +83,7 @@ describe 'incron driven puppet generate types'  do
       # Validate that we're running the minimal (safe) incron set
       it 'should NOT recreate the resource cache if a library is updated' do
         on(host, "echo '' >> #{environment_path}/production/modules/incron/lib/puppet/type/incron_system_table.rb")
-        expect(host.file_exist?(incron_cache)).to_not be true
+        expect(host.file_exist?(resource_types_cache)).to_not be true
       end
 
       it 'should not crash the system when creating 100 new environments' do
@@ -104,6 +104,14 @@ describe 'incron driven puppet generate types'  do
         num_generated = on(host, "ls -d #{environment_path}/testenv{1..100}/.resource_types 2>/dev/null | wc -l", :accept_all_exit_codes => true).output.lines.last.strip.to_i
 
         expect(num_generated).to be > 1
+      end
+
+      it 'should not crash the system when updating lots of type files' do
+        on(host, 'find /etc/puppetlabs/code/environments -path "*/lib/puppet/type/**.rb" -exec echo "# test" >> {} \;')
+
+        wait_for_generate_types(host)
+
+        on(host, "ls #{environment_path} | wc -l")
       end
     end
   end

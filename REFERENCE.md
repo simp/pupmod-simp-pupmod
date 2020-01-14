@@ -27,7 +27,7 @@
 
 **Functions**
 
-* [`pupmod::generate_types_munge`](#pupmodgenerate_types_munge): Return an Array of Stdlib::AbsolutePath (legacy compat), or a Hash of AbsolutePath and Incron::Mask values that have the string PUPPET_ENVIRO
+* [`pupmod::generate_types_munge`](#pupmodgenerate_types_munge): Return an Array of Stdlib::AbsolutePath (legacy compat), or a Hash of AbsolutePath and String values that have the string PUPPET_ENVIRONMENTP
 * [`pupmod::max_active_instances`](#pupmodmax_active_instances): Provides a reasonable calculation for the maximum number of active instances for a system  Parameters are not to be used but are present as a
 * [`pupmod::server_distribution`](#pupmodserver_distribution): Figure out if we're running PC1 or PE puppet
 * [`pupmod::server_version`](#pupmodserver_version): Authoritatively determine the puppet server version and return `0.0.0` if one could not be determined.
@@ -1146,6 +1146,16 @@ Enable ``puppet generate types`` management
 
 Default value: `true`
 
+##### `monitor_type`
+
+Data type: `Enum['systemd','incron']`
+
+Whether to use ``systemd`` or ``incron`` to monitor the filesystem
+
+* Falls back to ``incron`` if ``systemd`` is not available
+
+Default value: (
+
 ##### `trigger_on_puppetserver_update`
 
 Data type: `Boolean`
@@ -1187,8 +1197,19 @@ Data type: `Boolean`
 Run ``puppet generate types`` on new environments as soon as they are
 created.
 
-WARNING: You should disable this option if you have over 100 environments
-and expect to update them all simultaneously.
+WARNING: You should disable this option if using ``incron`` and over 100
+environments and expect to update them all simultaneously.
+
+Default value: `true`
+
+##### `trigger_on_type_change`
+
+Data type: `Boolean`
+
+Watch all type files for changes and generate types when types are updated
+
+* Has no effect in ``incron`` mode since ``incron`` has difficulties with
+  large numbers of file watches.
 
 Default value: `true`
 
@@ -1208,10 +1229,12 @@ Default value: 30
 Data type: `Variant[
     # For backward compatibility
     Array[Stdlib::AbsolutePath],
-    Hash[Stdlib::AbsolutePath, Array[Incron::Mask]]
+    Hash[Stdlib::AbsolutePath, Array[String[1]]]
   ]`
 
 Trigger paths to apply when ``$trigger_on_new_environment`` is true.
+
+* Has no effect in ``systemd`` mode
 
 WARNING: Do *not* watch a large number of paths here!
 * New format is a hash of the paths that should be watched and the
@@ -1820,7 +1843,7 @@ Default value: 8140
 Type: Ruby 4.x API
 
 Return an Array of Stdlib::AbsolutePath (legacy compat), or a Hash of
-AbsolutePath and Incron::Mask values that have the string
+AbsolutePath and String values that have the string
 PUPPET_ENVIRONMENTPATH replaced by the Puppet environment paths.
 
 #### `pupmod::generate_types_munge(Array[Stdlib::AbsolutePath] $to_process, Optional[Array[Stdlib::AbsolutePath]] $environment_paths)`
@@ -1851,11 +1874,11 @@ Data type: `Optional[Array[Stdlib::AbsolutePath]]`
 
 The list of environment paths to use as a replacement
 
-#### `pupmod::generate_types_munge(Hash[Stdlib::AbsolutePath, Array[Incron::Mask]] $to_process, Optional[Array[Stdlib::AbsolutePath]] $environment_paths)`
+#### `pupmod::generate_types_munge(Hash[Stdlib::AbsolutePath, Array[String]] $to_process, Optional[Array[Stdlib::AbsolutePath]] $environment_paths)`
 
 The pupmod::generate_types_munge function.
 
-Returns: `Hash[Stdlib::AbsolutePath, Array[Incron::Mask]]`
+Returns: `Hash[Stdlib::AbsolutePath, Array[String]]`
 
 ##### Examples
 
@@ -1871,7 +1894,7 @@ returns: { '/here/foo/bar' => [<MASKS>], '/there/foo/bar' => [<MASKS>] }
 
 ##### `to_process`
 
-Data type: `Hash[Stdlib::AbsolutePath, Array[Incron::Mask]]`
+Data type: `Hash[Stdlib::AbsolutePath, Array[String]]`
 
 The Array of AbsolutePaths to process
 

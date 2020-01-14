@@ -4,6 +4,11 @@
 # @param enable
 #   Enable ``puppet generate types`` management
 #
+# @param monitor_type
+#   Whether to use ``systemd`` or ``incron`` to monitor the filesystem
+#
+#   * Falls back to ``incron`` if ``systemd`` is not available
+#
 # @param trigger_on_puppetserver_update
 #   Run ``puppet generate types`` on all environments if the ``puppetserver``
 #   application is updated
@@ -22,8 +27,15 @@
 #   Run ``puppet generate types`` on new environments as soon as they are
 #   created.
 #
-#   WARNING: You should disable this option if you have over 100 environments
-#   and expect to update them all simultaneously.
+#   WARNING: You should disable this option if using ``incron`` and over 100
+#   environments and expect to update them all simultaneously.
+#
+# @param trigger_on_type_change
+#
+#   Watch all type files for changes and generate types when types are updated
+#
+#   * Has no effect in ``incron`` mode since ``incron`` has difficulties with
+#     large numbers of file watches.
 #
 # @param delay
 #   Wait this number of seconds prior to running ``puppet generate types``
@@ -33,6 +45,8 @@
 #
 # @param trigger_paths
 #   Trigger paths to apply when ``$trigger_on_new_environment`` is true.
+#
+#   * Has no effect in ``systemd`` mode
 #
 #   WARNING: Do *not* watch a large number of paths here!
 #   * New format is a hash of the paths that should be watched and the
@@ -56,16 +70,18 @@
 #
 class pupmod::master::generate_types (
   Boolean                     $enable                         = true,
+  Enum['systemd','incron']    $monitor_type                   = ('systemd' in pick(fact('init_systems'), [])) ? { true => 'systemd', default => 'incron' },
   Boolean                     $trigger_on_puppetserver_update = true,
   Stdlib::AbsolutePath        $puppetserver_exe               = '/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver',
   Boolean                     $trigger_on_puppet_update       = true,
   Stdlib::AbsolutePath        $puppet_exe                     = '/opt/puppetlabs/puppet/bin/puppet',
   Boolean                     $trigger_on_new_environment     = true,
+  Boolean                     $trigger_on_type_change         = true,
   Integer[0]                  $delay                          = 30,
   Variant[
     # For backward compatibility
     Array[Stdlib::AbsolutePath],
-    Hash[Stdlib::AbsolutePath, Array[Incron::Mask]]
+    Hash[Stdlib::AbsolutePath, Array[String[1]]]
   ]                           $trigger_paths                  = pupmod::generate_types_munge({
     # Handles the creation of new environments
     '/PUPPET_ENVIRONMENTPATH'                             => ['IN_CREATE','IN_CLOSE_WRITE','IN_MOVED_TO','IN_ONLYDIR','IN_DONT_FOLLOW','recursive=false']
@@ -99,82 +115,107 @@ class pupmod::master::generate_types (
     }
   }
 
-  if $trigger_on_puppetserver_update {
-    incron::system_table { 'simp_generate_types_puppetserver_exe':
-      enable         => $enable,
-      custom_content => epp(
-        "${module_name}/simp_generate_types_incron_rules/puppetserver.epp",
-        {
-          'simp_generate_types' => $_generate_types_path,
-          'puppetserver_exe'    => $puppetserver_exe,
-          'run_dir'             => $run_dir
-        }
-      ),
-      require        => [
-        File[$run_dir],
-        File[$_generate_types_path]
-      ]
+  if ($monitor_type == 'systemd') and ('systemd' in pick(fact('init_systems'), [])) {
+    simplib::assert_optional_dependency($module_name, 'camptocamp/systemd')
+
+    systemd::unit_file { 'simp_generate_types.path':
+      enable  => true,
+      active  => true,
+      content => epp("${module_name}/etc/systemd/system/simp_generate_types.path.epp")
+    }
+
+    $simp_generate_types_service = @("HEREDOC")
+      [Service]
+      Type=simple
+      ExecStart=${_generate_types_path} -d ${delay} -s -p ALL
+      | HEREDOC
+
+    systemd::unit_file { 'simp_generate_types.service':
+      content => $simp_generate_types_service
     }
   }
   else {
-    incron::system_table { 'simp_generate_types_puppetserver_exe': enable => false }
-  }
+    simplib::assert_optional_dependency($module_name, 'simp/incron')
 
-  if $trigger_on_puppet_update {
-    incron::system_table { 'simp_generate_types_puppet_exe':
-      enable         => $enable,
-      custom_content => epp(
-        "${module_name}/simp_generate_types_incron_rules/puppet.epp",
-        {
-          'simp_generate_types' => $_generate_types_path,
-          'puppet_exe'          => $puppet_exe,
-          'run_dir'             => $run_dir
-        }
-      ),
-      require        => [
-        File[$run_dir],
-        File[$_generate_types_path]
-      ]
-    }
-  }
-  else {
-    incron::system_table { 'simp_generate_types_puppet_exe': enable => false }
-  }
-
-  if $trigger_on_new_environment {
-    incron::system_table { 'simp_generate_types_new_environment':
-      enable         => $enable,
-      custom_content => epp(
-        "${module_name}/simp_generate_types_incron_rules/new_environment.epp",
-        {
-          'simp_generate_types' => $_generate_types_path,
-          'trigger_paths'       => $trigger_paths,
-          'run_dir'             => $run_dir
-        }
-      ),
-      require        => [
-        File[$run_dir],
-        File[$_generate_types_path]
-      ]
-    }
-  }
-  else {
-    incron::system_table { 'simp_generate_types_new_environment': enable => false }
-  }
-
-  incron::system_table { 'simp_generate_types':
-    enable         => $enable,
-    custom_content => epp(
-      "${module_name}/simp_generate_types_incron_rules/update_trigger.epp",
-      {
-        'simp_generate_types' => $_generate_types_path,
-        'delay'               => $delay,
-        'run_dir'             => $run_dir
+    if $trigger_on_puppetserver_update {
+      incron::system_table { 'simp_generate_types_puppetserver_exe':
+        enable         => $enable,
+        custom_content => epp(
+          "${module_name}/simp_generate_types_incron_rules/puppetserver.epp",
+          {
+            'simp_generate_types' => $_generate_types_path,
+            'puppetserver_exe'    => $puppetserver_exe,
+            'run_dir'             => $run_dir
+          }
+        ),
+        require        => [
+          File[$run_dir],
+          File[$_generate_types_path]
+        ]
       }
-    ),
-    require        => [
-      File[$run_dir],
-      File[$_generate_types_path]
-    ]
+    }
+    else {
+      incron::system_table { 'simp_generate_types_puppetserver_exe': enable => false }
+    }
+
+    if $trigger_on_puppet_update {
+      incron::system_table { 'simp_generate_types_puppet_exe':
+        enable         => $enable,
+        custom_content => epp(
+          "${module_name}/simp_generate_types_incron_rules/puppet.epp",
+          {
+            'simp_generate_types' => $_generate_types_path,
+            'puppet_exe'          => $puppet_exe,
+            'run_dir'             => $run_dir
+          }
+        ),
+        require        => [
+          File[$run_dir],
+          File[$_generate_types_path]
+        ]
+      }
+    }
+    else {
+      incron::system_table { 'simp_generate_types_puppet_exe': enable => false }
+    }
+
+    if $trigger_on_new_environment {
+      simplib::debug::inspect($trigger_paths)
+
+      incron::system_table { 'simp_generate_types_new_environment':
+        enable         => $enable,
+        custom_content => epp(
+          "${module_name}/simp_generate_types_incron_rules/new_environment.epp",
+          {
+            'simp_generate_types' => $_generate_types_path,
+            'trigger_paths'       => $trigger_paths,
+            'run_dir'             => $run_dir
+          }
+        ),
+        require        => [
+          File[$run_dir],
+          File[$_generate_types_path]
+        ]
+      }
+    }
+    else {
+      incron::system_table { 'simp_generate_types_new_environment': enable => false }
+    }
+
+    incron::system_table { 'simp_generate_types':
+      enable         => $enable,
+      custom_content => epp(
+        "${module_name}/simp_generate_types_incron_rules/update_trigger.epp",
+        {
+          'simp_generate_types' => $_generate_types_path,
+          'delay'               => $delay,
+          'run_dir'             => $run_dir
+        }
+      ),
+      require        => [
+        File[$run_dir],
+        File[$_generate_types_path]
+      ]
+    }
   }
 }

@@ -1,5 +1,5 @@
 # Return an Array of Stdlib::AbsolutePath (legacy compat), or a Hash of
-# AbsolutePath and Incron::Mask values that have the string
+# AbsolutePath and String values that have the string
 # PUPPET_ENVIRONMENTPATH replaced by the Puppet environment paths.
 #
 #
@@ -46,11 +46,11 @@ Puppet::Functions.create_function(:'pupmod::generate_types_munge') do
   # @param environment_paths
   #   The list of environment paths to use as a replacement
   #
-  # @return [Hash[Stdlib::AbsolutePath, Array[Incron::Mask]]]
+  # @return [Hash[Stdlib::AbsolutePath, Array[String]]]
   dispatch :generate_types_munge do
-    param 'Hash[Stdlib::AbsolutePath, Array[Incron::Mask]]', :to_process
+    param 'Hash[Stdlib::AbsolutePath, Array[String]]', :to_process
     optional_param 'Array[Stdlib::AbsolutePath]', :environment_paths
-    return_type 'Hash[Stdlib::AbsolutePath, Array[Incron::Mask]]'
+    return_type 'Hash[Stdlib::AbsolutePath, Array[String]]'
   end
 
   def generate_types_munge(to_process, environment_paths=nil)

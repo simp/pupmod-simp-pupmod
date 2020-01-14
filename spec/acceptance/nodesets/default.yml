@@ -6,19 +6,28 @@
   end
 -%>
 HOSTS:
-  puppet:
+  puppet.el7:
     roles:
-      - master
       - default
-    platform:   el-7-x86_64
-    box:        centos/7
+      - simp_master
+    platform: el-7-x86_64
+    box: centos/7
+    hypervisor: <%= hypervisor %>
+    vagrant_memsize: 4608
+    vagrant_cpus: 2
+
+  puppet.el8:
+    roles:
+      - simp_master
+    platform: el-8-x86_64
+    box: centos/8
     hypervisor: <%= hypervisor %>
     vagrant_memsize: 4608
     vagrant_cpus: 2
 
 CONFIG:
   log_level: verbose
-  type:      aio
+  type: aio
   vagrant_memsize: 256
   synced_folder: disabled
 <% if ENV['BEAKER_PUPPET_COLLECTION'] -%>
