@@ -124,15 +124,42 @@ class pupmod::master::generate_types (
       content => epp("${module_name}/etc/systemd/system/simp_generate_types.path.epp")
     }
 
-    $simp_generate_types_service = @("HEREDOC")
+    $_simp_generate_types_service = @("HEREDOC")
       [Service]
       Type=simple
       ExecStart=${_generate_types_path} -d ${delay} -s -p ALL
       | HEREDOC
 
     systemd::unit_file { 'simp_generate_types.service':
-      content => $simp_generate_types_service
+      content => $_simp_generate_types_service
     }
+
+    service { 'simp_generate_types':
+      enable  => true,
+      require => Systemd::Unit_file['simp_generate_types.service']
+    }
+
+    systemd::unit_file { 'simp_generate_types_apps.path':
+      enable  => true,
+      active  => true,
+      content => epp("${module_name}/etc/systemd/system/simp_generate_types.path.epp", force => true )
+    }
+
+    $_simp_generate_types_force_service = @("HEREDOC")
+      [Service]
+      Type=simple
+      ExecStart=${_generate_types_path} -d ${delay} -s -p ALL -f
+      | HEREDOC
+
+    systemd::unit_file { 'simp_generate_types_force.service':
+      content => $_simp_generate_types_force_service
+    }
+
+    service { 'simp_generate_types_force':
+      enable  => true,
+      require => Systemd::Unit_file['simp_generate_types_force.service']
+    }
+
   }
   else {
     simplib::assert_optional_dependency($module_name, 'simp/incron')

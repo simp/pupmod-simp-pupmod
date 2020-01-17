@@ -20,6 +20,7 @@ options.path     = nil
 options.quiet    = false
 options.syslog   = false
 options.timeout  = 300
+options.force    = false
 
 OptionParser.new do |opts|
   opts.on('-p', '--path TGT_PATH') do |path|
@@ -33,6 +34,9 @@ OptionParser.new do |opts|
   end
   opts.on('-d', '--delay SECONDS', 'Default: 10 - Wait a random number of seconds up to this limit before starting the reader') do |delay|
     options.delay = delay.to_i
+  end
+  opts.on('-f', '--force', 'Force creation regardless of the state of the .resource_types directory in the environment') do
+    options.force = true
   end
   opts.on('-s', '--syslog', 'Write to syslog') do
     options.syslog = true
@@ -226,26 +230,30 @@ def process_paths(to_process, options)
       resource_types_dir = File.join(env[:path], '.resource_types')
 
       begin
-        needs_regeneration = false
-
-        if File.exist?(resource_types_dir)
-          oldest_file = Dir.glob("#{resource_types_dir}/*").sort_by{|f| File.stat(f).mtime}.first
-
-          if oldest_file
-            oldest_file_mtime = File.stat(oldest_file).mtime
-
-            type_files = Dir.glob("#{env[:path]}/modules/*/lib/puppet/type/**.rb")
-
-            found_file = type_files.find do |type_file|
-              if File.exist?(type_file)
-                File.stat(type_file).mtime > oldest_file_mtime
-              end
-            end
-
-            needs_regeneration = true if found_file
-          end
+        if options.force
+          needs_regenration = true
         else
-          needs_regeneration = true
+          needs_regeneration = false
+
+          if File.exist?(resource_types_dir)
+            oldest_file = Dir.glob("#{resource_types_dir}/*").sort_by{|f| File.stat(f).mtime}.first
+
+            if oldest_file
+              oldest_file_mtime = File.stat(oldest_file).mtime
+
+              type_files = Dir.glob("#{env[:path]}/modules/*/lib/puppet/type/**.rb")
+
+              found_file = type_files.find do |type_file|
+                if File.exist?(type_file)
+                  File.stat(type_file).mtime > oldest_file_mtime
+                end
+              end
+
+              needs_regeneration = true if found_file
+            end
+          else
+            needs_regeneration = true
+          end
         end
 
         if needs_regeneration

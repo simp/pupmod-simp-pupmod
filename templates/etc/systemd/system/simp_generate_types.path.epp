@@ -1,20 +1,25 @@
+<%- | Boolean $force = false | -%>
 [Path]
 Unit=simp_generate_types.service
-<% if $pupmod::master::generate_types::trigger_on_puppetserver_update { -%>
+<% if $force { -%>
+<%   if $pupmod::master::generate_types::trigger_on_puppetserver_update { -%>
 PathChanged=<%= $pupmod::master::generate_types::puppetserver_exe %>
-<% } -%>
-<% if $pupmod::master::generate_types::trigger_on_puppet_update { -%>
+<%   } -%>
+<%   if $pupmod::master::generate_types::trigger_on_puppet_update { -%>
 PathChanged=<%= $pupmod::master::generate_types::puppet_exe %>
+<%   } -%>
 <% } -%>
-<% if $pupmod::master::generate_types::trigger_on_new_environment { -%>
+<% else { -%>
+<%   if $pupmod::master::generate_types::trigger_on_new_environment { -%>
 PathChanged=/etc/puppetlabs/code/environments
-<% } -%>
+<%   } -%>
 <%
-  if $pupmod::master::generate_types::trigger_on_type_change {
-    split($facts['puppet_environmentpath'], ':').each |$env_path| {
+    if $pupmod::master::generate_types::trigger_on_type_change {
+      split($facts['puppet_environmentpath'], ':').each |$env_path| {
 -%>
 PathExistsGlob=<%= $env_path %>/*/modules/*/lib/puppet/type/*.rb
 <%
+      }
     }
   }
 -%>
