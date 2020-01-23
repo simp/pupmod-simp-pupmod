@@ -1,5 +1,9 @@
 require 'spec_helper_acceptance'
 
+# You can optionally set the SIMP_puppet_generate_types environment variable to
+# the number of environments that you would like to process. The default is 100
+# environments.
+
 describe 'incron driven puppet generate types'  do
   def wait_for_generate_types(host, timeout=1200, interval=30)
     # Let everything spawn
@@ -24,6 +28,9 @@ describe 'incron driven puppet generate types'  do
       raise(e)
     end
   end
+
+  env_count = ENV.fetch('SIMP_puppet_generate_types', '100').to_i
+  env_count = 100 if env_count == 0
 
   hosts_with_role(hosts, 'simp_master').each do |host|
     context "on #{host}" do
@@ -86,8 +93,8 @@ describe 'incron driven puppet generate types'  do
         expect(host.file_exist?(resource_types_cache)).to_not be true
       end
 
-      it 'should not crash the system when creating 100 new environments' do
-        on(host, "for x in {1..100}; do cp -rl #{environment_path}/production #{environment_path}/testenv$x; done")
+      it "should not crash the system when creating #{env_count} new environments" do
+        on(host, "for x in {1..#{env_count}}; do cp -rl #{environment_path}/production #{environment_path}/testenv$x; done")
         wait_for_generate_types(host)
 
         on(host, "ls #{environment_path} | wc -l")
@@ -101,7 +108,7 @@ describe 'incron driven puppet generate types'  do
         # updated to cover `puppet generate types` and this is simply a
         # stop-gap to prevent killing systems until we can get to r10k.
 
-        num_generated = on(host, "ls -d #{environment_path}/testenv{1..100}/.resource_types 2>/dev/null | wc -l", :accept_all_exit_codes => true).output.lines.last.strip.to_i
+        num_generated = on(host, "ls -d #{environment_path}/testenv{1..#{env_count}}/.resource_types 2>/dev/null | wc -l", :accept_all_exit_codes => true).output.lines.last.strip.to_i
 
         expect(num_generated).to be > 1
       end

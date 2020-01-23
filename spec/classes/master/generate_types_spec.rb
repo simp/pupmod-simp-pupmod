@@ -9,42 +9,38 @@ describe 'pupmod::master::generate_types' do
     it { is_expected.to create_exec('simp_generate_types').that_requires('File[/var/run/simp_generate_types]') }
   end
 
-  shared_examples_for 'generate_types_incron' do
-    it { is_expected.to create_incron__system_table('simp_generate_types').that_requires('File[/usr/local/sbin/simp_generate_types]') }
-    it { is_expected.to create_incron__system_table('simp_generate_types').that_requires('File[/var/run/simp_generate_types]') }
-    it { is_expected.to create_incron__system_table('simp_generate_types').with_custom_content(%r{/var/run/simp_generate_types .+ /usr/local/sbin/simp_generate_types -d 30 -s -g -p .+}) }
-  end
-
-  shared_examples_for 'generate_types_incron_puppetserver' do
-    it { is_expected.to create_incron__system_table('simp_generate_types_puppetserver_exe').that_requires('File[/usr/local/sbin/simp_generate_types]') }
-    it { is_expected.to create_incron__system_table('simp_generate_types_puppetserver_exe').that_requires('File[/var/run/simp_generate_types]') }
-    it { is_expected.to create_incron__system_table('simp_generate_types_puppetserver_exe').with_custom_content(%r{/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver .+ /usr/local/sbin/simp_generate_types -s -p /var/run/simp_generate_types/to_process -m ALL}) }
-  end
-
-  shared_examples_for 'generate_types_incron_puppet' do
-    it { is_expected.to create_incron__system_table('simp_generate_types_puppet_exe').that_requires('File[/usr/local/sbin/simp_generate_types]') }
-    it { is_expected.to create_incron__system_table('simp_generate_types_puppet_exe').that_requires('File[/var/run/simp_generate_types]') }
-    it { is_expected.to create_incron__system_table('simp_generate_types_puppet_exe').with_custom_content(%r{/opt/puppetlabs/puppet/bin/puppet .+ /usr/local/sbin/simp_generate_types -s -p /var/run/simp_generate_types/to_process -m ALL}) }
-  end
-
-  shared_examples_for 'generate_types_incron_new_environment' do
-    it { is_expected.to create_incron__system_table('simp_generate_types_new_environment').that_requires('File[/usr/local/sbin/simp_generate_types]') }
-    it { is_expected.to create_incron__system_table('simp_generate_types_new_environment').that_requires('File[/var/run/simp_generate_types]') }
-    it { is_expected.to create_incron__system_table('simp_generate_types_new_environment').with_custom_content(%r{/etc/puppetlabs/code/environments IN_CREATE,IN_CLOSE_WRITE,IN_MOVED_TO,IN_ONLYDIR,IN_DONT_FOLLOW,recursive=false /usr/local/sbin/simp_generate_types -s -p /var/run/simp_generate_types/to_process -m .+}) }
-  end
-
-  shared_examples_for 'generate_types_systemd' do |content|
+  shared_examples_for 'generate_types_systemd' do |content, force_content=nil|
     it { is_expected.to create_systemd__unit_file('simp_generate_types.path').with_enable(true) }
     it { is_expected.to create_systemd__unit_file('simp_generate_types.path').with_active(true) }
     it { is_expected.to create_systemd__unit_file('simp_generate_types.path').with_content(content) }
 
-    service_content = <<-EOM
-[Service]
-Type=simple
-ExecStart=/usr/local/sbin/simp_generate_types -d 30 -s -p ALL
+    if force_content
+      force_service_content = <<~EOM
+        [Service]
+        Type=simple
+        ExecStart=/usr/local/sbin/simp_generate_types --syslog --all --batch --timeout 300 --stability_timeout 500 --force
+      EOM
+
+      it { is_expected.to create_systemd__unit_file('simp_generate_types_apps.path').with_enable(true) }
+      it { is_expected.to create_systemd__unit_file('simp_generate_types_apps.path').with_active(true) }
+      it { is_expected.to create_systemd__unit_file('simp_generate_types_apps.path').with_content(force_content) }
+      it { is_expected.to create_systemd__unit_file('simp_generate_types_force.service').with_content(force_service_content) }
+    else
+      it { is_expected.to_not create_systemd__unit_file('simp_generate_types_apps.path') }
+      it { is_expected.to_not create_systemd__unit_file('simp_generate_types_force.service') }
+    end
+
+    service_content = <<~EOM
+      [Service]
+      Type=simple
+      ExecStart=/usr/local/sbin/simp_generate_types --syslog --all --batch --timeout 300 --stability_timeout 500
     EOM
 
     it { is_expected.to create_systemd__unit_file('simp_generate_types.service').with_content(service_content) }
+  end
+
+  shared_examples_for 'generate_types_incron_deprecated' do
+    it { is_expected.to create_notify('simp_generate_types incron deprecated').with_loglevel('warning') }
   end
 
   on_supported_os.each do |os, os_facts|
@@ -56,22 +52,25 @@ ExecStart=/usr/local/sbin/simp_generate_types -d 30 -s -p ALL
       }
 
       context 'with default input' do
-        systemd_path_content = <<-EOM
-[Path]
-Unit=simp_generate_types.service
-PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
-PathChanged=/opt/puppetlabs/puppet/bin/puppet
-PathChanged=/etc/puppetlabs/code/environments
-PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.rb
+        systemd_path_content = <<~EOM
+          [Path]
+          Unit=simp_generate_types.service
+          PathChanged=/etc/puppetlabs/code/environments
+          PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.rb
+        EOM
+
+        systemd_app_content = <<~EOM
+          [Path]
+          Unit=simp_generate_types_force.service
+          PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
+          PathChanged=/opt/puppetlabs/puppet/bin/puppet
         EOM
 
         it_behaves_like 'generate_types'
         if Array(os_facts[:init_systems]).include?('systemd')
-          it_behaves_like 'generate_types_systemd', systemd_path_content
+          it_behaves_like 'generate_types_systemd', systemd_path_content, systemd_app_content
         else
-          it_behaves_like 'generate_types_incron_puppetserver'
-          it_behaves_like 'generate_types_incron_puppet'
-          it_behaves_like 'generate_types_incron_new_environment'
+          it_behaves_like 'generate_types_incron_deprecated'
         end
       end
 
@@ -80,21 +79,24 @@ PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.r
           :trigger_on_puppetserver_update => false
         }}
 
-        systemd_path_content = <<-EOM
-[Path]
-Unit=simp_generate_types.service
-PathChanged=/opt/puppetlabs/puppet/bin/puppet
-PathChanged=/etc/puppetlabs/code/environments
-PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.rb
+        systemd_path_content = <<~EOM
+          [Path]
+          Unit=simp_generate_types.service
+          PathChanged=/etc/puppetlabs/code/environments
+          PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.rb
+        EOM
+
+        systemd_app_content = <<~EOM
+          [Path]
+          Unit=simp_generate_types_force.service
+          PathChanged=/opt/puppetlabs/puppet/bin/puppet
         EOM
 
         it_behaves_like 'generate_types'
         if Array(os_facts[:init_systems]).include?('systemd')
-          it_behaves_like 'generate_types_systemd', systemd_path_content
+          it_behaves_like 'generate_types_systemd', systemd_path_content, systemd_app_content
         else
-          it_behaves_like 'generate_types_incron_puppet'
-          it_behaves_like 'generate_types_incron_new_environment'
-          it { is_expected.to create_incron__system_table('simp_generate_types_puppetserver_exe').with_enable(false) }
+          it_behaves_like 'generate_types_incron_deprecated'
         end
       end
 
@@ -103,21 +105,45 @@ PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.r
           :trigger_on_puppet_update => false
         }}
 
-        systemd_path_content = <<-EOM
-[Path]
-Unit=simp_generate_types.service
-PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
-PathChanged=/etc/puppetlabs/code/environments
-PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.rb
+        systemd_path_content = <<~EOM
+          [Path]
+          Unit=simp_generate_types.service
+          PathChanged=/etc/puppetlabs/code/environments
+          PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.rb
+        EOM
+
+        systemd_app_content = <<~EOM
+          [Path]
+          Unit=simp_generate_types_force.service
+          PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
+        EOM
+
+        it_behaves_like 'generate_types'
+        if Array(os_facts[:init_systems]).include?('systemd')
+          it_behaves_like 'generate_types_systemd', systemd_path_content, systemd_app_content
+        else
+          it_behaves_like 'generate_types_incron_deprecated'
+        end
+      end
+
+      context 'when disabling puppetserver and puppet triggers' do
+        let(:params){{
+          :trigger_on_puppet_update       => false,
+          :trigger_on_puppetserver_update => false
+        }}
+
+        systemd_path_content = <<~EOM
+          [Path]
+          Unit=simp_generate_types.service
+          PathChanged=/etc/puppetlabs/code/environments
+          PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.rb
         EOM
 
         it_behaves_like 'generate_types'
         if Array(os_facts[:init_systems]).include?('systemd')
           it_behaves_like 'generate_types_systemd', systemd_path_content
         else
-          it_behaves_like 'generate_types_incron_puppetserver'
-          it_behaves_like 'generate_types_incron_new_environment'
-          it { is_expected.to create_incron__system_table('simp_generate_types_puppet_exe').with_enable(false) }
+          it_behaves_like 'generate_types_incron_deprecated'
         end
       end
 
@@ -126,21 +152,24 @@ PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.r
           :trigger_on_new_environment => false
         }}
 
-        systemd_path_content = <<-EOM
-[Path]
-Unit=simp_generate_types.service
-PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
-PathChanged=/opt/puppetlabs/puppet/bin/puppet
-PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.rb
+        systemd_path_content = <<~EOM
+          [Path]
+          Unit=simp_generate_types.service
+          PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.rb
+        EOM
+
+        systemd_app_content = <<~EOM
+          [Path]
+          Unit=simp_generate_types_force.service
+          PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
+          PathChanged=/opt/puppetlabs/puppet/bin/puppet
         EOM
 
         it_behaves_like 'generate_types'
         if Array(os_facts[:init_systems]).include?('systemd')
-          it_behaves_like 'generate_types_systemd', systemd_path_content
+          it_behaves_like 'generate_types_systemd', systemd_path_content, systemd_app_content
         else
-          it_behaves_like 'generate_types_incron_puppetserver'
-          it_behaves_like 'generate_types_incron_puppet'
-          it { is_expected.to create_incron__system_table('simp_generate_types_new_environment').with_enable(false) }
+          it_behaves_like 'generate_types_incron_deprecated'
         end
       end
 
@@ -149,19 +178,24 @@ PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.r
           :trigger_on_type_change => false
         }}
 
-        systemd_path_content = <<-EOM
-[Path]
-Unit=simp_generate_types.service
-PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
-PathChanged=/opt/puppetlabs/puppet/bin/puppet
-PathChanged=/etc/puppetlabs/code/environments
+        systemd_path_content = <<~EOM
+          [Path]
+          Unit=simp_generate_types.service
+          PathChanged=/etc/puppetlabs/code/environments
+        EOM
+
+        systemd_app_content = <<~EOM
+          [Path]
+          Unit=simp_generate_types_force.service
+          PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
+          PathChanged=/opt/puppetlabs/puppet/bin/puppet
         EOM
 
         it_behaves_like 'generate_types'
         if Array(os_facts[:init_systems]).include?('systemd')
-          it_behaves_like 'generate_types_systemd', systemd_path_content
+          it_behaves_like 'generate_types_systemd', systemd_path_content, systemd_app_content
         else
-          it { skip('Non-systemd systems do not support type change triggers') }
+          it_behaves_like 'generate_types_incron_deprecated'
         end
       end
 
@@ -172,21 +206,26 @@ PathChanged=/etc/puppetlabs/code/environments
           })
         }
 
-        systemd_path_content = <<-EOM
-[Path]
-Unit=simp_generate_types.service
-PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
-PathChanged=/opt/puppetlabs/puppet/bin/puppet
-PathChanged=/etc/puppetlabs/code/environments
-PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.rb
-PathExistsGlob=/foo/bar/baz/*/modules/*/lib/puppet/type/*.rb
+        systemd_path_content = <<~EOM
+          [Path]
+          Unit=simp_generate_types.service
+          PathChanged=/etc/puppetlabs/code/environments
+          PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.rb
+          PathExistsGlob=/foo/bar/baz/*/modules/*/lib/puppet/type/*.rb
+        EOM
+
+        systemd_app_content = <<~EOM
+          [Path]
+          Unit=simp_generate_types_force.service
+          PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
+          PathChanged=/opt/puppetlabs/puppet/bin/puppet
         EOM
 
         it_behaves_like 'generate_types'
         if Array(os_facts[:init_systems]).include?('systemd')
-          it_behaves_like 'generate_types_systemd', systemd_path_content
+          it_behaves_like 'generate_types_systemd', systemd_path_content, systemd_app_content
         else
-          it { skip('Non-systemd systems do not support type change triggers') }
+          it_behaves_like 'generate_types_incron_deprecated'
         end
       end
     end

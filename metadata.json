@@ -59,10 +59,6 @@
       {
         "name": "camptocamp/systemd",
         "version_requirement": ">= 2.7.0 < 3.0.0"
-      },
-      {
-        "name": "simp/incron",
-        "version_requirement": ">= 0.4.0 < 1.0.0"
       }
     ]
   },

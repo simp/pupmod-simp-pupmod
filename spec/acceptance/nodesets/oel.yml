@@ -8,7 +8,7 @@
 HOSTS:
   puppet.oel7:
     roles:
-      - master
+      - simp_master
       - default
     platform: el-7-x86_64
     box: generic/oracle7
@@ -18,8 +18,7 @@ HOSTS:
 
   puppet.oel8:
     roles:
-      - master
-      - default
+      - simp_master
     platform: el-8-x86_64
     box: generic/oracle8
     hypervisor: <%= hypervisor %>

@@ -1,7 +1,7 @@
-<%- | Boolean $force = false | -%>
+<%- | Boolean $apps = false | -%>
 [Path]
-Unit=simp_generate_types.service
-<% if $force { -%>
+<% if $apps { -%>
+Unit=simp_generate_types_force.service
 <%   if $pupmod::master::generate_types::trigger_on_puppetserver_update { -%>
 PathChanged=<%= $pupmod::master::generate_types::puppetserver_exe %>
 <%   } -%>
@@ -10,6 +10,7 @@ PathChanged=<%= $pupmod::master::generate_types::puppet_exe %>
 <%   } -%>
 <% } -%>
 <% else { -%>
+Unit=simp_generate_types.service
 <%   if $pupmod::master::generate_types::trigger_on_new_environment { -%>
 PathChanged=/etc/puppetlabs/code/environments
 <%   } -%>
