@@ -120,7 +120,7 @@ class pupmod::master::generate_types (
       systemd::unit_file { 'simp_generate_types_apps.path':
         enable  => true,
         active  => true,
-        content => epp("${module_name}/etc/systemd/system/simp_generate_types.path.epp", apps => true )
+        content => epp("${module_name}/etc/systemd/system/simp_generate_types.path.epp", { apps => true } )
       }
 
       $_simp_generate_types_force_service = @("HEREDOC")
