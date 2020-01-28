@@ -2,6 +2,7 @@
 
 require 'ostruct'
 require 'optparse'
+require 'pathname'
 
 PUPPET_CMD = '/opt/puppetlabs/bin/puppet'
 WRITE_LOCK = '/var/run/simp_generate_types.readlock'
@@ -186,14 +187,14 @@ def log(msg, options)
       end
     end
   else
-    $stdout.puts msg.join("\n")
+    $stdout.puts msg.join("\n") unless options.quiet
   end
 end
 
 def environment_paths
   @puppet_environments ||= %x{#{PUPPET_CMD} config print --log_level=err --section=master environmentpath}.strip.split(':')
 
-  return Dir.glob( @puppet_environments.map{|x| x + '/*'} )
+  return Dir.glob( @puppet_environments.map{|x| Pathname.new(x).cleanpath.to_s + '/*'} )
 end
 
 def wait_for_environment_stability(timeout_seconds = 300, sleep_seconds = 10, options)
@@ -227,15 +228,17 @@ def get_target_environments(to_process, options)
     target_environments = environment_paths.compact
   else
     to_process.each do |path|
+      path = Pathname.new(path).cleanpath.to_s
+
       if environment_paths.include?(path)
         target_environments << path
       else
         if path.include?('/')
-          # If we were passed a full path, only process items that match the
-          # full path
+          # If we were passed an absolute path, only process items that start with that path
           tgt_env = environment_paths.find {|env_path| path.start_with?("#{env_path}/")}
         else
-          # Otherwise, process all environments that match the passed string
+          # Otherwise, process all environments that specifically end with the
+          # passed string
           tgt_env = environment_paths.select {|env_path| env_path.split('/').last == path}
         end
 
@@ -324,8 +327,7 @@ def process_paths(to_process, options)
           require 'fileutils'
 
           FileUtils.chown_R(nil, puppet_group, resource_types_dir)
-          FileUtils.chmod_R('g+r,o-rwx', resource_types_dir)
-          FileUtils.chmod('g+x', resource_types_dir)
+          FileUtils.chmod_R('g+rX,o-rwx', resource_types_dir)
         end
       end
     end

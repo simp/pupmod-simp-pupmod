@@ -228,6 +228,23 @@ describe 'pupmod::master::generate_types' do
           it_behaves_like 'generate_types_incron_deprecated'
         end
       end
+
+      context 'when disabled' do
+        let(:params) {{
+          :enable => false
+        }}
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to create_file('/usr/local/sbin/simp_generate_types') }
+        it { is_expected.to create_file('/var/run/simp_generate_types') }
+        it { is_expected.to_not create_exec('simp_generate_types') }
+        it { is_expected.to create_service('simp_generate_types').with_enable(false) }
+        it { is_expected.to create_service('simp_generate_types_force').with_enable(false) }
+        it { is_expected.to create_systemd__unit_file('simp_generate_types.path').with_ensure('absent') }
+        it { is_expected.to create_systemd__unit_file('simp_generate_types_apps.path').with_ensure('absent') }
+        it { is_expected.to create_systemd__unit_file('simp_generate_types.service').with_ensure('absent') }
+        it { is_expected.to create_systemd__unit_file('simp_generate_types_force.service').with_ensure('absent') }
+      end
     end
   end
 end

@@ -4,30 +4,10 @@ require 'spec_helper_acceptance'
 # the number of environments that you would like to process. The default is 100
 # environments.
 
-describe 'incron driven puppet generate types'  do
-  def wait_for_generate_types(host, timeout=1200, interval=30)
-    # Let everything spawn
-    sleep(2)
+describe 'auto-triggered puppet generate types'  do
+  require_relative('lib/util')
 
-    begin
-      require 'timeout'
-
-      Timeout::timeout(1200) do
-        done_generating = false
-        while !done_generating do
-          result = on(host, 'pgrep -f simp_generate_types', :accept_all_exit_codes => true)
-          if result.exit_code != 0
-            done_generating = true
-          else
-            puts "Waiting #{interval} seconds"
-            sleep(interval)
-          end
-        end
-      end
-    rescue => e
-      raise(e)
-    end
-  end
+  include GenerateTypesTestUtil
 
   env_count = ENV.fetch('SIMP_puppet_generate_types', '100').to_i
   env_count = 100 if env_count == 0
@@ -47,7 +27,7 @@ describe 'incron driven puppet generate types'  do
 
       it 'should not recreate the resource cache after deletion' do
         on(host, "rm -rf #{resource_types_cache}")
-        expect(host.file_exist?(resource_types_cache)).to_not be true
+        expect(host.file_exist?(resource_types_cache)).to be false
       end
 
       it 'should create the resource cache in a new environment' do
@@ -85,12 +65,6 @@ describe 'incron driven puppet generate types'  do
 
       it 'should not trigger on removing the .resource_types directories' do
         on(host, "/bin/rm -rf #{environment_path}/*/.resource_types")
-      end
-
-      # Validate that we're running the minimal (safe) incron set
-      it 'should NOT recreate the resource cache if a library is updated' do
-        on(host, "echo '' >> #{environment_path}/production/modules/incron/lib/puppet/type/incron_system_table.rb")
-        expect(host.file_exist?(resource_types_cache)).to_not be true
       end
 
       it "should not crash the system when creating #{env_count} new environments" do

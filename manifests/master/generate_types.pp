@@ -6,7 +6,7 @@
 # post script).
 #
 # @param enable
-#   Enable ``puppet generate types`` management
+#   Enable or disable automatic generation of types using ``puppet generate types``
 #
 # @param trigger_on_puppetserver_update
 #   Run ``puppet generate types`` on all environments if the ``puppetserver``
@@ -24,28 +24,25 @@
 #
 # @param trigger_on_new_environment
 #   Run ``puppet generate types`` on new environments as soon as they are
-#   created.
+#   created
 #
 # @param trigger_on_type_change
 #
 #   Watch all type files for changes and generate types when types are updated
 #
-# @param delay
-#   Wait this number of seconds prior to running ``puppet generate types``
-#
-#   * While not perfect, this can help alleviate race conditions with large
-#     module deployments
-#
 # @param timeout
-#   Seconds before the simp_generate_types script will kill other running
-#   processes and continue
+#   Seconds before the simp_generate_types script will kill any other
+#   simp_generate_types processes and continue
 #
 # @param stability_timeout
-#   Seconds before the simp_generate_types script will exit due to a
-#   continually growing environment space
+#   Seconds before the simp_generate_types script will exit, without
+#   processing, due to environments continuing to be created in the environment
+#   path while the simp_generate_types script is attempting to execute
 #
 #   * This comes into play when deploying large numbers of environments and
-#     generally should not need to be changed otherwise.
+#     generally should not need to be changed otherwise. If you see an error
+#     message relating to environments not reaching stability, then you will
+#     need to increase this number.
 #
 # @param run_dir
 #   The directory to use for saving state and metadata for the
@@ -59,7 +56,6 @@ class pupmod::master::generate_types (
   Stdlib::AbsolutePath        $puppet_exe                     = '/opt/puppetlabs/puppet/bin/puppet',
   Boolean                     $trigger_on_new_environment     = true,
   Boolean                     $trigger_on_type_change         = true,
-  Integer[0]                  $delay                          = 30,
   Integer[0]                  $timeout                        = 300,
   Integer[0]                  $stability_timeout              = 500,
   Stdlib::AbsolutePath        $run_dir                        = '/var/run/simp_generate_types'
@@ -90,59 +86,67 @@ class pupmod::master::generate_types (
       require     => File[$run_dir],
       subscribe   => File[$_generate_types_path],
     }
-  }
 
-  if 'systemd' in pick(fact('init_systems'), []) {
-    simplib::assert_optional_dependency($module_name, 'camptocamp/systemd')
+    if 'systemd' in pick(fact('init_systems'), []) {
+      simplib::assert_optional_dependency($module_name, 'camptocamp/systemd')
 
-    systemd::unit_file { 'simp_generate_types.path':
-      enable  => true,
-      active  => true,
-      content => epp("${module_name}/etc/systemd/system/simp_generate_types.path.epp")
-    }
-
-    $_simp_generate_types_service = @("HEREDOC")
-      [Service]
-      Type=simple
-      ExecStart=${_generate_types_command}
-      | HEREDOC
-
-    systemd::unit_file { 'simp_generate_types.service':
-      content => $_simp_generate_types_service
-    }
-
-    service { 'simp_generate_types':
-      enable  => true,
-      require => Systemd::Unit_file['simp_generate_types.service']
-    }
-
-    if $trigger_on_puppetserver_update or $trigger_on_puppet_update {
-      systemd::unit_file { 'simp_generate_types_apps.path':
+      systemd::unit_file { 'simp_generate_types.path':
         enable  => true,
         active  => true,
-        content => epp("${module_name}/etc/systemd/system/simp_generate_types.path.epp", { apps => true } )
+        content => epp("${module_name}/etc/systemd/system/simp_generate_types.path.epp")
       }
 
-      $_simp_generate_types_force_service = @("HEREDOC")
+      $_simp_generate_types_service = @("HEREDOC")
         [Service]
         Type=simple
-        ExecStart=${_generate_types_command} --force
+        ExecStart=${_generate_types_command}
         | HEREDOC
 
-      systemd::unit_file { 'simp_generate_types_force.service':
-        content => $_simp_generate_types_force_service
+      systemd::unit_file { 'simp_generate_types.service':
+        content => $_simp_generate_types_service
       }
 
-      service { 'simp_generate_types_force':
+      service { 'simp_generate_types':
         enable  => true,
-        require => Systemd::Unit_file['simp_generate_types_force.service']
+        require => Systemd::Unit_file['simp_generate_types.service']
+      }
+
+      if $trigger_on_puppetserver_update or $trigger_on_puppet_update {
+        systemd::unit_file { 'simp_generate_types_apps.path':
+          enable  => true,
+          active  => true,
+          content => epp("${module_name}/etc/systemd/system/simp_generate_types.path.epp", { apps => true } )
+        }
+
+        $_simp_generate_types_force_service = @("HEREDOC")
+          [Service]
+          Type=simple
+          ExecStart=${_generate_types_command} --force
+          | HEREDOC
+
+        systemd::unit_file { 'simp_generate_types_force.service':
+          content => $_simp_generate_types_force_service
+        }
+
+        service { 'simp_generate_types_force':
+          enable  => true,
+          require => Systemd::Unit_file['simp_generate_types_force.service']
+        }
+      }
+    }
+    else {
+      notify { 'simp_generate_types incron deprecated':
+        message  => "simp_generate_types no longer supports incron due to continuing issues with the application. Please set ${module_name}::master::generate_types::enable to `false` for ${facts['fqdn']} to disable this message",
+        loglevel => 'warning'
       }
     }
   }
   else {
-    notify { 'simp_generate_types incron deprecated':
-      message  => "simp_generate_types no longer supports incron due to continuing issues with the application. Please set ${module_name}::master::generate_types::enable to `false` for ${facts['fqdn']} to disable this message",
-      loglevel => 'warning'
-    }
+    service { 'simp_generate_types': enable => false }
+    service { 'simp_generate_types_force': enable => false }
+    systemd::unit_file { 'simp_generate_types.path': ensure => absent }
+    systemd::unit_file { 'simp_generate_types_apps.path': ensure =>  absent }
+    systemd::unit_file { 'simp_generate_types.service': ensure => absent }
+    systemd::unit_file { 'simp_generate_types_force.service': ensure => absent }
   }
 }
