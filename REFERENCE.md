@@ -1143,7 +1143,7 @@ The following parameters are available in the `pupmod::master::generate_types` c
 
 Data type: `Boolean`
 
-Enable ``puppet generate types`` management
+Enable or disable automatic generation of types using ``puppet generate types``
 
 Default value: `true`
 
@@ -1186,7 +1186,7 @@ Default value: '/opt/puppetlabs/puppet/bin/puppet'
 Data type: `Boolean`
 
 Run ``puppet generate types`` on new environments as soon as they are
-created.
+created
 
 Default value: `true`
 
@@ -1198,23 +1198,12 @@ Watch all type files for changes and generate types when types are updated
 
 Default value: `true`
 
-##### `delay`
-
-Data type: `Integer[0]`
-
-Wait this number of seconds prior to running ``puppet generate types``
-
-* While not perfect, this can help alleviate race conditions with large
-  module deployments
-
-Default value: 30
-
 ##### `timeout`
 
 Data type: `Integer[0]`
 
-Seconds before the simp_generate_types script will kill other running
-processes and continue
+Seconds before the simp_generate_types script will kill any other
+simp_generate_types processes and continue
 
 Default value: 300
 
@@ -1222,11 +1211,14 @@ Default value: 300
 
 Data type: `Integer[0]`
 
-Seconds before the simp_generate_types script will exit due to a
-continually growing environment space
+Seconds before the simp_generate_types script will exit, without
+processing, due to environments continuing to be created in the environment
+path while the simp_generate_types script is attempting to execute
 
 * This comes into play when deploying large numbers of environments and
-  generally should not need to be changed otherwise.
+  generally should not need to be changed otherwise. If you see an error
+  message relating to environments not reaching stability, then you will
+  need to increase this number.
 
 Default value: 500
 

@@ -49,16 +49,16 @@
 #   ``simp_generate_types`` process
 #
 class pupmod::master::generate_types (
-  Boolean                     $enable                         = true,
-  Boolean                     $trigger_on_puppetserver_update = true,
-  Stdlib::AbsolutePath        $puppetserver_exe               = '/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver',
-  Boolean                     $trigger_on_puppet_update       = true,
-  Stdlib::AbsolutePath        $puppet_exe                     = '/opt/puppetlabs/puppet/bin/puppet',
-  Boolean                     $trigger_on_new_environment     = true,
-  Boolean                     $trigger_on_type_change         = true,
-  Integer[0]                  $timeout                        = 300,
-  Integer[0]                  $stability_timeout              = 500,
-  Stdlib::AbsolutePath        $run_dir                        = '/var/run/simp_generate_types'
+  Boolean              $enable                         = true,
+  Boolean              $trigger_on_puppetserver_update = true,
+  Stdlib::AbsolutePath $puppetserver_exe               = '/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver',
+  Boolean              $trigger_on_puppet_update       = true,
+  Stdlib::AbsolutePath $puppet_exe                     = '/opt/puppetlabs/puppet/bin/puppet',
+  Boolean              $trigger_on_new_environment     = true,
+  Boolean              $trigger_on_type_change         = true,
+  Integer[0]           $timeout                        = 300,
+  Integer[0]           $stability_timeout              = 500,
+  Stdlib::AbsolutePath $run_dir                        = '/var/run/simp_generate_types'
 ){
 
   $_generate_types_path = '/usr/local/sbin/simp_generate_types'
