@@ -7,6 +7,7 @@ describe 'pupmod::master::generate_types' do
     it { is_expected.to create_file('/var/run/simp_generate_types') }
     it { is_expected.to create_exec('simp_generate_types').that_requires('File[/usr/local/sbin/simp_generate_types]') }
     it { is_expected.to create_exec('simp_generate_types').that_requires('File[/var/run/simp_generate_types]') }
+    it { is_expected.to create_tidy('/etc/incron.d').with_matches('simp_generate_types*') }
   end
 
   shared_examples_for 'generate_types_systemd' do |content, force_content=nil|
@@ -244,6 +245,7 @@ describe 'pupmod::master::generate_types' do
         it { is_expected.to create_systemd__unit_file('simp_generate_types_apps.path').with_ensure('absent') }
         it { is_expected.to create_systemd__unit_file('simp_generate_types.service').with_ensure('absent') }
         it { is_expected.to create_systemd__unit_file('simp_generate_types_force.service').with_ensure('absent') }
+        it { is_expected.to create_tidy('/etc/incron.d').with_matches('simp_generate_types*') }
       end
     end
   end

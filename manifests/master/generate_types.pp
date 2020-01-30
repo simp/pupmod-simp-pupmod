@@ -149,4 +149,11 @@ class pupmod::master::generate_types (
     systemd::unit_file { 'simp_generate_types.service': ensure => absent }
     systemd::unit_file { 'simp_generate_types_force.service': ensure => absent }
   }
+
+  # TODO: Remove this when enough time has passed that it is no longer necessary
+  tidy { '/etc/incron.d':
+    matches => 'simp_generate_types*',
+    recurse => 1,
+    backup  => false
+  }
 }
