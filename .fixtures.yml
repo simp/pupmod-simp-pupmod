@@ -15,7 +15,6 @@ fixtures:
       repo: https://github.com/simp/pupmod-voxpupuli-firewalld
       ref: v4.1.0
     haveged: https://github.com/simp/pupmod-simp-haveged
-    incron: https://github.com/simp/pupmod-simp-incron
     inifile: https://github.com/simp/puppetlabs-inifile
     iptables: https://github.com/simp/pupmod-simp-iptables
     selinux_core:
