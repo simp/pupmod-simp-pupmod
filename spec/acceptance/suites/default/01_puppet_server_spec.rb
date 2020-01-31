@@ -42,7 +42,9 @@ describe 'install environment via r10k and puppetserver' do
       it 'should enable SIMP and SIMP dependencies repos' do
         install_simp_repos(master)
 
-        master.install_package('epel-release')
+        os_maj = fact_on(master, 'operatingsystemmajrelease').strip
+
+        master.install_package("https://dl.fedoraproject.org/pub/epel/epel-release-latest-#{os_maj}.noarch.rpm")
       end
 
       it 'should install puppetserver' do
