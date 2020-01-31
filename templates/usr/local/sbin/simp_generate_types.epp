@@ -5,9 +5,7 @@ require 'optparse'
 require 'pathname'
 
 PUPPET_CMD = '/opt/puppetlabs/bin/puppet'
-WRITE_LOCK = '/var/run/simp_generate_types.readlock'
 GENERATE_LOCK = '/var/run/simp_generate_types.generatelock'
-CMD_NAME = File.basename($0)
 
 options = OpenStruct.new
 options.paths   = []
@@ -108,11 +106,11 @@ def unlock(lockfile, target_pid=nil)
         begin
           Process.kill(9, pid)
 
-          options.syslog.warn("Force unlocked '#{pid}'")
+          log_human("Force unlocked '#{pid}'")
         rescue Errno::ESRCH
           # noop: process exited while trying to kill it
         rescue => e
-          options.syslog.warn("Attempt to kill process '#{pid}' during unlock of '#{lockfile}' failed: #{e}")
+          log_human("Attempt to kill process '#{pid}' during unlock of '#{lockfile}' failed: #{e}")
         end
 
         File.delete(lockfile)
@@ -138,15 +136,15 @@ def wait_and_lock(lockfile, options)
           sleep(sleep_seconds)
           remaining_timeout = remaining_timeout - sleep_seconds
 
-          human_log([
-            "Other process '#{other_pid}' still running.",
+          log_human([
+            "Other process '#{other_pid}' from '#{lockfile}' still running.",
             "KILLING '#{other_pid}' in '#{remaining_timeout}' seconds!",
             "-- Press ^C to abort --"
           ], options)
         end
       end
     rescue Timeout::Error
-      human_log("Timeout reached - KILLING '#{other_pid}'", options)
+      log_human("Timeout reached - KILLING '#{other_pid}'", options)
 
       unlock(lockfile)
     end
@@ -176,9 +174,9 @@ def log(msg, options)
 
   if options.logfile || options.syslog
     if options.logfile
-      @logfile ||= File.open(options.logfile, 'a+')
+      $logfile ||= File.open(options.logfile, 'a+')
 
-      @logfile.puts(msg.join("\n"))
+      $logfile.puts(msg.join("\n"))
     end
 
     if options.syslog
@@ -192,9 +190,9 @@ def log(msg, options)
 end
 
 def environment_paths
-  @puppet_environments ||= %x{#{PUPPET_CMD} config print --log_level=err --section=master environmentpath}.strip.split(':')
+  $puppet_environments ||= %x{#{PUPPET_CMD} config print --log_level=err --section=master environmentpath}.strip.split(':')
 
-  return Dir.glob( @puppet_environments.map{|x| Pathname.new(x).cleanpath.to_s + '/*'} )
+  return Dir.glob( $puppet_environments.map{|x| Pathname.new(x).cleanpath.to_s + '/*'} )
 end
 
 def wait_for_environment_stability(timeout_seconds = 300, sleep_seconds = 10, options)
@@ -203,9 +201,10 @@ def wait_for_environment_stability(timeout_seconds = 300, sleep_seconds = 10, op
   begin
     Timeout::timeout(timeout_seconds) do
       current_environments = environment_paths
-      sleep(sleep_seconds)
 
       while current_environments != environment_paths
+        sleep(sleep_seconds)
+
         current_environments = environment_paths
         log("Environments not yet stable, sleeping for #{sleep_seconds} seconds", options)
       end
@@ -275,8 +274,7 @@ def process_paths(to_process, options)
 
     output = []
 
-    current_umask = File.umask
-    File.umask(0022)
+    current_umask = File.umask(0022)
 
     puppet_group = %x(#{PUPPET_CMD} config print --log_level=err --section=master group).strip
 
