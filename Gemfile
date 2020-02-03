@@ -13,16 +13,17 @@ group :test do
   gem 'puppet-strings'
   gem 'puppet-lint-empty_string-check',   :require => false
   gem 'puppet-lint-trailing_comma-check', :require => false
-  gem 'simp-rspec-puppet-facts', ENV.fetch('SIMP_RSPEC_PUPPET_FACTS_VERSION', '~> 2.2')
-  gem 'simp-rake-helpers', ENV.fetch('SIMP_RAKE_HELPERS_VERSION', '~> 5.8')
+  gem 'simp-rspec-puppet-facts', ENV.fetch('SIMP_RSPEC_PUPPET_FACTS_VERSION', ['>= 2.4.0', '< 3.0.0'] )
+  gem 'simp-rake-helpers', ENV.fetch('SIMP_RAKE_HELPERS_VERSION', ['>= 5.9', '< 6.0'])
 end
 
 group :development do
   gem 'pry'
-  gem 'pry-byebug'
   gem 'pry-doc'
 end
 
 group :system_tests do
-  gem 'simp-beaker-helpers', ENV.fetch('SIMP_BEAKER_HELPERS_VERSION', ['>= 1.14.2', '< 2.0'])
+  gem 'beaker'
+  gem 'beaker-rspec'
+  gem 'simp-beaker-helpers', ENV.fetch('SIMP_BEAKER_HELPERS_VERSION', ['>= 1.17.0', '< 2.0.0'])
 end

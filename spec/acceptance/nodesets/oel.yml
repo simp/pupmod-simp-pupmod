@@ -6,24 +6,30 @@
   end
 -%>
 HOSTS:
-  puppet:
+  puppet.oel7:
     roles:
-      - master
+      - simp_master
       - default
-    platform:   el-7-x86_64
-    box:        onyxpoint/oel-7-x86_64
+    platform: el-7-x86_64
+    box: generic/oracle7
+    hypervisor: <%= hypervisor %>
+    vagrant_memsize: 4608
+    vagrant_cpus: 2
+
+  puppet.oel8:
+    roles:
+      - simp_master
+    platform: el-8-x86_64
+    box: generic/oracle8
     hypervisor: <%= hypervisor %>
     vagrant_memsize: 4608
     vagrant_cpus: 2
 
 CONFIG:
   log_level: verbose
-  type:      aio
+  type: aio
   vagrant_memsize: 256
   synced_folder: disabled
 <% if ENV['BEAKER_PUPPET_COLLECTION'] -%>
   puppet_collection: <%= ENV['BEAKER_PUPPET_COLLECTION'] %>
 <% end -%>
-
-
-  # vb_gui: true

@@ -10,7 +10,7 @@
 * [`pupmod::facter::conf`](#pupmodfacterconf): A class to manage Facter configuration
 * [`pupmod::master`](#pupmodmaster): Provides configuration for a puppet master.
 * [`pupmod::master::base`](#pupmodmasterbase): A break out of the mostly static files used by the Puppet master.
-* [`pupmod::master::generate_types`](#pupmodmastergenerate_types): Use ``incrond`` to run ``puppet generate types`` when the necessary files have been changed
+* [`pupmod::master::generate_types`](#pupmodmastergenerate_types): Use ``systemd`` to run ``puppet generate types`` when the necessary files have been changed
 * [`pupmod::master::install`](#pupmodmasterinstall): Install the puppetserver
 * [`pupmod::master::reports`](#pupmodmasterreports): This class simply controls settings around client reports on the system.  Most importantly, it allows for purging the reports.
 * [`pupmod::master::service`](#pupmodmasterservice): Split out the 'service' for cleaner dependency ordering
@@ -27,7 +27,6 @@
 
 **Functions**
 
-* [`pupmod::generate_types_munge`](#pupmodgenerate_types_munge): Return an Array of Stdlib::AbsolutePath (legacy compat), or a Hash of AbsolutePath and Incron::Mask values that have the string PUPPET_ENVIRO
 * [`pupmod::max_active_instances`](#pupmodmax_active_instances): Provides a reasonable calculation for the maximum number of active instances for a system  Parameters are not to be used but are present as a
 * [`pupmod::server_distribution`](#pupmodserver_distribution): Figure out if we're running PC1 or PE puppet
 * [`pupmod::server_version`](#pupmodserver_version): Authoritatively determine the puppet server version and return `0.0.0` if one could not be determined.
@@ -1131,8 +1130,10 @@ A break out of the mostly static files used by the Puppet master.
 
 ### pupmod::master::generate_types
 
-Use ``incrond`` to run ``puppet generate types`` when the necessary files
-have been changed
+NOTE: ``incron`` support has been removed due to continuing issues with ``incrond``.
+If you are using a system that does not support ``systemd``, you will need to
+run ``simp_generate_types`` using an alternate method (such as an ``r10k``
+post script).
 
 #### Parameters
 
@@ -1142,7 +1143,7 @@ The following parameters are available in the `pupmod::master::generate_types` c
 
 Data type: `Boolean`
 
-Enable ``puppet generate types`` management
+Enable or disable automatic generation of types using ``puppet generate types``
 
 Default value: `true`
 
@@ -1185,54 +1186,41 @@ Default value: '/opt/puppetlabs/puppet/bin/puppet'
 Data type: `Boolean`
 
 Run ``puppet generate types`` on new environments as soon as they are
-created.
-
-WARNING: You should disable this option if you have over 100 environments
-and expect to update them all simultaneously.
+created
 
 Default value: `true`
 
-##### `delay`
+##### `trigger_on_type_change`
+
+Data type: `Boolean`
+
+Watch all type files for changes and generate types when types are updated
+
+Default value: `true`
+
+##### `timeout`
 
 Data type: `Integer[0]`
 
-Wait this number of seconds prior to running ``puppet generate types``
+Seconds before the simp_generate_types script will kill any other
+simp_generate_types processes and continue
 
-* While not perfect, this can help alleviate race conditions with large
-  module deployments
+Default value: 300
 
-Default value: 30
+##### `stability_timeout`
 
-##### `trigger_paths`
+Data type: `Integer[0]`
 
-Data type: `Variant[
-    # For backward compatibility
-    Array[Stdlib::AbsolutePath],
-    Hash[Stdlib::AbsolutePath, Array[Incron::Mask]]
-  ]`
+Seconds before the simp_generate_types script will exit, without
+processing, due to environments continuing to be created in the environment
+path while the simp_generate_types script is attempting to execute
 
-Trigger paths to apply when ``$trigger_on_new_environment`` is true.
+* This comes into play when deploying large numbers of environments and
+  generally should not need to be changed otherwise. If you see an error
+  message relating to environments not reaching stability, then you will
+  need to increase this number.
 
-WARNING: Do *not* watch a large number of paths here!
-* New format is a hash of the paths that should be watched and the
-  corresponding incron flags to apply to each path.
-* Deprecated format is a list of paths to watch. The incron flags to apply
-  are hardcoded to ['IN_MODIFY', 'IN_CREATE', 'IN_NO_LOOP'].
-* Ruby ``Dir`` compatible path globs are supported
-* Use pupmod::generate_types_munge() to substitute the string
-  ``PUPPET_ENVIRONMENTPATH`` with all known Puppet environment paths.
-  (See ``$trigger_paths``default below for a usage example).
-* Default watches for the creation of new environments in all known
-  Puppet environment paths.  Previously, the default watched
-  not only for new environments, but for any new modules within
-  an existing environment and any type changes within any module
-  within any existing environment.  However, this proved to be a
-  performance issue for some sites with large numbers of environments.
-
-Default value: pupmod::generate_types_munge({
-    # Handles the creation of new environments
-    '/PUPPET_ENVIRONMENTPATH'                             => ['IN_CREATE','IN_CLOSE_WRITE','IN_MOVED_TO','IN_ONLYDIR','IN_DONT_FOLLOW','recursive=false']
-                                                                                      })
+Default value: 500
 
 ##### `run_dir`
 
@@ -1814,72 +1802,6 @@ Data type: `Simplib::Port`
 Default value: 8140
 
 ## Functions
-
-### pupmod::generate_types_munge
-
-Type: Ruby 4.x API
-
-Return an Array of Stdlib::AbsolutePath (legacy compat), or a Hash of
-AbsolutePath and Incron::Mask values that have the string
-PUPPET_ENVIRONMENTPATH replaced by the Puppet environment paths.
-
-#### `pupmod::generate_types_munge(Array[Stdlib::AbsolutePath] $to_process, Optional[Array[Stdlib::AbsolutePath]] $environment_paths)`
-
-This version is present for legacy purposes
-
-Returns: `Array[Stdlib::AbsolutePath]`
-
-##### Examples
-
-###### with a multi-part ``environmentpath`` of ``/here:/there``
-
-```puppet
-pupmod::generate_types_munge(['PUPPET_ENVIRONMENTPATH/foo/bar'])
-
-returns: ['/here/foo/bar', '/there/foo/bar']
-```
-
-##### `to_process`
-
-Data type: `Array[Stdlib::AbsolutePath]`
-
-The Array of AbsolutePaths to process
-
-##### `environment_paths`
-
-Data type: `Optional[Array[Stdlib::AbsolutePath]]`
-
-The list of environment paths to use as a replacement
-
-#### `pupmod::generate_types_munge(Hash[Stdlib::AbsolutePath, Array[Incron::Mask]] $to_process, Optional[Array[Stdlib::AbsolutePath]] $environment_paths)`
-
-The pupmod::generate_types_munge function.
-
-Returns: `Hash[Stdlib::AbsolutePath, Array[Incron::Mask]]`
-
-##### Examples
-
-###### with a multi-part ``environmentpath`` of ``/here:/there``
-
-```puppet
-pupmod::generate_types_munge({
-  'PUPPET_ENVIRONMENTPATH/foo/bar => [<MASKS>]
-})
-
-returns: { '/here/foo/bar' => [<MASKS>], '/there/foo/bar' => [<MASKS>] }
-```
-
-##### `to_process`
-
-Data type: `Hash[Stdlib::AbsolutePath, Array[Incron::Mask]]`
-
-The Array of AbsolutePaths to process
-
-##### `environment_paths`
-
-Data type: `Optional[Array[Stdlib::AbsolutePath]]`
-
-The list of environment paths to use as a replacement
 
 ### pupmod::max_active_instances
 
