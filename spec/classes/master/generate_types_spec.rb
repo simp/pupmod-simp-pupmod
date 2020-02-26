@@ -54,6 +54,9 @@ describe 'pupmod::master::generate_types' do
 
       context 'with default input' do
         systemd_path_content = <<~EOM
+          [Install]
+          WantedBy=multi-user.target
+
           [Path]
           Unit=simp_generate_types.service
           PathChanged=/etc/puppetlabs/code/environments
@@ -61,6 +64,9 @@ describe 'pupmod::master::generate_types' do
         EOM
 
         systemd_app_content = <<~EOM
+          [Install]
+          WantedBy=multi-user.target
+
           [Path]
           Unit=simp_generate_types_force.service
           PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
@@ -81,6 +87,9 @@ describe 'pupmod::master::generate_types' do
         }}
 
         systemd_path_content = <<~EOM
+          [Install]
+          WantedBy=multi-user.target
+
           [Path]
           Unit=simp_generate_types.service
           PathChanged=/etc/puppetlabs/code/environments
@@ -88,6 +97,9 @@ describe 'pupmod::master::generate_types' do
         EOM
 
         systemd_app_content = <<~EOM
+          [Install]
+          WantedBy=multi-user.target
+
           [Path]
           Unit=simp_generate_types_force.service
           PathChanged=/opt/puppetlabs/puppet/bin/puppet
@@ -107,6 +119,9 @@ describe 'pupmod::master::generate_types' do
         }}
 
         systemd_path_content = <<~EOM
+          [Install]
+          WantedBy=multi-user.target
+
           [Path]
           Unit=simp_generate_types.service
           PathChanged=/etc/puppetlabs/code/environments
@@ -114,6 +129,9 @@ describe 'pupmod::master::generate_types' do
         EOM
 
         systemd_app_content = <<~EOM
+          [Install]
+          WantedBy=multi-user.target
+
           [Path]
           Unit=simp_generate_types_force.service
           PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
@@ -134,6 +152,9 @@ describe 'pupmod::master::generate_types' do
         }}
 
         systemd_path_content = <<~EOM
+          [Install]
+          WantedBy=multi-user.target
+
           [Path]
           Unit=simp_generate_types.service
           PathChanged=/etc/puppetlabs/code/environments
@@ -154,12 +175,18 @@ describe 'pupmod::master::generate_types' do
         }}
 
         systemd_path_content = <<~EOM
+          [Install]
+          WantedBy=multi-user.target
+
           [Path]
           Unit=simp_generate_types.service
           PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.rb
         EOM
 
         systemd_app_content = <<~EOM
+          [Install]
+          WantedBy=multi-user.target
+
           [Path]
           Unit=simp_generate_types_force.service
           PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
@@ -180,12 +207,18 @@ describe 'pupmod::master::generate_types' do
         }}
 
         systemd_path_content = <<~EOM
+          [Install]
+          WantedBy=multi-user.target
+
           [Path]
           Unit=simp_generate_types.service
           PathChanged=/etc/puppetlabs/code/environments
         EOM
 
         systemd_app_content = <<~EOM
+          [Install]
+          WantedBy=multi-user.target
+
           [Path]
           Unit=simp_generate_types_force.service
           PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
@@ -208,6 +241,9 @@ describe 'pupmod::master::generate_types' do
         }
 
         systemd_path_content = <<~EOM
+          [Install]
+          WantedBy=multi-user.target
+
           [Path]
           Unit=simp_generate_types.service
           PathChanged=/etc/puppetlabs/code/environments
@@ -216,6 +252,9 @@ describe 'pupmod::master::generate_types' do
         EOM
 
         systemd_app_content = <<~EOM
+          [Install]
+          WantedBy=multi-user.target
+
           [Path]
           Unit=simp_generate_types_force.service
           PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
