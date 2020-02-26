@@ -187,7 +187,7 @@ pup5.5.16-oel-fips:
 pup6:
   <<: *pup_6
   <<: *acceptance_base
-  # Waiting on resolution to https://tickets.puppetlabs.com/browse/PUP-10262
+  # Waiting on resolution to https://tickets.puppetlabs.com/browse/PUP-9602
   allow_failure: true
   script:
     - 'bundle exec rake beaker:suites[default,default]'
@@ -195,7 +195,7 @@ pup6:
 pup6-fips:
   <<: *pup_6
   <<: *acceptance_base
-  # Waiting on resolution to https://tickets.puppetlabs.com/browse/PUP-10262
+  # Waiting on resolution to https://tickets.puppetlabs.com/browse/PUP-9602
   allow_failure: true
   script:
     - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,default]'

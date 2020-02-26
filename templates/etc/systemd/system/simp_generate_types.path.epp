@@ -1,4 +1,7 @@
 <%- | Boolean $apps = false | -%>
+[Install]
+WantedBy=multi-user.target
+
 [Path]
 <% if $apps { -%>
 Unit=simp_generate_types_force.service
