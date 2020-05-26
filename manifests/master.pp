@@ -159,6 +159,14 @@
 # @param log_to_file
 #   If true, log to system log files at /var/log/puppetserver.
 #
+# @param strict_hostname_checking
+#   Whether to only search for the complete hostname as it is in the
+#   certificate when searching for node information in teh catalogs or to match
+#   dot delimited segments of the cert's certname and the hostname, fqdn,
+#   and/or domain facts.
+#
+#   * Do NOT set to `false` unless you have read the details of CVE-2020-7942
+#
 # @param syslog
 #   If true, log to the local system logger over UDP port 514.
 #
@@ -303,6 +311,8 @@ class pupmod::master (
   Array[Simplib::Hostname]                            $admin_api_whitelist             = [$facts['fqdn']],
   String                                              $admin_api_mountpoint            = '/puppet-admin-api',
   Boolean                                             $log_to_file                     = false,
+  Boolean                                             $strict_hostname_checking        = true,
+  Boolean                                             $cve_2020_7942_warning = true,
   Boolean                                             $syslog                          = simplib::lookup('simp_options::syslog', { 'default_value' => false }),
   String                                              $syslog_facility                 = 'LOCAL6',
   String                                              $syslog_message_format           = '%logger[%thread]: %msg',
@@ -490,6 +500,19 @@ class pupmod::master (
       value   => false,
       #value   => $freeze_main,
       notify  => Class['pupmod::master::service']
+    }
+
+    pupmod::conf { 'strict_hostname_checking':
+      confdir => $puppet_confdir,
+      setting => 'strict_hostname_checking',
+      value   => $strict_hostname_checking,
+      notify  => Class['pupmod::master::service']
+    }
+
+    if !$strict_hostname_checking and $cve_2020_7942_warning {
+      notify { 'CVE-2020-7942':
+        message => "Setting '${module_name}::pupmod::master::strict_hostname_checking' to 'true' enables CVE-2020-7942.\n\nSet '${module_name}::pupmod::master::cve_2020_7942_warning' to 'false' to disable this message."
+      }
     }
 
     if $auditd {

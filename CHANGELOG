@@ -1,8 +1,9 @@
-* Wed Jan 15 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.0.0-0
+* Tue May 26 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.0.0-0
 - Add EL8 Support
 - Removed incron support in favor of using systemd path units to run
   simp_generate_types
 - Attempts to activate the incron code will result in a warning message
+- Add mitigation for https://puppet.com/security/cve/CVE-2020-7942/
 
 * Wed Jan 08 2020 Liz Nemsick <lnemsick.simp@gmail.com> - 8.0.0-0
 - Added optional management of the Facter configuration file.
