@@ -458,6 +458,14 @@ describe 'pupmod::master' do
             'value'   => false,
             'notify'  => 'Class[Pupmod::Master::Service]'
           }) }
+
+          it { is_expected.to contain_pupmod__conf('strict_hostname_checking').with({
+              'setting' => 'strict_hostname_checking',
+              'value'   => true,
+              'notify'  => 'Class[Pupmod::Master::Service]'
+            })
+          }
+
           it { is_expected.to contain_ini_setting("pupmod_master_environmentpath") }
 
           it { is_expected.to contain_ini_setting("pupmod_master_daemonize") }
@@ -570,6 +578,21 @@ describe 'pupmod::master' do
 </configuration>
 ~
           }) }
+          end
+
+          context 'strict_hostname_checking = false' do
+            let(:params) {{ :strict_hostname_checking => false }}
+
+            it { is_expected.to contain_notify('CVE-2020-7942') }
+
+            context 'cve_2020_7942_warning = false' do
+              let(:params) {{
+                :strict_hostname_checking => false,
+                :cve_2020_7942_warning    => false
+              }}
+
+              it { is_expected.not_to contain_notify('CVE-2020-7942') }
+            end
           end
 
           context 'with ca_allow_auth_extensions' do
