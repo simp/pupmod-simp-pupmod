@@ -975,6 +975,19 @@ If true, log to system log files at /var/log/puppetserver.
 
 Default value: `false`
 
+##### `strict_hostname_checking`
+
+Data type: `Boolean`
+
+Whether to only search for the complete hostname as it is in the
+certificate when searching for node information in teh catalogs or to match
+dot delimited segments of the cert's certname and the hostname, fqdn,
+and/or domain facts.
+
+* Do NOT set to `false` unless you have read the details of CVE-2020-7942
+
+Default value: `true`
+
 ##### `syslog`
 
 Data type: `Boolean`
@@ -1123,6 +1136,14 @@ Data type: `Boolean`
 DO NOT USE. needed for rspec testing
 
 Default value: `false`
+
+##### `cve_2020_7942_warning`
+
+Data type: `Boolean`
+
+
+
+Default value: `true`
 
 ### pupmod::master::base
 
