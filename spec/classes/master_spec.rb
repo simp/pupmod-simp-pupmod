@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-audit_content = File.open("#{File.dirname(__FILE__)}/data/auditd.txt", "rb").read;
-
 describe 'pupmod::master' do
+  audit_content = File.open("#{File.dirname(__FILE__)}/data/auditd.txt", "rb").read
+
   before :all do
     @extras = { :puppet_settings => {
       'master' => {
@@ -13,6 +13,9 @@ describe 'pupmod::master' do
   puppetserver_versions = ['6.1.0', '5.3.5', '5.0.0', '2.7.0']
 
   on_supported_os.each do |os, os_facts|
+    target_os = ENV.fetch('SPEC_SUPPORTED_OS', os)
+    next unless target_os == os
+
     puppetserver_versions.each do |puppetserver_version|
       context "on #{os} with puppet server #{puppetserver_version}" do
 
@@ -23,8 +26,6 @@ describe 'pupmod::master' do
             'serverip'      => facts[:ipaddress]
           }
         end
-
-        let(:puppetserver_version) { puppetserver_version }
 
         let(:facts){
           facts = @extras.merge(os_facts)
@@ -105,38 +106,39 @@ describe 'pupmod::master' do
             'mode'    => '0640',
             'require' => 'Class[Pupmod::Master::Install]',
             'notify'  => 'Class[Pupmod::Master::Service]',
-            'content' => %q~<!--
-  This file managed by Puppet.
-  Any changes will be erased at the next run.
--->
-<configuration>
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d %-5p [%c{2}] %m%n</pattern>
-        </encoder>
-    </appender>
+            'content' => <<~CONTENT
+              <!--
+                This file managed by Puppet.
+                Any changes will be erased at the next run.
+              -->
+              <configuration>
+                  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+                      <encoder>
+                          <pattern>%d %-5p [%c{2}] %m%n</pattern>
+                      </encoder>
+                  </appender>
 
-    <appender name="SYSLOG" class="ch.qos.logback.classic.net.SyslogAppender">
-      <syslogHost>localhost</syslogHost>
-      <facility>LOCAL6</facility>
-      <suffixPattern>%logger[%thread]: %msg</suffixPattern>
-      <throwableExcluded>true</throwableExcluded>
-    </appender>
+                  <appender name="SYSLOG" class="ch.qos.logback.classic.net.SyslogAppender">
+                    <syslogHost>localhost</syslogHost>
+                    <facility>LOCAL6</facility>
+                    <suffixPattern>%logger[%thread]: %msg</suffixPattern>
+                    <throwableExcluded>true</throwableExcluded>
+                  </appender>
 
-    <appender name="F1" class="ch.qos.logback.core.FileAppender">
-        <file>/var/log/puppetlabs/puppetserver/puppetserver.log</file>
-        <append>true</append>
-        <encoder>
-            <pattern>%d %-5p [%c{2}] %m%n</pattern>
-        </encoder>
-    </appender>
+                  <appender name="F1" class="ch.qos.logback.core.FileAppender">
+                      <file>/var/log/puppetlabs/puppetserver/puppetserver.log</file>
+                      <append>true</append>
+                      <encoder>
+                          <pattern>%d %-5p [%c{2}] %m%n</pattern>
+                      </encoder>
+                  </appender>
 
-    <logger name="org.eclipse.jetty" level="WARN"/>
+                  <logger name="org.eclipse.jetty" level="WARN"/>
 
-    <root level="WARN">
-    </root>
-</configuration>
-~
+                  <root level="WARN">
+                  </root>
+              </configuration>
+              CONTENT
           }) }
 
           context 'when processing ca.conf' do
@@ -543,40 +545,41 @@ describe 'pupmod::master' do
               'mode'    => '0640',
               'require' => 'Class[Pupmod::Master::Install]',
               'notify'  => 'Class[Pupmod::Master::Service]',
-              'content' => %q~<!--
-  This file managed by Puppet.
-  Any changes will be erased at the next run.
--->
-<configuration>
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d %-5p [%c{2}] %m%n</pattern>
-        </encoder>
-    </appender>
+              'content' => <<~CONTENT
+                <!--
+                  This file managed by Puppet.
+                  Any changes will be erased at the next run.
+                -->
+                <configuration>
+                    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+                        <encoder>
+                            <pattern>%d %-5p [%c{2}] %m%n</pattern>
+                        </encoder>
+                    </appender>
 
-    <appender name="SYSLOG" class="ch.qos.logback.classic.net.SyslogAppender">
-      <syslogHost>localhost</syslogHost>
-      <facility>LOCAL6</facility>
-      <suffixPattern>%logger[%thread]: %msg</suffixPattern>
-      <throwableExcluded>true</throwableExcluded>
-    </appender>
+                    <appender name="SYSLOG" class="ch.qos.logback.classic.net.SyslogAppender">
+                      <syslogHost>localhost</syslogHost>
+                      <facility>LOCAL6</facility>
+                      <suffixPattern>%logger[%thread]: %msg</suffixPattern>
+                      <throwableExcluded>true</throwableExcluded>
+                    </appender>
 
-    <appender name="F1" class="ch.qos.logback.core.FileAppender">
-        <file>/var/log/puppetlabs/puppetserver/puppetserver.log</file>
-        <append>true</append>
-        <encoder>
-            <pattern>%d %-5p [%c{2}] %m%n</pattern>
-        </encoder>
-    </appender>
+                    <appender name="F1" class="ch.qos.logback.core.FileAppender">
+                        <file>/var/log/puppetlabs/puppetserver/puppetserver.log</file>
+                        <append>true</append>
+                        <encoder>
+                            <pattern>%d %-5p [%c{2}] %m%n</pattern>
+                        </encoder>
+                    </appender>
 
-    <logger name="org.eclipse.jetty" level="WARN"/>
+                    <logger name="org.eclipse.jetty" level="WARN"/>
 
-    <root level="WARN">
-        <appender-ref ref="SYSLOG"/>
-        <appender-ref ref="F1"/>
-    </root>
-</configuration>
-~
+                    <root level="WARN">
+                        <appender-ref ref="SYSLOG"/>
+                        <appender-ref ref="F1"/>
+                    </root>
+                </configuration>
+                CONTENT
           }) }
           end
 
