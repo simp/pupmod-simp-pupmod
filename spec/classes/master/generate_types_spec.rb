@@ -280,10 +280,17 @@ describe 'pupmod::master::generate_types' do
         it { is_expected.to_not create_exec('simp_generate_types') }
         it { is_expected.to create_service('simp_generate_types').with_enable(false) }
         it { is_expected.to create_service('simp_generate_types_force').with_enable(false) }
-        it { is_expected.to create_systemd__unit_file('simp_generate_types.path').with_ensure('absent') }
-        it { is_expected.to create_systemd__unit_file('simp_generate_types_apps.path').with_ensure('absent') }
-        it { is_expected.to create_systemd__unit_file('simp_generate_types.service').with_ensure('absent') }
-        it { is_expected.to create_systemd__unit_file('simp_generate_types_force.service').with_ensure('absent') }
+        if Array(os_facts[:init_systems]).include?('systemd')
+          it { is_expected.to create_systemd__unit_file('simp_generate_types.path').with_ensure('absent') }
+          it { is_expected.to create_systemd__unit_file('simp_generate_types_apps.path').with_ensure('absent') }
+          it { is_expected.to create_systemd__unit_file('simp_generate_types.service').with_ensure('absent') }
+          it { is_expected.to create_systemd__unit_file('simp_generate_types_force.service').with_ensure('absent') }
+        else
+          it { is_expected.to_not create_systemd__unit_file('simp_generate_types.path').with_ensure('absent') }
+          it { is_expected.to_not create_systemd__unit_file('simp_generate_types_apps.path').with_ensure('absent') }
+          it { is_expected.to_not create_systemd__unit_file('simp_generate_types.service').with_ensure('absent') }
+          it { is_expected.to_not create_systemd__unit_file('simp_generate_types_force.service').with_ensure('absent') }
+        end
         it { is_expected.to create_tidy('/etc/incron.d').with_matches('simp_generate_types*') }
       end
     end

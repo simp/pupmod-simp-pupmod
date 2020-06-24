@@ -144,10 +144,15 @@ class pupmod::master::generate_types (
   else {
     service { 'simp_generate_types': enable => false }
     service { 'simp_generate_types_force': enable => false }
-    systemd::unit_file { 'simp_generate_types.path': ensure => absent }
-    systemd::unit_file { 'simp_generate_types_apps.path': ensure =>  absent }
-    systemd::unit_file { 'simp_generate_types.service': ensure => absent }
-    systemd::unit_file { 'simp_generate_types_force.service': ensure => absent }
+
+    if 'systemd' in pick(fact('init_systems'), []) {
+      simplib::assert_optional_dependency($module_name, 'camptocamp/systemd')
+
+      systemd::unit_file { 'simp_generate_types.path': ensure => absent }
+      systemd::unit_file { 'simp_generate_types_apps.path': ensure =>  absent }
+      systemd::unit_file { 'simp_generate_types.service': ensure => absent }
+      systemd::unit_file { 'simp_generate_types_force.service': ensure => absent }
+    }
   }
 
   # TODO: Remove this when enough time has passed that it is no longer necessary
