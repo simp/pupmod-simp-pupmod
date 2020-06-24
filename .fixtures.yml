@@ -13,7 +13,7 @@ fixtures:
       puppet_version: ">= 6.0.0"
     firewalld:
       repo: https://github.com/simp/pupmod-voxpupuli-firewalld
-      ref: v4.2.2
+      ref: v4.3.0
     haveged: https://github.com/simp/pupmod-simp-haveged
     inifile: https://github.com/simp/puppetlabs-inifile
     iptables: https://github.com/simp/pupmod-simp-iptables
