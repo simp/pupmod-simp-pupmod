@@ -92,7 +92,7 @@ variables:
 
 .skip_job_when_commit_message_says_to: &skip_job_when_commit_message_says_to
   when: never
-  if: '$CI_COMMIT_MESSAGE != /^CI: (SKIP MATRIX|MATRIX LEVEL 0)/'
+  if: '$CI_COMMIT_MESSAGE =~ /^CI: (SKIP MATRIX|MATRIX LEVEL 0)/'
 
 .force_run_job_when_commit_message_lvl_1_or_above: &force_run_job_when_commit_mssage_lvl_1_or_above
   when: on_success
