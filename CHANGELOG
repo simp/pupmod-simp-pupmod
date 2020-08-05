@@ -1,5 +1,5 @@
 * Wed Jul 29 2020 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 8.0.1-0
-- Updated upper bound of inifiles.
+- Updated upper bound of inifile.
 
 * Tue Jun 23 2020 Adam Yohrling <adam.yohrling@onyxpoint.com> - 8.0.0-0
 - Resolved bug with systemd when simp_generate_types disabled
