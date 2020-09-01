@@ -263,6 +263,10 @@
 #   values are in proper HOCON format per
 #   https://github.com/lightbend/config/blob/master/HOCON.md
 #
+# @param compile_server
+#   A ``Boolean`` to determine whether the system is a compile server only vs. a primary server
+#   as defined in https://puppet.com/docs/puppetserver/latest/scaling_puppet_server.html 
+#
 # @param mock
 #   DO NOT USE. needed for rspec testing
 #
@@ -297,8 +301,8 @@ class pupmod::master (
   Boolean                                             $firewall                        = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Array[Simplib::Host]                                $ca_status_whitelist             = [$facts['fqdn']],
   Optional[Stdlib::AbsolutePath]                      $ruby_load_path                  = undef,
-  Integer[1]                                          $max_active_instances            = pupmod::max_active_instances(),
-  Integer                                             $max_requests_per_instance       = 0,
+  Optional[Integer[1]]                                $max_active_instances            = undef,
+  Integer                                             $max_requests_per_instance       = 100000,
   Integer[1000]                                       $borrow_timeout                  = 1200000,
   Boolean                                             $environment_class_cache_enabled = true,
   Optional[Pattern['^\d+\.\d+$']]                     $compat_version                  = undef,
@@ -307,12 +311,12 @@ class pupmod::master (
   Optional[Array[Pupmod::Master::SSLCipherSuites]]    $ssl_cipher_suites               = undef,
   Boolean                                             $enable_profiler                 = false,
   Pupmod::ProfilingMode                               $profiling_mode                  = 'off',
-  Stdlib::AbsolutePath                                $profiler_output_file           = "${vardir}/server_jruby_profiling",
+  Stdlib::AbsolutePath                                $profiler_output_file            = "${vardir}/server_jruby_profiling",
   Array[Simplib::Hostname]                            $admin_api_whitelist             = [$facts['fqdn']],
   String                                              $admin_api_mountpoint            = '/puppet-admin-api',
   Boolean                                             $log_to_file                     = false,
   Boolean                                             $strict_hostname_checking        = true,
-  Boolean                                             $cve_2020_7942_warning = true,
+  Boolean                                             $cve_2020_7942_warning           = true,
   Boolean                                             $syslog                          = simplib::lookup('simp_options::syslog', { 'default_value' => false }),
   String                                              $syslog_facility                 = 'LOCAL6',
   String                                              $syslog_message_format           = '%logger[%thread]: %msg',
@@ -322,12 +326,19 @@ class pupmod::master (
   Optional[Hash[String[1],String[1]]]                 $server_webserver_options        = undef,
   Optional[Hash[String[1],String[1]]]                 $ca_webserver_options            = undef,
   Optional[Hash[String[1],Hash[String[1],String[1]]]] $extra_webserver_sections        = undef,
+  Enum['monolithic', 'primary', 'compile']            $server_type                     = 'monolithic',
   Boolean                                             $mock                            = false
 ) inherits pupmod {
 
   $_server_version = pupmod::server_version()
   $_puppet_user = $facts['puppet_settings']['master']['user']
   $_puppet_group = $facts['puppet_settings']['master']['group']
+
+  # Setup tuning parameters
+  $_max_active_instances = $max_active_instances ? {
+    undef   => pupmod::max_active_instances($server_type),
+    default => $max_active_instances,
+  }
 
   if ($mock == false) {
     include 'pupmod::master::install'

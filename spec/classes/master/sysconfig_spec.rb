@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'pupmod::master::sysconfig' do
+describe 'pupmod::master' do
   on_supported_os.each do |os, os_facts|
     before :all do
       @extras = { :puppet_settings => {
@@ -24,12 +24,9 @@ describe 'pupmod::master::sysconfig' do
             svc
           }
 
-          let(:default_params){{
-            :server_distribution => server_distribution
-          }}
+          let(:hieradata) { "sysconfig/#{server_distribution}" }
 
           if server_distribution == 'PE'
-            let(:params) { default_params }
             let(:facts){
               @extras.merge(os_facts).merge(
                 :memorysize_mb => '490.16',
@@ -48,7 +45,6 @@ describe 'pupmod::master::sysconfig' do
             end
           else
             context 'on PC1 with default params' do
-              let(:params) { default_params }
               let(:facts){ @extras.merge(os_facts).merge({
                 :memorysize_mb => '490.16',
                 :puppetserver_jruby => {
@@ -81,7 +77,6 @@ describe 'pupmod::master::sysconfig' do
               )}
             end
             context 'if jruby9k set to true but file does not exist' do
-              let(:params) { default_params }
               let(:facts){ @extras.merge(os_facts).merge({
                 :memorysize_mb => '490.16',
                 :puppetserver_jruby => {
@@ -104,7 +99,7 @@ describe 'pupmod::master::sysconfig' do
             end
 
             context 'set jrubyjar set to default ' do
-              let(:params) { default_params.merge({:jruby_jar => 'default'}) }
+              let(:hieradata) { "sysconfig/#{server_distribution}_jruby_default" }
               let(:facts){ @extras.merge(os_facts).merge(:memorysize_mb => '490.16') }
 
               it do
@@ -120,7 +115,7 @@ describe 'pupmod::master::sysconfig' do
               end
             end
             context 'set jruby jar set and no fact ' do
-              let(:params) { default_params.merge({:jruby_jar => 'x.jar'}) }
+              let(:hieradata) { "sysconfig/#{server_distribution}_jruby_x" }
               let(:facts){ @extras.merge(os_facts).merge(:memorysize_mb => '490.16') }
 
               it do
@@ -134,6 +129,40 @@ describe 'pupmod::master::sysconfig' do
                   'content' => puppetserver_content_without_jruby
                 } )
               end
+            end
+
+            context '4CPU 8G system auto-tune' do
+              let(:hieradata) { "sysconfig/#{server_distribution}" }
+              let(:facts) { @extras.merge(os_facts).merge({
+                :memorysize_mb => '8192',
+                :processorcount => 4,
+                :processors => {
+                  :count => 4,
+                },
+              })}
+              
+              it do
+                puppetserver_content = File.read("#{File.dirname(__FILE__)}/data/puppetserver-j9-rcc.txt")
+                puppetserver_content.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
+                  File.dirname(facts[:puppet_settings][:master][:server_datadir]))
+
+                is_expected.to contain_file('/etc/sysconfig/puppetserver').with( {
+                  'owner'   => 'root',
+                  'group'   => 'puppet',
+                  'mode'    => '0640',
+                  'content' => puppetserver_content
+                } )
+              end
+
+              it { is_expected.to create_class('pupmod::master::sysconfig') }
+              it { is_expected.to contain_file("#{File.dirname(facts[:puppet_settings][:master][:server_datadir])}/pserver_tmp").with(
+                {
+                  'owner'  => 'puppet',
+                  'group'  => 'puppet',
+                  'ensure' => 'directory',
+                  'mode'   => '0750'
+                }
+              )}
             end
           end
         end

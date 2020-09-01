@@ -192,7 +192,7 @@ describe 'pupmod::master' do
                 'master-log-dir'                  => '/var/log/puppetlabs/puppetserver',
                 'master-var-dir'                  => '/opt/puppetlabs/server/data/puppetserver',
                 'max-active-instances'            => 1,
-                'max-requests-per-instance'       => 0,
+                'max-requests-per-instance'       => 100000,
                 'borrow-timeout'                  => 1200000,
                 'environment-class-cache-enabled' => true,
                 'compile-mode'                    => 'off',

@@ -36,6 +36,11 @@
 #
 #   * The sanity and syntax of this list will not be checked.
 #
+# @param reserved_code_cache
+#   An ``Integer`` of the MB to be used for JRuby options of ReservedCodeCache
+#
+#   * If unset, this will auto-populate based on function
+#
 # @param service_stop_retries
 #   The number of times to attempt to stop the puppetserver process before
 #   failing.
@@ -62,10 +67,11 @@ class pupmod::master::sysconfig (
   Array[Stdlib::AbsolutePath]    $bootstrap_config     = $::pupmod::params::master_bootstrap_config,
   Stdlib::AbsolutePath           $java_bin             = '/usr/bin/java',
   Optional[Pupmod::Memory]       $java_start_memory    = undef,
-  Pupmod::Memory                 $java_max_memory      = '50%',
+  Optional[Pupmod::Memory]       $java_max_memory      = undef,
   Optional[Stdlib::AbsolutePath] $java_temp_dir        = undef,
   String                         $jruby_jar            = 'jruby-9k.jar',
   Optional[Array[String]]        $extra_java_args      = undef,
+  Integer[0]                     $reserved_code_cache  = pupmod::reserved_code_cache(),
   Integer                        $service_stop_retries = 60,
   Integer                        $start_timeout        = 120,
   Simplib::ServerDistribution    $server_distribution  = pupmod::server_distribution(),
@@ -77,6 +83,18 @@ class pupmod::master::sysconfig (
   include 'pupmod::master::service'
 
   unless (mock == true) {
+    if ($server_distribution == 'PE') or defined(Class['puppet_enterprise::profile::master']) {
+      # If this is PE use the PE default for this run since the variable won't exist
+      $_tuning_max_active_instances = max(($facts['processors']['count'] - 1), 1)
+    } else {
+      $_tuning_max_active_instances = $pupmod::master::_max_active_instances
+    }
+
+    $_java_max_memory = $java_max_memory ? {
+      undef   => pupmod::java_max_memory($_tuning_max_active_instances),
+      default => $java_max_memory,
+    }
+
     if empty($java_temp_dir) {
       # puppet_settings.master.server_datadir is not always present, but its parent is
       $_java_temp_dir = "${dirname(fact('puppet_settings.master.server_datadir'))}/pserver_tmp"
