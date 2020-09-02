@@ -87,7 +87,7 @@ class pupmod::master::sysconfig (
       # If this is PE use the PE default for this run since the variable won't exist
       $_tuning_max_active_instances = max(($facts['processors']['count'] - 1), 1)
     } else {
-      $_tuning_max_active_instances = $pupmod::master::_max_active_instances
+      $_tuning_max_active_instances = $pupmod::master::max_active_instances
     }
 
     $_java_max_memory = $java_max_memory ? {

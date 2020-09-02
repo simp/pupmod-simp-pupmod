@@ -48,7 +48,7 @@ jruby-puppet: {
     master-var-dir: <%= $pupmod::master::vardir %>
 
     # (optional) maximum number of JRuby instances to allow
-    max-active-instances: <%= $pupmod::master::_max_active_instances %>
+    max-active-instances: <%= $pupmod::master::max_active_instances %>
 
     # (optional) maximum number of HTTP requests a given JRuby instance will
     # handle in its lifetime
