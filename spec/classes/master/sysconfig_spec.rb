@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'pry'
 
 describe 'pupmod::master' do
   on_supported_os.each do |os, os_facts|
@@ -132,7 +131,7 @@ describe 'pupmod::master' do
               end
             end
 
-            context '4CPU 8G system auto-tune' do
+            context '4CPU 8G memory system auto-tune' do
               let(:hieradata) { "sysconfig/#{server_distribution}" }
               let(:facts) { @extras.merge(os_facts).merge({
                 :memorysize_mb => '8192',
@@ -147,361 +146,154 @@ describe 'pupmod::master' do
                     "Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz"
                   ]
                 },
-                :cpuinfo => {
-                  :processor0 => {
-                    :vendor_id => "GenuineIntel",
-                    :cpu_family => "6",
-                    :model => "158",
-                    :model_name => "Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz",
-                    :stepping => "13",
-                    :cpu_MHz => "2304.000",
-                    :cache_size => "16384 KB",
-                    :physical_id => "0",
-                    :siblings => "4",
-                    :core_id => "0",
-                    :cpu_cores => "4",
-                    :apicid => "0",
-                    :initial_apicid => "0",
-                    :fpu => "yes",
-                    :fpu_exception => "yes",
-                    :cpuid_level => "22",
-                    :wp => "yes",
-                    :flags => [
-                      "fpu",
-                      "vme",
-                      "de",
-                      "pse",
-                      "tsc",
-                      "msr",
-                      "pae",
-                      "mce",
-                      "cx8",
-                      "apic",
-                      "sep",
-                      "mtrr",
-                      "pge",
-                      "mca",
-                      "cmov",
-                      "pat",
-                      "pse36",
-                      "clflush",
-                      "mmx",
-                      "fxsr",
-                      "sse",
-                      "sse2",
-                      "ht",
-                      "syscall",
-                      "nx",
-                      "rdtscp",
-                      "lm",
-                      "constant_tsc",
-                      "rep_good",
-                      "nopl",
-                      "xtopology",
-                      "nonstop_tsc",
-                      "eagerfpu",
-                      "pni",
-                      "pclmulqdq",
-                      "ssse3",
-                      "cx16",
-                      "pcid",
-                      "sse4_1",
-                      "sse4_2",
-                      "x2apic",
-                      "movbe",
-                      "popcnt",
-                      "aes",
-                      "xsave",
-                      "avx",
-                      "rdrand",
-                      "hypervisor",
-                      "lahf_lm",
-                      "abm",
-                      "3dnowprefetch",
-                      "invpcid_single",
-                      "fsgsbase",
-                      "avx2",
-                      "invpcid",
-                      "rdseed",
-                      "clflushopt",
-                      "md_clear",
-                      "flush_l1d",
-                      "arch_capabilities"
-                    ],
-                    :bogomips => "4608.00",
-                    :clflush_size => "64",
-                    :cache_alignment => "64",
-                    :address_sizes => "39 bits physical, 48 bits virtual",
-                    :power_management => "power management"
-                  },
-                  :processor1 => {
-                    :vendor_id => "GenuineIntel",
-                    :cpu_family => "6",
-                    :model => "158",
-                    :model_name => "Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz",
-                    :stepping => "13",
-                    :cpu_MHz => "2304.000",
-                    :cache_size => "16384 KB",
-                    :physical_id => "0",
-                    :siblings => "4",
-                    :core_id => "1",
-                    :cpu_cores => "4",
-                    :apicid => "1",
-                    :initial_apicid => "1",
-                    :fpu => "yes",
-                    :fpu_exception => "yes",
-                    :cpuid_level => "22",
-                    :wp => "yes",
-                    :flags => [
-                      "fpu",
-                      "vme",
-                      "de",
-                      "pse",
-                      "tsc",
-                      "msr",
-                      "pae",
-                      "mce",
-                      "cx8",
-                      "apic",
-                      "sep",
-                      "mtrr",
-                      "pge",
-                      "mca",
-                      "cmov",
-                      "pat",
-                      "pse36",
-                      "clflush",
-                      "mmx",
-                      "fxsr",
-                      "sse",
-                      "sse2",
-                      "ht",
-                      "syscall",
-                      "nx",
-                      "rdtscp",
-                      "lm",
-                      "constant_tsc",
-                      "rep_good",
-                      "nopl",
-                      "xtopology",
-                      "nonstop_tsc",
-                      "eagerfpu",
-                      "pni",
-                      "pclmulqdq",
-                      "ssse3",
-                      "cx16",
-                      "pcid",
-                      "sse4_1",
-                      "sse4_2",
-                      "x2apic",
-                      "movbe",
-                      "popcnt",
-                      "aes",
-                      "xsave",
-                      "avx",
-                      "rdrand",
-                      "hypervisor",
-                      "lahf_lm",
-                      "abm",
-                      "3dnowprefetch",
-                      "invpcid_single",
-                      "fsgsbase",
-                      "avx2",
-                      "invpcid",
-                      "rdseed",
-                      "clflushopt",
-                      "md_clear",
-                      "flush_l1d",
-                      "arch_capabilities"
-                    ],
-                    :bogomips => "4608.00",
-                    :clflush_size => "64",
-                    :cache_alignment => "64",
-                    :address_sizes => "39 bits physical, 48 bits virtual",
-                    :power_management => "power management"
-                  },
-                  :processor2 => {
-                    :vendor_id => "GenuineIntel",
-                    :cpu_family => "6",
-                    :model => "158",
-                    :model_name => "Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz",
-                    :stepping => "13",
-                    :cpu_MHz => "2304.000",
-                    :cache_size => "16384 KB",
-                    :physical_id => "0",
-                    :siblings => "4",
-                    :core_id => "2",
-                    :cpu_cores => "4",
-                    :apicid => "2",
-                    :initial_apicid => "2",
-                    :fpu => "yes",
-                    :fpu_exception => "yes",
-                    :cpuid_level => "22",
-                    :wp => "yes",
-                    :flags => [
-                      "fpu",
-                      "vme",
-                      "de",
-                      "pse",
-                      "tsc",
-                      "msr",
-                      "pae",
-                      "mce",
-                      "cx8",
-                      "apic",
-                      "sep",
-                      "mtrr",
-                      "pge",
-                      "mca",
-                      "cmov",
-                      "pat",
-                      "pse36",
-                      "clflush",
-                      "mmx",
-                      "fxsr",
-                      "sse",
-                      "sse2",
-                      "ht",
-                      "syscall",
-                      "nx",
-                      "rdtscp",
-                      "lm",
-                      "constant_tsc",
-                      "rep_good",
-                      "nopl",
-                      "xtopology",
-                      "nonstop_tsc",
-                      "eagerfpu",
-                      "pni",
-                      "pclmulqdq",
-                      "ssse3",
-                      "cx16",
-                      "pcid",
-                      "sse4_1",
-                      "sse4_2",
-                      "x2apic",
-                      "movbe",
-                      "popcnt",
-                      "aes",
-                      "xsave",
-                      "avx",
-                      "rdrand",
-                      "hypervisor",
-                      "lahf_lm",
-                      "abm",
-                      "3dnowprefetch",
-                      "invpcid_single",
-                      "fsgsbase",
-                      "avx2",
-                      "invpcid",
-                      "rdseed",
-                      "clflushopt",
-                      "md_clear",
-                      "flush_l1d",
-                      "arch_capabilities"
-                    ],
-                    :bogomips => "4608.00",
-                    :clflush_size => "64",
-                    :cache_alignment => "64",
-                    :address_sizes => "39 bits physical, 48 bits virtual",
-                    :power_management => "power management"
-                  },
-                  :processor3 => {
-                    :vendor_id => "GenuineIntel",
-                    :cpu_family => "6",
-                    :model => "158",
-                    :model_name => "Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz",
-                    :stepping => "13",
-                    :cpu_MHz => "2304.000",
-                    :cache_size => "16384 KB",
-                    :physical_id => "0",
-                    :siblings => "4",
-                    :core_id => "3",
-                    :cpu_cores => "4",
-                    :apicid => "3",
-                    :initial_apicid => "3",
-                    :fpu => "yes",
-                    :fpu_exception => "yes",
-                    :cpuid_level => "22",
-                    :wp => "yes",
-                    :flags => [
-                      "fpu",
-                      "vme",
-                      "de",
-                      "pse",
-                      "tsc",
-                      "msr",
-                      "pae",
-                      "mce",
-                      "cx8",
-                      "apic",
-                      "sep",
-                      "mtrr",
-                      "pge",
-                      "mca",
-                      "cmov",
-                      "pat",
-                      "pse36",
-                      "clflush",
-                      "mmx",
-                      "fxsr",
-                      "sse",
-                      "sse2",
-                      "ht",
-                      "syscall",
-                      "nx",
-                      "rdtscp",
-                      "lm",
-                      "constant_tsc",
-                      "rep_good",
-                      "nopl",
-                      "xtopology",
-                      "nonstop_tsc",
-                      "eagerfpu",
-                      "pni",
-                      "pclmulqdq",
-                      "ssse3",
-                      "cx16",
-                      "pcid",
-                      "sse4_1",
-                      "sse4_2",
-                      "x2apic",
-                      "movbe",
-                      "popcnt",
-                      "aes",
-                      "xsave",
-                      "avx",
-                      "rdrand",
-                      "hypervisor",
-                      "lahf_lm",
-                      "abm",
-                      "3dnowprefetch",
-                      "invpcid_single",
-                      "fsgsbase",
-                      "avx2",
-                      "invpcid",
-                      "rdseed",
-                      "clflushopt",
-                      "md_clear",
-                      "flush_l1d",
-                      "arch_capabilities"
-                    ],
-                    :bogomips => "4608.00",
-                    :clflush_size => "64",
-                    :cache_alignment => "64",
-                    :address_sizes => "39 bits physical, 48 bits virtual",
-                    :power_management => "power management"
+                :puppetserver_jruby => {
+                  'dir' => '/opt/puppetlabs/server/apps/puppetserver',
+                  'jarfiles' => ['x.jar','y.jar', 'jruby-9k.jar']
+                }
+              })}
+
+              let(:puppetserver_conf) { '/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf' }
+              let(:puppetserver_conf_hash) { Hocon.parse(catalogue.resource("File[#{puppetserver_conf}]")['content']) }
+              ['monolithic', 'primary', 'compile'].each do |server_type|
+                context "as #{server_type} server" do
+                  let(:expected_instances) {
+                    if server_type == 'compile'
+                      mi = 3
+                    else
+                      mi = 2
+                    end
+  
+                    mi
                   }
+                  let(:params) {{
+                    :server_type => server_type,
+                  }}
+
+                  it { expect(puppetserver_conf_hash['jruby-puppet']['max-active-instances']).to eq(expected_instances) }
+
+                  it do
+                    puppetserver_content = File.read("#{File.dirname(__FILE__)}/data/puppetserver-j9-rcc-#{server_type}-48.txt")
+                    puppetserver_content.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
+                      File.dirname(facts[:puppet_settings][:master][:server_datadir]))
+
+                    is_expected.to contain_file('/etc/sysconfig/puppetserver').with( {
+                      'owner'   => 'root',
+                      'group'   => 'puppet',
+                      'mode'    => '0640',
+                      'content' => puppetserver_content
+                    } )
+                  end
+
+                  it { is_expected.to create_class('pupmod::master::sysconfig') }
+                  it { is_expected.to contain_file("#{File.dirname(facts[:puppet_settings][:master][:server_datadir])}/pserver_tmp").with(
+                    {
+                      'owner'  => 'puppet',
+                      'group'  => 'puppet',
+                      'ensure' => 'directory',
+                      'mode'   => '0750'
+                    }
+                  )}
+                end
+              end
+            end
+
+            context '16CPU 32G memory system auto-tune' do
+              let(:hieradata) { "sysconfig/#{server_distribution}" }
+              let(:facts) { @extras.merge(os_facts).merge({
+                :memorysize_mb => '32768',
+                :processorcount => 16,
+                :processors => {
+                  :physicalcount => 4,
+                  :count => 16,
+                  :models => [
+                    "Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz",
+                    "Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz",
+                    "Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz",
+                    "Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz"
+                  ]
+                },
+                :puppetserver_jruby => {
+                  'dir' => '/opt/puppetlabs/server/apps/puppetserver',
+                  'jarfiles' => ['x.jar','y.jar', 'jruby-9k.jar']
+                }
+              })}
+
+              let(:puppetserver_conf) { '/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf' }
+              let(:puppetserver_conf_hash) { Hocon.parse(catalogue.resource("File[#{puppetserver_conf}]")['content']) }
+              ['monolithic', 'primary', 'compile'].each do |server_type|
+                context "as #{server_type} server" do
+                  let(:expected_instances) {
+                    if server_type == 'compile'
+                      mi = 15
+                    elsif server_type == 'monolithic'
+                      mi = 11
+                    else
+                      mi = 4
+                    end
+  
+                    mi
+                  }
+                  let(:params) {{
+                    :server_type => server_type,
+                  }}
+
+                  it { expect(puppetserver_conf_hash['jruby-puppet']['max-active-instances']).to eq(expected_instances) }
+
+                  it do
+                    puppetserver_content = File.read("#{File.dirname(__FILE__)}/data/puppetserver-j9-rcc-#{server_type}-1632.txt")
+                    puppetserver_content.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
+                      File.dirname(facts[:puppet_settings][:master][:server_datadir]))
+
+                    is_expected.to contain_file('/etc/sysconfig/puppetserver').with( {
+                      'owner'   => 'root',
+                      'group'   => 'puppet',
+                      'mode'    => '0640',
+                      'content' => puppetserver_content
+                    } )
+                  end
+
+                  it { is_expected.to create_class('pupmod::master::sysconfig') }
+                  it { is_expected.to contain_file("#{File.dirname(facts[:puppet_settings][:master][:server_datadir])}/pserver_tmp").with(
+                    {
+                      'owner'  => 'puppet',
+                      'group'  => 'puppet',
+                      'ensure' => 'directory',
+                      'mode'   => '0750'
+                    }
+                  )}
+                end
+              end
+            end
+
+            # Ensure users can still override to whatever ridiculous settings they want
+            context 'crazy manual tuning overrides' do
+              let(:hieradata) { "sysconfig/#{server_distribution}-tuning_overrides" }
+              let(:facts) { @extras.merge(os_facts).merge({
+                :memorysize_mb => '32768',
+                :processorcount => 16,
+                :processors => {
+                  :physicalcount => 4,
+                  :count => 16,
+                  :models => [
+                    "Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz",
+                    "Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz",
+                    "Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz",
+                    "Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz"
+                  ]
+                },
+                :puppetserver_jruby => {
+                  'dir' => '/opt/puppetlabs/server/apps/puppetserver',
+                  'jarfiles' => ['x.jar','y.jar', 'jruby-9k.jar']
                 }
               })}
 
               let(:puppetserver_conf) { '/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf' }
               let(:puppetserver_conf_hash) { Hocon.parse(catalogue.resource("File[#{puppetserver_conf}]")['content']) }
 
-              it { binding.pry(); expect(puppetserver_conf_hash['jruby-puppet']['max-active-instances']).to eq(2) }
+              it { expect(puppetserver_conf_hash['jruby-puppet']['max-active-instances']).to eq(24) }
 
               it do
-                puppetserver_content = File.read("#{File.dirname(__FILE__)}/data/puppetserver-j9-rcc.txt")
+                puppetserver_content = File.read("#{File.dirname(__FILE__)}/data/puppetserver-j9-tuning_overrides.txt")
                 puppetserver_content.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
                   File.dirname(facts[:puppet_settings][:master][:server_datadir]))
 
