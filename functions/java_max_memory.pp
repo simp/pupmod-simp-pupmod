@@ -10,6 +10,8 @@ function pupmod::java_max_memory (
   Integer[1] $max_active_instances = 1,
 ) {
   $processor_count = pick(fact('processors.count'), 1)
+  $total_system_memory = Numeric(fact('memorysize_mb'))
+
   if $processor_count < 8 {
     $per_instance_mem = 512
   } elsif $processor_count < 16 {
@@ -18,10 +20,14 @@ function pupmod::java_max_memory (
     $per_instance_mem = 1024
   }
 
-  if floor(fact('memorysize_mb')) < 1024 {
+  if $total_system_memory < 1024 {
     $java_max_memory = '50%'
   } else {
-    $java_mem_mb = $max_active_instances * $per_instance_mem
+    $max_instances_mem_mb = $max_active_instances * $per_instance_mem
+    $eighty_percent_mem_mb = floor($total_system_memory * 0.8)
+
+    $java_mem_mb = min($eighty_percent_mem_mb, $max_instances_mem_mb)
+
     $java_max_memory = "${java_mem_mb}m"
   }
 
