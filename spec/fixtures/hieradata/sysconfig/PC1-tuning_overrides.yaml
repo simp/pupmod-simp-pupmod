@@ -1,0 +1,6 @@
+---
+pupmod::master::sysconfig::server_distribution: 'PC1'
+pupmod::master::max_active_instances: 24
+pupmod::master::sysconfig::java_max_memory: '20480m'
+pupmod::master::sysconfig::java_start_memory: '10240m'
+pupmod::master::sysconfig::reserved_code_cache: 10240
