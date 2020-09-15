@@ -14,6 +14,7 @@
 # SIMP 6.4      5.5      2.4.10  TBD
 # PE 2018.1     5.5      2.4.10  2021-01 (LTS overlap)
 # PE 2019.8     6.16     2.5.7   2021-11 (LTS)
+#   * This had to be bumped to 6.18 for these tests due to bugs in 6.16
 ---
 
 stages:
@@ -208,10 +209,10 @@ variables:
     BEAKER_PUPPET_COLLECTION: 'puppet6'
     MATRIX_RUBY_VERSION: '2.5'
 
-.pup_6_16_0: &pup_6_16_0
+.pup_6_18_0: &pup_6_18_0
   image: 'ruby:2.5'
   variables:
-    PUPPET_VERSION: '6.16.0'
+    PUPPET_VERSION: '6.18.0'
     BEAKER_PUPPET_COLLECTION: 'puppet6'
     MATRIX_RUBY_VERSION: '2.5'
 
@@ -294,8 +295,8 @@ pup6-unit:
   <<: *unit_tests
   <<: *with_SIMP_SPEC_MATRIX_LEVEL_2
 
-pup6.16.0-unit:
-  <<: *pup_6_16_0
+pup6.18.0-unit:
+  <<: *pup_6_18_0
   <<: *unit_tests
 
 # ------------------------------------------------------------------------------
@@ -349,26 +350,26 @@ pup6-fips:
   script:
     - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,default]'
 
-pup6.16.0:
-  <<: *pup_6_16_0
+pup6.18.0:
+  <<: *pup_6_18_0
   <<: *acceptance_base
   script:
     - 'bundle exec rake beaker:suites[default,default]'
 
-pup6.16.0-fips:
-  <<: *pup_6_16_0
+pup6.18.0-fips:
+  <<: *pup_6_18_0
   <<: *acceptance_base
   script:
     - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,default]'
 
-pup6.16.0-oel:
-  <<: *pup_6_16_0
+pup6.18.0-oel:
+  <<: *pup_6_18_0
   <<: *acceptance_base
   script:
     - 'bundle exec rake beaker:suites[default,oel]'
 
-pup6.16.0-oel-fips:
-  <<: *pup_6_16_0
+pup6.18.0-oel-fips:
+  <<: *pup_6_18_0
   <<: *acceptance_base
   <<: *with_SIMP_ACCEPTANCE_MATRIX_LEVEL_3
   script:
