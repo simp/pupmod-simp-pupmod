@@ -31,6 +31,10 @@
 #
 #   * PC1 covers everything after Puppet 3
 #
+# @param server_type
+#   The type of Puppet server this is. Can be 'monolithic', 'primary', or 'compile'
+#   as defined in https://puppet.com/docs/puppetserver/latest/scaling_puppet_server.html 
+#
 # @param ca_ttl
 #   This is the length after which the CA certificate will no longer be valid.
 #
@@ -263,10 +267,6 @@
 #   values are in proper HOCON format per
 #   https://github.com/lightbend/config/blob/master/HOCON.md
 #
-# @param compile_server
-#   A ``Boolean`` to determine whether the system is a compile server only vs. a primary server
-#   as defined in https://puppet.com/docs/puppetserver/latest/scaling_puppet_server.html 
-#
 # @param mock
 #   DO NOT USE. needed for rspec testing
 #
@@ -302,7 +302,7 @@ class pupmod::master (
   Boolean                                             $firewall                        = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Array[Simplib::Host]                                $ca_status_whitelist             = [$facts['fqdn']],
   Optional[Stdlib::AbsolutePath]                      $ruby_load_path                  = undef,
-  Optional[Integer[1]]                                $max_active_instances            = pupmod::max_active_instances($server_type),
+  Integer[1]                                          $max_active_instances            = pupmod::max_active_instances($server_type),
   Integer                                             $max_requests_per_instance       = 100000,
   Integer[1000]                                       $borrow_timeout                  = 1200000,
   Boolean                                             $environment_class_cache_enabled = true,
