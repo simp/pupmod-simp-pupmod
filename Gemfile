@@ -29,8 +29,7 @@ group :development do
 end
 
 group :system_tests do
-  gem 'beaker', :git => 'https://github.com/trevor-vaughan/beaker', :branch => 'fix_reboot_check_fix'
-  #gem 'beaker'
+  gem 'beaker'
   gem 'beaker-rspec'
   gem 'simp-beaker-helpers', ENV['SIMP_BEAKER_HELPERS_VERSION'] || ['>= 1.18.7', '< 2']
 end
