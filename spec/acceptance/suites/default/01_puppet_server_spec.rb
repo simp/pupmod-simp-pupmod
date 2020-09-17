@@ -2,6 +2,10 @@ require 'spec_helper_acceptance'
 
 describe 'install environment via r10k and puppetserver' do
 
+  require_relative('lib/util')
+
+  include GenerateTypesTestUtil
+
   let(:master_manifest) { <<-EOF
     include 'iptables'
 
@@ -35,8 +39,6 @@ describe 'install environment via r10k and puppetserver' do
     EOF
   }
 
-
-
   hosts_with_role(hosts, 'simp_master').each do |master|
     context "on #{master}" do
       it 'should enable SIMP and SIMP dependencies repos' do
@@ -65,6 +67,7 @@ describe 'install environment via r10k and puppetserver' do
 
       it 'should apply the master manifest' do
         apply_manifest_on(master, master_manifest, :accept_all_exit_codes => true)
+        wait_for_generate_types(master)
       end
 
       it 'should be idempotent' do

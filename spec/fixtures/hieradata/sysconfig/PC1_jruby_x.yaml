@@ -1,0 +1,3 @@
+---
+pupmod::master::sysconfig::server_distribution: 'PC1'
+pupmod::master::sysconfig::jruby_jar: 'x.jar'

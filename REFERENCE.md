@@ -27,7 +27,9 @@
 
 **Functions**
 
-* [`pupmod::max_active_instances`](#pupmodmax_active_instances): Provides a reasonable calculation for the maximum number of active instances for a system  Parameters are not to be used but are present as a
+* [`pupmod::java_max_memory`](#pupmodjava_max_memory): Uses best practices to provide a reasonable calculation for server heap size.
+* [`pupmod::max_active_instances`](#pupmodmax_active_instances): Provides a reasonable calculation for the maximum number of active instances for a system  
+* [`pupmod::reserved_code_cache`](#pupmodreserved_code_cache): Provides a recommended puppetserver code cache size based on memory sizing.
 * [`pupmod::server_distribution`](#pupmodserver_distribution): Figure out if we're running PC1 or PE puppet
 * [`pupmod::server_version`](#pupmodserver_version): Authoritatively determine the puppet server version and return `0.0.0` if one could not be determined.
 
@@ -684,6 +686,14 @@ Data type: `Pupmod::CaTTL`
 This is the length after which the CA certificate will no longer be valid.
 
 Default value: '10y'
+
+##### `server_type`
+
+Data type: `Enum['monolithic', 'primary', 'compile']`
+
+The type of Puppet server being setup.
+
+Default value: 'monolithic'
 
 ##### `daemonize`
 
@@ -1539,9 +1549,10 @@ Default value: `undef`
 
 Data type: `Pupmod::Memory`
 
-The maximum amount of memory to allocate within the system.
+The maximum amount of memory to allocate within the system. If optional, this
+will utilize the `pupmod::java_max_memory` function.
 
-Default value: '50%'
+Default value: undef
 
 ##### `jruby_jar`
 
@@ -1572,6 +1583,14 @@ An ``Array`` that will be joined and appended to the Java argument list.
 * The sanity and syntax of this list will not be checked.
 
 Default value: `undef`
+
+##### `reserved_code_cache`
+
+Data type: `Integer[0]`
+
+The code cache value for the puppetserver installation.
+
+Default value: Function `pupmod::reserved_code_cache`
 
 ##### `service_stop_retries`
 

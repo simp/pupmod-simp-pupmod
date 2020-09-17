@@ -100,11 +100,27 @@ jobs:
 
     - stage: spec
       rvm: 2.4.9
-      name: 'Puppet 5.5 (SIMP 6.4, PE 2018.1) - Classes'
+      name: 'Puppet 5.5 (SIMP 6.4, PE 2018.1) - Classes - 00'
       env: PUPPET_VERSION="~> 5.5.0"
       script:
         - 'bundle exec rake spec_prep'
-        - 'bundle exec rspec spec/classes'
+        - 'bundle exec rspec spec/classes/00_classes'
+
+    - stage: spec
+      rvm: 2.4.9
+      name: 'Puppet 5.5 (SIMP 6.4, PE 2018.1) - Classes - 10'
+      env: PUPPET_VERSION="~> 5.5.0"
+      script:
+        - 'bundle exec rake spec_prep'
+        - 'bundle exec rspec spec/classes/10_classes'
+
+    - stage: spec
+      rvm: 2.4.9
+      name: 'Puppet 5.5 (SIMP 6.4, PE 2018.1) - Classes - 20'
+      env: PUPPET_VERSION="~> 5.5.0"
+      script:
+        - 'bundle exec rake spec_prep'
+        - 'bundle exec rspec spec/classes/20_classes'
 
     - stage: spec
       rvm: 2.4.9
@@ -116,6 +132,14 @@ jobs:
 
     - stage: spec
       rvm: 2.4.9
+      name: 'Puppet 5.5 (SIMP 6.4, PE 2018.1) - Functions'
+      env: PUPPET_VERSION="~> 5.5.0"
+      script:
+        - 'bundle exec rake spec_prep'
+        - 'bundle exec rspec spec/functions'
+
+    - stage: spec
+      rvm: 2.4.9
       name: 'Puppet 5.5 (SIMP 6.4, PE 2018.1) - Unit'
       env: PUPPET_VERSION="~> 5.5.0"
       script:
@@ -123,12 +147,28 @@ jobs:
         - 'bundle exec rspec spec/unit'
 
     - stage: spec
-      name: 'Puppet 5.x (Latest) - Classes'
+      name: 'Puppet 5.x (Latest) - Classes - 00'
       rvm: 2.4.9
       env: PUPPET_VERSION="~> 5.0"
       script:
         - 'bundle exec rake spec_prep'
-        - 'bundle exec rspec spec/classes'
+        - 'bundle exec rspec spec/classes/00_classes'
+
+    - stage: spec
+      name: 'Puppet 5.x (Latest) - Classes - 10'
+      rvm: 2.4.9
+      env: PUPPET_VERSION="~> 5.0"
+      script:
+        - 'bundle exec rake spec_prep'
+        - 'bundle exec rspec spec/classes/10_classes'
+
+    - stage: spec
+      name: 'Puppet 5.x (Latest) - Classes - 20'
+      rvm: 2.4.9
+      env: PUPPET_VERSION="~> 5.0"
+      script:
+        - 'bundle exec rake spec_prep'
+        - 'bundle exec rspec spec/classes/20_classes'
 
     - stage: spec
       name: 'Puppet 5.x (Latest) - Defines'
@@ -139,6 +179,14 @@ jobs:
         - 'bundle exec rspec spec/defines'
 
     - stage: spec
+      name: 'Puppet 5.x (Latest) - Functions'
+      rvm: 2.4.9
+      env: PUPPET_VERSION="~> 5.0"
+      script:
+        - 'bundle exec rake spec_prep'
+        - 'bundle exec rspec spec/functions'
+
+    - stage: spec
       name: 'Puppet 5.x (Latest) - Unit'
       rvm: 2.4.9
       env: PUPPET_VERSION="~> 5.0"
@@ -147,12 +195,28 @@ jobs:
         - 'bundle exec rspec spec/unit'
 
     - stage: spec
-      name: 'Puppet 6.10 (PE 2019.2) - Classes'
+      name: 'Puppet 6.10 (PE 2019.2) - Classes - 00'
       rvm: 2.5.7
       env: PUPPET_VERSION="~> 6.10.0"
       script:
         - 'bundle exec rake spec_prep'
-        - 'bundle exec rspec spec/classes'
+        - 'bundle exec rspec spec/classes/00_classes'
+
+    - stage: spec
+      name: 'Puppet 6.10 (PE 2019.2) - Classes - 10'
+      rvm: 2.5.7
+      env: PUPPET_VERSION="~> 6.10.0"
+      script:
+        - 'bundle exec rake spec_prep'
+        - 'bundle exec rspec spec/classes/10_classes'
+
+    - stage: spec
+      name: 'Puppet 6.10 (PE 2019.2) - Classes - 20'
+      rvm: 2.5.7
+      env: PUPPET_VERSION="~> 6.10.0"
+      script:
+        - 'bundle exec rake spec_prep'
+        - 'bundle exec rspec spec/classes/20_classes'
 
     - stage: spec
       name: 'Puppet 6.10 (PE 2019.2) - Defines'
@@ -163,12 +227,44 @@ jobs:
         - 'bundle exec rspec spec/defines'
 
     - stage: spec
-      name: 'Puppet 6.x (Latest) - Classes'
+      name: 'Puppet 6.10 (PE 2019.2) - Functions'
+      rvm: 2.5.7
+      env: PUPPET_VERSION="~> 6.10.0"
+      script:
+        - 'bundle exec rake spec_prep'
+        - 'bundle exec rspec spec/functions'
+
+    - stage: spec
+      name: 'Puppet 6.10 (PE 2019.2) - Unit'
+      rvm: 2.5.7
+      env: PUPPET_VERSION="~> 6.10.0"
+      script:
+        - 'bundle exec rake spec_prep'
+        - 'bundle exec rspec spec/unit'
+
+    - stage: spec
+      name: 'Puppet 6.x (Latest) - Classes - 00'
       rvm: 2.5.7
       env: PUPPET_VERSION="~> 6.0"
       script:
         - 'bundle exec rake spec_prep'
-        - 'bundle exec rspec spec/classes'
+        - 'bundle exec rspec spec/classes/00_classes'
+
+    - stage: spec
+      name: 'Puppet 6.x (Latest) - Classes - 10'
+      rvm: 2.5.7
+      env: PUPPET_VERSION="~> 6.0"
+      script:
+        - 'bundle exec rake spec_prep'
+        - 'bundle exec rspec spec/classes/10_classes'
+
+    - stage: spec
+      name: 'Puppet 6.x (Latest) - Classes - 20'
+      rvm: 2.5.7
+      env: PUPPET_VERSION="~> 6.0"
+      script:
+        - 'bundle exec rake spec_prep'
+        - 'bundle exec rspec spec/classes/20_classes'
 
     - stage: spec
       name: 'Puppet 6.x (Latest) - Defines'
@@ -177,6 +273,14 @@ jobs:
       script:
         - 'bundle exec rake spec_prep'
         - 'bundle exec rspec spec/defines'
+
+    - stage: spec
+      name: 'Puppet 6.x (Latest) - Functions'
+      rvm: 2.5.7
+      env: PUPPET_VERSION="~> 6.0"
+      script:
+        - 'bundle exec rake spec_prep'
+        - 'bundle exec rspec spec/functions'
 
     - stage: spec
       name: 'Puppet 6.x (Latest) - Unit'

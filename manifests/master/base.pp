@@ -58,13 +58,13 @@ class pupmod::master::base {
   }
 
   user { 'puppet':
-    ensure     => 'present',
-    allowdupe  => false,
-    comment    => 'Puppet User',
-    gid        => 'puppet',
-    home       => $pupmod::master::vardir,
-    shell      => '/sbin/nologin',
-    tag        => 'firstrun',
-    require    => Class['pupmod::master::install']
+    ensure    => 'present',
+    allowdupe => false,
+    comment   => 'Puppet User',
+    gid       => 'puppet',
+    home      => $pupmod::master::vardir,
+    shell     => '/sbin/nologin',
+    tag       => 'firstrun',
+    require   => Class['pupmod::master::install']
   }
 }

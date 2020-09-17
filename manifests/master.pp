@@ -31,6 +31,10 @@
 #
 #   * PC1 covers everything after Puppet 3
 #
+# @param server_type
+#   The type of Puppet server this is. Can be 'monolithic', 'primary', or 'compile'
+#   as defined in https://puppet.com/docs/puppetserver/latest/scaling_puppet_server.html 
+#
 # @param ca_ttl
 #   This is the length after which the CA certificate will no longer be valid.
 #
@@ -277,6 +281,7 @@ class pupmod::master (
   Simplib::Port                                       $ca_port                         = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
   Simplib::NetList                                    $trusted_nets                    = simplib::lookup('simp_options::trusted_nets', { 'default_value' => ['127.0.0.1','::1'] }),
   String                                              $server_distribution             = pupmod::server_distribution(),
+  Enum['monolithic', 'primary', 'compile']            $server_type                     = 'monolithic',
   Pupmod::CaTTL                                       $ca_ttl                          = '10y',
   Boolean                                             $daemonize                       = true,
   Boolean                                             $enable_ca                       = true,
@@ -297,8 +302,8 @@ class pupmod::master (
   Boolean                                             $firewall                        = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Array[Simplib::Host]                                $ca_status_whitelist             = [$facts['fqdn']],
   Optional[Stdlib::AbsolutePath]                      $ruby_load_path                  = undef,
-  Integer[1]                                          $max_active_instances            = pupmod::max_active_instances(),
-  Integer                                             $max_requests_per_instance       = 0,
+  Integer[1]                                          $max_active_instances            = pupmod::max_active_instances($server_type),
+  Integer                                             $max_requests_per_instance       = 100000,
   Integer[1000]                                       $borrow_timeout                  = 1200000,
   Boolean                                             $environment_class_cache_enabled = true,
   Optional[Pattern['^\d+\.\d+$']]                     $compat_version                  = undef,
@@ -307,12 +312,12 @@ class pupmod::master (
   Optional[Array[Pupmod::Master::SSLCipherSuites]]    $ssl_cipher_suites               = undef,
   Boolean                                             $enable_profiler                 = false,
   Pupmod::ProfilingMode                               $profiling_mode                  = 'off',
-  Stdlib::AbsolutePath                                $profiler_output_file           = "${vardir}/server_jruby_profiling",
+  Stdlib::AbsolutePath                                $profiler_output_file            = "${vardir}/server_jruby_profiling",
   Array[Simplib::Hostname]                            $admin_api_whitelist             = [$facts['fqdn']],
   String                                              $admin_api_mountpoint            = '/puppet-admin-api',
   Boolean                                             $log_to_file                     = false,
   Boolean                                             $strict_hostname_checking        = true,
-  Boolean                                             $cve_2020_7942_warning = true,
+  Boolean                                             $cve_2020_7942_warning           = true,
   Boolean                                             $syslog                          = simplib::lookup('simp_options::syslog', { 'default_value' => false }),
   String                                              $syslog_facility                 = 'LOCAL6',
   String                                              $syslog_message_format           = '%logger[%thread]: %msg',
