@@ -242,7 +242,7 @@ jobs:
         - 'bundle exec rake spec_prep'
         - 'bundle exec rspec spec/unit'
 
-      - stage: spec
+    - stage: spec
       name: 'Puppet 6.x (Latest) - Classes - 00'
       rvm: 2.5.7
       env: PUPPET_VERSION="~> 6.0"
