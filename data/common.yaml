@@ -1,4 +1,16 @@
 ---
+lookup_options:
+  pupmod::facter_options:
+    merge: deep
+  pupmod::pe_classlist:
+    merge:
+      strategy: hash
+  pupmod::master::ssl_cipher_suites:
+    merge:
+      strategy: deep
+      knockout_prefix: "--"
+      sort_merged_arrays: true
+
 pupmod::facter_options:
   facts: {}
   global: {}
@@ -104,8 +116,3 @@ pupmod::pe_classlist:
         port: 8140
       - proto: tcp
         port: 8170
-lookup_options:
-  pupmod::facter_options:
-    merge: deep
-  pupmod::pe_classlist:
-    merge: hash

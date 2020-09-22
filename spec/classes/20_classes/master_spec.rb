@@ -219,8 +219,10 @@ describe 'pupmod::master' do
 
             it { expect(puppetserver_conf_hash).to have_key('http-client') }
             it {
-              expect(puppetserver_conf_hash['http-client']).to eq(
-                'ssl-protocols' => [ 'TLSv1', 'TLSv1.1', 'TLSv1.2' ]
+              expect(puppetserver_conf_hash['http-client']).to match(
+                a_hash_including(
+                  'ssl-protocols' => [ 'TLSv1', 'TLSv1.1', 'TLSv1.2' ]
+                )
               )
             }
 
@@ -291,34 +293,38 @@ describe 'pupmod::master' do
 
             it { expect(webserver_conf_hash).to have_key('webserver') }
             it {
-              expect(webserver_conf_hash['webserver']).to eq(
-                'base' => {
-                  'access-log-config' => '/etc/puppetlabs/puppetserver/request-logging.xml',
-                  'client-auth'       => 'need',
-                  'ssl-crl-path'      => '/etc/puppetlabs/puppet/ssl/crl.pem',
-                  'ssl-ca-cert'       => '/etc/puppetlabs/puppet/ssl/certs/ca.pem',
-                  'ssl-cert'          => "/etc/puppetlabs/puppet/ssl/certs/#{facts[:fqdn]}.pem",
-                  'ssl-key'           => "/etc/puppetlabs/puppet/ssl/private_keys/#{facts[:fqdn]}.pem",
-                  'ssl-host'          => '0.0.0.0',
-                  'ssl-port'          => 8140,
-                  'ssl-protocols'     => 'TLSv1,TLSv1.1,TLSv1.2',
-                  'default-server'    => true
-                },
-                'ca'   => {
-                  'access-log-config' => '/etc/puppetlabs/puppetserver/request-logging.xml',
-                  'client-auth'       => 'want',
-                  'ssl-crl-path'      => '/etc/puppetlabs/puppet/ssl/crl.pem',
-                  'ssl-ca-cert'       => '/etc/puppetlabs/puppet/ssl/certs/ca.pem',
-                  'ssl-cert'          => "/etc/puppetlabs/puppet/ssl/certs/#{facts[:fqdn]}.pem",
-                  'ssl-key'           => "/etc/puppetlabs/puppet/ssl/private_keys/#{facts[:fqdn]}.pem",
-                  'ssl-host'          => '0.0.0.0',
-                  'ssl-port'          => 8141,
-                  'ssl-protocols'     => 'TLSv1,TLSv1.1,TLSv1.2',
-                }
+              expect(webserver_conf_hash['webserver']).to match(
+                'base' => a_hash_including(
+                  {
+                    'access-log-config' => '/etc/puppetlabs/puppetserver/request-logging.xml',
+                    'client-auth'       => 'need',
+                    'ssl-crl-path'      => '/etc/puppetlabs/puppet/ssl/crl.pem',
+                    'ssl-ca-cert'       => '/etc/puppetlabs/puppet/ssl/certs/ca.pem',
+                    'ssl-cert'          => "/etc/puppetlabs/puppet/ssl/certs/#{facts[:fqdn]}.pem",
+                    'ssl-key'           => "/etc/puppetlabs/puppet/ssl/private_keys/#{facts[:fqdn]}.pem",
+                    'ssl-host'          => '0.0.0.0',
+                    'ssl-port'          => 8140,
+                    'ssl-protocols'     => 'TLSv1,TLSv1.1,TLSv1.2',
+                    'default-server'    => true
+                  }
+                ),
+                'ca'   => a_hash_including(
+                  {
+                    'access-log-config' => '/etc/puppetlabs/puppetserver/request-logging.xml',
+                    'client-auth'       => 'want',
+                    'ssl-crl-path'      => '/etc/puppetlabs/puppet/ssl/crl.pem',
+                    'ssl-ca-cert'       => '/etc/puppetlabs/puppet/ssl/certs/ca.pem',
+                    'ssl-cert'          => "/etc/puppetlabs/puppet/ssl/certs/#{facts[:fqdn]}.pem",
+                    'ssl-key'           => "/etc/puppetlabs/puppet/ssl/private_keys/#{facts[:fqdn]}.pem",
+                    'ssl-host'          => '0.0.0.0',
+                    'ssl-port'          => 8141,
+                    'ssl-protocols'     => 'TLSv1,TLSv1.1,TLSv1.2',
+                  }
+                )
               )
             }
-            it { expect(webserver_conf_hash['webserver']['base']['cipher-suites']).to be_nil }
-            it { expect(webserver_conf_hash['webserver']['ca']['cipher-suites']).to be_nil }
+            it { expect(webserver_conf_hash['webserver']['base']['cipher-suites']).to include('TLS_EMPTY_RENEGOTIATION_INFO_SCSV') }
+            it { expect(webserver_conf_hash['webserver']['ca']['cipher-suites']).to include('TLS_EMPTY_RENEGOTIATION_INFO_SCSV') }
 
             context 'when setting the cipher suites' do
               let(:params) {{

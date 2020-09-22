@@ -1,3 +1,6 @@
+* Tue Sep 22 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.1.0-0
+- Set the default puppetserver ciphers to a safe set
+
 * Fri Sep 11 2020 Adam Yohrling <adam.yohrling@onyxpoint.com> - 8.1.0-0
 - Added better auto-tuning support for puppetserver, based on best practices
 - Added ReservedCodeCache puppetserver support

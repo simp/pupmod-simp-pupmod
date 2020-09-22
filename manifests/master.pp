@@ -138,6 +138,8 @@
 #   list is Java version dependent and you will need to check the system Java
 #   documentaiton for details.
 #
+#   * The default is in the module data
+#
 # @param enable_profiler
 #   Whether or not to enable the Puppet Server profiler to allow for code metrics
 #   gathering.
