@@ -131,12 +131,14 @@
 # @param ssl_protocols
 #   Default: ['TLSv1','TLSv1.1','TLSv1.2']
 #   The protocols that are allowed for communication with the Puppet Server. See
-#   the ssl-protocols documentaiton for the Puppet Server for additional details.
+#   the ssl-protocols documentation for the Puppet Server for additional details.
 #
 # @param ssl_cipher_suites
 #   The allowed SSL Cipher Suites to be used by the Puppet Server. The allowed
 #   list is Java version dependent and you will need to check the system Java
-#   documentaiton for details.
+#   documentation for details.
+#
+#   * The default is in the module data
 #
 # @param enable_profiler
 #   Whether or not to enable the Puppet Server profiler to allow for code metrics
