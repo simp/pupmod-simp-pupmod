@@ -222,6 +222,13 @@ variables:
     BEAKER_PUPPET_COLLECTION: 'puppet6'
     MATRIX_RUBY_VERSION: '2.5'
 
+.pup_6_19_0: &pup_6_19_0
+  image: 'ruby:2.5'
+  variables:
+    PUPPET_VERSION: '6.19.0'
+    BEAKER_PUPPET_COLLECTION: 'puppet6'
+    MATRIX_RUBY_VERSION: '2.5'
+
 # Testing Environments
 #-----------------------------------------------------------------------
 
@@ -305,6 +312,10 @@ pup6.18.0-unit:
   <<: *pup_6_18_0
   <<: *unit_tests
 
+pup6.19.0-unit:
+  <<: *pup_6_19_0
+  <<: *unit_tests
+
 # ------------------------------------------------------------------------------
 #             NOTICE: **This file is maintained with puppetsync**
 #
@@ -380,3 +391,16 @@ pup6.18.0-oel-fips:
   <<: *with_SIMP_ACCEPTANCE_MATRIX_LEVEL_3
   script:
     - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,oel]'
+
+pup6.19.0:
+  <<: *pup_6_19_0
+  <<: *acceptance_base
+  script:
+    - 'bundle exec rake beaker:suites[default,default]'
+
+pup6.19.0-fips:
+  <<: *pup_6_19_0
+  <<: *acceptance_base
+  script:
+    - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,default]'
+
