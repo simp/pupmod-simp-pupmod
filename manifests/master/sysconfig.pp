@@ -95,9 +95,15 @@ class pupmod::master::sysconfig (
       default => $java_max_memory,
     }
 
+
+    # In Puppet 6.19 the section "master was renamed to "server" in Puppet.settings.
+    # pick is used here to determine correct value for backwards compatability
+    $_server_datadir = pick($facts.dig('puppet_settings','server','server_datadir'),$facts.dig('puppet_settings','master','server_datadir'))
+
     if empty($java_temp_dir) {
       # puppet_settings.master.server_datadir is not always present, but its parent is
-      $_java_temp_dir = "${dirname(fact('puppet_settings.master.server_datadir'))}/pserver_tmp"
+      $_p_server_datadir = dirname($_server_datadir)
+      $_java_temp_dir = "${_p_server_datadir}/pserver_tmp"
     }
     else {
       $_java_temp_dir = $java_temp_dir

@@ -6,7 +6,11 @@ describe 'pupmod::master::base' do
       @extras = { :puppet_settings => {
         'master' => {
           'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf'
-      }}}
+        },
+        'server' => {
+          'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf'
+        }
+      }}
     end
     context "on #{os}" do
 

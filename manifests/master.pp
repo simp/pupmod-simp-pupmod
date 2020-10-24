@@ -333,8 +333,10 @@ class pupmod::master (
 ) inherits pupmod {
 
   $_server_version = pupmod::server_version()
-  $_puppet_user = $facts['puppet_settings']['master']['user']
-  $_puppet_group = $facts['puppet_settings']['master']['group']
+  # In Puppet 6.19 the section "master" was renamed to "server" in Puppet.settings.
+  # pick is used here to determine correct value for backwards compatability
+  $_puppet_user = pick($facts.dig('puppet_settings','server','user'),$facts.dig('puppet_settings','master','user'))
+  $_puppet_group = pick($facts.dig('puppet_settings','server','group'),$facts.dig('puppet_settings','master','group'))
 
   if ($mock == false) {
     include 'pupmod::master::install'

@@ -1,3 +1,8 @@
+* Fri Oct 23 2020 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 8.1.1-0
+- Puppet 6.19 has changed the "master" section to "server" in Puppet.settings.
+  This fix updates the modules to check puppet_settings[:server] first then
+  puppet_settings[:master].
+
 * Tue Sep 22 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.1.0-0
 - Set the default puppetserver ciphers to a safe set
 

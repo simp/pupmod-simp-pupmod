@@ -4,6 +4,9 @@ describe 'pupmod::master' do
   on_supported_os.each do |os, os_facts|
     before :all do
       @extras = { :puppet_settings => {
+        'server' => {
+          'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf'
+        },
         'master' => {
           'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf'
       }}}
@@ -11,6 +14,9 @@ describe 'pupmod::master' do
 
     puppetserver_content_without_jruby = File.read("#{File.dirname(__FILE__)}/data/puppetserver.txt")
     context "on #{os}" do
+
+      _server_datadir = os_facts.dig(:puppet_settings,:server,:server_datadir) ||
+         os_facts.dig(:puppet_settings,:master,:server_datadir)
 
       ['PE', 'PC1'].each do |server_distribution|
         context "server distribution '#{server_distribution}'" do
@@ -27,7 +33,7 @@ describe 'pupmod::master' do
           if server_distribution == 'PE'
             context 'on PE with default params' do
               let(:hieradata) { 'sysconfig/PE' }
-            
+
               let(:facts){
                 @extras.merge(os_facts).merge(
                   :memorysize_mb => '490.16',
@@ -56,10 +62,11 @@ describe 'pupmod::master' do
                   }
                  })
               }
+
               it do
                 puppetserver_content = File.read("#{File.dirname(__FILE__)}/data/puppetserver-j9.txt")
                 puppetserver_content.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
-                  File.dirname(facts[:puppet_settings][:master][:server_datadir]))
+                  File.dirname(_server_datadir))
 
                 is_expected.to contain_file('/etc/sysconfig/puppetserver').with( {
                   'owner'   => 'root',
@@ -70,7 +77,7 @@ describe 'pupmod::master' do
               end
 
               it { is_expected.to create_class('pupmod::master::sysconfig') }
-              it { is_expected.to contain_file("#{File.dirname(facts[:puppet_settings][:master][:server_datadir])}/pserver_tmp").with(
+              it { is_expected.to contain_file("#{File.dirname(_server_datadir)}/pserver_tmp").with(
                 {
                   'owner'  => 'puppet',
                   'group'  => 'puppet',
@@ -91,7 +98,7 @@ describe 'pupmod::master' do
               }
               it do
                 puppetserver_content_without_jruby.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
-                  File.dirname(facts[:puppet_settings][:master][:server_datadir]))
+                  File.dirname(_server_datadir))
 
                 is_expected.to contain_file('/etc/sysconfig/puppetserver').with( {
                   'owner'   => 'root',
@@ -108,7 +115,7 @@ describe 'pupmod::master' do
 
               it do
                 puppetserver_content_without_jruby.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
-                  File.dirname(facts[:puppet_settings][:master][:server_datadir]))
+                  File.dirname(_server_datadir))
 
                 is_expected.to contain_file('/etc/sysconfig/puppetserver').with( {
                   'owner'   => 'root',
@@ -124,7 +131,7 @@ describe 'pupmod::master' do
 
               it do
                 puppetserver_content_without_jruby.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
-                  File.dirname(facts[:puppet_settings][:master][:server_datadir]))
+                  File.dirname(_server_datadir))
 
                 is_expected.to contain_file('/etc/sysconfig/puppetserver').with( {
                   'owner'   => 'root',
@@ -166,7 +173,7 @@ describe 'pupmod::master' do
                     else
                       mi = 2
                     end
-  
+
                     mi
                   }
                   let(:params) {{
@@ -178,7 +185,7 @@ describe 'pupmod::master' do
                   it do
                     puppetserver_content = File.read("#{File.dirname(__FILE__)}/data/puppetserver-j9-rcc-#{server_type}-48.txt")
                     puppetserver_content.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
-                      File.dirname(facts[:puppet_settings][:master][:server_datadir]))
+                      File.dirname(_server_datadir))
 
                     is_expected.to contain_file('/etc/sysconfig/puppetserver').with( {
                       'owner'   => 'root',
@@ -189,7 +196,7 @@ describe 'pupmod::master' do
                   end
 
                   it { is_expected.to create_class('pupmod::master::sysconfig') }
-                  it { is_expected.to contain_file("#{File.dirname(facts[:puppet_settings][:master][:server_datadir])}/pserver_tmp").with(
+                  it { is_expected.to contain_file("#{File.dirname(_server_datadir)}/pserver_tmp").with(
                     {
                       'owner'  => 'puppet',
                       'group'  => 'puppet',
@@ -234,7 +241,7 @@ describe 'pupmod::master' do
                     else
                       mi = 4
                     end
-  
+
                     mi
                   }
                   let(:params) {{
@@ -246,7 +253,7 @@ describe 'pupmod::master' do
                   it do
                     puppetserver_content = File.read("#{File.dirname(__FILE__)}/data/puppetserver-j9-rcc-#{server_type}-1632.txt")
                     puppetserver_content.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
-                      File.dirname(facts[:puppet_settings][:master][:server_datadir]))
+                      File.dirname(_server_datadir))
 
                     is_expected.to contain_file('/etc/sysconfig/puppetserver').with( {
                       'owner'   => 'root',
@@ -257,7 +264,7 @@ describe 'pupmod::master' do
                   end
 
                   it { is_expected.to create_class('pupmod::master::sysconfig') }
-                  it { is_expected.to contain_file("#{File.dirname(facts[:puppet_settings][:master][:server_datadir])}/pserver_tmp").with(
+                  it { is_expected.to contain_file("#{File.dirname(_server_datadir)}/pserver_tmp").with(
                     {
                       'owner'  => 'puppet',
                       'group'  => 'puppet',
@@ -299,7 +306,7 @@ describe 'pupmod::master' do
               it do
                 puppetserver_content = File.read("#{File.dirname(__FILE__)}/data/puppetserver-j9-tuning_overrides.txt")
                 puppetserver_content.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
-                  File.dirname(facts[:puppet_settings][:master][:server_datadir]))
+                  File.dirname(_server_datadir))
 
                 is_expected.to contain_file('/etc/sysconfig/puppetserver').with( {
                   'owner'   => 'root',
@@ -310,7 +317,7 @@ describe 'pupmod::master' do
               end
 
               it { is_expected.to create_class('pupmod::master::sysconfig') }
-              it { is_expected.to contain_file("#{File.dirname(facts[:puppet_settings][:master][:server_datadir])}/pserver_tmp").with(
+              it { is_expected.to contain_file("#{File.dirname(_server_datadir)}/pserver_tmp").with(
                 {
                   'owner'  => 'puppet',
                   'group'  => 'puppet',

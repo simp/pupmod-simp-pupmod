@@ -71,7 +71,9 @@ define pupmod::pass_two (
     }
   }
 
-  $_conf_group = $facts['puppet_settings']['master']['group']
+  # In Puppet 6.19 the section "master was renamed to "server" in Puppet.settings.
+  # pick is used here to determine correct value for backwards compatability
+  $_conf_group = pick($facts.dig('puppet_settings','server','group'),$facts.dig('puppet_settings','master','group'))
 
   # These two maps allow the user and service specifications to occur purely in
   # data and can be included /only/ if the node is classified into the
