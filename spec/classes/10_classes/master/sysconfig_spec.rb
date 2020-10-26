@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'hocon'
 
 describe 'pupmod::master' do
   on_supported_os.each do |os, os_facts|

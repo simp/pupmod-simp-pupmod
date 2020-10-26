@@ -75,8 +75,8 @@ class pupmod::master::sysconfig (
   Integer                        $service_stop_retries = 60,
   Integer                        $start_timeout        = 120,
   Simplib::ServerDistribution    $server_distribution  = pupmod::server_distribution(),
-  String                         $user                 = $facts['puppet_settings']['master']['user'],
-  String                         $group                = $facts['puppet_settings']['master']['group'],
+  String                         $user                 = pick($facts.dig('puppet_settings','server','user'),$facts.dig('puppet_settings','master','user')),
+  String                         $group                = pick($facts.dig('puppet_settings','server','group'),$facts.dig('puppet_settings','master','group')),
   Boolean                        $mock                 = false
 ) inherits pupmod {
 
