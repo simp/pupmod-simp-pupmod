@@ -7,6 +7,10 @@ class pupmod::master::base {
 
   Class['pupmod::master::install'] ~> Class['pupmod::master::service']
 
+  # In Puppet 6.19 the section "master was renamed to "server" in Puppet.settings.
+  # pick is used here to determine correct value for backwards compatability
+  $_puppet_group = pick($facts.dig('puppet_settings','server','group'),$facts.dig('puppet_settings','master','group'))
+
   exec { 'puppetserver_reload':
     command     => '/usr/local/sbin/puppetserver_reload',
     refreshonly => true,
@@ -17,7 +21,7 @@ class pupmod::master::base {
   file { $pupmod::master::environmentpath:
     ensure       => 'directory',
     owner        => 'root',
-    group        => $facts['puppet_settings']['master']['group'],
+    group        => $_puppet_group,
     mode         => 'u=rwx,g=rwx,o-rwx',
     recurse      => true,
     recurselimit => 1

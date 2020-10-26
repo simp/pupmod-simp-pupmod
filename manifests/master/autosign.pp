@@ -14,10 +14,14 @@ define pupmod::master::autosign (
 ) {
   include 'pupmod::master'
 
+  # In Puppet 6.19 the section "master was renamed to "server" in Puppet.settings.
+  # pick is used here to determine correct value for backwards compatability
+  $_puppet_group = pick($facts.dig('puppet_settings','server','group'),$facts.dig('puppet_settings','master','group'))
+
   ensure_resource('concat', "${pupmod::confdir}/autosign.conf", {
     'ensure' => 'present',
     'owner'  => 'root',
-    'group'  => $facts['puppet_settings']['master']['group'],
+    'group'  => $_puppet_group,
     'mode'   => '0640',
     'notify' => Class['pupmod::master::service']
   })

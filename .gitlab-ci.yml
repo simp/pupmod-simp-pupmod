@@ -380,3 +380,4 @@ pup6.18.0-oel-fips:
   <<: *with_SIMP_ACCEPTANCE_MATRIX_LEVEL_3
   script:
     - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,oel]'
+

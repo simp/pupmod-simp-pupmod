@@ -75,8 +75,8 @@ class pupmod::master::sysconfig (
   Integer                        $service_stop_retries = 60,
   Integer                        $start_timeout        = 120,
   Simplib::ServerDistribution    $server_distribution  = pupmod::server_distribution(),
-  String                         $user                 = $facts['puppet_settings']['master']['user'],
-  String                         $group                = $facts['puppet_settings']['master']['group'],
+  String                         $user                 = pick($facts.dig('puppet_settings','server','user'),$facts.dig('puppet_settings','master','user')),
+  String                         $group                = pick($facts.dig('puppet_settings','server','group'),$facts.dig('puppet_settings','master','group')),
   Boolean                        $mock                 = false
 ) inherits pupmod {
 
@@ -95,9 +95,15 @@ class pupmod::master::sysconfig (
       default => $java_max_memory,
     }
 
+
+    # In Puppet 6.19 the section "master was renamed to "server" in Puppet.settings.
+    # pick is used here to determine correct value for backwards compatability
+    $_server_datadir = pick($facts.dig('puppet_settings','server','server_datadir'),$facts.dig('puppet_settings','master','server_datadir'))
+
     if empty($java_temp_dir) {
       # puppet_settings.master.server_datadir is not always present, but its parent is
-      $_java_temp_dir = "${dirname(fact('puppet_settings.master.server_datadir'))}/pserver_tmp"
+      $_p_server_datadir = dirname($_server_datadir)
+      $_java_temp_dir = "${_p_server_datadir}/pserver_tmp"
     }
     else {
       $_java_temp_dir = $java_temp_dir

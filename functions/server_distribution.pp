@@ -10,8 +10,15 @@ function pupmod::server_distribution (
   Boolean $lookup_from_pupmod = true
 ){
 
-  # Figure out what we think we have
-  if fact('pe_build') or (fact('puppet_settings.master.user') == 'pe-puppet') {
+
+  # In Puppet 6.19 the section "master" was renamed to "server" in Puppet.settings.
+  # pick is used here to determine correct value for backwards compatability
+  $_puppet_user = pick(
+    $facts.dig('puppet_settings','server','user'),
+    $facts.dig('puppet_settings','master','user')
+  )
+
+  if fact('pe_build') or ( $_puppet_user == 'pe-puppet') {
     $server_type = 'PE'
   }
   else {
