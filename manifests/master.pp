@@ -173,6 +173,9 @@
 #
 #   * Do NOT set to `false` unless you have read the details of CVE-2020-7942
 #
+# @param cve_2020_7942_warning
+#   Whether to warn about CVE-2020-7942 when the issue is detected.
+#
 # @param syslog
 #   If true, log to the local system logger over UDP port 514.
 #

@@ -1002,6 +1002,14 @@ and/or domain facts.
 
 Default value: ``true``
 
+##### `cve_2020_7942_warning`
+
+Data type: `Boolean`
+
+Whether to warn about CVE-2020-7942 when the issue is detected.
+
+Default value: ``true``
+
 ##### `syslog`
 
 Data type: `Boolean`
@@ -1150,14 +1158,6 @@ Data type: `Boolean`
 DO NOT USE. needed for rspec testing
 
 Default value: ``false``
-
-##### `cve_2020_7942_warning`
-
-Data type: `Boolean`
-
-
-
-Default value: ``true``
 
 ### `pupmod::master::base`
 
@@ -1629,7 +1629,7 @@ Data type: `String`
 
 The ``user`` that the ``puppetserver`` service will run as.
 
-Default value: `$facts['puppet_settings']['master']['user']`
+Default value: `pick($facts.dig('puppet_settings','server','user'),$facts.dig('puppet_settings','master','user'))`
 
 ##### `group`
 
@@ -1637,7 +1637,7 @@ Data type: `String`
 
 The ``group`` that the ``puppetserver`` service will run as.
 
-Default value: `$facts['puppet_settings']['master']['group']`
+Default value: `pick($facts.dig('puppet_settings','server','group'),$facts.dig('puppet_settings','master','group'))`
 
 ##### `mock`
 
