@@ -222,13 +222,6 @@ variables:
     BEAKER_PUPPET_COLLECTION: 'puppet6'
     MATRIX_RUBY_VERSION: '2.5'
 
-.pup_6_19_0: &pup_6_19_0
-  image: 'ruby:2.5'
-  variables:
-    PUPPET_VERSION: '6.19.0'
-    BEAKER_PUPPET_COLLECTION: 'puppet6'
-    MATRIX_RUBY_VERSION: '2.5'
-
 # Testing Environments
 #-----------------------------------------------------------------------
 
