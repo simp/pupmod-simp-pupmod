@@ -129,7 +129,6 @@
 #   Set the JRuby ``CompileMode``.
 #
 # @param ssl_protocols
-#   Default: ['TLSv1','TLSv1.1','TLSv1.2']
 #   The protocols that are allowed for communication with the Puppet Server. See
 #   the ssl-protocols documentation for the Puppet Server for additional details.
 #
@@ -305,7 +304,7 @@ class pupmod::master (
   Integer[0]                                          $max_queued_requests             = 10,
   Integer[1]                                          $max_retry_delay                 = 1800,
   Boolean                                             $firewall                        = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
-  Array[Simplib::Host]                                $ca_status_whitelist             = [$facts['fqdn']],
+  Array[Simplib::Host]                                $ca_status_whitelist             = [pick($facts['certname'], $facts['fqdn'])],
   Optional[Stdlib::AbsolutePath]                      $ruby_load_path                  = undef,
   Integer[1]                                          $max_active_instances            = pupmod::max_active_instances($server_type),
   Integer                                             $max_requests_per_instance       = 100000,
@@ -313,12 +312,12 @@ class pupmod::master (
   Boolean                                             $environment_class_cache_enabled = true,
   Optional[Pattern['^\d+\.\d+$']]                     $compat_version                  = undef,
   Enum['off', 'jit', 'force']                         $compile_mode                    = 'off',
-  Array[Pupmod::Master::SSLProtocols]                 $ssl_protocols                   = ['TLSv1', 'TLSv1.1', 'TLSv1.2'],
+  Array[Pupmod::Master::SSLProtocols]                 $ssl_protocols                   = ['TLSv1.2'],
   Optional[Array[Pupmod::Master::SSLCipherSuites]]    $ssl_cipher_suites               = undef,
   Boolean                                             $enable_profiler                 = false,
   Pupmod::ProfilingMode                               $profiling_mode                  = 'off',
   Stdlib::AbsolutePath                                $profiler_output_file            = "${vardir}/server_jruby_profiling",
-  Array[Simplib::Hostname]                            $admin_api_whitelist             = [$facts['fqdn']],
+  Array[Simplib::Hostname]                            $admin_api_whitelist             = [pick($facts['certname'], $facts['fqdn'])],
   String                                              $admin_api_mountpoint            = '/puppet-admin-api',
   Boolean                                             $log_to_file                     = false,
   Boolean                                             $strict_hostname_checking        = true,

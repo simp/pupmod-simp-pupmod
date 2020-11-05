@@ -243,8 +243,6 @@ checks:
     settings:
       parameter: pupmod::master::ssl_protocols
       value:
-      - TLSv1
-      - TLSv1.1
       - TLSv1.2
     type: puppet-class-parameter
     controls:

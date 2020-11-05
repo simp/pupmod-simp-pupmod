@@ -135,8 +135,10 @@ class pupmod::master::generate_types (
       }
     }
     else {
+      $_target = pick($facts['certname'], $facts['fqdn'])
+
       notify { 'simp_generate_types incron deprecated':
-        message  => "simp_generate_types no longer supports incron due to continuing issues with the application. Please set ${module_name}::master::generate_types::enable to `false` for ${facts['fqdn']} to disable this message",
+        message  => "simp_generate_types no longer supports incron due to continuing issues with the application. Please set ${module_name}::master::generate_types::enable to `false` for ${_target} to disable this message",
         loglevel => 'warning'
       }
     }

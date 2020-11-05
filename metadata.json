@@ -1,6 +1,6 @@
 {
   "name": "simp-pupmod",
-  "version": "8.1.1",
+  "version": "8.1.2",
   "author": "SIMP Team",
   "summary": "A puppet module to manage puppetserver and puppet agents",
   "license": "Apache-2.0",
