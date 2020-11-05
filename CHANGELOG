@@ -1,3 +1,7 @@
+* Thu Nov 05 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.1.2-0
+- Default to TLS1.2 only
+- Use `certname` by default and fall back to `fqdn` for bolt, etc..
+
 * Fri Oct 23 2020 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 8.1.1-0
 - Puppet 6.19 has changed the "master" section to "server" in Puppet.settings.
   This fix updates the modules to check puppet_settings[:server] first then

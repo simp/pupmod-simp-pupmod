@@ -162,7 +162,7 @@ class pupmod (
   Simplib::Port                          $ca_port              = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
   Simplib::Host                          $puppet_server        = simplib::lookup('simp_options::puppet::server', { 'default_value' => "puppet.${facts['domain']}" }),
   Simplib::ServerDistribution            $server_distribution  = pupmod::server_distribution(false), # Can't self-reference in this lookup
-  Simplib::Host                          $certname             = $facts['fqdn'],
+  Simplib::Host                          $certname             = pick($facts['certname'], $facts['fqdn']),
   String[0]                              $classfile            = '$vardir/classes.txt',
   Stdlib::AbsolutePath                   $confdir              = $::pupmod::params::puppet_config['confdir'],
   Boolean                                $daemonize            = false,

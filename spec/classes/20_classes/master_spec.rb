@@ -221,7 +221,7 @@ describe 'pupmod::master' do
             it {
               expect(puppetserver_conf_hash['http-client']).to match(
                 a_hash_including(
-                  'ssl-protocols' => [ 'TLSv1', 'TLSv1.1', 'TLSv1.2' ]
+                  'ssl-protocols' => [ 'TLSv1.2' ]
                 )
               )
             }
@@ -304,7 +304,7 @@ describe 'pupmod::master' do
                     'ssl-key'           => "/etc/puppetlabs/puppet/ssl/private_keys/#{facts[:fqdn]}.pem",
                     'ssl-host'          => '0.0.0.0',
                     'ssl-port'          => 8140,
-                    'ssl-protocols'     => 'TLSv1,TLSv1.1,TLSv1.2',
+                    'ssl-protocols'     => 'TLSv1.2',
                     'default-server'    => true
                   }
                 ),
@@ -318,7 +318,7 @@ describe 'pupmod::master' do
                     'ssl-key'           => "/etc/puppetlabs/puppet/ssl/private_keys/#{facts[:fqdn]}.pem",
                     'ssl-host'          => '0.0.0.0',
                     'ssl-port'          => 8141,
-                    'ssl-protocols'     => 'TLSv1,TLSv1.1,TLSv1.2',
+                    'ssl-protocols'     => 'TLSv1.2',
                   }
                 )
               )

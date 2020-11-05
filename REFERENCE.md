@@ -103,7 +103,7 @@ The puppet certificate CN name of the system.
 See http://docs.puppetlabs.com/references/latest/configuration.html for
 additional details.
 
-Default value: `$facts['fqdn']`
+Default value: `pick($facts['certname'], $facts['fqdn'])`
 
 ##### `classfile`
 
@@ -849,7 +849,7 @@ Data type: `Array[Simplib::Host]`
 An array of certificate short names which will be allowed to query the CA end
 point of the Puppet Server
 
-Default value: `[$facts['fqdn']]`
+Default value: `[pick($facts['certname'], $facts['fqdn'])]`
 
 ##### `ruby_load_path`
 
@@ -916,11 +916,10 @@ Default value: `'off'`
 
 Data type: `Array[Pupmod::Master::SSLProtocols]`
 
-Default: ['TLSv1','TLSv1.1','TLSv1.2']
 The protocols that are allowed for communication with the Puppet Server. See
 the ssl-protocols documentation for the Puppet Server for additional details.
 
-Default value: `['TLSv1', 'TLSv1.1', 'TLSv1.2']`
+Default value: `['TLSv1.2']`
 
 ##### `ssl_cipher_suites`
 
@@ -970,7 +969,7 @@ Data type: `Array[Simplib::Hostname]`
 A list of X.509 certificate names that should be allowed to access the Puppet
 Server's administrative API.
 
-Default value: `[$facts['fqdn']]`
+Default value: `[pick($facts['certname'], $facts['fqdn'])]`
 
 ##### `admin_api_mountpoint`
 
