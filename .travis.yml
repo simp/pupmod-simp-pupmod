@@ -44,8 +44,10 @@
 #     convention at present
 #
 # ------------------------------------------------------------------------------
+# NOTE: Unlike most SIMP Puppet modules, which use a standardized .travis.yml,
+#       this pipeline contains steps that are specific to testing simp-pupmod
+# ------------------------------------------------------------------------------
 ---
-
 language: ruby
 cache: bundler
 version: ~> 1.0
@@ -105,24 +107,91 @@ jobs:
     ###
     ###    - stage: spec
     ###      rvm: 2.4.9
-    ###      name: 'Puppet 5.5 (SIMP 6.4, PE 2018.1)'
+    ###      name: 'Puppet 5.5 (SIMP 6.4, PE 2018.1) - Classes'
     ###      env: PUPPET_VERSION="~> 5.5.0"
     ###      script:
-    ###        - bundle exec rake spec
+    ###        - 'bundle exec rake spec_prep'
+    ###        - 'bundle exec rspec spec/classes'
     ###
     ###    - stage: spec
-    ###      name: 'Puppet 5.x (Latest)'
+    ###      rvm: 2.4.9
+    ###      name: 'Puppet 5.5 (SIMP 6.4, PE 2018.1) - Defines'
+    ###      env: PUPPET_VERSION="~> 5.5.0"
+    ###      script:
+    ###        - 'bundle exec rake spec_prep'
+    ###        - 'bundle exec rspec spec/defines'
+    ###
+    ###    - stage: spec
+    ###      rvm: 2.4.9
+    ###      name: 'Puppet 5.5 (SIMP 6.4, PE 2018.1) - Unit'
+    ###      env: PUPPET_VERSION="~> 5.5.0"
+    ###      script:
+    ###        - 'bundle exec rake spec_prep'
+    ###        - 'bundle exec rspec spec/unit'
+    ###
+    ###    - stage: spec
+    ###      name: 'Puppet 5.x (Latest) - Classes'
     ###      rvm: 2.4.9
     ###      env: PUPPET_VERSION="~> 5.0"
     ###      script:
-    ###        - bundle exec rake spec
+    ###        - 'bundle exec rake spec_prep'
+    ###        - 'bundle exec rspec spec/classes'
     ###
     ###    - stage: spec
-    ###      name: 'Puppet 6.18 (PE 2019.2)'
+    ###      name: 'Puppet 5.x (Latest) - Defines'
+    ###      rvm: 2.4.9
+    ###      env: PUPPET_VERSION="~> 5.0"
+    ###      script:
+    ###        - 'bundle exec rake spec_prep'
+    ###        - 'bundle exec rspec spec/defines'
+    ###
+    ###    - stage: spec
+    ###      name: 'Puppet 5.x (Latest) - Unit'
+    ###      rvm: 2.4.9
+    ###      env: PUPPET_VERSION="~> 5.0"
+    ###      script:
+    ###        - 'bundle exec rake spec_prep'
+    ###        - 'bundle exec rspec spec/unit'
+    ###
+    ###    - stage: spec
+    ###      name: 'Puppet 6.18 (PE 2019.8) - Classes'
     ###      rvm: 2.5.7
     ###      env: PUPPET_VERSION="~> 6.18.0"
     ###      script:
-    ###        - bundle exec rake spec
+    ###        - 'bundle exec rake spec_prep'
+    ###        - 'bundle exec rspec spec/classes'
+    ###
+    ###    - stage: spec
+    ###      name: 'Puppet 6.18 (PE 2019.8) - Defines'
+    ###      rvm: 2.5.7
+    ###      env: PUPPET_VERSION="~> 6.18.0"
+    ###      script:
+    ###        - 'bundle exec rake spec_prep'
+    ###        - 'bundle exec rspec spec/defines'
+    ###
+    ###    - stage: spec
+    ###      name: 'Puppet 6.x (Latest) - Classes'
+    ###      rvm: 2.5.7
+    ###      env: PUPPET_VERSION="~> 6.0"
+    ###      script:
+    ###        - 'bundle exec rake spec_prep'
+    ###        - 'bundle exec rspec spec/classes'
+    ###
+    ###    - stage: spec
+    ###      name: 'Puppet 6.x (Latest) - Defines'
+    ###      rvm: 2.5.7
+    ###      env: PUPPET_VERSION="~> 6.0"
+    ###      script:
+    ###        - 'bundle exec rake spec_prep'
+    ###        - 'bundle exec rspec spec/defines'
+    ###
+    ###    - stage: spec
+    ###      name: 'Puppet 6.x (Latest) - Unit'
+    ###      rvm: 2.5.7
+    ###      env: PUPPET_VERSION="~> 6.0"
+    ###      script:
+    ###        - 'bundle exec rake spec_prep'
+    ###        - 'bundle exec rspec spec/unit'
 
     - stage: deploy
       rvm: 2.4.9
