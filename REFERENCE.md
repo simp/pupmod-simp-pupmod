@@ -100,10 +100,15 @@ Data type: `Simplib::Host`
 
 The puppet certificate CN name of the system.
 
-See http://docs.puppetlabs.com/references/latest/configuration.html for
-additional details.
+* For authenticated remote requests, this defaults to `$trusted['certname']
+* For all other requests (e.g., bolt), the default is `$facts['clientcert']`
 
-Default value: `pick($facts['certname'], $facts['fqdn'])`
+For additional details, see:
+
+* http://docs.puppetlabs.com/references/latest/configuration.html
+* https://puppet.com/docs/puppet/latest/lang_facts_builtin_variables.html
+
+Default value: `(`
 
 ##### `classfile`
 

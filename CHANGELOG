@@ -1,3 +1,6 @@
+* Wed Dec 02 2020 Chris Tessmer <chris.tessmer@onyxpoint.com> - 8.1.3-0
+- Get `certname` from trusted facts ONLY for authenticated remote requests
+
 * Thu Nov 05 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.1.2-0
 - Default to TLS1.2 only
 - Use `certname` by default and fall back to `fqdn` for bolt, etc..
