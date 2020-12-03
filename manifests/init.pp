@@ -24,8 +24,13 @@
 # @param certname
 #   The puppet certificate CN name of the system.
 #
-#   See http://docs.puppetlabs.com/references/latest/configuration.html for
-#   additional details.
+#   * For authenticated remote requests, this defaults to `$trusted['certname']
+#   * For all other requests (e.g., bolt), the default is `$facts['clientcert']`
+#
+#   For additional details, see:
+#
+#   * http://docs.puppetlabs.com/references/latest/configuration.html
+#   * https://puppet.com/docs/puppet/latest/lang_facts_builtin_variables.html
 #
 # @param classfile
 #   The path to the puppet class file.
@@ -162,7 +167,10 @@ class pupmod (
   Simplib::Port                          $ca_port              = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
   Simplib::Host                          $puppet_server        = simplib::lookup('simp_options::puppet::server', { 'default_value' => "puppet.${facts['domain']}" }),
   Simplib::ServerDistribution            $server_distribution  = pupmod::server_distribution(false), # Can't self-reference in this lookup
-  Simplib::Host                          $certname             = pick($facts['certname'], $facts['fqdn']),
+  Simplib::Host                          $certname             = ($trusted['authenticatedx'] ? {
+                                                                  'remote' => $trusted['certname'],
+                                                                  default  => pick($facts['clientcert'], $facts['fqdn']),
+                                                                }),
   String[0]                              $classfile            = '$vardir/classes.txt',
   Stdlib::AbsolutePath                   $confdir              = $::pupmod::params::puppet_config['confdir'],
   Boolean                                $daemonize            = false,
@@ -236,11 +244,11 @@ class pupmod (
       value   => $daemonize
     }
 
-    # This takes some explaining. You may be asking yourself:
-    # Dear god? why? The short answer is, to make the UX for
-    # PE better, we need to make no assumptions about the
-    # amount of configuration the user has done before trying
-    # to lay SIMP on top of PE.
+    # This takes some explaining. You may be asking yourself: Dear god? why?
+    #
+    # The short answer is, to make the UX for PE better, we need to make no
+    # assumptions about the amount of configuration the user has done before
+    # trying to lay SIMP on top of PE.
     #
     # Therefore, we have to inspect the catalog to see which PE
     # classes are included, and tailor our configuration
@@ -251,15 +259,15 @@ class pupmod (
     # is evaluated before the class you are checking, you
     # will get an erroneous false result.
     #
-    # The workaround is to take advantage of the fact that the puppet
-    # catalog compiler takes multiple passes, a first pass for most
-    # classes to be evaluated, and a second pass for resource collection
-    # statements. Basically by creating a virtual defined type and realizing
-    # it immediately, we 'throw' any puppet code in the defined type into the
-    # next pass of the compiler.
+    # The workaround is to take advantage of the fact that the puppet catalog
+    # compiler takes multiple passes, a first pass for most classes to be
+    # evaluated, and a second pass for resource collection statements. Basically
+    # by creating a virtual defined type and realizing it immediately, we
+    # 'throw' any puppet code in the defined type into the next pass of the
+    # compiler.
     #
-    # Disgusting? yes. Necessary? unfortunately. This will have to be re-evaluated
-    # for every major puppet release.
+    # Disgusting? yes. Necessary? unfortunately. This will have to be
+    # re-evaluated for every major PE release.
 
     @pupmod::pass_two { 'main':
       server_distribution => $server_distribution,

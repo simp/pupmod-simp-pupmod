@@ -4,6 +4,7 @@ audit_content = File.open("#{File.dirname(__FILE__)}/data/auditd.txt", "rb").rea
 
 describe 'pupmod' do
   on_supported_os.each do |os, os_facts|
+    let(:node){ os_facts[:fqdn] } # sets trusted facts hash
     before :all do
       @extras = { :puppet_settings => {
         'master' => {
