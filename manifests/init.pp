@@ -364,13 +364,7 @@ class pupmod (
       content => "PUPPET_EXTRA_OPTS='--daemonize'\n"
     }
 
-    # Changing SELinux booleans on a minor update is a horrible idea.
-    if ( $facts['operatingsystem'] in ['RedHat','CentOS','OracleLinux'] ) and ( $facts['operatingsystemmajrelease'] < '7' ) {
-      $puppet_agent_sebool = 'puppet_manage_all_files'
-    }
-    else {
-      $puppet_agent_sebool = 'puppetagent_manage_all_files'
-    }
+    $puppet_agent_sebool = 'puppetagent_manage_all_files'
     if $facts['selinux'] and $facts['selinux_current_mode'] and ($facts['selinux_current_mode'] != 'disabled') {
       selboolean { $puppet_agent_sebool :
         persistent => true,
