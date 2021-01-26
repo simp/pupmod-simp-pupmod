@@ -155,14 +155,7 @@ describe 'pupmod' do
               'mode'    => '0644',
               'content' => "PUPPET_EXTRA_OPTS='--daemonize'\n"
             }) }
-            it 'operatingsystem < 7' do
-              if os_facts[:operatingsystemmajrelease].to_i < 7
-                is_expected.to contain_selboolean('puppet_manage_all_files')
-              else
-                is_expected.to contain_selboolean('puppetagent_manage_all_files')
-              end
-            end
-
+            it { is_expected.to contain_selboolean('puppetagent_manage_all_files') }
             it { is_expected.not_to contain_class('pupmod::facter::conf') }
 
             context 'with_selinux_disabled' do
@@ -173,11 +166,7 @@ describe 'pupmod' do
                 _facts
               }
 
-              if os_facts[:operatingsystemmajrelease].to_i < 7 then
-                it { is_expected.not_to contain_selboolean('puppet_manage_all_files') }
-              else
-                it { is_expected.not_to contain_selboolean('puppetagent_manage_all_files') }
-              end
+              it { is_expected.not_to contain_selboolean('puppetagent_manage_all_files') }
             end
 
             context 'running from bolt' do
