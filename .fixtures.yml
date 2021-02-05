@@ -22,7 +22,7 @@ fixtures:
     concat: https://github.com/simp/puppetlabs-concat
     hocon:
       repo: https://github.com/puppetlabs/puppetlabs-hocon
-      ref: 1.1.0
+      ref: "v1.1.0"
     logrotate: https://github.com/simp/pupmod-simp-logrotate
     pki: https://github.com/simp/pupmod-simp-pki
     rsyslog: https://github.com/simp/pupmod-simp-rsyslog
