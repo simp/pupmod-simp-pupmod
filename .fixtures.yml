@@ -22,7 +22,7 @@ fixtures:
     concat: https://github.com/simp/puppetlabs-concat
     hocon:
       repo: https://github.com/puppetlabs/puppetlabs-hocon
-      ref: 1.0.1
+      ref: "v1.1.0"
     logrotate: https://github.com/simp/pupmod-simp-logrotate
     pki: https://github.com/simp/pupmod-simp-pki
     rsyslog: https://github.com/simp/pupmod-simp-rsyslog
@@ -37,7 +37,7 @@ fixtures:
       ref: 0.3.0
     puppet_authorization:
       repo: https://github.com/simp/puppetlabs-puppet_authorization
-      ref: 0.5.0
+      ref: 0.5.1
 
     # Fixtures needed for the acceptance test
     augeasproviders_ssh: https://github.com/simp/augeasproviders_ssh
