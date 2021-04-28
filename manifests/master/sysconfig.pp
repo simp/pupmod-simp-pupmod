@@ -82,7 +82,7 @@ class pupmod::master::sysconfig (
 
   include 'pupmod::master::service'
 
-  unless (mock == true) {
+  unless $mock {
     if ($server_distribution == 'PE') or defined(Class['puppet_enterprise::profile::master']) {
       # If this is PE use the PE default for this run since the variable won't exist
       $_tuning_max_active_instances = max(($facts['processors']['count'] - 1), 1)

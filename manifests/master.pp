@@ -340,7 +340,7 @@ class pupmod::master (
   $_puppet_user = pick($facts.dig('puppet_settings','server','user'),$facts.dig('puppet_settings','master','user'))
   $_puppet_group = pick($facts.dig('puppet_settings','server','group'),$facts.dig('puppet_settings','master','group'))
 
-  if ($mock == false) {
+  unless $mock {
     include 'pupmod::master::install'
     include 'pupmod::master::sysconfig'
     include 'pupmod::master::reports'
