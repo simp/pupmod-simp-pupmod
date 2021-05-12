@@ -72,7 +72,7 @@ describe 'compliance_markup', type: :class do
 
   compliance_profiles = {
     'disa_stig'        => {
-      :percent_compliant   => 100,
+      :percent_compliant => 100,
       :exceptions => {
         'documented_missing_parameters' => [ not_expected_classes_regex ],
         'documented_missing_resources'  => [ not_expected_classes_regex ],
@@ -80,7 +80,7 @@ describe 'compliance_markup', type: :class do
       }
     },
     'nist_800_53:rev4' => {
-      :percent_compliant   => 99,
+      :percent_compliant => 96,
       :exceptions => {
         'documented_missing_parameters' => [ not_expected_classes_regex ],
         'documented_missing_resources'  => [ not_expected_classes_regex ],

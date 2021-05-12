@@ -258,6 +258,8 @@ variables:
     PUPPET_VERSION: '~> 7.0'
     BEAKER_PUPPET_COLLECTION: 'puppet7'
     MATRIX_RUBY_VERSION: '2.7'
+    # Temporary until we can track down the warnings
+    RUBYOPT: '-W0'
 
 # Testing Environments
 #-----------------------------------------------------------------------

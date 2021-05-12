@@ -122,6 +122,7 @@ jobs:
             ruby_version: '2.7'
     env:
       PUPPET_VERSION: '${{matrix.puppet.puppet_version}}'
+      RUBYOPT: '-W0'
     steps:
       - uses: actions/checkout@v2
       - name: 'Install Ruby ${{matrix.puppet.ruby_version}}'

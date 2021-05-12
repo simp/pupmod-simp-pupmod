@@ -45,7 +45,7 @@
 
 ## Classes
 
-### `pupmod`
+### <a name="pupmod"></a>`pupmod`
 
 A class for managing Puppet configurations.
 
@@ -59,9 +59,44 @@ may be written to their respective components as necessary for deconfliction.
 
 #### Parameters
 
-The following parameters are available in the `pupmod` class.
+The following parameters are available in the `pupmod` class:
 
-##### `ca_port`
+* [`ca_port`](#ca_port)
+* [`ca_server`](#ca_server)
+* [`puppet_server`](#puppet_server)
+* [`server_distribution`](#server_distribution)
+* [`certname`](#certname)
+* [`classfile`](#classfile)
+* [`confdir`](#confdir)
+* [`daemonize`](#daemonize)
+* [`digest_algorithm`](#digest_algorithm)
+* [`enable_puppet_master`](#enable_puppet_master)
+* [`environmentpath`](#environmentpath)
+* [`listen`](#listen)
+* [`logdir`](#logdir)
+* [`masterport`](#masterport)
+* [`report`](#report)
+* [`rundir`](#rundir)
+* [`runinterval`](#runinterval)
+* [`splay`](#splay)
+* [`splaylimit`](#splaylimit)
+* [`srv_domain`](#srv_domain)
+* [`ssldir`](#ssldir)
+* [`syslogfacility`](#syslogfacility)
+* [`use_srv_records`](#use_srv_records)
+* [`haveged`](#haveged)
+* [`fips`](#fips)
+* [`vardir`](#vardir)
+* [`manage_facter_conf`](#manage_facter_conf)
+* [`facter_conf_dir`](#facter_conf_dir)
+* [`facter_options`](#facter_options)
+* [`mock`](#mock)
+* [`firewall`](#firewall)
+* [`pe_classlist`](#pe_classlist)
+* [`package_ensure`](#package_ensure)
+* [`set_environment`](#set_environment)
+
+##### <a name="ca_port"></a>`ca_port`
 
 Data type: `Simplib::Port`
 
@@ -69,7 +104,7 @@ The port where the remote CA should be contacted.
 
 Default value: `simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 })`
 
-##### `ca_server`
+##### <a name="ca_server"></a>`ca_server`
 
 Data type: `Variant[Simplib::Host,Enum['$server']]`
 
@@ -77,7 +112,7 @@ The puppet CA from which to obtain your system certificates.
 
 Default value: `simplib::lookup('simp_options::puppet::ca', { 'default_value' => '$server' })`
 
-##### `puppet_server`
+##### <a name="puppet_server"></a>`puppet_server`
 
 Data type: `Simplib::Host`
 
@@ -85,7 +120,7 @@ The puppet master from which to retrieve your configuration.
 
 Default value: `simplib::lookup('simp_options::puppet::server', { 'default_value' => "puppet.${facts['domain']}" })`
 
-##### `server_distribution`
+##### <a name="server_distribution"></a>`server_distribution`
 
 Data type: `Simplib::ServerDistribution`
 
@@ -94,7 +129,7 @@ we are using PC1 or PE
 
 Default value: `pupmod::server_distribution(false)`
 
-##### `certname`
+##### <a name="certname"></a>`certname`
 
 Data type: `Simplib::Host`
 
@@ -110,7 +145,7 @@ For additional details, see:
 
 Default value: `(`
 
-##### `classfile`
+##### <a name="classfile"></a>`classfile`
 
 Data type: `String[0]`
 
@@ -121,7 +156,7 @@ additional details.
 
 Default value: `'$vardir/classes.txt'`
 
-##### `confdir`
+##### <a name="confdir"></a>`confdir`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -132,7 +167,7 @@ additional details.
 
 Default value: `$::pupmod::params::puppet_config['confdir']`
 
-##### `daemonize`
+##### <a name="daemonize"></a>`daemonize`
 
 Data type: `Boolean`
 
@@ -144,7 +179,7 @@ job can maintain a safe system state over time.
 
 Default value: ``false``
 
-##### `digest_algorithm`
+##### <a name="digest_algorithm"></a>`digest_algorithm`
 
 Data type: `Enum['md5','sha256']`
 
@@ -152,7 +187,7 @@ The hash Digest to use for file operations on the system.
 
 Default value: `'sha256'`
 
-##### `enable_puppet_master`
+##### <a name="enable_puppet_master"></a>`enable_puppet_master`
 
 Data type: `Boolean`
 
@@ -160,7 +195,7 @@ Whether or not to make the system a puppetmaster.
 
 Default value: ``false``
 
-##### `environmentpath`
+##### <a name="environmentpath"></a>`environmentpath`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -168,7 +203,7 @@ The path to the directory holding the puppet environments.
 
 Default value: `$::pupmod::params::puppet_config['environmentpath']`
 
-##### `listen`
+##### <a name="listen"></a>`listen`
 
 Data type: `Boolean`
 
@@ -181,7 +216,7 @@ enable it, don't forget to add an associated IPTables rule.
 
 Default value: ``false``
 
-##### `logdir`
+##### <a name="logdir"></a>`logdir`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -192,7 +227,7 @@ additional details.
 
 Default value: `$::pupmod::params::puppet_config['logdir']`
 
-##### `masterport`
+##### <a name="masterport"></a>`masterport`
 
 Data type: `Simplib::Port`
 
@@ -200,7 +235,7 @@ The port where the Puppet Master should be contacted.
 
 Default value: `8140`
 
-##### `report`
+##### <a name="report"></a>`report`
 
 Data type: `Boolean`
 
@@ -210,7 +245,7 @@ reports are required.
 
 Default value: ``false``
 
-##### `rundir`
+##### <a name="rundir"></a>`rundir`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -221,7 +256,7 @@ additional details.
 
 Default value: `$::pupmod::params::puppet_config['rundir']`
 
-##### `runinterval`
+##### <a name="runinterval"></a>`runinterval`
 
 Data type: `Integer[0]`
 
@@ -230,7 +265,7 @@ Has no effect on the client cron job.
 
 Default value: `1800`
 
-##### `splay`
+##### <a name="splay"></a>`splay`
 
 Data type: `Boolean`
 
@@ -241,7 +276,7 @@ runs on large systems.
 
 Default value: ``false``
 
-##### `splaylimit`
+##### <a name="splaylimit"></a>`splaylimit`
 
 Data type: `Optional[Integer[1]]`
 
@@ -249,7 +284,7 @@ Data type: `Optional[Integer[1]]`
 
 Default value: ``undef``
 
-##### `srv_domain`
+##### <a name="srv_domain"></a>`srv_domain`
 
 Data type: `Simplib::Host`
 
@@ -257,7 +292,7 @@ The domain to search when using SRV records.
 
 Default value: `$facts['domain']`
 
-##### `ssldir`
+##### <a name="ssldir"></a>`ssldir`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -268,7 +303,7 @@ additional details.
 
 Default value: `$::pupmod::params::puppet_config['ssldir']`
 
-##### `syslogfacility`
+##### <a name="syslogfacility"></a>`syslogfacility`
 
 Data type: `Simplib::Syslog::Facility`
 
@@ -276,7 +311,7 @@ The Syslog facility to use when outputting messages from puppet.
 
 Default value: `'local6'`
 
-##### `use_srv_records`
+##### <a name="use_srv_records"></a>`use_srv_records`
 
 Data type: `Boolean`
 
@@ -284,7 +319,7 @@ Whether the server will search for SRV records in DNS for the current domain.
 
 Default value: ``false``
 
-##### `haveged`
+##### <a name="haveged"></a>`haveged`
 
 Data type: `Boolean`
 
@@ -292,7 +327,7 @@ If true, include haveged to assist with entropy generation.
 
 Default value: `simplib::lookup('simp_options::haveged', { 'default_value' => false })`
 
-##### `fips`
+##### <a name="fips"></a>`fips`
 
 Data type: `Boolean`
 
@@ -300,7 +335,7 @@ If true, enable fips mode
 
 Default value: `simplib::lookup('simp_options::fips', { 'default_value' => false })`
 
-##### `vardir`
+##### <a name="vardir"></a>`vardir`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -308,7 +343,7 @@ The directory where puppet will store all of its 'variable' data.
 
 Default value: `$::pupmod::params::puppet_config['vardir']`
 
-##### `manage_facter_conf`
+##### <a name="manage_facter_conf"></a>`manage_facter_conf`
 
 Data type: `Boolean`
 
@@ -316,7 +351,7 @@ Whether to manage the Facter configuration file.
 
 Default value: ``false``
 
-##### `facter_conf_dir`
+##### <a name="facter_conf_dir"></a>`facter_conf_dir`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -324,7 +359,7 @@ Directory containing the Facter configuration file.
 
 Default value: `'/etc/puppetlabs/facter'`
 
-##### `facter_options`
+##### <a name="facter_options"></a>`facter_options`
 
 Data type: `Hash`
 
@@ -337,7 +372,7 @@ Hash of Facter configuration options.
 - See https://puppet.com/docs/facter/latest/configuring_facter.html
   for details on how to configure Facter.
 
-##### `mock`
+##### <a name="mock"></a>`mock`
 
 Data type: `Boolean`
 
@@ -345,7 +380,7 @@ If true, disable all code.
 
 Default value: ``false``
 
-##### `firewall`
+##### <a name="firewall"></a>`firewall`
 
 Data type: `Boolean`
 
@@ -353,7 +388,7 @@ Whether or not firewall rules should be created
 
 Default value: `simplib::lookup('simp_options::firewall', { 'default_value' => false })`
 
-##### `pe_classlist`
+##### <a name="pe_classlist"></a>`pe_classlist`
 
 Data type: `Hash`
 
@@ -361,7 +396,7 @@ Hash of pe classes and assorted metadata.
 
 Default value: `{}`
 
-##### `package_ensure`
+##### <a name="package_ensure"></a>`package_ensure`
 
 Data type: `String[1]`
 
@@ -369,7 +404,7 @@ String used to specify 'latest', 'installed', or a specific version of the puppe
 
 Default value: `simplib::lookup('simp_options::package_ensure' , { 'default_value' => 'installed'})`
 
-##### `set_environment`
+##### <a name="set_environment"></a>`set_environment`
 
 Data type: `Variant[Boolean, Enum['no_clean']]`
 
@@ -382,7 +417,7 @@ Set the environment on the system to the currently running environment
 
 Default value: ``true``
 
-### `pupmod::agent::cron`
+### <a name="pupmodagentcron"></a>`pupmod::agent::cron`
 
 This class configures the cron settings for a non-daemonized puppet client
 
@@ -420,9 +455,22 @@ class { 'pupmod::agent::cron:
 
 #### Parameters
 
-The following parameters are available in the `pupmod::agent::cron` class.
+The following parameters are available in the `pupmod::agent::cron` class:
 
-##### `interval`
+* [`interval`](#interval)
+* [`minute_base`](#minute_base)
+* [`run_timeframe`](#run_timeframe)
+* [`runs_per_timeframe`](#runs_per_timeframe)
+* [`minute`](#minute)
+* [`hour`](#hour)
+* [`monthday`](#monthday)
+* [`month`](#month)
+* [`weekday`](#weekday)
+* [`maxruntime`](#maxruntime)
+* [`break_puppet_lock`](#break_puppet_lock)
+* [`max_disable_time`](#max_disable_time)
+
+##### <a name="interval"></a>`interval`
 
 Data type: `Integer[0]`
 
@@ -436,7 +484,7 @@ The cron iteration time (in minutes) for running puppet
 
 Default value: `30`
 
-##### `minute_base`
+##### <a name="minute_base"></a>`minute_base`
 
 Data type: `String`
 
@@ -457,7 +505,7 @@ The default artifact to use to auto-generate a cron interval
 
 Default value: `$facts['ipaddress']`
 
-##### `run_timeframe`
+##### <a name="run_timeframe"></a>`run_timeframe`
 
 Data type: `Integer[0]`
 
@@ -470,7 +518,7 @@ The time frame within which you wish to run the puppet agent
 
 Default value: `60`
 
-##### `runs_per_timeframe`
+##### <a name="runs_per_timeframe"></a>`runs_per_timeframe`
 
 Data type: `Integer[0]`
 
@@ -481,7 +529,7 @@ Agent.
 
 Default value: `2`
 
-##### `minute`
+##### <a name="minute"></a>`minute`
 
 Data type: `Variant[Simplib::Cron::Minute,String]`
 
@@ -506,7 +554,7 @@ This algorithm provides general randomization for cases in which
 
 Default value: `'ip_mod'`
 
-##### `hour`
+##### <a name="hour"></a>`hour`
 
 Data type: `Simplib::Cron::Hour`
 
@@ -516,7 +564,7 @@ The ``hour`` value for the crontab entry
 
 Default value: `'*'`
 
-##### `monthday`
+##### <a name="monthday"></a>`monthday`
 
 Data type: `Simplib::Cron::MonthDay`
 
@@ -526,7 +574,7 @@ The ``monthday`` value for the crontab entry
 
 Default value: `'*'`
 
-##### `month`
+##### <a name="month"></a>`month`
 
 Data type: `Simplib::Cron::Month`
 
@@ -536,7 +584,7 @@ The ``month`` value for the crontab entry
 
 Default value: `'*'`
 
-##### `weekday`
+##### <a name="weekday"></a>`weekday`
 
 Data type: `Simplib::Cron::Weekday`
 
@@ -546,7 +594,7 @@ The ``weekday`` value for the crontab entry
 
 Default value: `'*'`
 
-##### `maxruntime`
+##### <a name="maxruntime"></a>`maxruntime`
 
 Data type: `Integer[1]`
 
@@ -555,7 +603,7 @@ forcibly stopped
 
 Default value: `240`
 
-##### `break_puppet_lock`
+##### <a name="break_puppet_lock"></a>`break_puppet_lock`
 
 Data type: `Boolean`
 
@@ -567,7 +615,7 @@ Forcibly enable the puppet agent if it has been disabled for
 
 Default value: ``true``
 
-##### `max_disable_time`
+##### <a name="max_disable_time"></a>`max_disable_time`
 
 Data type: `Optional[Integer[1]]`
 
@@ -581,15 +629,18 @@ before being forcibly enabled
 
 Default value: ``undef``
 
-### `pupmod::facter::conf`
+### <a name="pupmodfacterconf"></a>`pupmod::facter::conf`
 
 A class to manage Facter configuration
 
 #### Parameters
 
-The following parameters are available in the `pupmod::facter::conf` class.
+The following parameters are available in the `pupmod::facter::conf` class:
 
-##### `facter_conf_dir`
+* [`facter_conf_dir`](#facter_conf_dir)
+* [`facter_options`](#facter_options)
+
+##### <a name="facter_conf_dir"></a>`facter_conf_dir`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -597,7 +648,7 @@ Facter configuration directory
 
 Default value: `$::pupmod::facter_conf_dir`
 
-##### `facter_options`
+##### <a name="facter_options"></a>`facter_options`
 
 Data type: `Hash`
 
@@ -605,7 +656,7 @@ Facter configuration Hash
 
 Default value: `$::pupmod::facter_options`
 
-### `pupmod::master`
+### <a name="pupmodmaster"></a>`pupmod::master`
 
 Provides configuration for a puppet master.
 
@@ -614,9 +665,65 @@ Provides configuration for a puppet master.
 
 #### Parameters
 
-The following parameters are available in the `pupmod::master` class.
+The following parameters are available in the `pupmod::master` class:
 
-##### `bind_address`
+* [`bind_address`](#bind_address)
+* [`ca_allow_auth_extensions`](#ca_allow_auth_extensions)
+* [`ca_allow_alt_names`](#ca_allow_alt_names)
+* [`ca_bind_address`](#ca_bind_address)
+* [`auditd`](#auditd)
+* [`ca_port`](#ca_port)
+* [`trusted_nets`](#trusted_nets)
+* [`server_distribution`](#server_distribution)
+* [`server_type`](#server_type)
+* [`ca_ttl`](#ca_ttl)
+* [`daemonize`](#daemonize)
+* [`enable_ca`](#enable_ca)
+* [`enable_master`](#enable_master)
+* [`environmentpath`](#environmentpath)
+* [`freeze_main`](#freeze_main)
+* [`masterport`](#masterport)
+* [`puppet_confdir`](#puppet_confdir)
+* [`confdir`](#confdir)
+* [`codedir`](#codedir)
+* [`vardir`](#vardir)
+* [`rundir`](#rundir)
+* [`logdir`](#logdir)
+* [`ssldir`](#ssldir)
+* [`use_legacy_auth_conf`](#use_legacy_auth_conf)
+* [`max_queued_requests`](#max_queued_requests)
+* [`max_retry_delay`](#max_retry_delay)
+* [`firewall`](#firewall)
+* [`ca_status_whitelist`](#ca_status_whitelist)
+* [`ruby_load_path`](#ruby_load_path)
+* [`max_active_instances`](#max_active_instances)
+* [`max_requests_per_instance`](#max_requests_per_instance)
+* [`borrow_timeout`](#borrow_timeout)
+* [`environment_class_cache_enabled`](#environment_class_cache_enabled)
+* [`compat_version`](#compat_version)
+* [`compile_mode`](#compile_mode)
+* [`ssl_protocols`](#ssl_protocols)
+* [`ssl_cipher_suites`](#ssl_cipher_suites)
+* [`enable_profiler`](#enable_profiler)
+* [`profiling_mode`](#profiling_mode)
+* [`profiler_output_file`](#profiler_output_file)
+* [`admin_api_whitelist`](#admin_api_whitelist)
+* [`admin_api_mountpoint`](#admin_api_mountpoint)
+* [`log_to_file`](#log_to_file)
+* [`strict_hostname_checking`](#strict_hostname_checking)
+* [`cve_2020_7942_warning`](#cve_2020_7942_warning)
+* [`syslog`](#syslog)
+* [`syslog_facility`](#syslog_facility)
+* [`syslog_message_format`](#syslog_message_format)
+* [`log_level`](#log_level)
+* [`autosign_hosts`](#autosign_hosts)
+* [`package_ensure`](#package_ensure)
+* [`server_webserver_options`](#server_webserver_options)
+* [`ca_webserver_options`](#ca_webserver_options)
+* [`extra_webserver_sections`](#extra_webserver_sections)
+* [`mock`](#mock)
+
+##### <a name="bind_address"></a>`bind_address`
 
 Data type: `Simplib::IP`
 
@@ -624,7 +731,7 @@ The IP address to which the Puppet Master process should bind
 
 Default value: `'0.0.0.0'`
 
-##### `ca_allow_auth_extensions`
+##### <a name="ca_allow_auth_extensions"></a>`ca_allow_auth_extensions`
 
 Data type: `Boolean`
 
@@ -632,7 +739,7 @@ If true, allows the CA to sign certificates with authorization extensions.
 
 Default value: ``false``
 
-##### `ca_allow_alt_names`
+##### <a name="ca_allow_alt_names"></a>`ca_allow_alt_names`
 
 Data type: `Boolean`
 
@@ -640,7 +747,7 @@ If true, allows the CA to sign certificates with subject alternative names.
 
 Default value: ``false``
 
-##### `ca_bind_address`
+##### <a name="ca_bind_address"></a>`ca_bind_address`
 
 Data type: `Simplib::IP`
 
@@ -648,7 +755,7 @@ The IP address to which the Puppet CA process should bind
 
 Default value: `'0.0.0.0'`
 
-##### `auditd`
+##### <a name="auditd"></a>`auditd`
 
 Data type: `Boolean`
 
@@ -657,7 +764,7 @@ changes by any user that is not the puppet user.
 
 Default value: `simplib::lookup('simp_options::auditd', { 'default_value' => false })`
 
-##### `ca_port`
+##### <a name="ca_port"></a>`ca_port`
 
 Data type: `Simplib::Port`
 
@@ -667,7 +774,7 @@ verification of various clients.
 
 Default value: `simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 })`
 
-##### `trusted_nets`
+##### <a name="trusted_nets"></a>`trusted_nets`
 
 Data type: `Simplib::NetList`
 
@@ -675,7 +782,7 @@ An array of networks from which to allow access to the master.
 
 Default value: `simplib::lookup('simp_options::trusted_nets', { 'default_value' => ['127.0.0.1','::1'] })`
 
-##### `server_distribution`
+##### <a name="server_distribution"></a>`server_distribution`
 
 Data type: `String`
 
@@ -685,7 +792,7 @@ Data type: `String`
 
 Default value: `pupmod::server_distribution()`
 
-##### `server_type`
+##### <a name="server_type"></a>`server_type`
 
 Data type: `Enum['monolithic', 'primary', 'compile']`
 
@@ -694,7 +801,7 @@ as defined in https://puppet.com/docs/puppetserver/latest/scaling_puppet_server.
 
 Default value: `'monolithic'`
 
-##### `ca_ttl`
+##### <a name="ca_ttl"></a>`ca_ttl`
 
 Data type: `Pupmod::CaTTL`
 
@@ -702,7 +809,7 @@ This is the length after which the CA certificate will no longer be valid.
 
 Default value: `'10y'`
 
-##### `daemonize`
+##### <a name="daemonize"></a>`daemonize`
 
 Data type: `Boolean`
 
@@ -710,7 +817,7 @@ Whether or not to run the server as a daemon.
 
 Default value: ``true``
 
-##### `enable_ca`
+##### <a name="enable_ca"></a>`enable_ca`
 
 Data type: `Boolean`
 
@@ -718,7 +825,7 @@ Whether or not the system should act as a CA.
 
 Default value: ``true``
 
-##### `enable_master`
+##### <a name="enable_master"></a>`enable_master`
 
 Data type: `Boolean`
 
@@ -726,7 +833,7 @@ Whether or not the system should act as a Puppet Master
 
 Default value: ``true``
 
-##### `environmentpath`
+##### <a name="environmentpath"></a>`environmentpath`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -734,7 +841,7 @@ The location of all directory environments.
 
 Default value: `$pupmod::environmentpath`
 
-##### `freeze_main`
+##### <a name="freeze_main"></a>`freeze_main`
 
 Data type: `Boolean`
 
@@ -742,7 +849,7 @@ Whether or not code is allowed outside of site.pp or a module.
 
 Default value: ``false``
 
-##### `masterport`
+##### <a name="masterport"></a>`masterport`
 
 Data type: `Simplib::Port`
 
@@ -750,7 +857,7 @@ The port upon which the Puppet master process will listen.
 
 Default value: `8140`
 
-##### `puppet_confdir`
+##### <a name="puppet_confdir"></a>`puppet_confdir`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -758,7 +865,7 @@ The Puppet server configuration directory.
 
 Default value: `$pupmod::confdir`
 
-##### `confdir`
+##### <a name="confdir"></a>`confdir`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -766,7 +873,7 @@ The Puppet client configuration directory.
 
 Default value: `$pupmod::params::master_config['confdir']`
 
-##### `codedir`
+##### <a name="codedir"></a>`codedir`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -774,7 +881,7 @@ The directory holding the Puppet configuration codebase.
 
 Default value: `$pupmod::params::master_config['codedir']`
 
-##### `vardir`
+##### <a name="vardir"></a>`vardir`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -782,7 +889,7 @@ The Puppet server 'var' directory
 
 Default value: `$pupmod::params::master_config['vardir']`
 
-##### `rundir`
+##### <a name="rundir"></a>`rundir`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -790,7 +897,7 @@ The Puppet server runtime directory
 
 Default value: `$pupmod::params::master_config['rundir']`
 
-##### `logdir`
+##### <a name="logdir"></a>`logdir`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -798,7 +905,7 @@ The log directory for the Puppet server
 
 Default value: `$pupmod::params::master_config['logdir']`
 
-##### `ssldir`
+##### <a name="ssldir"></a>`ssldir`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -806,7 +913,7 @@ The SSL configuration directory for the Puppet server
 
 Default value: `$pupmod::ssldir`
 
-##### `use_legacy_auth_conf`
+##### <a name="use_legacy_auth_conf"></a>`use_legacy_auth_conf`
 
 Data type: `Boolean`
 
@@ -817,7 +924,7 @@ Enable processing of the legacy Puppetserver auth.conf.
 
 Default value: ``false``
 
-##### `max_queued_requests`
+##### <a name="max_queued_requests"></a>`max_queued_requests`
 
 Data type: `Integer[0]`
 
@@ -828,7 +935,7 @@ rejected.
 
 Default value: `10`
 
-##### `max_retry_delay`
+##### <a name="max_retry_delay"></a>`max_retry_delay`
 
 Data type: `Integer[1]`
 
@@ -839,7 +946,7 @@ response.
 
 Default value: `1800`
 
-##### `firewall`
+##### <a name="firewall"></a>`firewall`
 
 Data type: `Boolean`
 
@@ -847,7 +954,7 @@ If enabled, will use the SIMP iptables classes to manipulate IPTables.
 
 Default value: `simplib::lookup('simp_options::firewall', { 'default_value' => false })`
 
-##### `ca_status_whitelist`
+##### <a name="ca_status_whitelist"></a>`ca_status_whitelist`
 
 Data type: `Array[Simplib::Host]`
 
@@ -856,7 +963,7 @@ point of the Puppet Server
 
 Default value: `[pick($facts['certname'], $facts['fqdn'])]`
 
-##### `ruby_load_path`
+##### <a name="ruby_load_path"></a>`ruby_load_path`
 
 Data type: `Optional[Stdlib::AbsolutePath]`
 
@@ -864,7 +971,7 @@ The path to the system Ruby installation to use for the Puppet Server
 
 Default value: ``undef``
 
-##### `max_active_instances`
+##### <a name="max_active_instances"></a>`max_active_instances`
 
 Data type: `Integer[1]`
 
@@ -872,7 +979,7 @@ The maximum number of active JRuby instances to be run by the Puppet Server
 
 Default value: `pupmod::max_active_instances($server_type)`
 
-##### `max_requests_per_instance`
+##### <a name="max_requests_per_instance"></a>`max_requests_per_instance`
 
 Data type: `Integer`
 
@@ -881,7 +988,7 @@ stopped.
 
 Default value: `100000`
 
-##### `borrow_timeout`
+##### <a name="borrow_timeout"></a>`borrow_timeout`
 
 Data type: `Integer[1000]`
 
@@ -890,7 +997,7 @@ the JRuby pool.
 
 Default value: `1200000`
 
-##### `environment_class_cache_enabled`
+##### <a name="environment_class_cache_enabled"></a>`environment_class_cache_enabled`
 
 Data type: `Boolean`
 
@@ -899,7 +1006,7 @@ API.
 
 Default value: ``true``
 
-##### `compat_version`
+##### <a name="compat_version"></a>`compat_version`
 
 Data type: `Optional[Pattern['^\d+\.\d+$']]`
 
@@ -909,7 +1016,7 @@ Set the JRuby compat version
 
 Default value: ``undef``
 
-##### `compile_mode`
+##### <a name="compile_mode"></a>`compile_mode`
 
 Data type: `Enum['off', 'jit', 'force']`
 
@@ -917,7 +1024,7 @@ Set the JRuby ``CompileMode``.
 
 Default value: `'off'`
 
-##### `ssl_protocols`
+##### <a name="ssl_protocols"></a>`ssl_protocols`
 
 Data type: `Array[Pupmod::Master::SSLProtocols]`
 
@@ -926,7 +1033,7 @@ the ssl-protocols documentation for the Puppet Server for additional details.
 
 Default value: `['TLSv1.2']`
 
-##### `ssl_cipher_suites`
+##### <a name="ssl_cipher_suites"></a>`ssl_cipher_suites`
 
 Data type: `Optional[Array[Pupmod::Master::SSLCipherSuites]]`
 
@@ -938,7 +1045,7 @@ documentation for details.
 
 Default value: ``undef``
 
-##### `enable_profiler`
+##### <a name="enable_profiler"></a>`enable_profiler`
 
 Data type: `Boolean`
 
@@ -947,7 +1054,7 @@ gathering.
 
 Default value: ``false``
 
-##### `profiling_mode`
+##### <a name="profiling_mode"></a>`profiling_mode`
 
 Data type: `Pupmod::ProfilingMode`
 
@@ -957,7 +1064,7 @@ The JRuby profiling mode to use when profiling the server.
 
 Default value: `'off'`
 
-##### `profiler_output_file`
+##### <a name="profiler_output_file"></a>`profiler_output_file`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -967,7 +1074,7 @@ The file to use when outputting server profiling information
 
 Default value: `"${vardir}/server_jruby_profiling"`
 
-##### `admin_api_whitelist`
+##### <a name="admin_api_whitelist"></a>`admin_api_whitelist`
 
 Data type: `Array[Simplib::Hostname]`
 
@@ -976,7 +1083,7 @@ Server's administrative API.
 
 Default value: `[pick($facts['certname'], $facts['fqdn'])]`
 
-##### `admin_api_mountpoint`
+##### <a name="admin_api_mountpoint"></a>`admin_api_mountpoint`
 
 Data type: `String`
 
@@ -985,7 +1092,7 @@ break external utilities.
 
 Default value: `'/puppet-admin-api'`
 
-##### `log_to_file`
+##### <a name="log_to_file"></a>`log_to_file`
 
 Data type: `Boolean`
 
@@ -993,7 +1100,7 @@ If true, log to system log files at /var/log/puppetserver.
 
 Default value: ``false``
 
-##### `strict_hostname_checking`
+##### <a name="strict_hostname_checking"></a>`strict_hostname_checking`
 
 Data type: `Boolean`
 
@@ -1006,7 +1113,7 @@ and/or domain facts.
 
 Default value: ``true``
 
-##### `cve_2020_7942_warning`
+##### <a name="cve_2020_7942_warning"></a>`cve_2020_7942_warning`
 
 Data type: `Boolean`
 
@@ -1014,7 +1121,7 @@ Whether to warn about CVE-2020-7942 when the issue is detected.
 
 Default value: ``true``
 
-##### `syslog`
+##### <a name="syslog"></a>`syslog`
 
 Data type: `Boolean`
 
@@ -1022,7 +1129,7 @@ If true, log to the local system logger over UDP port 514.
 
 Default value: `simplib::lookup('simp_options::syslog', { 'default_value' => false })`
 
-##### `syslog_facility`
+##### <a name="syslog_facility"></a>`syslog_facility`
 
 Data type: `String`
 
@@ -1030,7 +1137,7 @@ The syslog facility to which to report if using syslog.
 
 Default value: `'LOCAL6'`
 
-##### `syslog_message_format`
+##### <a name="syslog_message_format"></a>`syslog_message_format`
 
 Data type: `String`
 
@@ -1039,7 +1146,7 @@ Logback documentation for 'SuffixPattern'.
 
 Default value: `'%logger[%thread]: %msg'`
 
-##### `log_level`
+##### <a name="log_level"></a>`log_level`
 
 Data type: `Pupmod::LogLevel`
 
@@ -1050,7 +1157,7 @@ run.
 
 Default value: `'WARN'`
 
-##### `autosign_hosts`
+##### <a name="autosign_hosts"></a>`autosign_hosts`
 
 Data type: `Optional[Array[String[1]]]`
 
@@ -1060,7 +1167,7 @@ An array of hosts or host globs to add to the master's ``autosign.conf`` file
 
 Default value: ``undef``
 
-##### `package_ensure`
+##### <a name="package_ensure"></a>`package_ensure`
 
 Data type: `String`
 
@@ -1069,7 +1176,7 @@ of the puppetserver package
 
 Default value: `simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })`
 
-##### `server_webserver_options`
+##### <a name="server_webserver_options"></a>`server_webserver_options`
 
 Data type: `Optional[Hash[String[1],String[1]]]`
 
@@ -1089,7 +1196,7 @@ https://github.com/lightbend/config/blob/master/HOCON.md
 
 Default value: ``undef``
 
-##### `ca_webserver_options`
+##### <a name="ca_webserver_options"></a>`ca_webserver_options`
 
 Data type: `Optional[Hash[String[1],String[1]]]`
 
@@ -1108,7 +1215,7 @@ https://github.com/lightbend/config/blob/master/HOCON.md
 
 Default value: ``undef``
 
-##### `extra_webserver_sections`
+##### <a name="extra_webserver_sections"></a>`extra_webserver_sections`
 
 Data type: `Optional[Hash[String[1],Hash[String[1],String[1]]]]`
 
@@ -1155,7 +1262,7 @@ https://github.com/lightbend/config/blob/master/HOCON.md
 
 Default value: ``undef``
 
-##### `mock`
+##### <a name="mock"></a>`mock`
 
 Data type: `Boolean`
 
@@ -1163,11 +1270,11 @@ DO NOT USE. needed for rspec testing
 
 Default value: ``false``
 
-### `pupmod::master::base`
+### <a name="pupmodmasterbase"></a>`pupmod::master::base`
 
 A break out of the mostly static files used by the Puppet master.
 
-### `pupmod::master::generate_types`
+### <a name="pupmodmastergenerate_types"></a>`pupmod::master::generate_types`
 
 NOTE: ``incron`` support has been removed due to continuing issues with ``incrond``.
 If you are using a system that does not support ``systemd``, you will need to
@@ -1176,9 +1283,20 @@ post script).
 
 #### Parameters
 
-The following parameters are available in the `pupmod::master::generate_types` class.
+The following parameters are available in the `pupmod::master::generate_types` class:
 
-##### `enable`
+* [`enable`](#enable)
+* [`trigger_on_puppetserver_update`](#trigger_on_puppetserver_update)
+* [`puppetserver_exe`](#puppetserver_exe)
+* [`trigger_on_puppet_update`](#trigger_on_puppet_update)
+* [`puppet_exe`](#puppet_exe)
+* [`trigger_on_new_environment`](#trigger_on_new_environment)
+* [`trigger_on_type_change`](#trigger_on_type_change)
+* [`timeout`](#timeout)
+* [`stability_timeout`](#stability_timeout)
+* [`run_dir`](#run_dir)
+
+##### <a name="enable"></a>`enable`
 
 Data type: `Boolean`
 
@@ -1186,7 +1304,7 @@ Enable or disable automatic generation of types using ``puppet generate types``
 
 Default value: ``true``
 
-##### `trigger_on_puppetserver_update`
+##### <a name="trigger_on_puppetserver_update"></a>`trigger_on_puppetserver_update`
 
 Data type: `Boolean`
 
@@ -1195,7 +1313,7 @@ application is updated
 
 Default value: ``true``
 
-##### `puppetserver_exe`
+##### <a name="puppetserver_exe"></a>`puppetserver_exe`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -1203,7 +1321,7 @@ Fully qualified path to the ``puppetserver`` executable
 
 Default value: `'/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver'`
 
-##### `trigger_on_puppet_update`
+##### <a name="trigger_on_puppet_update"></a>`trigger_on_puppet_update`
 
 Data type: `Boolean`
 
@@ -1212,7 +1330,7 @@ application is updated
 
 Default value: ``true``
 
-##### `puppet_exe`
+##### <a name="puppet_exe"></a>`puppet_exe`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -1220,7 +1338,7 @@ Fully qualified path to the ``puppet`` executable
 
 Default value: `'/opt/puppetlabs/puppet/bin/puppet'`
 
-##### `trigger_on_new_environment`
+##### <a name="trigger_on_new_environment"></a>`trigger_on_new_environment`
 
 Data type: `Boolean`
 
@@ -1229,7 +1347,7 @@ created
 
 Default value: ``true``
 
-##### `trigger_on_type_change`
+##### <a name="trigger_on_type_change"></a>`trigger_on_type_change`
 
 Data type: `Boolean`
 
@@ -1237,7 +1355,7 @@ Watch all type files for changes and generate types when types are updated
 
 Default value: ``true``
 
-##### `timeout`
+##### <a name="timeout"></a>`timeout`
 
 Data type: `Integer[0]`
 
@@ -1246,7 +1364,7 @@ simp_generate_types processes and continue
 
 Default value: `300`
 
-##### `stability_timeout`
+##### <a name="stability_timeout"></a>`stability_timeout`
 
 Data type: `Integer[0]`
 
@@ -1261,7 +1379,7 @@ path while the simp_generate_types script is attempting to execute
 
 Default value: `500`
 
-##### `run_dir`
+##### <a name="run_dir"></a>`run_dir`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -1270,15 +1388,18 @@ The directory to use for saving state and metadata for the
 
 Default value: `'/var/run/simp_generate_types'`
 
-### `pupmod::master::install`
+### <a name="pupmodmasterinstall"></a>`pupmod::master::install`
 
 Install the puppetserver
 
 #### Parameters
 
-The following parameters are available in the `pupmod::master::install` class.
+The following parameters are available in the `pupmod::master::install` class:
 
-##### `package_name`
+* [`package_name`](#package_name)
+* [`package_ensure`](#package_ensure)
+
+##### <a name="package_name"></a>`package_name`
 
 Data type: `String[1]`
 
@@ -1286,7 +1407,7 @@ Data type: `String[1]`
 
 Default value: `pupmod::server_distribution()`
 
-##### `package_ensure`
+##### <a name="package_ensure"></a>`package_ensure`
 
 Data type: `String[1]`
 
@@ -1294,7 +1415,7 @@ Data type: `String[1]`
 
 Default value: `pick(getvar('pupmod::master::package_ensure'), 'installed')`
 
-### `pupmod::master::reports`
+### <a name="pupmodmasterreports"></a>`pupmod::master::reports`
 
 This class simply controls settings around client reports on the system.
 
@@ -1302,9 +1423,15 @@ Most importantly, it allows for purging the reports.
 
 #### Parameters
 
-The following parameters are available in the `pupmod::master::reports` class.
+The following parameters are available in the `pupmod::master::reports` class:
 
-##### `port`
+* [`port`](#port)
+* [`vardir`](#vardir)
+* [`purge`](#purge)
+* [`purge_keep_days`](#purge_keep_days)
+* [`purge_verbose`](#purge_verbose)
+
+##### <a name="port"></a>`port`
 
 Data type: `Simplib::Port`
 
@@ -1312,7 +1439,7 @@ The port upon which to listen for reports.
 
 Default value: `$::pupmod::master::masterport`
 
-##### `vardir`
+##### <a name="vardir"></a>`vardir`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -1320,7 +1447,7 @@ The directory where reports should be stored.
 
 Default value: `$::pupmod::master::vardir`
 
-##### `purge`
+##### <a name="purge"></a>`purge`
 
 Data type: `Boolean`
 
@@ -1328,7 +1455,7 @@ Whether or not to purge old reports from the system.
 
 Default value: ``true``
 
-##### `purge_keep_days`
+##### <a name="purge_keep_days"></a>`purge_keep_days`
 
 Data type: `Integer`
 
@@ -1336,7 +1463,7 @@ The number of days of reports to keep around on the system.
 
 Default value: `7`
 
-##### `purge_verbose`
+##### <a name="purge_verbose"></a>`purge_verbose`
 
 Data type: `Boolean`
 
@@ -1344,15 +1471,17 @@ Whether or not to be verbose about which logs are being purged.
 
 Default value: ``false``
 
-### `pupmod::master::service`
+### <a name="pupmodmasterservice"></a>`pupmod::master::service`
 
 Split out the 'service' for cleaner dependency ordering
 
 #### Parameters
 
-The following parameters are available in the `pupmod::master::service` class.
+The following parameters are available in the `pupmod::master::service` class:
 
-##### `service_name`
+* [`service_name`](#service_name)
+
+##### <a name="service_name"></a>`service_name`
 
 Data type: `String[1]`
 
@@ -1360,7 +1489,7 @@ Name of the puppetserver service
 
 Default value: `pupmod::server_distribution()`
 
-### `pupmod::master::simp_auth`
+### <a name="pupmodmastersimp_auth"></a>`pupmod::master::simp_auth`
 
 Add SIMP-specific entries to PuppetServer's auth.conf
 
@@ -1371,9 +1500,25 @@ For documentation about *_allow and *_deny, see the puppetserver docs
 
 #### Parameters
 
-The following parameters are available in the `pupmod::master::simp_auth` class.
+The following parameters are available in the `pupmod::master::simp_auth` class:
 
-##### `auth_conf_path`
+* [`auth_conf_path`](#auth_conf_path)
+* [`pki_cacerts_all`](#pki_cacerts_all)
+* [`pki_mcollective_all`](#pki_mcollective_all)
+* [`pki_cacerts_all`](#pki_cacerts_all)
+* [`pki_cacerts_all_rule`](#pki_cacerts_all_rule)
+* [`pki_cacerts_all_allow`](#pki_cacerts_all_allow)
+* [`pki_cacerts_all_deny`](#pki_cacerts_all_deny)
+* [`keydist_from_host`](#keydist_from_host)
+* [`keydist_from_host_rule`](#keydist_from_host_rule)
+* [`keydist_from_host_allow`](#keydist_from_host_allow)
+* [`keydist_from_host_deny`](#keydist_from_host_deny)
+* [`krb5_keytabs_from_host`](#krb5_keytabs_from_host)
+* [`krb5_keytabs_from_host_rule`](#krb5_keytabs_from_host_rule)
+* [`krb5_keytabs_from_host_allow`](#krb5_keytabs_from_host_allow)
+* [`krb5_keytabs_from_host_deny`](#krb5_keytabs_from_host_deny)
+
+##### <a name="auth_conf_path"></a>`auth_conf_path`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -1381,7 +1526,7 @@ The location to the puppet master's auth.conf
 
 Default value: `'/etc/puppetlabs/puppetserver/conf.d/auth.conf'`
 
-##### `pki_cacerts_all`
+##### <a name="pki_cacerts_all"></a>`pki_cacerts_all`
 
 Data type: `Boolean`
 
@@ -1389,7 +1534,7 @@ Allow access to the cacerts from the `pki_files` module from all hosts
 
 Default value: ``true``
 
-##### `pki_mcollective_all`
+##### <a name="pki_mcollective_all"></a>`pki_mcollective_all`
 
 Data type: `Boolean`
 
@@ -1398,13 +1543,13 @@ hosts
 
 Default value: ``true``
 
-##### `pki_cacerts_all`
+##### <a name="pki_cacerts_all"></a>`pki_cacerts_all`
 
 If enabled, allow access to the cacerts from the `pki_files` module from all hosts
 
 Default value: ``true``
 
-##### `pki_cacerts_all_rule`
+##### <a name="pki_cacerts_all_rule"></a>`pki_cacerts_all_rule`
 
 Data type: `NotUndef`
 
@@ -1413,7 +1558,7 @@ coming from the `files/keydist/cacerts` directory from the pki_files module
 
 Default value: `'^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/cacerts'`
 
-##### `pki_cacerts_all_allow`
+##### <a name="pki_cacerts_all_allow"></a>`pki_cacerts_all_allow`
 
 Data type: `NotUndef`
 
@@ -1421,7 +1566,7 @@ Data type: `NotUndef`
 
 Default value: `'*'`
 
-##### `pki_cacerts_all_deny`
+##### <a name="pki_cacerts_all_deny"></a>`pki_cacerts_all_deny`
 
 Data type: `Any`
 
@@ -1429,7 +1574,7 @@ Data type: `Any`
 
 Default value: ``undef``
 
-##### `keydist_from_host`
+##### <a name="keydist_from_host"></a>`keydist_from_host`
 
 Data type: `Boolean`
 
@@ -1437,7 +1582,7 @@ If enabled, allow access to each host's own certs from the `pki_files` module
 
 Default value: ``true``
 
-##### `keydist_from_host_rule`
+##### <a name="keydist_from_host_rule"></a>`keydist_from_host_rule`
 
 Data type: `NotUndef`
 
@@ -1446,7 +1591,7 @@ coming from the `files/keydist` directory from the pki_files module
 
 Default value: `'^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/([^/]+)'`
 
-##### `keydist_from_host_allow`
+##### <a name="keydist_from_host_allow"></a>`keydist_from_host_allow`
 
 Data type: `NotUndef`
 
@@ -1455,7 +1600,7 @@ Rules that the puppetserver should allow
 
 Default value: `'$2'`
 
-##### `keydist_from_host_deny`
+##### <a name="keydist_from_host_deny"></a>`keydist_from_host_deny`
 
 Data type: `Any`
 
@@ -1464,7 +1609,7 @@ Rules that the puppetserver should deny
 
 Default value: ``undef``
 
-##### `krb5_keytabs_from_host`
+##### <a name="krb5_keytabs_from_host"></a>`krb5_keytabs_from_host`
 
 Data type: `Boolean`
 
@@ -1472,7 +1617,7 @@ If enabled, allow access to each host's own kerberos keytabs from the `pki_files
 
 Default value: ``true``
 
-##### `krb5_keytabs_from_host_rule`
+##### <a name="krb5_keytabs_from_host_rule"></a>`krb5_keytabs_from_host_rule`
 
 Data type: `NotUndef`
 
@@ -1481,7 +1626,7 @@ coming from the `files/keytabs` directory from the krb5_files module
 
 Default value: `'^/puppet/v3/file_(metadata|content)/modules/krb5_files/keytabs/([^/]+)'`
 
-##### `krb5_keytabs_from_host_allow`
+##### <a name="krb5_keytabs_from_host_allow"></a>`krb5_keytabs_from_host_allow`
 
 Data type: `NotUndef`
 
@@ -1490,7 +1635,7 @@ Rules that the puppetserver should allow
 
 Default value: `'$2'`
 
-##### `krb5_keytabs_from_host_deny`
+##### <a name="krb5_keytabs_from_host_deny"></a>`krb5_keytabs_from_host_deny`
 
 Data type: `Any`
 
@@ -1499,7 +1644,7 @@ Rules that the puppetserver should deny
 
 Default value: ``undef``
 
-### `pupmod::master::sysconfig`
+### <a name="pupmodmastersysconfig"></a>`pupmod::master::sysconfig`
 
 This class provides the sysconfig settings for the ``puppetserver`` daemon.
 
@@ -1510,9 +1655,26 @@ to use. To use the default enter 'default'. (Does not affect PE.)
 
 #### Parameters
 
-The following parameters are available in the `pupmod::master::sysconfig` class.
+The following parameters are available in the `pupmod::master::sysconfig` class:
 
-##### `install_dir`
+* [`install_dir`](#install_dir)
+* [`config`](#config)
+* [`bootstrap_config`](#bootstrap_config)
+* [`java_bin`](#java_bin)
+* [`java_start_memory`](#java_start_memory)
+* [`java_max_memory`](#java_max_memory)
+* [`jruby_jar`](#jruby_jar)
+* [`java_temp_dir`](#java_temp_dir)
+* [`extra_java_args`](#extra_java_args)
+* [`reserved_code_cache`](#reserved_code_cache)
+* [`service_stop_retries`](#service_stop_retries)
+* [`start_timeout`](#start_timeout)
+* [`server_distribution`](#server_distribution)
+* [`user`](#user)
+* [`group`](#group)
+* [`mock`](#mock)
+
+##### <a name="install_dir"></a>`install_dir`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -1520,7 +1682,7 @@ The installation directory for the ``puppetserver``.
 
 Default value: `$::pupmod::params::master_install_dir`
 
-##### `config`
+##### <a name="config"></a>`config`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -1528,7 +1690,7 @@ The configuration directory for the ``puppetserver``.
 
 Default value: `$::pupmod::params::master_config['confdir']`
 
-##### `bootstrap_config`
+##### <a name="bootstrap_config"></a>`bootstrap_config`
 
 Data type: `Array[Stdlib::AbsolutePath]`
 
@@ -1536,7 +1698,7 @@ The bootstrap configuration directory for the ``puppetserver``.
 
 Default value: `$::pupmod::params::master_bootstrap_config`
 
-##### `java_bin`
+##### <a name="java_bin"></a>`java_bin`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -1545,7 +1707,7 @@ system.
 
 Default value: `'/usr/bin/java'`
 
-##### `java_start_memory`
+##### <a name="java_start_memory"></a>`java_start_memory`
 
 Data type: `Optional[Pupmod::Memory]`
 
@@ -1553,7 +1715,7 @@ The amount of memory to allocate on service startup.
 
 Default value: ``undef``
 
-##### `java_max_memory`
+##### <a name="java_max_memory"></a>`java_max_memory`
 
 Data type: `Optional[Pupmod::Memory]`
 
@@ -1561,7 +1723,7 @@ The maximum amount of memory to allocate within the system.
 
 Default value: ``undef``
 
-##### `jruby_jar`
+##### <a name="jruby_jar"></a>`jruby_jar`
 
 Data type: `String`
 
@@ -1569,7 +1731,7 @@ The name of the jar file located in /opt/puppetlabs/apps/puppetserver
 
 Default value: `'jruby-9k.jar'`
 
-##### `java_temp_dir`
+##### <a name="java_temp_dir"></a>`java_temp_dir`
 
 Data type: `Optional[Stdlib::AbsolutePath]`
 
@@ -1581,7 +1743,7 @@ The temporary directory to be used for periodic executables.
 
 Default value: ``undef``
 
-##### `extra_java_args`
+##### <a name="extra_java_args"></a>`extra_java_args`
 
 Data type: `Optional[Array[String]]`
 
@@ -1591,7 +1753,7 @@ An ``Array`` that will be joined and appended to the Java argument list.
 
 Default value: ``undef``
 
-##### `reserved_code_cache`
+##### <a name="reserved_code_cache"></a>`reserved_code_cache`
 
 Data type: `Integer[0]`
 
@@ -1601,7 +1763,7 @@ An ``Integer`` of the MB to be used for JRuby options of ReservedCodeCache
 
 Default value: `pupmod::reserved_code_cache()`
 
-##### `service_stop_retries`
+##### <a name="service_stop_retries"></a>`service_stop_retries`
 
 Data type: `Integer`
 
@@ -1610,7 +1772,7 @@ failing.
 
 Default value: `60`
 
-##### `start_timeout`
+##### <a name="start_timeout"></a>`start_timeout`
 
 Data type: `Integer`
 
@@ -1619,7 +1781,7 @@ failed to start.
 
 Default value: `120`
 
-##### `server_distribution`
+##### <a name="server_distribution"></a>`server_distribution`
 
 Data type: `Simplib::ServerDistribution`
 
@@ -1627,7 +1789,7 @@ The Puppet distribution that is being managed.
 
 Default value: `pupmod::server_distribution()`
 
-##### `user`
+##### <a name="user"></a>`user`
 
 Data type: `String`
 
@@ -1635,7 +1797,7 @@ The ``user`` that the ``puppetserver`` service will run as.
 
 Default value: `pick($facts.dig('puppet_settings','server','user'),$facts.dig('puppet_settings','master','user'))`
 
-##### `group`
+##### <a name="group"></a>`group`
 
 Data type: `String`
 
@@ -1643,7 +1805,7 @@ The ``group`` that the ``puppetserver`` service will run as.
 
 Default value: `pick($facts.dig('puppet_settings','server','group'),$facts.dig('puppet_settings','master','group'))`
 
-##### `mock`
+##### <a name="mock"></a>`mock`
 
 Data type: `Boolean`
 
@@ -1651,13 +1813,13 @@ Do not apply this class, only mock it up
 
 Default value: ``false``
 
-### `pupmod::params`
+### <a name="pupmodparams"></a>`pupmod::params`
 
 A set of defaults for the 'pupmod' namespace
 
 ## Defined types
 
-### `pupmod::conf`
+### <a name="pupmodconf"></a>`pupmod::conf`
 
 This is a simple define to call the Puppet INIFile class for the passed
 parameters on the puppet.conf file.
@@ -1666,31 +1828,38 @@ The main purpose is to easily allow for a service trigger.
 
 #### Parameters
 
-The following parameters are available in the `pupmod::conf` defined type.
+The following parameters are available in the `pupmod::conf` defined type:
 
-##### `name`
+* [`name`](#name)
+* [`setting`](#setting)
+* [`value`](#value)
+* [`confdir`](#confdir)
+* [`section`](#section)
+* [`ensure`](#ensure)
+
+##### <a name="name"></a>`name`
 
 A globally unique name for this resource. Will be prefixed with $modname
 
-##### `setting`
+##### <a name="setting"></a>`setting`
 
 Data type: `String`
 
 The setting in the section to set
 
-##### `value`
+##### <a name="value"></a>`value`
 
 Data type: `Scalar`
 
 The value of the setting to be set.
 
-##### `confdir`
+##### <a name="confdir"></a>`confdir`
 
 Data type: `String`
 
 The configuration directory holding the 'puppet.conf' file.
 
-##### `section`
+##### <a name="section"></a>`section`
 
 Data type: `String`
 
@@ -1703,7 +1872,7 @@ The Section of the puppet.conf to set.
 
 Default value: `$setting`
 
-##### `ensure`
+##### <a name="ensure"></a>`ensure`
 
 Data type: `Enum['present', 'absent']`
 
@@ -1711,7 +1880,7 @@ Determines whether the specified setting should exist.
 
 Default value: `'present'`
 
-### `pupmod::master::autosign`
+### <a name="pupmodmasterautosign"></a>`pupmod::master::autosign`
 
 Add an autosign entry to the puppet autosign file.
 
@@ -1720,13 +1889,16 @@ happen to need it
 
 #### Parameters
 
-The following parameters are available in the `pupmod::master::autosign` defined type.
+The following parameters are available in the `pupmod::master::autosign` defined type:
 
-##### `name`
+* [`name`](#name)
+* [`entry`](#entry)
+
+##### <a name="name"></a>`name`
 
 A useful comment for the entry being signed
 
-##### `entry`
+##### <a name="entry"></a>`entry`
 
 Data type: `Optional[Pattern['^(\*\.)?\S+$']]`
 
@@ -1734,31 +1906,35 @@ The autosign entry to add to the file if ``$name`` is used as a unique comment
 
 Default value: ``undef``
 
-### `pupmod::master::fileserver_entry`
+### <a name="pupmodmasterfileserver_entry"></a>`pupmod::master::fileserver_entry`
 
 Manage entries in the /etc/puppet/fileserver.conf file.
 
 #### Parameters
 
-The following parameters are available in the `pupmod::master::fileserver_entry` defined type.
+The following parameters are available in the `pupmod::master::fileserver_entry` defined type:
 
-##### `name`
+* [`name`](#name)
+* [`allow`](#allow)
+* [`path`](#path)
+
+##### <a name="name"></a>`name`
 
 The name of the [] segment.
 
-##### `allow`
+##### <a name="allow"></a>`allow`
 
 Data type: `Variant[Array[Simplib::Host],Simplib::Host]`
 
 An array of entries to add to the allow statement.
 
-##### `path`
+##### <a name="path"></a>`path`
 
 Data type: `Stdlib::AbsolutePath`
 
 The filesystem path to which this segment should point.
 
-### `pupmod::pass_two`
+### <a name="pupmodpass_two"></a>`pupmod::pass_two`
 
 Puppet 4+ installations.
 
@@ -1768,9 +1944,20 @@ Puppet 4+ installations.
 
 #### Parameters
 
-The following parameters are available in the `pupmod::pass_two` defined type.
+The following parameters are available in the `pupmod::pass_two` defined type:
 
-##### `namevar`
+* [`namevar`](#namevar)
+* [`server_distribution`](#server_distribution)
+* [`confdir`](#confdir)
+* [`firewall`](#firewall)
+* [`pe_classlist`](#pe_classlist)
+* [`pupmod_server`](#pupmod_server)
+* [`pupmod_ca_server`](#pupmod_ca_server)
+* [`pupmod_ca_port`](#pupmod_ca_port)
+* [`pupmod_report`](#pupmod_report)
+* [`pupmod_masterport`](#pupmod_masterport)
+
+##### <a name="namevar"></a>`namevar`
 
 Data type: `String`
 
@@ -1778,7 +1965,7 @@ Data type: `String`
 
 Default value: `$name`
 
-##### `server_distribution`
+##### <a name="server_distribution"></a>`server_distribution`
 
 Data type: `Simplib::ServerDistribution`
 
@@ -1786,7 +1973,7 @@ Data type: `Simplib::ServerDistribution`
 
 Default value: `pupmod::server_distribution()`
 
-##### `confdir`
+##### <a name="confdir"></a>`confdir`
 
 Data type: `Stdlib::AbsolutePath`
 
@@ -1794,7 +1981,7 @@ Data type: `Stdlib::AbsolutePath`
 
 Default value: `'/etc/puppetlabs/puppet'`
 
-##### `firewall`
+##### <a name="firewall"></a>`firewall`
 
 Data type: `Optional[Boolean]`
 
@@ -1802,7 +1989,7 @@ Data type: `Optional[Boolean]`
 
 Default value: ``undef``
 
-##### `pe_classlist`
+##### <a name="pe_classlist"></a>`pe_classlist`
 
 Data type: `Hash`
 
@@ -1810,7 +1997,7 @@ Data type: `Hash`
 
 Default value: `lookup('pupmod::pe_classlist')`
 
-##### `pupmod_server`
+##### <a name="pupmod_server"></a>`pupmod_server`
 
 Data type: `Optional[Simplib::Host]`
 
@@ -1818,7 +2005,7 @@ Data type: `Optional[Simplib::Host]`
 
 Default value: `'1.2.3.4'`
 
-##### `pupmod_ca_server`
+##### <a name="pupmod_ca_server"></a>`pupmod_ca_server`
 
 Data type: `Variant[Simplib::Host,Enum['$server']]`
 
@@ -1826,7 +2013,7 @@ Data type: `Variant[Simplib::Host,Enum['$server']]`
 
 Default value: `'$server'`
 
-##### `pupmod_ca_port`
+##### <a name="pupmod_ca_port"></a>`pupmod_ca_port`
 
 Data type: `Simplib::Port`
 
@@ -1834,7 +2021,7 @@ Data type: `Simplib::Port`
 
 Default value: `8141`
 
-##### `pupmod_report`
+##### <a name="pupmod_report"></a>`pupmod_report`
 
 Data type: `Boolean`
 
@@ -1842,7 +2029,7 @@ Data type: `Boolean`
 
 Default value: ``false``
 
-##### `pupmod_masterport`
+##### <a name="pupmod_masterport"></a>`pupmod_masterport`
 
 Data type: `Simplib::Port`
 
@@ -1852,7 +2039,7 @@ Default value: `8140`
 
 ## Functions
 
-### `pupmod::java_max_memory`
+### <a name="pupmodjava_max_memory"></a>`pupmod::java_max_memory`
 
 Type: Puppet Language
 
@@ -1872,7 +2059,7 @@ Data type: `Integer[1]`
 
 
 
-### `pupmod::max_active_instances`
+### <a name="pupmodmax_active_instances"></a>`pupmod::max_active_instances`
 
 Type: Puppet Language
 
@@ -1896,7 +2083,7 @@ Data type: `Enum['monolithic', 'primary', 'compile']`
 
 
 
-### `pupmod::reserved_code_cache`
+### <a name="pupmodreserved_code_cache"></a>`pupmod::reserved_code_cache`
 
 Type: Puppet Language
 
@@ -1910,7 +2097,7 @@ for a system
 
 Returns: `Integer` The maximum number of JRuby instances that should be active on the ``puppetserver``
 
-### `pupmod::server_distribution`
+### <a name="pupmodserver_distribution"></a>`pupmod::server_distribution`
 
 Type: Puppet Language
 
@@ -1928,7 +2115,7 @@ Data type: `Boolean`
 
 Attempt to look up the value from `$pupmod::server_distribution`
 
-### `pupmod::server_version`
+### <a name="pupmodserver_version"></a>`pupmod::server_version`
 
 Type: Puppet Language
 
@@ -1944,39 +2131,63 @@ Returns: `String` The puppet server version
 
 ## Data types
 
-### `Pupmod::CaTTL`
+### <a name="pupmodcattl"></a>`Pupmod::CaTTL`
 
 Matches valid Puppet CA TTL configuration
 
-Alias of `Variant[Integer, Pattern[/^\d+[smhdy]$/]]`
+Alias of
 
-### `Pupmod::LogLevel`
+```puppet
+Variant[Integer, Pattern[/^\d+[smhdy]$/]]
+```
+
+### <a name="pupmodloglevel"></a>`Pupmod::LogLevel`
 
 puppetserver log levels
 
-Alias of `Enum['TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR', 'OFF']`
+Alias of
 
-### `Pupmod::Master::SSLCiphersuites`
+```puppet
+Enum['TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR', 'OFF']
+```
+
+### <a name="pupmodmastersslciphersuites"></a>`Pupmod::Master::SSLCiphersuites`
 
 Valid SSL Cipher Suites for the Puppet Master Webserver
 
-Alias of `Enum['TLS_RSA_WITH_AES_256_GCM_SHA384', 'TLS_RSA_WITH_AES_256_CBC_SHA256', 'TLS_RSA_WITH_AES_256_CBC_SHA', 'TLS_RSA_WITH_AES_128_GCM_SHA256', 'TLS_RSA_WITH_AES_128_CBC_SHA256', 'TLS_RSA_WITH_AES_128_CBC_SHA', 'TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384', 'TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384', 'TLS_ECDH_RSA_WITH_AES_256_CBC_SHA', 'TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256', 'TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256', 'TLS_ECDH_RSA_WITH_AES_128_CBC_SHA', 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384', 'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384', 'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA', 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256', 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256', 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA', 'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384', 'TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384', 'TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA', 'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256', 'TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256', 'TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA', 'TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384', 'TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384', 'TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA', 'TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256', 'TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256', 'TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA', 'TLS_DHE_RSA_WITH_AES_256_GCM_SHA384', 'TLS_DHE_RSA_WITH_AES_256_CBC_SHA256', 'TLS_DHE_RSA_WITH_AES_256_CBC_SHA', 'TLS_DHE_RSA_WITH_AES_128_GCM_SHA256', 'TLS_DHE_RSA_WITH_AES_128_CBC_SHA256', 'TLS_DHE_RSA_WITH_AES_128_CBC_SHA', 'TLS_DHE_DSS_WITH_AES_256_GCM_SHA384', 'TLS_DHE_DSS_WITH_AES_256_CBC_SHA256', 'TLS_DHE_DSS_WITH_AES_256_CBC_SHA', 'TLS_DHE_DSS_WITH_AES_128_GCM_SHA256', 'TLS_DHE_DSS_WITH_AES_128_CBC_SHA256', 'TLS_DHE_DSS_WITH_AES_128_CBC_SHA', 'TLS_EMPTY_RENEGOTIATION_INFO_SCSV']`
+Alias of
 
-### `Pupmod::Master::SSLProtocols`
+```puppet
+Enum['TLS_RSA_WITH_AES_256_GCM_SHA384', 'TLS_RSA_WITH_AES_256_CBC_SHA256', 'TLS_RSA_WITH_AES_256_CBC_SHA', 'TLS_RSA_WITH_AES_128_GCM_SHA256', 'TLS_RSA_WITH_AES_128_CBC_SHA256', 'TLS_RSA_WITH_AES_128_CBC_SHA', 'TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384', 'TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384', 'TLS_ECDH_RSA_WITH_AES_256_CBC_SHA', 'TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256', 'TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256', 'TLS_ECDH_RSA_WITH_AES_128_CBC_SHA', 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384', 'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384', 'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA', 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256', 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256', 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA', 'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384', 'TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384', 'TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA', 'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256', 'TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256', 'TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA', 'TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384', 'TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384', 'TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA', 'TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256', 'TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256', 'TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA', 'TLS_DHE_RSA_WITH_AES_256_GCM_SHA384', 'TLS_DHE_RSA_WITH_AES_256_CBC_SHA256', 'TLS_DHE_RSA_WITH_AES_256_CBC_SHA', 'TLS_DHE_RSA_WITH_AES_128_GCM_SHA256', 'TLS_DHE_RSA_WITH_AES_128_CBC_SHA256', 'TLS_DHE_RSA_WITH_AES_128_CBC_SHA', 'TLS_DHE_DSS_WITH_AES_256_GCM_SHA384', 'TLS_DHE_DSS_WITH_AES_256_CBC_SHA256', 'TLS_DHE_DSS_WITH_AES_256_CBC_SHA', 'TLS_DHE_DSS_WITH_AES_128_GCM_SHA256', 'TLS_DHE_DSS_WITH_AES_128_CBC_SHA256', 'TLS_DHE_DSS_WITH_AES_128_CBC_SHA', 'TLS_EMPTY_RENEGOTIATION_INFO_SCSV']
+```
+
+### <a name="pupmodmastersslprotocols"></a>`Pupmod::Master::SSLProtocols`
 
 Valid SSL Protocols for the Puppet Master Webserver
 
-Alias of `Enum['TLSv1', 'TLSv1.1', 'TLSv1.2']`
+Alias of
 
-### `Pupmod::Memory`
+```puppet
+Enum['TLSv1', 'TLSv1.1', 'TLSv1.2']
+```
+
+### <a name="pupmodmemory"></a>`Pupmod::Memory`
 
 Matches valid puppetserver JAVA memory parameters
 
-Alias of `Pattern['^\d+(g|k|m|%)$']`
+Alias of
 
-### `Pupmod::ProfilingMode`
+```puppet
+Pattern['^\d+(g|k|m|%)$']
+```
+
+### <a name="pupmodprofilingmode"></a>`Pupmod::ProfilingMode`
 
 puppetserver profiling modes
 
-Alias of `Enum['off', 'api', 'flat', 'graph', 'html', 'json', 'service']`
+Alias of
+
+```puppet
+Enum['off', 'api', 'flat', 'graph', 'html', 'json', 'service']
+```
 
