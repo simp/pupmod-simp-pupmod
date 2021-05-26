@@ -195,7 +195,7 @@ class pupmod (
   Boolean                                $firewall             = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Hash                                   $pe_classlist         = {},
   String[1]                              $package_ensure       = simplib::lookup('simp_options::package_ensure' , { 'default_value' => 'installed'}),
-  Variant[Boolean, Enum['no_clean']]     $set_environment      = true,
+  Variant[Boolean, Enum['no_clean']]     $set_environment      = false,
   Boolean                                $manage_facter_conf   = false,
   Stdlib::Absolutepath                   $facter_conf_dir      = '/etc/puppetlabs/facter',
   Hash                                   $facter_options,      # module data

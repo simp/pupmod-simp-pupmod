@@ -1,5 +1,10 @@
-* Wed Apr 28 2021 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.1.3
-- Fixed a bug where the pupmod::master::sysconfig class was not getting applied
+* Wed May 26 2021 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.1.3
+- Fixed
+  - Fixed a bug where the pupmod::master::sysconfig class was not getting applied
+
+- Changed
+  - Default pupmod::set_environment to `false` so that users don't accidentally
+    end up with systems in the wrong environment
 
 * Tue Jan 12 2021 Chris Tessmer <chris.tessmer@onyxpoint.com> - 8.1.3
 - Removed EL6 support
