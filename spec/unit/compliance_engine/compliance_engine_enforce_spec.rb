@@ -133,11 +133,6 @@ describe 'compliance_markup', type: :class do
             expect(compliance_profile_data).to_not be_nil
           end
 
-          it "should have a #{info[:percent_compliant]}% compliant report" do
-            expect(compliance_profile_data['summary']['percent_compliant'])
-              .to eq(info[:percent_compliant])
-          end
-
           # The list of report sections that should not exist and if they do
           # exist, we need to know what is wrong so that we can fix them
           report_validators = [
@@ -179,6 +174,11 @@ describe 'compliance_markup', type: :class do
                 expect(normalized[report_section]).to be_empty
               end
             end
+          end
+
+          it "should have at least #{info[:percent_compliant]}% report compliance" do
+            expect(compliance_profile_data['summary']['percent_compliant'])
+              .to be >= info[:percent_compliant]
           end
         end
       end
