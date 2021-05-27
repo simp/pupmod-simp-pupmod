@@ -415,7 +415,7 @@ Set the environment on the system to the currently running environment
   various puppet tools. To prevent this from happening, you may set this to
   `no_clean` and the entry will be preserved if present.
 
-Default value: ``true``
+Default value: ``false``
 
 ### <a name="pupmodagentcron"></a>`pupmod::agent::cron`
 
