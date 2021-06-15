@@ -74,6 +74,17 @@
 #   See http://docs.puppetlabs.com/references/latest/configuration.html for
 #   additional details.
 #
+# @param purge_logs
+#   Purge old logs from the system.
+#
+# @param purge_logs_duration
+#   The timeframe after which logs will be purged.
+#
+#   * Uses systemd tmpfiles age notation
+#
+# @param purge_log_dirs
+#   The directories under `$logdir` to be purged.
+#
 # @param masterport
 #   The port where the Puppet Master should be contacted.
 #
@@ -172,24 +183,27 @@ class pupmod (
                                                                   default  => pick($facts['clientcert'], $facts['fqdn']),
                                                                 }),
   String[0]                              $classfile            = '$vardir/classes.txt',
-  Stdlib::AbsolutePath                   $confdir              = $::pupmod::params::puppet_config['confdir'],
+  Stdlib::AbsolutePath                   $confdir,
   Boolean                                $daemonize            = false,
   Enum['md5','sha256']                   $digest_algorithm     = 'sha256',
   Boolean                                $enable_puppet_master = false,
-  Stdlib::AbsolutePath                   $environmentpath      = $::pupmod::params::puppet_config['environmentpath'],
+  Stdlib::AbsolutePath                   $environmentpath,
   Boolean                                $listen               = false,
-  Stdlib::AbsolutePath                   $logdir               = $::pupmod::params::puppet_config['logdir'],
+  Stdlib::AbsolutePath                   $logdir,
+  Boolean                                $purge_logs           = true,
+  Pattern['\d+(h|m|w)']                  $purge_logs_duration  = '4w',
+  Array[Stdlib::AbsolutePath]            $purge_log_dirs       = ['/puppet*'],
   Simplib::Port                          $masterport           = 8140,
   Boolean                                $report               = false,
-  Stdlib::AbsolutePath                   $rundir               = $::pupmod::params::puppet_config['rundir'],
+  Stdlib::AbsolutePath                   $rundir,
   Integer[0]                             $runinterval          = 1800,
   Boolean                                $splay                = false,
   Optional[Integer[1]]                   $splaylimit           = undef,
   Simplib::Host                          $srv_domain           = $facts['domain'],
-  Stdlib::AbsolutePath                   $ssldir               = $::pupmod::params::puppet_config['ssldir'],
+  Stdlib::AbsolutePath                   $ssldir,
   Simplib::Syslog::Facility              $syslogfacility       = 'local6',
   Boolean                                $use_srv_records      = false,
-  Stdlib::AbsolutePath                   $vardir               = $::pupmod::params::puppet_config['vardir'],
+  Stdlib::AbsolutePath                   $vardir,
   Boolean                                $haveged              = simplib::lookup('simp_options::haveged', { 'default_value' => false }),
   Boolean                                $fips                 = simplib::lookup('simp_options::fips', { 'default_value' => false }),
   Boolean                                $firewall             = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
@@ -200,7 +214,7 @@ class pupmod (
   Stdlib::Absolutepath                   $facter_conf_dir      = '/etc/puppetlabs/facter',
   Hash                                   $facter_options,      # module data
   Boolean                                $mock                 = false
-) inherits pupmod::params {
+) {
 
   unless $mock {
     simplib::assert_metadata($module_name)
@@ -221,14 +235,12 @@ class pupmod (
 
     if $daemonize {
       $_puppet_service_ensure = 'running'
-
-      cron { 'puppetagent': ensure => 'absent' }
     }
     else {
       $_puppet_service_ensure = 'stopped'
-
-      include 'pupmod::agent::cron'
     }
+
+    include 'pupmod::agent::cron'
 
     service { 'puppet':
       ensure     => $_puppet_service_ensure,
@@ -375,6 +387,25 @@ class pupmod (
 
     if $manage_facter_conf {
       include 'pupmod::facter::conf'
+    }
+
+    if $purge_logs {
+      unless empty($purge_log_dirs) {
+        $_purge_logdir = dirname($logdir)
+
+        if empty($_purge_logdir) or ($_purge_logdir == '/') {
+          fail("Refusing to purge top-level directories. Please ensure that ${module_name}::logdir is set to something sensible.")
+        }
+
+        $_purge_logs_content = $purge_log_dirs.map |$x| { "e ${_purge_logdir}${x} - - - ${purge_logs_duration}" }
+
+        systemd::tmpfile { 'puppet_purge_puppet_service_logs.conf':
+          content => join($_purge_logs_content, "\n")
+        }
+      }
+    }
+    else {
+      systemd::tmpfile { 'puppet_purge_puppet_service_logs': ensure => 'absent' }
     }
   }
 }

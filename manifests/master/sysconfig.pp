@@ -62,9 +62,9 @@
 #   Do not apply this class, only mock it up
 #
 class pupmod::master::sysconfig (
-  Stdlib::AbsolutePath           $install_dir          = $::pupmod::params::master_install_dir,
-  Stdlib::AbsolutePath           $config               = $::pupmod::params::master_config['confdir'],
-  Array[Stdlib::AbsolutePath]    $bootstrap_config     = $::pupmod::params::master_bootstrap_config,
+  Stdlib::AbsolutePath           $install_dir,
+  Stdlib::AbsolutePath           $config,
+  Array[Stdlib::AbsolutePath]    $bootstrap_config,
   Stdlib::AbsolutePath           $java_bin             = '/usr/bin/java',
   Optional[Pupmod::Memory]       $java_start_memory    = undef,
   Optional[Pupmod::Memory]       $java_max_memory      = undef,

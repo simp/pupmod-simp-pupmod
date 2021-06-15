@@ -11,6 +11,26 @@ lookup_options:
       knockout_prefix: "--"
       sort_merged_arrays: true
 
+pupmod::confdir: '/etc/puppetlabs/puppet'
+pupmod::environmentpath: '/etc/puppetlabs/code/environments'
+pupmod::logdir: '/var/log/puppetlabs/puppet'
+pupmod::rundir: '/var/run/puppetlabs'
+pupmod::ssldir: '/etc/puppetlabs/puppet/ssl'
+pupmod::vardir: '/opt/puppetlabs/puppet/cache'
+
+pupmod::master::confdir: '/etc/puppetlabs/puppetserver/conf.d'
+pupmod::master::codedir: '/etc/puppetlabs/code'
+pupmod::master::vardir: '/opt/puppetlabs/server/data/puppetserver'
+pupmod::master::rundir: '/var/run/puppetlabs/puppetserver'
+pupmod::master::logdir: '/var/log/puppetlabs/puppetserver'
+pupmod::master::ssldir: "%{alias('pupmod::ssldir')}"
+
+pupmod::master::sysconfig::install_dir: '/opt/puppetlabs/server/apps/puppetserver'
+pupmod::master::sysconfig::config: "%{alias('pupmod::master::confdir')}"
+pupmod::master::sysconfig::bootstrap_config:
+  - '/etc/puppetlabs/puppetserver/services.d/'
+  - '/opt/puppetlabs/server/apps/puppetserver/config/services.d/'
+
 pupmod::facter_options:
   facts: {}
   global: {}

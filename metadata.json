@@ -18,6 +18,10 @@
   ],
   "dependencies": [
     {
+      "name": "camptocamp/systemd",
+      "version_requirement": ">= 2.7.0 < 3.0.0"
+    },
+    {
       "name": "simp/haveged",
       "version_requirement": ">= 0.4.5 < 1.0.0"
     },
@@ -47,21 +51,13 @@
     },
     {
       "name": "simp/simplib",
-      "version_requirement": ">= 3.14.1 < 5.0.0"
+      "version_requirement": ">= 4.9.0 < 5.0.0"
     },
     {
       "name": "simp/pki",
       "version_requirement": ">= 6.0.0 < 7.0.0"
     }
   ],
-  "simp": {
-    "optional_dependencies": [
-      {
-        "name": "camptocamp/systemd",
-        "version_requirement": ">= 2.7.0 < 3.0.0"
-      }
-    ]
-  },
   "requirements": [
     {
       "name": "puppet",

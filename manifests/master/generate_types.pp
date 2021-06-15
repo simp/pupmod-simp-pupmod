@@ -87,51 +87,47 @@ class pupmod::master::generate_types (
       subscribe   => File[$_generate_types_path],
     }
 
-    if 'systemd' in pick(fact('init_systems'), []) {
-      simplib::assert_optional_dependency($module_name, 'camptocamp/systemd')
+    systemd::unit_file { 'simp_generate_types.path':
+      enable  => true,
+      active  => true,
+      content => epp("${module_name}/etc/systemd/system/simp_generate_types.path.epp")
+    }
 
-      systemd::unit_file { 'simp_generate_types.path':
+    $_simp_generate_types_service = @("HEREDOC")
+      [Service]
+      Type=simple
+      ExecStart=${_generate_types_command}
+      | HEREDOC
+
+    systemd::unit_file { 'simp_generate_types.service':
+      content => $_simp_generate_types_service
+    }
+
+    service { 'simp_generate_types':
+      enable  => true,
+      require => Systemd::Unit_file['simp_generate_types.service']
+    }
+
+    if $trigger_on_puppetserver_update or $trigger_on_puppet_update {
+      systemd::unit_file { 'simp_generate_types_apps.path':
         enable  => true,
         active  => true,
-        content => epp("${module_name}/etc/systemd/system/simp_generate_types.path.epp")
+        content => epp("${module_name}/etc/systemd/system/simp_generate_types.path.epp", { apps => true } )
       }
 
-      $_simp_generate_types_service = @("HEREDOC")
+      $_simp_generate_types_force_service = @("HEREDOC")
         [Service]
         Type=simple
-        ExecStart=${_generate_types_command}
+        ExecStart=${_generate_types_command} --force
         | HEREDOC
 
-      systemd::unit_file { 'simp_generate_types.service':
-        content => $_simp_generate_types_service
+      systemd::unit_file { 'simp_generate_types_force.service':
+        content => $_simp_generate_types_force_service
       }
 
-      service { 'simp_generate_types':
+      service { 'simp_generate_types_force':
         enable  => true,
-        require => Systemd::Unit_file['simp_generate_types.service']
-      }
-
-      if $trigger_on_puppetserver_update or $trigger_on_puppet_update {
-        systemd::unit_file { 'simp_generate_types_apps.path':
-          enable  => true,
-          active  => true,
-          content => epp("${module_name}/etc/systemd/system/simp_generate_types.path.epp", { apps => true } )
-        }
-
-        $_simp_generate_types_force_service = @("HEREDOC")
-          [Service]
-          Type=simple
-          ExecStart=${_generate_types_command} --force
-          | HEREDOC
-
-        systemd::unit_file { 'simp_generate_types_force.service':
-          content => $_simp_generate_types_force_service
-        }
-
-        service { 'simp_generate_types_force':
-          enable  => true,
-          require => Systemd::Unit_file['simp_generate_types_force.service']
-        }
+        require => Systemd::Unit_file['simp_generate_types_force.service']
       }
     }
     else {
@@ -147,14 +143,10 @@ class pupmod::master::generate_types (
     service { 'simp_generate_types': enable => false }
     service { 'simp_generate_types_force': enable => false }
 
-    if 'systemd' in pick(fact('init_systems'), []) {
-      simplib::assert_optional_dependency($module_name, 'camptocamp/systemd')
-
-      systemd::unit_file { 'simp_generate_types.path': ensure => absent }
-      systemd::unit_file { 'simp_generate_types_apps.path': ensure =>  absent }
-      systemd::unit_file { 'simp_generate_types.service': ensure => absent }
-      systemd::unit_file { 'simp_generate_types_force.service': ensure => absent }
-    }
+    systemd::unit_file { 'simp_generate_types.path': ensure => absent }
+    systemd::unit_file { 'simp_generate_types_apps.path': ensure =>  absent }
+    systemd::unit_file { 'simp_generate_types.service': ensure => absent }
+    systemd::unit_file { 'simp_generate_types_force.service': ensure => absent }
   }
 
   # TODO: Remove this when enough time has passed that it is no longer necessary
