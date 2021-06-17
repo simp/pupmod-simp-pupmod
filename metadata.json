@@ -1,6 +1,6 @@
 {
   "name": "simp-pupmod",
-  "version": "8.1.3",
+  "version": "8.2.0",
   "author": "SIMP Team",
   "summary": "A puppet module to manage puppetserver and puppet agents",
   "license": "Apache-2.0",
@@ -23,7 +23,7 @@
     },
     {
       "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 4.19.0 < 7.0.0"
+      "version_requirement": ">= 6.18.0 < 8.0.0"
     },
     {
       "name": "puppetlabs/inifile",
@@ -39,7 +39,7 @@
     },
     {
       "name": "puppetlabs/concat",
-      "version_requirement": ">= 3.0.0 < 7.0.0"
+      "version_requirement": ">= 6.4.0 < 8.0.0"
     },
     {
       "name": "simp/iptables",
@@ -65,7 +65,7 @@
   "requirements": [
     {
       "name": "puppet",
-      "version_requirement": ">= 5.0.0 < 7.0.0"
+      "version_requirement": ">= 6.22.1 < 8.0.0"
     }
   ],
   "operatingsystem_support": [
