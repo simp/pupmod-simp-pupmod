@@ -50,7 +50,7 @@ describe 'pupmod::master' do
             'ensure' => 'directory',
             'owner'  => 'root',
             'group'  => 'puppet',
-            'mode'   => '0640'
+            'mode'   => '0660'
           }) }
 
           it { is_expected.to contain_file('/etc/puppetlabs/puppetserver/conf.d').with({
@@ -87,6 +87,16 @@ describe 'pupmod::master' do
             'require' => 'Class[Pupmod::Master::Install]',
             'notify'  => 'Class[Pupmod::Master::Service]'
           }) }
+
+          it {
+            is_expected.to contain_hocon_setting('puppetserver analytics')
+              .with_ensure('present')
+              .with_path('/etc/puppetlabs/puppetserver/conf.d/product.conf')
+              .with_setting('product.check-for-updates')
+              .with_value(false)
+              .with_type('boolean')
+              .that_notifies('Class[pupmod::master::service]')
+          }
 
           if puppetserver_version >= '5.1.0'
             it { expect(ca_cfg_lines).to eq ([

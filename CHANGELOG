@@ -2,6 +2,16 @@
 - Removed support for Puppet 5
 - Ensured support for Puppet 7 in requirements and stdlib
 
+* Tue Jun 15 2021 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.2.0
+- Changed
+  - Converted all `cron` items to `systemd` timers
+  - Converted the cleanup jobs to `tmpfiles` jobs
+  - Converted from the 'params' patter to module data
+
+- Added
+  - Purge puppet logs > 30 days by default
+  - Disable puppetserver analytics by default
+
 * Wed May 26 2021 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.1.3
 - Fixed
   - Fixed a bug where the pupmod::master::sysconfig class was not getting applied

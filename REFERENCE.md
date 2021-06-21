@@ -7,7 +7,7 @@
 ### Classes
 
 * [`pupmod`](#pupmod): A class for managing Puppet configurations.  This is mainly a stub class for hooking other classes along the way with a small bit of logic to
-* [`pupmod::agent::cron`](#pupmodagentcron): This class configures the cron settings for a non-daemonized puppet client
+* [`pupmod::agent::cron`](#pupmodagentcron): This class configures the scheduled run settings for a non-daemonized puppet client  Note: The parameters are present for backwards compatibi
 * [`pupmod::facter::conf`](#pupmodfacterconf): A class to manage Facter configuration
 * [`pupmod::master`](#pupmodmaster): Provides configuration for a puppet master.
 * [`pupmod::master::base`](#pupmodmasterbase): A break out of the mostly static files used by the Puppet master.
@@ -17,7 +17,6 @@
 * [`pupmod::master::service`](#pupmodmasterservice): Split out the 'service' for cleaner dependency ordering
 * [`pupmod::master::simp_auth`](#pupmodmastersimp_auth): Add SIMP-specific entries to PuppetServer's auth.conf  For documentation about *_allow and *_deny, see the puppetserver docs
 * [`pupmod::master::sysconfig`](#pupmodmastersysconfig): This class provides the sysconfig settings for the ``puppetserver`` daemon.  to use. To use the default enter 'default'. (Does not affect PE.
-* [`pupmod::params`](#pupmodparams): A set of defaults for the 'pupmod' namespace
 
 ### Defined types
 
@@ -74,6 +73,9 @@ The following parameters are available in the `pupmod` class:
 * [`environmentpath`](#environmentpath)
 * [`listen`](#listen)
 * [`logdir`](#logdir)
+* [`purge_logs`](#purge_logs)
+* [`purge_logs_duration`](#purge_logs_duration)
+* [`purge_log_dirs`](#purge_log_dirs)
 * [`masterport`](#masterport)
 * [`report`](#report)
 * [`rundir`](#rundir)
@@ -165,8 +167,6 @@ The path to the puppet configuration directory.
 See http://docs.puppetlabs.com/references/latest/configuration.html for
 additional details.
 
-Default value: `$::pupmod::params::puppet_config['confdir']`
-
 ##### <a name="daemonize"></a>`daemonize`
 
 Data type: `Boolean`
@@ -201,8 +201,6 @@ Data type: `Stdlib::AbsolutePath`
 
 The path to the directory holding the puppet environments.
 
-Default value: `$::pupmod::params::puppet_config['environmentpath']`
-
 ##### <a name="listen"></a>`listen`
 
 Data type: `Boolean`
@@ -225,7 +223,31 @@ The path to the puppet log directory.
 See http://docs.puppetlabs.com/references/latest/configuration.html for
 additional details.
 
-Default value: `$::pupmod::params::puppet_config['logdir']`
+##### <a name="purge_logs"></a>`purge_logs`
+
+Data type: `Boolean`
+
+Purge old logs from the system.
+
+Default value: ``true``
+
+##### <a name="purge_logs_duration"></a>`purge_logs_duration`
+
+Data type: `Pattern['\d+(h|m|w)']`
+
+The timeframe after which logs will be purged.
+
+* Uses systemd tmpfiles age notation
+
+Default value: `'4w'`
+
+##### <a name="purge_log_dirs"></a>`purge_log_dirs`
+
+Data type: `Array[Stdlib::AbsolutePath]`
+
+The directories under `$logdir` to be purged.
+
+Default value: `['/puppet*']`
 
 ##### <a name="masterport"></a>`masterport`
 
@@ -253,8 +275,6 @@ The path to the puppet run status directory.
 
 See http://docs.puppetlabs.com/references/latest/configuration.html for
 additional details.
-
-Default value: `$::pupmod::params::puppet_config['rundir']`
 
 ##### <a name="runinterval"></a>`runinterval`
 
@@ -301,8 +321,6 @@ The path to the puppet ssl directory.
 See http://docs.puppetlabs.com/references/latest/configuration.html for
 additional details.
 
-Default value: `$::pupmod::params::puppet_config['ssldir']`
-
 ##### <a name="syslogfacility"></a>`syslogfacility`
 
 Data type: `Simplib::Syslog::Facility`
@@ -340,8 +358,6 @@ Default value: `simplib::lookup('simp_options::fips', { 'default_value' => false
 Data type: `Stdlib::AbsolutePath`
 
 The directory where puppet will store all of its 'variable' data.
-
-Default value: `$::pupmod::params::puppet_config['vardir']`
 
 ##### <a name="manage_facter_conf"></a>`manage_facter_conf`
 
@@ -419,7 +435,10 @@ Default value: ``false``
 
 ### <a name="pupmodagentcron"></a>`pupmod::agent::cron`
 
-This class configures the cron settings for a non-daemonized puppet client
+This class configures the scheduled run settings for a non-daemonized puppet client
+
+Note: The parameters are present for backwards compatibility, at some point,
+this class will be renamed to reflect that it is now a systemd timer.
 
 #### Examples
 
@@ -457,10 +476,12 @@ class { 'pupmod::agent::cron:
 
 The following parameters are available in the `pupmod::agent::cron` class:
 
+* [`enable`](#enable)
 * [`interval`](#interval)
 * [`minute_base`](#minute_base)
 * [`run_timeframe`](#run_timeframe)
 * [`runs_per_timeframe`](#runs_per_timeframe)
+* [`systemd_calendar`](#systemd_calendar)
 * [`minute`](#minute)
 * [`hour`](#hour)
 * [`monthday`](#monthday)
@@ -469,6 +490,14 @@ The following parameters are available in the `pupmod::agent::cron` class:
 * [`maxruntime`](#maxruntime)
 * [`break_puppet_lock`](#break_puppet_lock)
 * [`max_disable_time`](#max_disable_time)
+
+##### <a name="enable"></a>`enable`
+
+Data type: `Boolean`
+
+Enable, or disable, the scheduled agent run
+
+Default value: ``true``
 
 ##### <a name="interval"></a>`interval`
 
@@ -529,9 +558,19 @@ Agent.
 
 Default value: `2`
 
+##### <a name="systemd_calendar"></a>`systemd_calendar`
+
+Data type: `Optional[String[1]]`
+
+The exact systemd calendar string to add to the timer
+
+* This is **not** checked for correctess
+
+Default value: ``undef``
+
 ##### <a name="minute"></a>`minute`
 
-Data type: `Variant[Simplib::Cron::Minute,String]`
+Data type: `Variant[Simplib::Cron::Minute,Enum['nil','ip_mod','rand','sha256']]`
 
 The ``minute`` value for the crontab entry
 
@@ -718,6 +757,7 @@ The following parameters are available in the `pupmod::master` class:
 * [`log_level`](#log_level)
 * [`autosign_hosts`](#autosign_hosts)
 * [`package_ensure`](#package_ensure)
+* [`enable_analytics`](#enable_analytics)
 * [`server_webserver_options`](#server_webserver_options)
 * [`ca_webserver_options`](#ca_webserver_options)
 * [`extra_webserver_sections`](#extra_webserver_sections)
@@ -871,15 +911,11 @@ Data type: `Stdlib::AbsolutePath`
 
 The Puppet client configuration directory.
 
-Default value: `$pupmod::params::master_config['confdir']`
-
 ##### <a name="codedir"></a>`codedir`
 
 Data type: `Stdlib::AbsolutePath`
 
 The directory holding the Puppet configuration codebase.
-
-Default value: `$pupmod::params::master_config['codedir']`
 
 ##### <a name="vardir"></a>`vardir`
 
@@ -887,15 +923,11 @@ Data type: `Stdlib::AbsolutePath`
 
 The Puppet server 'var' directory
 
-Default value: `$pupmod::params::master_config['vardir']`
-
 ##### <a name="rundir"></a>`rundir`
 
 Data type: `Stdlib::AbsolutePath`
 
 The Puppet server runtime directory
-
-Default value: `$pupmod::params::master_config['rundir']`
 
 ##### <a name="logdir"></a>`logdir`
 
@@ -903,15 +935,11 @@ Data type: `Stdlib::AbsolutePath`
 
 The log directory for the Puppet server
 
-Default value: `$pupmod::params::master_config['logdir']`
-
 ##### <a name="ssldir"></a>`ssldir`
 
 Data type: `Stdlib::AbsolutePath`
 
 The SSL configuration directory for the Puppet server
-
-Default value: `$pupmod::ssldir`
 
 ##### <a name="use_legacy_auth_conf"></a>`use_legacy_auth_conf`
 
@@ -961,7 +989,7 @@ Data type: `Array[Simplib::Host]`
 An array of certificate short names which will be allowed to query the CA end
 point of the Puppet Server
 
-Default value: `[pick($facts['certname'], $facts['fqdn'])]`
+Default value: `[pick($facts['certname'],                                                                      $facts['fqdn'])]`
 
 ##### <a name="ruby_load_path"></a>`ruby_load_path`
 
@@ -1081,7 +1109,7 @@ Data type: `Array[Simplib::Hostname]`
 A list of X.509 certificate names that should be allowed to access the Puppet
 Server's administrative API.
 
-Default value: `[pick($facts['certname'], $facts['fqdn'])]`
+Default value: `[pick($facts['certname'],                                                                      $facts['fqdn'])]`
 
 ##### <a name="admin_api_mountpoint"></a>`admin_api_mountpoint`
 
@@ -1175,6 +1203,14 @@ String used to specify either 'latest', 'installed', or a specific version
 of the puppetserver package
 
 Default value: `simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })`
+
+##### <a name="enable_analytics"></a>`enable_analytics`
+
+Data type: `Boolean`
+
+Enable the built-in analytics, and upgrade check, on the puppetserver
+
+Default value: ``false``
 
 ##### <a name="server_webserver_options"></a>`server_webserver_options`
 
@@ -1425,19 +1461,11 @@ Most importantly, it allows for purging the reports.
 
 The following parameters are available in the `pupmod::master::reports` class:
 
-* [`port`](#port)
 * [`vardir`](#vardir)
 * [`purge`](#purge)
 * [`purge_keep_days`](#purge_keep_days)
 * [`purge_verbose`](#purge_verbose)
-
-##### <a name="port"></a>`port`
-
-Data type: `Simplib::Port`
-
-The port upon which to listen for reports.
-
-Default value: `$::pupmod::master::masterport`
+* [`port`](#port)
 
 ##### <a name="vardir"></a>`vardir`
 
@@ -1445,7 +1473,7 @@ Data type: `Stdlib::AbsolutePath`
 
 The directory where reports should be stored.
 
-Default value: `$::pupmod::master::vardir`
+Default value: `$pupmod::master::vardir`
 
 ##### <a name="purge"></a>`purge`
 
@@ -1465,11 +1493,21 @@ Default value: `7`
 
 ##### <a name="purge_verbose"></a>`purge_verbose`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
-Whether or not to be verbose about which logs are being purged.
+DEPRECATED
 
-Default value: ``false``
+* See the systemd tmpfiles logs for details
+
+Default value: ``undef``
+
+##### <a name="port"></a>`port`
+
+Data type: `Optional[Simplib::Port]`
+
+DEPRECATED
+
+Default value: ``undef``
 
 ### <a name="pupmodmasterservice"></a>`pupmod::master::service`
 
@@ -1680,23 +1718,17 @@ Data type: `Stdlib::AbsolutePath`
 
 The installation directory for the ``puppetserver``.
 
-Default value: `$::pupmod::params::master_install_dir`
-
 ##### <a name="config"></a>`config`
 
 Data type: `Stdlib::AbsolutePath`
 
 The configuration directory for the ``puppetserver``.
 
-Default value: `$::pupmod::params::master_config['confdir']`
-
 ##### <a name="bootstrap_config"></a>`bootstrap_config`
 
 Data type: `Array[Stdlib::AbsolutePath]`
 
 The bootstrap configuration directory for the ``puppetserver``.
-
-Default value: `$::pupmod::params::master_bootstrap_config`
 
 ##### <a name="java_bin"></a>`java_bin`
 
@@ -1812,10 +1844,6 @@ Data type: `Boolean`
 Do not apply this class, only mock it up
 
 Default value: ``false``
-
-### <a name="pupmodparams"></a>`pupmod::params`
-
-A set of defaults for the 'pupmod' namespace
 
 ## Defined types
 

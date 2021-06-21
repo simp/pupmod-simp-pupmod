@@ -203,7 +203,6 @@ describe 'pupmod::pass_two' do
                   }
                   it { is_expected.to compile }
                   it { is_expected.to contain_class("pupmod::master::sysconfig")}
-                  it { is_expected.to contain_class("pupmod::params")}
                   {
                     "2015.1.1" => true,
                     "2015.20.1" => true,

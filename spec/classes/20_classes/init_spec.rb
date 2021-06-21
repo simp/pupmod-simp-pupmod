@@ -148,6 +148,11 @@ describe 'pupmod' do
             it { is_expected.to contain_selboolean('puppetagent_manage_all_files') }
             it { is_expected.not_to contain_class('pupmod::facter::conf') }
 
+            it {
+              is_expected.to contain_systemd__tmpfile('puppet_purge_puppet_service_logs.conf')
+                .with_content('e /var/log/puppetlabs/puppet* - - - 4w')
+            }
+
             context 'with_selinux_disabled' do
               let(:facts) {
                 _facts = @extras.merge(os_facts)
@@ -173,7 +178,7 @@ describe 'pupmod' do
 
             context 'with daemonize enabled' do
               let(:params) {{:daemonize => true}}
-              it { is_expected.to contain_cron('puppetagent').with_ensure('absent') }
+              it { is_expected.to contain_class('pupmod::agent::cron') }
               it { is_expected.to contain_service('puppet').with({
                 'ensure'     => 'running',
                 'enable'     => true,

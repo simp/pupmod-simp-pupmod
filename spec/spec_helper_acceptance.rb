@@ -26,6 +26,10 @@ RSpec.configure do |c|
   # Readable test descriptions
   c.formatter = :documentation
 
+  # Detect cases in which on examples are executed (e.g., nodeset does not
+  # have hosts with required roles)
+  c.fail_if_no_examples = true
+
   # Configure all nodes in nodeset
   c.before :suite do
     begin

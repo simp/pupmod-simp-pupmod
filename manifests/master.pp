@@ -200,6 +200,9 @@
 #   String used to specify either 'latest', 'installed', or a specific version
 #   of the puppetserver package
 #
+# @param enable_analytics
+#   Enable the built-in analytics, and upgrade check, on the puppetserver
+#
 # @param server_webserver_options
 #   A ``Hash`` of ``String,String`` pairs that will be added as HOCON formatted
 #   options to the ``base`` section of the server's webserver.conf
@@ -294,17 +297,17 @@ class pupmod::master (
   Boolean                                             $freeze_main                     = false,
   Simplib::Port                                       $masterport                      = 8140,
   Stdlib::AbsolutePath                                $puppet_confdir                  = $pupmod::confdir,
-  Stdlib::AbsolutePath                                $confdir                         = $pupmod::params::master_config['confdir'],
-  Stdlib::AbsolutePath                                $codedir                         = $pupmod::params::master_config['codedir'],
-  Stdlib::AbsolutePath                                $vardir                          = $pupmod::params::master_config['vardir'],
-  Stdlib::AbsolutePath                                $rundir                          = $pupmod::params::master_config['rundir'],
-  Stdlib::AbsolutePath                                $logdir                          = $pupmod::params::master_config['logdir'],
-  Stdlib::AbsolutePath                                $ssldir                          = $pupmod::ssldir,
+  Stdlib::AbsolutePath                                $confdir,
+  Stdlib::AbsolutePath                                $codedir,
+  Stdlib::AbsolutePath                                $vardir,
+  Stdlib::AbsolutePath                                $rundir,
+  Stdlib::AbsolutePath                                $logdir,
+  Stdlib::AbsolutePath                                $ssldir,
   Boolean                                             $use_legacy_auth_conf            = false,
   Integer[0]                                          $max_queued_requests             = 10,
   Integer[1]                                          $max_retry_delay                 = 1800,
   Boolean                                             $firewall                        = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
-  Array[Simplib::Host]                                $ca_status_whitelist             = [pick($facts['certname'], $facts['fqdn'])],
+  Array[Simplib::Host]                                $ca_status_whitelist             = [pick($facts['certname'],                                                                      $facts['fqdn'])],
   Optional[Stdlib::AbsolutePath]                      $ruby_load_path                  = undef,
   Integer[1]                                          $max_active_instances            = pupmod::max_active_instances($server_type),
   Integer                                             $max_requests_per_instance       = 100000,
@@ -317,7 +320,7 @@ class pupmod::master (
   Boolean                                             $enable_profiler                 = false,
   Pupmod::ProfilingMode                               $profiling_mode                  = 'off',
   Stdlib::AbsolutePath                                $profiler_output_file            = "${vardir}/server_jruby_profiling",
-  Array[Simplib::Hostname]                            $admin_api_whitelist             = [pick($facts['certname'], $facts['fqdn'])],
+  Array[Simplib::Hostname]                            $admin_api_whitelist             = [pick($facts['certname'],                                                                      $facts['fqdn'])],
   String                                              $admin_api_mountpoint            = '/puppet-admin-api',
   Boolean                                             $log_to_file                     = false,
   Boolean                                             $strict_hostname_checking        = true,
@@ -328,6 +331,7 @@ class pupmod::master (
   Pupmod::LogLevel                                    $log_level                       = 'WARN',
   Optional[Array[String[1]]]                          $autosign_hosts                  = undef,
   String                                              $package_ensure                  = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
+  Boolean                                             $enable_analytics                = false,
   Optional[Hash[String[1],String[1]]]                 $server_webserver_options        = undef,
   Optional[Hash[String[1],String[1]]]                 $ca_webserver_options            = undef,
   Optional[Hash[String[1],Hash[String[1],String[1]]]] $extra_webserver_sections        = undef,
@@ -354,11 +358,19 @@ class pupmod::master (
 
     $_conf_base = dirname($confdir)
 
-    file { [$_conf_base, $confdir, $codedir]:
+    file { [$confdir, $codedir]:
       ensure => 'directory',
       owner  => 'root',
       group  => $_puppet_group,
       mode   => '0640'
+    }
+
+    # For Puppet 7+
+    file { $_conf_base:
+      ensure => 'directory',
+      owner  => 'root',
+      group  => $_puppet_group,
+      mode   => '0660'
     }
 
     # Mode is managed by puppet itself
@@ -524,6 +536,15 @@ class pupmod::master (
       notify { 'CVE-2020-7942':
         message => "Setting '${module_name}::pupmod::master::strict_hostname_checking' to 'true' enables CVE-2020-7942.\n\nSet '${module_name}::pupmod::master::cve_2020_7942_warning' to 'false' to disable this message."
       }
+    }
+
+    hocon_setting { 'puppetserver analytics':
+      ensure  => present,
+      path    => "${confdir}/product.conf",
+      setting => 'product.check-for-updates',
+      value   => $enable_analytics,
+      type    => 'boolean',
+      notify  => Class['pupmod::master::service']
     }
 
     if $auditd {

@@ -13,15 +13,15 @@ describe 'pupmod::agent::cron' do
           it { is_expected.to create_class('pupmod::agent::cron') }
           it { is_expected.to contain_file('/usr/local/bin/careful_puppet_service_shutdown.sh') }
           it { is_expected.to_not contain_exec('careful_puppet_service_shutdown') }
-          it { is_expected.to contain_cron('puppetd').with_ensure("absent") }
-          it { is_expected.to contain_cron('puppetagent').with({
-            'command'   => '/usr/local/bin/puppetagent_cron.sh',
-            'minute'    => [27,57],
-            'hour'      => '*',
-            'monthday'  => '*',
-            'month'     => '*',
-            'weekday'   => '*'
-          })}
+          it { is_expected.to contain_cron('puppetd').with_ensure('absent') }
+          it { is_expected.to contain_cron('puppetagent').with_ensure('absent') }
+          it {
+            is_expected.to contain_systemd__timer('puppet_agent.timer')
+              .with_timer_content(/OnCalendar=\*-\* \*:27,57/)
+              .with_service_content(%r{ExecStart=/usr/local/bin/puppetagent_cron.sh})
+              .with_service_content(/SuccessExitStatus=2/)
+              .that_requires('File[/usr/local/bin/puppetagent_cron.sh]')
+          }
 
           it 'uses maxruntime to kill processes in puppetagent_cron.sh' do
             expected = Regexp.escape('if [[ -n "${pup_status}" && $(( ${now} - ${filedate} )) -gt 1440')
@@ -47,14 +47,13 @@ describe 'pupmod::agent::cron' do
         context "with 'rand' randomization algorithm for cron minute" do
           let(:params) {{ :minute => 'rand' }}
 
-          it { is_expected.to contain_cron('puppetagent').with({
-            'command'   => '/usr/local/bin/puppetagent_cron.sh',
-            'minute'    => [27,57],
-            'hour'      => '*',
-            'monthday'  => '*',
-            'month'     => '*',
-            'weekday'   => '*'
-          })}
+          it {
+            is_expected.to contain_systemd__timer('puppet_agent.timer')
+              .with_timer_content(/OnCalendar=\*-\* \*:27,57/)
+              .with_service_content(%r{ExecStart=/usr/local/bin/puppetagent_cron.sh})
+              .with_service_content(/SuccessExitStatus=2/)
+              .that_requires('File[/usr/local/bin/puppetagent_cron.sh]')
+          }
 
           it 'uses a computed max disable time to enable puppet in puppetagent_cron.sh' do
             expected = Regexp.escape('if [[ ${pup_status} -ne 0 && $(( ${now} - ${filedate} )) -gt 16200')
@@ -65,14 +64,13 @@ describe 'pupmod::agent::cron' do
         context "with 'sha256' randomization algorithm for minute" do
           let(:params) {{ :minute => 'sha256' }}
 
-          it { is_expected.to contain_cron('puppetagent').with({
-            'command'   => '/usr/local/bin/puppetagent_cron.sh',
-            'minute'    => [10,40],
-            'hour'      => '*',
-            'monthday'  => '*',
-            'month'     => '*',
-            'weekday'   => '*'
-          })}
+          it {
+            is_expected.to contain_systemd__timer('puppet_agent.timer')
+              .with_timer_content(/OnCalendar=\*-\* \*:10,40/)
+              .with_service_content(%r{ExecStart=/usr/local/bin/puppetagent_cron.sh})
+              .with_service_content(/SuccessExitStatus=2/)
+              .that_requires('File[/usr/local/bin/puppetagent_cron.sh]')
+          }
 
           it 'uses a computed max disable time to enable puppet in puppetagent_cron.sh' do
             expected = Regexp.escape('if [[ ${pup_status} -ne 0 && $(( ${now} - ${filedate} )) -gt 16200')
@@ -82,21 +80,28 @@ describe 'pupmod::agent::cron' do
 
         context 'with alternate minute_base' do
           let(:params) {{ :minute_base => 'foo' }}
-          it { is_expected.to contain_cron('puppetagent').with({
-            'command'   => '/usr/local/bin/puppetagent_cron.sh',
-            'minute'    => [29,59],
-            'hour'      => '*',
-            'monthday'  => '*',
-            'month'     => '*',
-            'weekday'   => '*'
-          })}
+
+          it {
+            is_expected.to contain_systemd__timer('puppet_agent.timer')
+              .with_timer_content(/OnCalendar=\*-\* \*:29,59/)
+              .with_service_content(%r{ExecStart=/usr/local/bin/puppetagent_cron.sh})
+              .with_service_content(/SuccessExitStatus=2/)
+              .that_requires('File[/usr/local/bin/puppetagent_cron.sh]')
+          }
+
         end
 
         context "with interval enabled" do
           let(:params) {{ :minute => 'nil' }}
-          it { is_expected.to contain_cron('puppetagent').with({
-            'minute'    => '*/30',
-          })}
+
+          it {
+            is_expected.to contain_systemd__timer('puppet_agent.timer')
+              .with_timer_content(%r{OnCalendar=\*-\* \*:\*/30})
+              .with_service_content(%r{ExecStart=/usr/local/bin/puppetagent_cron.sh})
+              .with_service_content(/SuccessExitStatus=2/)
+              .that_requires('File[/usr/local/bin/puppetagent_cron.sh]')
+          }
+
 
           it 'uses a computed max disable time to enable puppet in puppetagent_cron.sh' do
             expected = Regexp.escape('if [[ ${pup_status} -ne 0 && $(( ${now} - ${filedate} )) -gt 16200')
@@ -105,22 +110,22 @@ describe 'pupmod::agent::cron' do
         end
 
         context 'with specific cron parameters specified' do
-          let(:params) {{ 
-            :minute   => '1',
-            :hour     => '2',
-            :monthday => '3',
-            :month    => '4',
-            :weekday  => '5'
+          let(:params) {{
+            :minute   => 1,
+            :hour     => 2,
+            :monthday => 3,
+            :month    => 4,
+            :weekday  => 5
           }}
 
-          it { is_expected.to contain_cron('puppetagent').with({
-            'command'   => '/usr/local/bin/puppetagent_cron.sh',
-            'minute'    => '1',
-            'hour'      => '2',
-            'monthday'  => '3',
-            'month'     => '4',
-            'weekday'   => '5'
-          })}
+          it {
+            is_expected.to contain_systemd__timer('puppet_agent.timer')
+              .with_timer_content(/OnCalendar=Fri 4-3 2:1/)
+              .with_service_content(%r{ExecStart=/usr/local/bin/puppetagent_cron.sh})
+              .with_service_content(/SuccessExitStatus=2/)
+              .that_requires('File[/usr/local/bin/puppetagent_cron.sh]')
+          }
+
         end
 
         context 'with altername maxruntime' do

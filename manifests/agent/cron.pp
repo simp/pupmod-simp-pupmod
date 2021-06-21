@@ -1,4 +1,10 @@
-# This class configures the cron settings for a non-daemonized puppet client
+# This class configures the scheduled run settings for a non-daemonized puppet client
+#
+# Note: The parameters are present for backwards compatibility, at some point,
+# this class will be renamed to reflect that it is now a systemd timer.
+#
+# @param enable
+#   Enable, or disable, the scheduled agent run
 #
 # @param interval
 #   The cron iteration time (in minutes) for running puppet
@@ -38,6 +44,11 @@
 #   Agent.
 #
 #   * Not used if using ``$interval``
+#
+# @param systemd_calendar
+#   The exact systemd calendar string to add to the timer
+#
+#   * This is **not** checked for correctess
 #
 # @param minute
 #   The ``minute`` value for the crontab entry
@@ -121,22 +132,25 @@
 #   }
 #
 class pupmod::agent::cron (
-  Integer[0]                              $interval           = 30,
-  String                                  $minute_base        = $facts['ipaddress'],
-  Integer[0]                              $run_timeframe      = 60,
-  Integer[0]                              $runs_per_timeframe = 2,
-  Variant[Simplib::Cron::Minute,String]   $minute             = 'ip_mod',
-  Simplib::Cron::Hour                     $hour               = '*',
-  Simplib::Cron::MonthDay                 $monthday           = '*',
-  Simplib::Cron::Month                    $month              = '*',
-  Simplib::Cron::Weekday                  $weekday            = '*',
-  Integer[1]                              $maxruntime         = 240,
-  Boolean                                 $break_puppet_lock  = true,
-  Optional[Integer[1]]                    $max_disable_time   = undef
+  Boolean                                                             $enable             = true,
+  Integer[0]                                                          $interval           = 30,
+  String                                                              $minute_base        = $facts['ipaddress'],
+  Integer[0]                                                          $run_timeframe      = 60,
+  Integer[0]                                                          $runs_per_timeframe = 2,
+  Optional[String[1]]                                                 $systemd_calendar   = undef,
+  Variant[Simplib::Cron::Minute,Enum['nil','ip_mod','rand','sha256']] $minute             = 'ip_mod',
+  Simplib::Cron::Hour                                                 $hour               = '*',
+  Simplib::Cron::MonthDay                                             $monthday           = '*',
+  Simplib::Cron::Month                                                $month              = '*',
+  Simplib::Cron::Weekday                                              $weekday            = '*',
+  Integer[1]                                                          $maxruntime         = 240,
+  Boolean                                                             $break_puppet_lock  = true,
+  Optional[Integer[1]]                                                $max_disable_time   = undef
 ) {
   include 'pupmod'
 
-  cron { 'puppetd': ensure => 'absent' }
+  # Remove legacy cron jobs
+  cron { ['puppetd', 'puppetagent']: ensure => 'absent' }
 
   case $minute {
     # rand = ip_mod for backward compatibility
@@ -173,25 +187,20 @@ class pupmod::agent::cron (
     }
   }
 
-  if $minute == 'nil' {
-    cron { 'puppetagent':
-      command => '/usr/local/bin/puppetagent_cron.sh',
-      user    => 'root',
-      minute  => $_minute,
-      require => File['/usr/local/bin/puppetagent_cron.sh']
-    }
+  if $systemd_calendar {
+    $_systemd_calendar = $systemd_calendar
+  }
+  elsif $minute == 'nil' {
+    $_systemd_calendar = simplib::cron::to_systemd($_minute)
   }
   else {
-    cron { 'puppetagent':
-      command  => '/usr/local/bin/puppetagent_cron.sh',
-      user     => 'root',
-      minute   => $_minute,
-      hour     => $hour,
-      monthday => $monthday,
-      month    => $month,
-      weekday  => $weekday,
-      require  => File['/usr/local/bin/puppetagent_cron.sh']
-    }
+    $_systemd_calendar = simplib::cron::to_systemd(
+      $_minute,
+      $hour,
+      $month,
+      $monthday,
+      $weekday
+    )
   }
 
   file { '/usr/local/bin/puppetagent_cron.sh':
@@ -200,6 +209,26 @@ class pupmod::agent::cron (
     group   => 'root',
     mode    => '0750',
     content => epp("${module_name}/usr/local/bin/puppetagent_cron")
+  }
+
+  $_timer = @("EOM")
+  [Timer]
+  OnCalendar=${_systemd_calendar}
+  | EOM
+
+  $_service = @("EOM")
+  [Service]
+  Type=oneshot
+  SuccessExitStatus=2
+  ExecStart=/usr/local/bin/puppetagent_cron.sh
+  | EOM
+
+  systemd::timer { 'puppet_agent.timer':
+    timer_content   => $_timer,
+    service_content => $_service,
+    active          => $enable,
+    enable          => $enable,
+    require         => File['/usr/local/bin/puppetagent_cron.sh']
   }
 
   file { '/usr/local/bin/careful_puppet_service_shutdown.sh':
