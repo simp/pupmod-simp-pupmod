@@ -20,7 +20,7 @@ HOSTS:
     roles:
       - simp_master
     platform: el-8-x86_64
-    box: centos/8
+    box: generic/centos8
     hypervisor: <%= hypervisor %>
     vagrant_memsize: 4608
     vagrant_cpus: 2
