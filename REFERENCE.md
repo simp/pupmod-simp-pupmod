@@ -1704,6 +1704,7 @@ The following parameters are available in the `pupmod::master::sysconfig` class:
 * [`jruby_jar`](#jruby_jar)
 * [`java_temp_dir`](#java_temp_dir)
 * [`extra_java_args`](#extra_java_args)
+* [`use_code_cache_flushing`](#use_code_cache_flushing)
 * [`reserved_code_cache`](#reserved_code_cache)
 * [`service_stop_retries`](#service_stop_retries)
 * [`start_timeout`](#start_timeout)
@@ -1784,6 +1785,14 @@ An ``Array`` that will be joined and appended to the Java argument list.
 * The sanity and syntax of this list will not be checked.
 
 Default value: ``undef``
+
+##### <a name="use_code_cache_flushing"></a>`use_code_cache_flushing`
+
+Data type: `Boolean`
+
+Enable code cache flushing to alleviate memory strain on the server
+
+Default value: ``true``
 
 ##### <a name="reserved_code_cache"></a>`reserved_code_cache`
 

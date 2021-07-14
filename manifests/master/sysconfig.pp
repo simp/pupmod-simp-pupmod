@@ -36,6 +36,9 @@
 #
 #   * The sanity and syntax of this list will not be checked.
 #
+# @param use_code_cache_flushing
+#   Enable code cache flushing to alleviate memory strain on the server
+#
 # @param reserved_code_cache
 #   An ``Integer`` of the MB to be used for JRuby options of ReservedCodeCache
 #
@@ -65,19 +68,20 @@ class pupmod::master::sysconfig (
   Stdlib::AbsolutePath           $install_dir,
   Stdlib::AbsolutePath           $config,
   Array[Stdlib::AbsolutePath]    $bootstrap_config,
-  Stdlib::AbsolutePath           $java_bin             = '/usr/bin/java',
-  Optional[Pupmod::Memory]       $java_start_memory    = undef,
-  Optional[Pupmod::Memory]       $java_max_memory      = undef,
-  Optional[Stdlib::AbsolutePath] $java_temp_dir        = undef,
-  String                         $jruby_jar            = 'jruby-9k.jar',
-  Optional[Array[String]]        $extra_java_args      = undef,
-  Integer[0]                     $reserved_code_cache  = pupmod::reserved_code_cache(),
-  Integer                        $service_stop_retries = 60,
-  Integer                        $start_timeout        = 120,
-  Simplib::ServerDistribution    $server_distribution  = pupmod::server_distribution(),
-  String                         $user                 = pick($facts.dig('puppet_settings','server','user'),$facts.dig('puppet_settings','master','user')),
-  String                         $group                = pick($facts.dig('puppet_settings','server','group'),$facts.dig('puppet_settings','master','group')),
-  Boolean                        $mock                 = false
+  Stdlib::AbsolutePath           $java_bin                = '/usr/bin/java',
+  Optional[Pupmod::Memory]       $java_start_memory       = undef,
+  Optional[Pupmod::Memory]       $java_max_memory         = undef,
+  Optional[Stdlib::AbsolutePath] $java_temp_dir           = undef,
+  String                         $jruby_jar               = 'jruby-9k.jar',
+  Optional[Array[String]]        $extra_java_args         = undef,
+  Boolean                        $use_code_cache_flushing = true,
+  Integer[0]                     $reserved_code_cache     = pupmod::reserved_code_cache(),
+  Integer                        $service_stop_retries    = 60,
+  Integer                        $start_timeout           = 120,
+  Simplib::ServerDistribution    $server_distribution     = pupmod::server_distribution(),
+  String                         $user                    = pick($facts.dig('puppet_settings','server','user'),$facts.dig('puppet_settings','master','user')),
+  String                         $group                   = pick($facts.dig('puppet_settings','server','group'),$facts.dig('puppet_settings','master','group')),
+  Boolean                        $mock                    = false
 ) inherits pupmod {
 
   include 'pupmod::master::service'

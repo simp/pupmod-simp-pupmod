@@ -16,25 +16,43 @@
   }
 
   if $pupmod::master::sysconfig::reserved_code_cache != 0 {
-    $reserved_code_cache = "-XX:ReservedCodeCacheSize=${pupmod::master::sysconfig::reserved_code_cache}m"
+    $reserved_code_cache = ["-XX:ReservedCodeCacheSize=${pupmod::master::sysconfig::reserved_code_cache}m"]
   }
   else {
-    $reserved_code_cache = ''
+    $reserved_code_cache = []
+  }
+
+  if $pupmod::master::sysconfig::use_code_cache_flushing {
+    $code_cache_flushing = ['-XX:+UseCodeCacheFlushing']
+  }
+  else {
+    $code_cache_flushing = ['-XX:-UseCodeCacheFlushing']
   }
 
   if $pupmod::master::sysconfig::extra_java_args {
-    $extra_java_args = join($pupmod::master::sysconfig::extra_java_args, ' ')
+    $extra_java_args = $pupmod::master::sysconfig::extra_java_args
   }
   else {
-    $extra_java_args = ''
+    $extra_java_args = []
   }
+
+  $args = (
+    [
+      "-Xms${java_start_memory}",
+      "-Xmx${java_max_memory}",
+      "-Djava.io.tmpdir=${pupmod::master::sysconfig::_java_temp_dir}"
+    ] +
+      $reserved_code_cache +
+      $code_cache_flushing +
+      $extra_java_args
+  ).join(' ')
 -%>
 # Location of your Java binary (version 7 or higher)
 JAVA_BIN="<%= $pupmod::master::sysconfig::java_bin %>"
 
 # Modify this if you'd like to change the memory allocation, enable JMX, etc
-JAVA_ARGS="-Xms<%= $java_start_memory %> -Xmx<%= $java_max_memory %> -Djava.io.tmpdir=<%= $pupmod::master::sysconfig::_java_temp_dir %> <%= $reserved_code_cache %> <%= $extra_java_args %>"
-JAVA_ARGS_CLI="-Xms<%= $java_start_memory %> -Xmx<%= $java_max_memory %> -Djava.io.tmpdir=<%= $pupmod::master::sysconfig::_java_temp_dir %> <%= $reserved_code_cache %> <%= $extra_java_args %>"
+JAVA_ARGS="<%= $args %>"
+JAVA_ARGS_CLI="<%= $args %>"
 
 <% if $pupmod::master::sysconfig::_jruby_jar != 'default' { -%>
 JRUBY_JAR="<%= $pupmod::master::sysconfig::_jruby_jar %>"
