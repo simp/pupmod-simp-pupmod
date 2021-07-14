@@ -8,33 +8,19 @@
     $java_max_memory = $pupmod::master::sysconfig::_java_max_memory
   }
 
-  if $pupmod::master::sysconfig::java_start_memory {
-    $java_start_memory = $pupmod::master::sysconfig::java_start_memory
-  }
-  else {
-    $java_start_memory = $java_max_memory
+  $java_start_memory = $pupmod::master::sysconfig::java_start_memory.lest || { $java_max_memory }
+
+  $reserved_code_cache = $pupmod::master::sysconfig::reserved_code_cache ? {
+    0       => [],
+    default => ["-XX:ReservedCodeCacheSize=${pupmod::master::sysconfig::reserved_code_cache}m"],
   }
 
-  if $pupmod::master::sysconfig::reserved_code_cache != 0 {
-    $reserved_code_cache = ["-XX:ReservedCodeCacheSize=${pupmod::master::sysconfig::reserved_code_cache}m"]
-  }
-  else {
-    $reserved_code_cache = []
+  $code_cache_flushing = $pupmod::master::sysconfig::use_code_cache_flushing ? {
+    true    => ['-XX:+UseCodeCacheFlushing'],
+    default => ['-XX:-UseCodeCacheFlushing'],
   }
 
-  if $pupmod::master::sysconfig::use_code_cache_flushing {
-    $code_cache_flushing = ['-XX:+UseCodeCacheFlushing']
-  }
-  else {
-    $code_cache_flushing = ['-XX:-UseCodeCacheFlushing']
-  }
-
-  if $pupmod::master::sysconfig::extra_java_args {
-    $extra_java_args = $pupmod::master::sysconfig::extra_java_args
-  }
-  else {
-    $extra_java_args = []
-  }
+  $extra_java_args = $pupmod::master::sysconfig::extra_java_args.lest || { [] }
 
   $args = (
     [

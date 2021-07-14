@@ -42,7 +42,7 @@
 # @param reserved_code_cache
 #   An ``Integer`` of the MB to be used for JRuby options of ReservedCodeCache
 #
-#   * If unset, this will auto-populate based on function
+#   * By default, this will auto-populate based on function
 #
 # @param service_stop_retries
 #   The number of times to attempt to stop the puppetserver process before
@@ -93,24 +93,17 @@ class pupmod::master::sysconfig (
     } else {
       $_tuning_max_active_instances = $pupmod::master::max_active_instances
     }
-
-    $_java_max_memory = $java_max_memory ? {
-      undef   => pupmod::java_max_memory($_tuning_max_active_instances),
-      default => $java_max_memory,
-    }
+    $_java_max_memory = $java_max_memory.lest || { pupmod::java_max_memory($_tuning_max_active_instances) }
 
 
     # In Puppet 6.19 the section "master was renamed to "server" in Puppet.settings.
     # pick is used here to determine correct value for backwards compatability
     $_server_datadir = pick($facts.dig('puppet_settings','server','server_datadir'),$facts.dig('puppet_settings','master','server_datadir'))
 
-    if empty($java_temp_dir) {
+    $_java_temp_dir = $java_temp_dir.empty ? {
       # puppet_settings.master.server_datadir is not always present, but its parent is
-      $_p_server_datadir = dirname($_server_datadir)
-      $_java_temp_dir = "${_p_server_datadir}/pserver_tmp"
-    }
-    else {
-      $_java_temp_dir = $java_temp_dir
+      true    => "${_server_datadir.dirname}/pserver_tmp",
+      default => $java_temp_dir,
     }
 
     file { $_java_temp_dir:
