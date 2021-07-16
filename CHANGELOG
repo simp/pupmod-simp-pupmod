@@ -1,3 +1,7 @@
+* Wed Jul 14 2021 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.2.0
+- Added pupmod::master::sysconfig::use_code_cache_flushing to reduce excessive
+  memory usage
+
 * Wed Jun 16 2021 Chris Tessmer <chris.tessmer@onyxpoint.com> - 8.2.0
 - Removed support for Puppet 5
 - Ensured support for Puppet 7 in requirements and stdlib

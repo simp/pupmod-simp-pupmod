@@ -8,33 +8,37 @@
     $java_max_memory = $pupmod::master::sysconfig::_java_max_memory
   }
 
-  if $pupmod::master::sysconfig::java_start_memory {
-    $java_start_memory = $pupmod::master::sysconfig::java_start_memory
-  }
-  else {
-    $java_start_memory = $java_max_memory
+  $java_start_memory = $pupmod::master::sysconfig::java_start_memory.lest || { $java_max_memory }
+
+  $reserved_code_cache = $pupmod::master::sysconfig::reserved_code_cache ? {
+    0       => [],
+    default => ["-XX:ReservedCodeCacheSize=${pupmod::master::sysconfig::reserved_code_cache}m"],
   }
 
-  if $pupmod::master::sysconfig::reserved_code_cache != 0 {
-    $reserved_code_cache = "-XX:ReservedCodeCacheSize=${pupmod::master::sysconfig::reserved_code_cache}m"
-  }
-  else {
-    $reserved_code_cache = ''
+  $code_cache_flushing = $pupmod::master::sysconfig::use_code_cache_flushing ? {
+    true    => ['-XX:+UseCodeCacheFlushing'],
+    default => ['-XX:-UseCodeCacheFlushing'],
   }
 
-  if $pupmod::master::sysconfig::extra_java_args {
-    $extra_java_args = join($pupmod::master::sysconfig::extra_java_args, ' ')
-  }
-  else {
-    $extra_java_args = ''
-  }
+  $extra_java_args = $pupmod::master::sysconfig::extra_java_args.lest || { [] }
+
+  $args = (
+    [
+      "-Xms${java_start_memory}",
+      "-Xmx${java_max_memory}",
+      "-Djava.io.tmpdir=${pupmod::master::sysconfig::_java_temp_dir}"
+    ] +
+      $reserved_code_cache +
+      $code_cache_flushing +
+      $extra_java_args
+  ).join(' ')
 -%>
 # Location of your Java binary (version 7 or higher)
 JAVA_BIN="<%= $pupmod::master::sysconfig::java_bin %>"
 
 # Modify this if you'd like to change the memory allocation, enable JMX, etc
-JAVA_ARGS="-Xms<%= $java_start_memory %> -Xmx<%= $java_max_memory %> -Djava.io.tmpdir=<%= $pupmod::master::sysconfig::_java_temp_dir %> <%= $reserved_code_cache %> <%= $extra_java_args %>"
-JAVA_ARGS_CLI="-Xms<%= $java_start_memory %> -Xmx<%= $java_max_memory %> -Djava.io.tmpdir=<%= $pupmod::master::sysconfig::_java_temp_dir %> <%= $reserved_code_cache %> <%= $extra_java_args %>"
+JAVA_ARGS="<%= $args %>"
+JAVA_ARGS_CLI="<%= $args %>"
 
 <% if $pupmod::master::sysconfig::_jruby_jar != 'default' { -%>
 JRUBY_JAR="<%= $pupmod::master::sysconfig::_jruby_jar %>"
