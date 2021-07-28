@@ -101,7 +101,6 @@ describe 'pupmod::pass_two' do
                 'tag'   => 'firstrun',
               }) }
 
-
               if $pe_mode
                 classlist = data['pupmod::pe_classlist'];
                 classlist.each do |key, value|
@@ -237,6 +236,24 @@ describe 'pupmod::pass_two' do
             end
           end
         end
+      end
+
+      context "with multiple puppet_server" do
+        let(:title) { "main" }
+        let(:params) {
+          {
+            :server_distribution => 'PC1',
+            :pupmod_server => ['1.2.3.4', '5.6.7.8']
+          }
+        }
+          it { 
+            is_expected.to contain_pupmod__conf('server_list').with(
+            {
+              'setting' => 'server_list',
+              'value' => ['1.2.3.4', '5.6.7.8'].join(',')
+            }
+          )
+        }
       end
     end
   end

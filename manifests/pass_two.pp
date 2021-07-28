@@ -22,7 +22,7 @@ define pupmod::pass_two (
   Stdlib::AbsolutePath                   $confdir             = '/etc/puppetlabs/puppet',
   Optional[Boolean]                      $firewall            = undef,
   Hash                                   $pe_classlist        = lookup('pupmod::pe_classlist'),
-  Optional[Simplib::Host]                $pupmod_server       = '1.2.3.4',
+  Variant[Simplib::Host, Array[Simplib::Host]]          $pupmod_server       = '1.2.3.4',
   Variant[Simplib::Host,Enum['$server']] $pupmod_ca_server    = '$server',
   Simplib::Port                          $pupmod_ca_port      = 8141,
   Boolean                                $pupmod_report       = false,
@@ -37,12 +37,19 @@ define pupmod::pass_two (
   }
 
   # These are agent specific variables, that only apply on Puppet 4+ systems:
-
   if ($_server_distribution == 'PC1') {
-    pupmod::conf { 'server':
+    if $pupmod_server =~ Array {
+      $server_setting = 'server_list'
+      $server_list = join($pupmod_server, ',')
+    } else {
+      $server_setting = 'server'
+      $server_list = $pupmod_server
+    }
+
+    pupmod::conf { $server_setting:
       confdir => $confdir,
-      setting => 'server',
-      value   => $pupmod_server,
+      setting => $server_setting,
+      value   => $server_list,
     }
 
     pupmod::conf { 'ca_server':
@@ -73,7 +80,11 @@ define pupmod::pass_two (
 
   # In Puppet 6.19 the section "master was renamed to "server" in Puppet.settings.
   # pick is used here to determine correct value for backwards compatability
-  $_conf_group = pick($facts.dig('puppet_settings','server','group'),$facts.dig('puppet_settings','master','group'))
+  $_conf_group = pick(
+    $facts.dig('puppet_settings','server','group'),
+    $facts.dig('puppet_settings','server_list','group'),
+    $facts.dig('puppet_settings','master','group')
+  )
 
   # These two maps allow the user and service specifications to occur purely in
   # data and can be included /only/ if the node is classified into the
