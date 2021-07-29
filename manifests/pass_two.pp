@@ -17,16 +17,16 @@
 # @see comment at manifests/init.pp:244
 #
 define pupmod::pass_two (
-  String                                 $namevar             = $name,
-  Simplib::ServerDistribution            $server_distribution = pupmod::server_distribution(),
-  Stdlib::AbsolutePath                   $confdir             = '/etc/puppetlabs/puppet',
-  Optional[Boolean]                      $firewall            = undef,
-  Hash                                   $pe_classlist        = lookup('pupmod::pe_classlist'),
-  Variant[Simplib::Host, Array[Simplib::Host]]          $pupmod_server       = '1.2.3.4',
-  Variant[Simplib::Host,Enum['$server']] $pupmod_ca_server    = '$server',
-  Simplib::Port                          $pupmod_ca_port      = 8141,
-  Boolean                                $pupmod_report       = false,
-  Simplib::Port                          $pupmod_masterport   = 8140,
+  String                                       $namevar             = $name,
+  Simplib::ServerDistribution                  $server_distribution = pupmod::server_distribution(),
+  Stdlib::AbsolutePath                         $confdir             = '/etc/puppetlabs/puppet',
+  Optional[Boolean]                            $firewall            = undef,
+  Hash                                         $pe_classlist        = lookup('pupmod::pe_classlist'),
+  Variant[Simplib::Host, Array[Simplib::Host]] $pupmod_server       = '1.2.3.4',
+  Variant[Simplib::Host,Enum['$server']]       $pupmod_ca_server    = '$server',
+  Simplib::Port                                $pupmod_ca_port      = 8141,
+  Boolean                                      $pupmod_report       = false,
+  Simplib::Port                                $pupmod_masterport   = 8140,
 ) {
   assert_private()
 
