@@ -1,4 +1,4 @@
-* Wed Jul 28 2021 Andy Adrian <andy.adrian@onyxpoint.com> - 8.2.1
+* Wed Jul 28 2021 Andy Adrian <andy.adrian@onyxpoint.com> - 8.2.0
 - Updated pupmod::puppet_server to accept Array as well as single hosts
 - Updated pupmod::pass_two to configure server_list when multiple puppet_server
   are specified
