@@ -15,7 +15,6 @@ function pupmod::server_distribution (
   # pick is used here to determine correct value for backwards compatability
   $_puppet_user = pick(
     $facts.dig('puppet_settings','server','user'),
-    $facts.dig('puppet_settings','server_list','user'),
     $facts.dig('puppet_settings','master','user')
   )
 

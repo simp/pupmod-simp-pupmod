@@ -39,17 +39,35 @@ define pupmod::pass_two (
   # These are agent specific variables, that only apply on Puppet 4+ systems:
   if ($_server_distribution == 'PC1') {
     if $pupmod_server =~ Array {
-      $server_setting = 'server_list'
       $server_list = join($pupmod_server, ',')
+      pupmod::conf { 'server_list':
+        ensure  => 'present',
+        confdir => $confdir,
+        setting => 'server_list',
+        value   => $server_list,
+      }
+      # 'server' and 'server_list' are mutually exclusive configs, so ensuring that
+      pupmod::conf { 'server':
+        ensure  => 'absent',
+        confdir => $confdir,
+        setting => 'server',
+        value   => '',
+      }
     } else {
-      $server_setting = 'server'
-      $server_list = $pupmod_server
-    }
+      pupmod::conf { 'server':
+        ensure  => 'present',
+        confdir => $confdir,
+        setting => 'server',
+        value   => $pupmod_server,
+      }
 
-    pupmod::conf { $server_setting:
-      confdir => $confdir,
-      setting => $server_setting,
-      value   => $server_list,
+      # 'server' and 'server_list' are mutually exclusive configs, so ensuring that
+      pupmod::conf { 'server_list':
+        ensure  => 'absent',
+        confdir => $confdir,
+        setting => 'server_list',
+        value   => '',
+      }
     }
 
     pupmod::conf { 'ca_server':
@@ -82,7 +100,6 @@ define pupmod::pass_two (
   # pick is used here to determine correct value for backwards compatability
   $_conf_group = pick(
     $facts.dig('puppet_settings','server','group'),
-    $facts.dig('puppet_settings','server_list','group'),
     $facts.dig('puppet_settings','master','group')
   )
 

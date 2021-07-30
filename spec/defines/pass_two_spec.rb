@@ -39,15 +39,72 @@ describe 'pupmod::pass_two' do
                 $pe_mode = false
               end
               let(:title) { "main" }
+              
+              {
+                'server_list' => ['11.22.33.44', '5.6.7.8'],
+                'server' => '11.22.33.44'
+              }.each do |key, data|
+                context "with pupmod_server as #{data}" do
+                  if $pe_mode
+                    it { is_expected.to_not contain_ini_setting("pupmod_#{key}") }
+                  else
+                    let(:title) { "main" }
+                    let(:params) {
+                      {
+                        :server_distribution => distribution,
+                        :pupmod_server => data
+                      }
+                    }
+                    if (key == 'server_list') 
+                      it {
+                          is_expected.to contain_pupmod__conf(key).with(
+                          {
+                            'ensure' => 'present',
+                            'setting' => key,
+                            'value' => data.join(',')
+                          }
+                        )
+                      }
+                      it {
+                        is_expected.to contain_pupmod__conf('server').with(
+                          {
+                            'ensure' => 'absent',
+                            'setting' => 'server',
+                            'value' => ''
+                          }
+                        )
+                      }
+                    else
+                      it {
+                        is_expected.to contain_pupmod__conf(key).with(
+                          {
+                            'ensure' => 'present',
+                            'setting' => key,
+                            'value' => data
+                          }
+                        )
+                      }
+                      it {
+                        is_expected.to contain_pupmod__conf('server_list').with(
+                          {
+                            'ensure' => 'absent',
+                            'setting' => 'server_list',
+                            'value' => ''
+                          }
+                        )
+                      }
+                    end
+                  end
+                end
+              end
+
               let(:params) {
                 {
                   :server_distribution => distribution
                 }
               }
+
               {
-                'server' => {
-                  'value' => '1.2.3.4'
-                },
                 'ca_server' => {
                   'value' => '$server'
                 },
@@ -74,8 +131,8 @@ describe 'pupmod::pass_two' do
                   }
                   it { is_expected.to contain_ini_setting("pupmod_#{key}") }
                 end
-
               end
+
               unless $pe_mode
                 mode = '0640'
                 group = 'puppet'
@@ -236,24 +293,6 @@ describe 'pupmod::pass_two' do
             end
           end
         end
-      end
-
-      context "with multiple puppet_server" do
-        let(:title) { "main" }
-        let(:params) {
-          {
-            :server_distribution => 'PC1',
-            :pupmod_server => ['1.2.3.4', '5.6.7.8']
-          }
-        }
-          it { 
-            is_expected.to contain_pupmod__conf('server_list').with(
-            {
-              'setting' => 'server_list',
-              'value' => ['1.2.3.4', '5.6.7.8'].join(',')
-            }
-          )
-        }
       end
     end
   end
