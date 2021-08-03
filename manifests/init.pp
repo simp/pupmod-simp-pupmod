@@ -15,7 +15,7 @@
 #   The puppet CA from which to obtain your system certificates.
 #
 # @param puppet_server
-#   The puppet master from which to retrieve your configuration.
+#   One or more puppet servers from which to retrieve your configuration.
 #
 # @param server_distribution
 #   The server distribution used. This changes the configuration based on whether
@@ -174,46 +174,46 @@
 # @author https://github.com/simp/pupmod-simp-pupmod/graphs/contributors
 #
 class pupmod (
-  Variant[Simplib::Host,Enum['$server']] $ca_server            = simplib::lookup('simp_options::puppet::ca', { 'default_value' => '$server' }),
-  Simplib::Port                          $ca_port              = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
-  Simplib::Host                          $puppet_server        = simplib::lookup('simp_options::puppet::server', { 'default_value' => "puppet.${facts['domain']}" }),
-  Simplib::ServerDistribution            $server_distribution  = pupmod::server_distribution(false), # Can't self-reference in this lookup
-  Simplib::Host                          $certname             = ($trusted['authenticatedx'] ? {
+  Variant[Simplib::Host,Enum['$server']]       $ca_server            = simplib::lookup('simp_options::puppet::ca', { 'default_value' => '$server' }),
+  Simplib::Port                                $ca_port              = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
+  Variant[Simplib::Host, Array[Simplib::Host]] $puppet_server        = simplib::lookup('simp_options::puppet::server', { 'default_value' => "puppet.${facts['domain']}" }),
+  Simplib::ServerDistribution                  $server_distribution  = pupmod::server_distribution(false), # Can't self-reference in this lookup
+  Simplib::Host                                $certname             = ($trusted['authenticatedx'] ? {
                                                                   'remote' => $trusted['certname'],
                                                                   default  => pick($facts['clientcert'], $facts['fqdn']),
                                                                 }),
-  String[0]                              $classfile            = '$vardir/classes.txt',
-  Stdlib::AbsolutePath                   $confdir,
-  Boolean                                $daemonize            = false,
-  Enum['md5','sha256']                   $digest_algorithm     = 'sha256',
-  Boolean                                $enable_puppet_master = false,
-  Stdlib::AbsolutePath                   $environmentpath,
-  Boolean                                $listen               = false,
-  Stdlib::AbsolutePath                   $logdir,
-  Boolean                                $purge_logs           = true,
-  Pattern['\d+(h|m|w)']                  $purge_logs_duration  = '4w',
-  Array[Stdlib::AbsolutePath]            $purge_log_dirs       = ['/puppet*'],
-  Simplib::Port                          $masterport           = 8140,
-  Boolean                                $report               = false,
-  Stdlib::AbsolutePath                   $rundir,
-  Integer[0]                             $runinterval          = 1800,
-  Boolean                                $splay                = false,
-  Optional[Integer[1]]                   $splaylimit           = undef,
-  Simplib::Host                          $srv_domain           = $facts['domain'],
-  Stdlib::AbsolutePath                   $ssldir,
-  Simplib::Syslog::Facility              $syslogfacility       = 'local6',
-  Boolean                                $use_srv_records      = false,
-  Stdlib::AbsolutePath                   $vardir,
-  Boolean                                $haveged              = simplib::lookup('simp_options::haveged', { 'default_value' => false }),
-  Boolean                                $fips                 = simplib::lookup('simp_options::fips', { 'default_value' => false }),
-  Boolean                                $firewall             = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
-  Hash                                   $pe_classlist         = {},
-  String[1]                              $package_ensure       = simplib::lookup('simp_options::package_ensure' , { 'default_value' => 'installed'}),
-  Variant[Boolean, Enum['no_clean']]     $set_environment      = false,
-  Boolean                                $manage_facter_conf   = false,
-  Stdlib::Absolutepath                   $facter_conf_dir      = '/etc/puppetlabs/facter',
-  Hash                                   $facter_options,      # module data
-  Boolean                                $mock                 = false
+  String[0]                                    $classfile            = '$vardir/classes.txt',
+  Stdlib::AbsolutePath                         $confdir,
+  Boolean                                      $daemonize            = false,
+  Enum['md5','sha256']                         $digest_algorithm     = 'sha256',
+  Boolean                                      $enable_puppet_master = false,
+  Stdlib::AbsolutePath                         $environmentpath,
+  Boolean                                      $listen               = false,
+  Stdlib::AbsolutePath                         $logdir,
+  Boolean                                      $purge_logs           = true,
+  Pattern['\d+(h|m|w)']                        $purge_logs_duration  = '4w',
+  Array[Stdlib::AbsolutePath]                  $purge_log_dirs       = ['/puppet*'],
+  Simplib::Port                                $masterport           = 8140,
+  Boolean                                      $report               = false,
+  Stdlib::AbsolutePath                         $rundir,
+  Integer[0]                                   $runinterval          = 1800,
+  Boolean                                      $splay                = false,
+  Optional[Integer[1]]                         $splaylimit           = undef,
+  Simplib::Host                                $srv_domain           = $facts['domain'],
+  Stdlib::AbsolutePath                         $ssldir,
+  Simplib::Syslog::Facility                    $syslogfacility       = 'local6',
+  Boolean                                      $use_srv_records      = false,
+  Stdlib::AbsolutePath                         $vardir,
+  Boolean                                      $haveged              = simplib::lookup('simp_options::haveged', { 'default_value' => false }),
+  Boolean                                      $fips                 = simplib::lookup('simp_options::fips', { 'default_value' => false }),
+  Boolean                                      $firewall             = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
+  Hash                                         $pe_classlist         = {},
+  String[1]                                    $package_ensure       = simplib::lookup('simp_options::package_ensure' , { 'default_value' => 'installed'}),
+  Variant[Boolean, Enum['no_clean']]           $set_environment      = false,
+  Boolean                                      $manage_facter_conf   = false,
+  Stdlib::Absolutepath                         $facter_conf_dir      = '/etc/puppetlabs/facter',
+  Hash                                         $facter_options,      # module data
+  Boolean                                      $mock                 = false
 ) {
 
   unless $mock {

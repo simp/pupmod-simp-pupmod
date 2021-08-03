@@ -17,16 +17,16 @@
 # @see comment at manifests/init.pp:244
 #
 define pupmod::pass_two (
-  String                                 $namevar             = $name,
-  Simplib::ServerDistribution            $server_distribution = pupmod::server_distribution(),
-  Stdlib::AbsolutePath                   $confdir             = '/etc/puppetlabs/puppet',
-  Optional[Boolean]                      $firewall            = undef,
-  Hash                                   $pe_classlist        = lookup('pupmod::pe_classlist'),
-  Optional[Simplib::Host]                $pupmod_server       = '1.2.3.4',
-  Variant[Simplib::Host,Enum['$server']] $pupmod_ca_server    = '$server',
-  Simplib::Port                          $pupmod_ca_port      = 8141,
-  Boolean                                $pupmod_report       = false,
-  Simplib::Port                          $pupmod_masterport   = 8140,
+  String                                       $namevar             = $name,
+  Simplib::ServerDistribution                  $server_distribution = pupmod::server_distribution(),
+  Stdlib::AbsolutePath                         $confdir             = '/etc/puppetlabs/puppet',
+  Optional[Boolean]                            $firewall            = undef,
+  Hash                                         $pe_classlist        = lookup('pupmod::pe_classlist'),
+  Variant[Simplib::Host, Array[Simplib::Host]] $pupmod_server       = '1.2.3.4',
+  Variant[Simplib::Host,Enum['$server']]       $pupmod_ca_server    = '$server',
+  Simplib::Port                                $pupmod_ca_port      = 8141,
+  Boolean                                      $pupmod_report       = false,
+  Simplib::Port                                $pupmod_masterport   = 8140,
 ) {
   assert_private()
 
@@ -37,12 +37,37 @@ define pupmod::pass_two (
   }
 
   # These are agent specific variables, that only apply on Puppet 4+ systems:
-
   if ($_server_distribution == 'PC1') {
-    pupmod::conf { 'server':
-      confdir => $confdir,
-      setting => 'server',
-      value   => $pupmod_server,
+    if $pupmod_server =~ Array {
+      $server_list = join($pupmod_server, ',')
+      pupmod::conf { 'server_list':
+        ensure  => 'present',
+        confdir => $confdir,
+        setting => 'server_list',
+        value   => $server_list,
+      }
+      # 'server' and 'server_list' are mutually exclusive configs, so ensuring that
+      pupmod::conf { 'server':
+        ensure  => 'absent',
+        confdir => $confdir,
+        setting => 'server',
+        value   => '',
+      }
+    } else {
+      pupmod::conf { 'server':
+        ensure  => 'present',
+        confdir => $confdir,
+        setting => 'server',
+        value   => $pupmod_server,
+      }
+
+      # 'server' and 'server_list' are mutually exclusive configs, so ensuring that
+      pupmod::conf { 'server_list':
+        ensure  => 'absent',
+        confdir => $confdir,
+        setting => 'server_list',
+        value   => '',
+      }
     }
 
     pupmod::conf { 'ca_server':
@@ -73,7 +98,10 @@ define pupmod::pass_two (
 
   # In Puppet 6.19 the section "master was renamed to "server" in Puppet.settings.
   # pick is used here to determine correct value for backwards compatability
-  $_conf_group = pick($facts.dig('puppet_settings','server','group'),$facts.dig('puppet_settings','master','group'))
+  $_conf_group = pick(
+    $facts.dig('puppet_settings','server','group'),
+    $facts.dig('puppet_settings','master','group')
+  )
 
   # These two maps allow the user and service specifications to occur purely in
   # data and can be included /only/ if the node is classified into the
