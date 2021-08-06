@@ -1,12 +1,13 @@
+* Wed Aug 04 2021 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.2.0
+- Added pupmod::master::sysconfig::use_code_cache_flushing to reduce excessive
+  memory usage
+- Removed SHA1 ciphers from the server cipher list
+
 * Wed Jul 28 2021 Andy Adrian <andy.adrian@onyxpoint.com> - 8.2.0
 - Updated pupmod::puppet_server to accept Array as well as single hosts
 - Updated pupmod::pass_two to configure server_list when multiple puppet_server
   are specified
 - Updated pupmod::server_distribution to check server_list for puppet_user
-
-* Wed Jul 14 2021 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.2.0
-- Added pupmod::master::sysconfig::use_code_cache_flushing to reduce excessive
-  memory usage
 
 * Wed Jun 16 2021 Chris Tessmer <chris.tessmer@onyxpoint.com> - 8.2.0
 - Removed support for Puppet 5

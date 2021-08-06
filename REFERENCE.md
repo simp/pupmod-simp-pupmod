@@ -116,9 +116,9 @@ Default value: `simplib::lookup('simp_options::puppet::ca', { 'default_value' =>
 
 ##### <a name="puppet_server"></a>`puppet_server`
 
-Data type: `Simplib::Host`
+Data type: `Variant[Simplib::Host, Array[Simplib::Host]]`
 
-The puppet master from which to retrieve your configuration.
+One or more puppet servers from which to retrieve your configuration.
 
 Default value: `simplib::lookup('simp_options::puppet::server', { 'default_value' => "puppet.${facts['domain']}" })`
 
@@ -1800,7 +1800,7 @@ Data type: `Integer[0]`
 
 An ``Integer`` of the MB to be used for JRuby options of ReservedCodeCache
 
-* If unset, this will auto-populate based on function
+* By default, this will auto-populate based on function
 
 Default value: `pupmod::reserved_code_cache()`
 
@@ -2036,7 +2036,7 @@ Default value: `lookup('pupmod::pe_classlist')`
 
 ##### <a name="pupmod_server"></a>`pupmod_server`
 
-Data type: `Optional[Simplib::Host]`
+Data type: `Variant[Simplib::Host, Array[Simplib::Host]]`
 
 
 
