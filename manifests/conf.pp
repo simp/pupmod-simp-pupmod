@@ -21,6 +21,8 @@
 #   * If ``$setting`` is trying to be set to ``environment``, then this will be
 #     forced to ``agent`` to work around various puppet command bugs.
 #
+#   * `master` will automatically get converted to `server`
+#
 #   @see https://simp-project.atlassian.net/browse/SIMP-6820
 #
 # @param ensure
@@ -29,20 +31,36 @@
 # @author https://github.com/simp/pupmod-simp-pupmod/graphs/contributors
 #
 define pupmod::conf (
-  String $setting,
-  Scalar $value,
-  String $confdir,
-  String $section = $setting ? { 'environment' => 'agent', default => 'main' },
-  Enum['present', 'absent'] $ensure = 'present',
+  String                    $setting,
+  Scalar                    $value,
+  Stdlib::Absolutepath      $confdir,
+  String                    $section  = $setting ? { 'environment' => 'agent', default => 'main' },
+  Enum['present', 'absent'] $ensure   = 'present',
 ) {
   $l_name = "${module_name}_${name}"
+
+  if $section == 'master' {
+    $_section = 'server'
+  }
+  else {
+    $_section = $section
+  }
 
   ini_setting { $l_name:
     ensure  => $ensure,
     path    => "${confdir}/puppet.conf",
-    section => $section,
+    section => $_section,
     setting => $setting,
     # This needs to be a string to take effect!
     value   => $value
+  }
+
+  if ( $_section == 'server' ) {
+    ini_setting { "${l_name}_clean":
+      ensure  => 'absent',
+      path    => "${confdir}/puppet.conf",
+      section => 'master',
+      setting => $setting
+    }
   }
 }
