@@ -414,21 +414,21 @@ describe 'pupmod::master' do
           end
 
           it { is_expected.to contain_pupmod__conf('master_environmentpath').with({
-            'section' => 'master',
+            'section' => 'server',
             'setting' => 'environmentpath',
             'value'   => '/etc/puppetlabs/code/environments',
             'notify'  => 'Class[Pupmod::Master::Service]'
           }) }
 
           it { is_expected.to contain_pupmod__conf('master_daemonize').with({
-            'section' => 'master',
+            'section' => 'server',
             'setting' => 'daemonize',
             'value'   => 'true',
             'notify'  => 'Class[Pupmod::Master::Service]'
           }) }
 
           it { is_expected.to contain_pupmod__conf('master_masterport').with({
-            'section' => 'master',
+            'section' => 'server',
             'setting' => 'masterport',
             'value'   => 8140,
             'notify'  => 'Class[Pupmod::Master::Service]'
@@ -441,7 +441,7 @@ describe 'pupmod::master' do
           else
             it 'ensures that "[master] ca = true" is absent when Puppet < 5.5.6' do
               is_expected.to contain_pupmod__conf('master_ca').with({
-                'section' => 'master',
+                'section' => 'server',
                 'setting' => 'ca',
                 'value'   => true,
                 'notify'  => 'Class[Pupmod::Master::Service]',
@@ -450,14 +450,14 @@ describe 'pupmod::master' do
           end
 
           it { is_expected.to contain_pupmod__conf('master_ca_port').with({
-            'section' => 'master',
+            'section' => 'server',
             'setting' => 'ca_port',
             'value'   => 8141,
             'notify'  => 'Class[Pupmod::Master::Service]'
           }) }
 
           it { is_expected.to contain_pupmod__conf('ca_ttl').with({
-            'section' => 'master',
+            'section' => 'server',
             'setting' => 'ca_ttl',
             'value'   => '10y',
             'notify'  => 'Class[Pupmod::Master::Service]'
@@ -465,7 +465,7 @@ describe 'pupmod::master' do
 
           # fips_enabled fact take precedence over hieradata use_fips
           it { is_expected.to contain_pupmod__conf('keylength').with({
-            'section' => 'master',
+            'section' => 'server',
             'setting' => 'keylength',
             'value'   => 4096,
             'notify'  => 'Class[Pupmod::Master::Service]'

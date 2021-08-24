@@ -431,7 +431,7 @@ class pupmod::master (
     }
 
     pupmod::conf { 'master_environmentpath':
-      section => 'master',
+      section => 'server',
       confdir => $puppet_confdir,
       setting => 'environmentpath',
       value   => $environmentpath,
@@ -439,7 +439,7 @@ class pupmod::master (
     }
 
     pupmod::conf { 'master_daemonize':
-      section => 'master',
+      section => 'server',
       confdir => $puppet_confdir,
       setting => 'daemonize',
       value   => $daemonize,
@@ -447,7 +447,7 @@ class pupmod::master (
     }
 
     pupmod::conf { 'master_masterport':
-      section => 'master',
+      section => 'server',
       confdir => $puppet_confdir,
       setting => 'masterport',
       value   => $masterport,
@@ -480,12 +480,12 @@ class pupmod::master (
       setting => 'ca',
       value   => $enable_ca,
       confdir => $puppet_confdir,
-      section => 'master',
+      section => 'server',
       notify  => Class['pupmod::master::service']
     }
 
     pupmod::conf { 'master_ca_port':
-      section => 'master',
+      section => 'server',
       confdir => $puppet_confdir,
       setting => 'ca_port',
       value   => $ca_port,
@@ -493,7 +493,7 @@ class pupmod::master (
     }
 
     pupmod::conf { 'ca_ttl':
-      section => 'master',
+      section => 'server',
       confdir => $puppet_confdir,
       setting => 'ca_ttl',
       value   => $ca_ttl,
@@ -508,7 +508,7 @@ class pupmod::master (
     }
 
     pupmod::conf { 'keylength':
-      section => 'master',
+      section => 'server',
       confdir => $puppet_confdir,
       setting => 'keylength',
       value   => $_keylength,

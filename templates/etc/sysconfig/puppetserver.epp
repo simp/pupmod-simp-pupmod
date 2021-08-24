@@ -26,6 +26,8 @@
     [
       "-Xms${java_start_memory}",
       "-Xmx${java_max_memory}",
+      # TODO - Remove this when native FIPS hooks work properly
+      '-Dcom.redhat.fips=false',
       "-Djava.io.tmpdir=${pupmod::master::sysconfig::_java_temp_dir}"
     ] +
       $reserved_code_cache +

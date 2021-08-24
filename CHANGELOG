@@ -1,7 +1,13 @@
-* Wed Aug 04 2021 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.2.0
+* Tue Aug 17 2021 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.2.0
+- Change all instances of pupmod::master adding items to the `master` section to
+  use `server` instead
+- Update pupmod::conf to automatically switch `master` to `server`
+- Automatically remove items from the puppet config in the `master` section that
+  are set in the `server` section
 - Added pupmod::master::sysconfig::use_code_cache_flushing to reduce excessive
   memory usage
 - Removed SHA1 ciphers from the server cipher list
+- Disable the internal Red Hat FIPS option in the puppet server
 
 * Wed Jul 28 2021 Andy Adrian <andy.adrian@onyxpoint.com> - 8.2.0
 - Updated pupmod::puppet_server to accept Array as well as single hosts
