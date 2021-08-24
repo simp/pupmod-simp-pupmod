@@ -51,7 +51,16 @@ describe 'install environment via r10k and puppetserver' do
       end
 
       it 'should install puppetserver' do
-        master.install_package('puppetserver')
+        if ( on(master, 'cat /proc/sys/crypto/fips_enabled', :accept_all_exit_codes => true).stdout.strip == '1' )
+        # Change to the following when it works for all RHEL-like OSs
+        # if master.fips_mode?
+          master.install_package('yum-utils')
+          master.install_package('java-headless')
+          on(master, 'yumdownloader puppetserver')
+          on(master, 'rpm -i --force --nodigest --nofiledigest puppetserver*.rpm')
+        else
+          master.install_package('puppetserver')
+        end
       end
 
       it 'should enable autosigning' do

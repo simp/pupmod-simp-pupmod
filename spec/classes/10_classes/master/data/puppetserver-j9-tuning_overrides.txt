@@ -2,8 +2,8 @@
 JAVA_BIN="/usr/bin/java"
 
 # Modify this if you'd like to change the memory allocation, enable JMX, etc
-JAVA_ARGS="-Xms10240m -Xmx20480m -Djava.io.tmpdir=%PUPPETSERVER_JAVA_TMPDIR_ROOT%/pserver_tmp -XX:ReservedCodeCacheSize=10240m -XX:+UseCodeCacheFlushing"
-JAVA_ARGS_CLI="-Xms10240m -Xmx20480m -Djava.io.tmpdir=%PUPPETSERVER_JAVA_TMPDIR_ROOT%/pserver_tmp -XX:ReservedCodeCacheSize=10240m -XX:+UseCodeCacheFlushing"
+JAVA_ARGS="-Xms10240m -Xmx20480m -Dcom.redhat.fips=false -Djava.io.tmpdir=%PUPPETSERVER_JAVA_TMPDIR_ROOT%/pserver_tmp -XX:ReservedCodeCacheSize=10240m -XX:+UseCodeCacheFlushing"
+JAVA_ARGS_CLI="-Xms10240m -Xmx20480m -Dcom.redhat.fips=false -Djava.io.tmpdir=%PUPPETSERVER_JAVA_TMPDIR_ROOT%/pserver_tmp -XX:ReservedCodeCacheSize=10240m -XX:+UseCodeCacheFlushing"
 
 JRUBY_JAR="/opt/puppetlabs/server/apps/puppetserver/jruby-9k.jar"
 

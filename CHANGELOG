@@ -7,6 +7,7 @@
 - Added pupmod::master::sysconfig::use_code_cache_flushing to reduce excessive
   memory usage
 - Removed SHA1 ciphers from the server cipher list
+- Disable the internal Red Hat FIPS option in the puppet server
 
 * Wed Jul 28 2021 Andy Adrian <andy.adrian@onyxpoint.com> - 8.2.0
 - Updated pupmod::puppet_server to accept Array as well as single hosts
