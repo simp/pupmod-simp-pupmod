@@ -1,3 +1,6 @@
+* Fri Jun 03 2022 Chris Tessmer <chris.tessmer@onyxpoint.com> - 8.3.0
+- Update from camptocamp/systemd to puppet/systemd
+
 * Tue Aug 17 2021 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.2.0
 - Change all instances of pupmod::master adding items to the `master` section to
   use `server` instead
