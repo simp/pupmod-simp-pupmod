@@ -1,3 +1,6 @@
+* Sat Jul 30 2022 Trevor Vaughan <trevor@sicura.us> - 8.3.1
+- Support puppetlabs-inifile < 6
+
 * Fri Jun 03 2022 Chris Tessmer <chris.tessmer@onyxpoint.com> - 8.3.0
 - Update from camptocamp/systemd to puppet/systemd
 
