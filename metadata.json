@@ -1,6 +1,6 @@
 {
   "name": "simp-pupmod",
-  "version": "8.3.0",
+  "version": "8.3.1",
   "author": "SIMP Team",
   "summary": "A puppet module to manage puppetserver and puppet agents",
   "license": "Apache-2.0",
@@ -31,7 +31,7 @@
     },
     {
       "name": "puppetlabs/inifile",
-      "version_requirement": ">= 2.5.0 < 5.0.0"
+      "version_requirement": ">= 2.5.0 < 6.0.0"
     },
     {
       "name": "puppetlabs/puppet_authorization",
