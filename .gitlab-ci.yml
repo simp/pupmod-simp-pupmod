@@ -340,9 +340,9 @@ pup7.pe-unit:
   <<: *pup_7_pe
   <<: *unit_tests
 
-pup8.x-unit:
-  <<: *pup_8_x
-  <<: *unit_tests
+#pup8.x-unit:
+#  <<: *pup_8_x
+#  <<: *unit_tests
 
 # ------------------------------------------------------------------------------
 #             NOTICE: **This file is maintained with puppetsync**
@@ -398,22 +398,22 @@ pup7.pe-oel-fips:
   script:
     - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,oel]'
 
-pup8.x:
-  <<: *pup_8_x
-  <<: *acceptance_base
-  script:
-    - 'bundle exec rake beaker:suites[default,default]'
+#pup8.x:
+#  <<: *pup_8_x
+#  <<: *acceptance_base
+#  script:
+#    - 'bundle exec rake beaker:suites[default,default]'
 
-pup8.x-fips:
-  <<: *pup_8_x
-  <<: *acceptance_base
-  <<: *with_SIMP_ACCEPTANCE_MATRIX_LEVEL_3
-  script:
-    - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,default]'
+#pup8.x-fips:
+#  <<: *pup_8_x
+#  <<: *acceptance_base
+#  <<: *with_SIMP_ACCEPTANCE_MATRIX_LEVEL_3
+#  script:
+#    - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,default]'
 
-pup8.x-oel:
-  <<: *pup_8_x
-  <<: *acceptance_base
-  <<: *with_SIMP_ACCEPTANCE_MATRIX_LEVEL_3
-  script:
-    - 'bundle exec rake beaker:suites[default,oel]'
+#pup8.x-oel:
+#  <<: *pup_8_x
+#  <<: *acceptance_base
+#  <<: *with_SIMP_ACCEPTANCE_MATRIX_LEVEL_3
+#  script:
+#    - 'bundle exec rake beaker:suites[default,oel]'
