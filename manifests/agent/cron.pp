@@ -134,7 +134,7 @@
 class pupmod::agent::cron (
   Boolean                                                             $enable             = true,
   Integer[0]                                                          $interval           = 30,
-  String                                                              $minute_base        = $facts['ipaddress'],
+  String                                                              $minute_base        = $facts['networking']['ip'],
   Integer[0]                                                          $run_timeframe      = 60,
   Integer[0]                                                          $runs_per_timeframe = 2,
   Optional[String[1]]                                                 $systemd_calendar   = undef,

@@ -176,11 +176,11 @@
 class pupmod (
   Variant[Simplib::Host,Enum['$server']]       $ca_server            = simplib::lookup('simp_options::puppet::ca', { 'default_value' => '$server' }),
   Simplib::Port                                $ca_port              = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
-  Variant[Simplib::Host, Array[Simplib::Host]] $puppet_server        = simplib::lookup('simp_options::puppet::server', { 'default_value' => "puppet.${facts['domain']}" }),
+  Variant[Simplib::Host, Array[Simplib::Host]] $puppet_server        = simplib::lookup('simp_options::puppet::server', { 'default_value' => "puppet.${facts['networking']['domain']}" }),
   Simplib::ServerDistribution                  $server_distribution  = pupmod::server_distribution(false), # Can't self-reference in this lookup
   Simplib::Host                                $certname             = ($trusted['authenticatedx'] ? {
                                                                   'remote' => $trusted['certname'],
-                                                                  default  => pick($facts['clientcert'], $facts['fqdn']),
+                                                                  default  => pick($facts['clientcert'], $facts['networking']['fqdn']),
                                                                 }),
   String[0]                                    $classfile            = '$vardir/classes.txt',
   Stdlib::AbsolutePath                         $confdir,
@@ -199,7 +199,7 @@ class pupmod (
   Integer[0]                                   $runinterval          = 1800,
   Boolean                                      $splay                = false,
   Optional[Integer[1]]                         $splaylimit           = undef,
-  Simplib::Host                                $srv_domain           = $facts['domain'],
+  Simplib::Host                                $srv_domain           = $facts['networking']['domain'],
   Stdlib::AbsolutePath                         $ssldir,
   Simplib::Syslog::Facility                    $syslogfacility       = 'local6',
   Boolean                                      $use_srv_records      = false,
@@ -378,7 +378,7 @@ class pupmod (
     }
 
     $puppet_agent_sebool = 'puppetagent_manage_all_files'
-    if $facts['selinux'] and $facts['selinux_current_mode'] and ($facts['selinux_current_mode'] != 'disabled') {
+    if $facts['os']['selinux']['enabled'] and $facts['os']['selinux']['current_mode'] and ($facts['os']['selinux']['current_mode'] != 'disabled') {
       selboolean { $puppet_agent_sebool :
         persistent => true,
         value      => 'on'
