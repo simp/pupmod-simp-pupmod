@@ -3,6 +3,25 @@ require 'spec_helper'
 audit_content = File.open("#{File.dirname(__FILE__)}/data/auditd.txt", "rb").read;
 
 describe 'pupmod' do
+  def mock_selinux_false_facts(os_facts)
+    os_facts[:selinux] = false
+    os_facts[:os][:selinux][:config_mode] = 'disabled'
+    os_facts[:os][:selinux][:current_mode] = 'disabled'
+    os_facts[:os][:selinux][:enabled] = false
+    os_facts[:os][:selinux][:enforced] = false
+    os_facts
+  end
+
+  def mock_selinux_enforcing_facts(os_facts)
+    os_facts[:selinux] = true
+    os_facts[:os][:selinux][:config_mode] = 'enforcing'
+    os_facts[:os][:selinux][:config_policy] = 'targeted'
+    os_facts[:os][:selinux][:current_mode] = 'enforcing'
+    os_facts[:os][:selinux][:enabled] = true
+    os_facts[:os][:selinux][:enforced] = true
+    os_facts
+  end
+
   on_supported_os.each do |os, os_facts|
     let(:node){ os_facts[:fqdn] } # sets trusted facts hash
     before :all do
@@ -12,7 +31,10 @@ describe 'pupmod' do
         }}}
     end
     context "on #{os}" do
-      let(:facts){ @extras.merge(os_facts) }
+      let(:facts){
+        os_facts = @extras.merge(os_facts)
+        mock_selinux_enforcing_facts(os_facts)
+      }
       [
         'PC1',
         'PE'
@@ -156,8 +178,7 @@ describe 'pupmod' do
             context 'with_selinux_disabled' do
               let(:facts) {
                 _facts = @extras.merge(os_facts)
-                _facts[:selinux] = false
-
+                _facts = mock_selinux_false_facts(_facts)
                 _facts
               }
 
