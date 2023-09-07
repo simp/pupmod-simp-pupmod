@@ -10,7 +10,7 @@ describe 'pupmod::max_active_instances' do
 
             context '4C and 8GB' do
                 let(:facts) { os_facts.merge({
-                    :memorysize_mb => '8192',
+                    :memorysize_mb => 8192,
                     :processorcount => 4,
                     :processors => {
                         :physicalcount => 1,
@@ -31,7 +31,7 @@ describe 'pupmod::max_active_instances' do
 
             context '8C and 16GB' do
                 let(:facts) { os_facts.merge({
-                    :memorysize_mb => '16384',
+                    :memorysize_mb => 16384,
                     :processorcount => 8,
                     :processors => {
                         :physicalcount => 2,
@@ -56,7 +56,7 @@ describe 'pupmod::max_active_instances' do
 
             context '16C and 32GB' do
                 let(:facts) { os_facts.merge({
-                    :memorysize_mb => '32768',
+                    :memorysize_mb => 32768,
                     :processorcount => 16,
                     :processors => {
                         :physicalcount => 4,
@@ -90,7 +90,7 @@ describe 'pupmod::max_active_instances' do
             # Test memory limited
             context '16C and 4GB' do
                 let(:facts) { os_facts.merge({
-                    :memorysize_mb => '4096',
+                    :memorysize_mb => 4096,
                     :processorcount => 16,
                     :processors => {
                         :physicalcount => 4,

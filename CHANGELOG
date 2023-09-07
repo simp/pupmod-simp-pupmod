@@ -1,3 +1,11 @@
+* Wed Sep 06 2023 Steven Pritchard <steve@sicura.us> - 8.5.0
+- Add AlmaLinux 8 support
+- Add support and fixes for Puppet 8 and stdlib 9
+- Drop support for Puppet 6
+- Update module dependencies
+- Update gem dependencies
+- Clean up Gemfile for rubocop
+
 * Mon Jul 31 2023 Chris Tessmer <chris.tessmer@onyxpoint.com> - 8.4.0
 - Add RockyLinux 8 support
 

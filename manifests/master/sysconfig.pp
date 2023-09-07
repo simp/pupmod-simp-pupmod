@@ -114,7 +114,7 @@ class pupmod::master::sysconfig (
     }
 
     if ($server_distribution == 'PE') {
-      if (has_key($facts, 'pe_build')) {
+      if 'pe_build' in $facts.keys {
         if (SemVer($facts['pe_build']) < SemVer('2016.4.0')) {
           ['JAVA_ARGS', 'JAVA_ARGS_CLI'].each |String $setting| {
             pe_ini_subsetting { "pupmod::master::sysconfig::javatempdir for ${setting}":

@@ -1,6 +1,6 @@
 {
   "name": "simp-pupmod",
-  "version": "8.4.0",
+  "version": "8.5.0",
   "author": "SIMP Team",
   "summary": "A puppet module to manage puppetserver and puppet agents",
   "license": "Apache-2.0",
@@ -19,7 +19,7 @@
   "dependencies": [
     {
       "name": "puppet/systemd",
-      "version_requirement": ">= 4.0.2 < 6.0.0"
+      "version_requirement": ">= 4.0.2 < 7.0.0"
     },
     {
       "name": "simp/haveged",
@@ -27,11 +27,11 @@
     },
     {
       "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 8.0.0 < 9.0.0"
+      "version_requirement": ">= 8.0.0 < 10.0.0"
     },
     {
       "name": "puppetlabs/inifile",
-      "version_requirement": ">= 2.5.0 < 6.0.0"
+      "version_requirement": ">= 2.5.0 < 7.0.0"
     },
     {
       "name": "puppetlabs/puppet_authorization",
@@ -43,7 +43,7 @@
     },
     {
       "name": "puppetlabs/concat",
-      "version_requirement": ">= 6.4.0 < 8.0.0"
+      "version_requirement": ">= 6.4.0 < 10.0.0"
     },
     {
       "name": "simp/iptables",
@@ -61,7 +61,7 @@
   "requirements": [
     {
       "name": "puppet",
-      "version_requirement": ">= 6.22.1 < 8.0.0"
+      "version_requirement": ">= 7.0.0 < 9.0.0"
     }
   ],
   "operatingsystem_support": [
@@ -88,6 +88,12 @@
     },
     {
       "operatingsystem": "Rocky",
+      "operatingsystemrelease": [
+        "8"
+      ]
+    },
+    {
+      "operatingsystem": "AlmaLinux",
       "operatingsystemrelease": [
         "8"
       ]
