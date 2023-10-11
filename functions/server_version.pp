@@ -6,16 +6,10 @@
 #
 function pupmod::server_version {
   # Authoritatively determine the puppet server version
-  if defined('$::serverversion') {
-    $server_version = $facts['serverversion']
-  }
-  else {
-    $server_version = pick(
-      fact('server_facts.serverversion'),
-      fact('simp_pupmod_serverversion'),
-      '0.0.0'
-    )
-  }
-
-  $server_version
+  pick(
+    fact('serverversion'),
+    fact('server_facts.serverversion'),
+    fact('simp_pupmod_serverversion'),
+    '0.0.0'
+  )
 }

@@ -67,10 +67,6 @@ describe 'install environment via r10k and puppetserver' do
         on(master, 'puppet config --section master set autosign true')
       end
 
-      it 'should enable trusted_server_facts' do
-        on(master, 'puppet config --section master set trusted_server_facts true')
-      end
-
       it 'should correct the permissions' do
         on(master, 'chown -R puppet:puppet /etc/puppetlabs/code')
       end

@@ -10,7 +10,7 @@ describe 'pupmod::master' do
     }}}
   end
 
-  puppetserver_versions = ['6.1.0', '5.3.5', '5.0.0', '2.7.0']
+  puppetserver_versions = ['7.12.0', '8.2.3']
 
   on_supported_os.each do |os, os_facts|
     target_os = ENV.fetch('SPEC_SUPPORTED_OS', os)
@@ -19,17 +19,10 @@ describe 'pupmod::master' do
     puppetserver_versions.each do |puppetserver_version|
       context "on #{os} with puppet server #{puppetserver_version}" do
 
-        def server_facts_hash
-          return {
-            'serverversion' => puppetserver_version,
-            'servername'    => facts[:fqdn],
-            'serverip'      => facts[:ipaddress]
-          }
-        end
-
         let(:facts){
           facts = @extras.merge(os_facts)
           facts[:simp_pupmod_serverversion] = puppetserver_version
+          facts[:serverversion] = puppetserver_version
 
           facts
         }
