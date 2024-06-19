@@ -11,14 +11,14 @@ describe 'puppet_service_enabled', :type => :fact do
 
   context 'with systemd on linux' do
     before do
-      Facter.fact(:kernel).stubs(:value).returns(:linux)
+      allow(Facter.fact(:kernel)).to receive(:value).and_return(:linux)
       Facter.add(:init_systems) { setcode { 'systemd' } }
     end
 
     context 'with puppet service on' do
       before(:each) do
-        Facter::Core::Execution.stubs(:execute).with('/usr/bin/systemctl is-enabled puppet.service').returns 'enabled'
-        Facter::Core::Execution.stubs(:execute).with('/usr/bin/systemctl status puppet.service').returns File.read('spec/files/systemctl_status_on.txt')
+        allow(Facter::Core::Execution).to receive(:execute).with('/usr/bin/systemctl is-enabled puppet.service').and_return 'enabled'
+        allow(Facter::Core::Execution).to receive(:execute).with('/usr/bin/systemctl status puppet.service').and_return File.read('spec/files/systemctl_status_on.txt')
       end
       it 'should return true' do
         expect(Facter.fact(:puppet_service_enabled).value).to be true
@@ -28,8 +28,8 @@ describe 'puppet_service_enabled', :type => :fact do
 
     context 'with puppet service off' do
       before(:each) do
-        Facter::Core::Execution.stubs(:execute).with('/usr/bin/systemctl is-enabled puppet.service').returns 'disabled'
-        Facter::Core::Execution.stubs(:execute).with('/usr/bin/systemctl status puppet.service').returns File.read('spec/files/systemctl_status_off.txt')
+        allow(Facter::Core::Execution).to receive(:execute).with('/usr/bin/systemctl is-enabled puppet.service').and_return 'disabled'
+        allow(Facter::Core::Execution).to receive(:execute).with('/usr/bin/systemctl status puppet.service').and_return File.read('spec/files/systemctl_status_off.txt')
       end
       it 'should return false' do
         expect(Facter.value(:puppet_service_enabled)).to be false
@@ -40,14 +40,14 @@ describe 'puppet_service_enabled', :type => :fact do
 
   context 'without systemd on linux' do
     before do
-      Facter.fact(:kernel).stubs(:value).returns(:linux)
+      allow(Facter.fact(:kernel)).to receive(:value).and_return(:linux)
       Facter.add(:init_systems) { setcode { 'sysv' } }
     end
 
     context 'with puppet service on' do
       before(:each) do
-        Facter::Core::Execution.stubs(:execute).with('/sbin/chkconfig --list | grep -w puppet').returns 'puppet           0:off 1:off 2:off 3:on 4:on 5:on 6:off'
-        Facter::Core::Execution.stubs(:execute).with('/sbin/service puppet status').returns 'puppet (pid  24188) is running...'
+        allow(Facter::Core::Execution).to receive(:execute).with('/sbin/chkconfig --list | grep -w puppet').and_return 'puppet           0:off 1:off 2:off 3:on 4:on 5:on 6:off'
+        allow(Facter::Core::Execution).to receive(:execute).with('/sbin/service puppet status').and_return 'puppet (pid  24188) is running...'
       end
       it 'should return true' do
         expect(Facter.value(:puppet_service_enabled)).to be true
@@ -57,8 +57,8 @@ describe 'puppet_service_enabled', :type => :fact do
 
     context 'with puppet service off' do
       before(:each) do
-        Facter::Core::Execution.stubs(:execute).with('/sbin/chkconfig --list | grep -w puppet').returns 'puppet           0:off 1:off 2:off 3:off 4:off 5:off 6:off '
-        Facter::Core::Execution.stubs(:execute).with('/sbin/service puppet status').returns 'this service is stopped'
+        allow(Facter::Core::Execution).to receive(:execute).with('/sbin/chkconfig --list | grep -w puppet').and_return 'puppet           0:off 1:off 2:off 3:off 4:off 5:off 6:off '
+        allow(Facter::Core::Execution).to receive(:execute).with('/sbin/service puppet status').and_return 'this service is stopped'
       end
       it 'should return false' do
         expect(Facter.value(:puppet_service_enabled)).to be false
