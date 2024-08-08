@@ -1,3 +1,6 @@
+* Wed Aug 07 2024 Sean Peterson <wipeters@gmail.com> - 8.7.2
+- Add a [Install] for puppet_agent.timer (#186)
+
 * Wed Jan 17 2024 Richard Gardner <rick@sicura.us> - 8.7.1
 - Updated hiera.yaml facts to support puppet 8
 

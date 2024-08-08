@@ -214,6 +214,9 @@ class pupmod::agent::cron (
   $_timer = @("EOM")
   [Timer]
   OnCalendar=${_systemd_calendar}
+
+  [Install]
+  WantedBy=timers.target
   | EOM
 
   $_service = @("EOM")
