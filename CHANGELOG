@@ -1,3 +1,6 @@
+* Fri Sep 13 2024 Steven Pritchard <steve@sicura.us> - 8.8.0
+- [puppetsync] Update module dependencies to support simp-iptables 7.x
+
 * Wed Aug 07 2024 Sean Peterson <wipeters@gmail.com> - 8.7.2
 - Add a [Install] for puppet_agent.timer (#186)
 
