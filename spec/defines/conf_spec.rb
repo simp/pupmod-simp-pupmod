@@ -14,9 +14,9 @@ describe 'pupmod::conf' do
       context 'with basic settings' do
         let(:params) do
           {
-            :setting => 'test',
-            :value   => 20,
-            :confdir => '/whatever'
+            setting: 'test',
+            value: 20,
+            confdir: '/whatever'
           }
         end
 
@@ -32,9 +32,9 @@ describe 'pupmod::conf' do
       context 'with a setting of "environment"' do
         let(:params) do
           {
-            :setting => 'environment',
-            :value   => 'foobar',
-            :confdir => '/whatever'
+            setting: 'environment',
+            value: 'foobar',
+            confdir: '/whatever'
           }
         end
 
@@ -50,10 +50,10 @@ describe 'pupmod::conf' do
       context 'with a section of "master"' do
         let(:params) do
           {
-            :setting => 'foo',
-            :section => 'master',
-            :value   => 'foobar',
-            :confdir => '/whatever'
+            setting: 'foo',
+            section: 'master',
+            value: 'foobar',
+            confdir: '/whatever'
           }
         end
 

@@ -4,7 +4,7 @@ require 'spec_helper_acceptance'
 # the number of environments that you would like to process. The default is 100
 # environments.
 
-describe 'auto-triggered puppet generate types'  do
+describe 'auto-triggered puppet generate types' do
   require_relative('lib/util')
 
   include GenerateTypesTestUtil
@@ -15,33 +15,33 @@ describe 'auto-triggered puppet generate types'  do
   hosts_with_role(hosts, 'simp_master').each do |host|
     context "on #{host}" do
       let(:environment_path) { host.puppet[:environmentpath] }
-      let(:resource_types_cache) {
+      let(:resource_types_cache) do
         "#{environment_path}/production/.resource_types"
-      }
+      end
 
-      it 'should have run `puppet generate types`' do
+      it 'has run `puppet generate types`' do
         wait_for_generate_types(host)
 
         on(host, "ls -al #{resource_types_cache}")
       end
 
-      it 'should not recreate the resource cache after deletion' do
+      it 'does not recreate the resource cache after deletion' do
         on(host, "rm -rf #{resource_types_cache}")
         expect(host.file_exist?(resource_types_cache)).to be false
       end
 
-      it 'should create the resource cache in a new environment' do
+      it 'creates the resource cache in a new environment' do
         on(host, "cp -ra #{environment_path}/production #{environment_path}/new_environment")
         wait_for_generate_types(host)
 
         on(host, "ls -al #{environment_path}/new_environment/.resource_types")
       end
 
-      it 'should not trigger on removing the .resource_types directories' do
+      it 'does not trigger on removing the .resource_types directories' do
         on(host, "/bin/rm -rf #{environment_path}/*/.resource_types")
       end
 
-      it 'should regenerate *all* resource caches if the puppet binary is updated' do
+      it 'regenerates *all* resource caches if the puppet binary is updated' do
         on(host, "/bin/echo '' >> /opt/puppetlabs/puppet/bin/puppet")
 
         wait_for_generate_types(host)
@@ -50,11 +50,11 @@ describe 'auto-triggered puppet generate types'  do
         on(host, "ls #{environment_path}/*/.resource_types")
       end
 
-      it 'should not trigger on removing the .resource_types directories' do
+      it 'does not trigger on removing the .resource_types directories' do
         on(host, "/bin/rm -rf #{environment_path}/*/.resource_types")
       end
 
-      it 'should regenerate *all* resource caches if the puppetserver binary is updated' do
+      it 'regenerates *all* resource caches if the puppetserver binary is updated' do
         on(host, "/bin/echo '' >> /opt/puppetlabs/server/apps/puppetserver/bin/puppetserver")
 
         wait_for_generate_types(host)
@@ -63,18 +63,18 @@ describe 'auto-triggered puppet generate types'  do
         on(host, "ls #{environment_path}/*/.resource_types")
       end
 
-      it 'should not trigger on removing the .resource_types directories' do
+      it 'does not trigger on removing the .resource_types directories' do
         on(host, "/bin/rm -rf #{environment_path}/*/.resource_types")
       end
 
-      it "should not crash the system when creating #{env_count} new environments" do
+      it "does not crash the system when creating #{env_count} new environments" do
         on(host, "for x in {1..#{env_count}}; do cp -rl #{environment_path}/production #{environment_path}/testenv$x; done")
         wait_for_generate_types(host)
 
         on(host, "ls #{environment_path} | wc -l")
       end
 
-      it 'should have generated some types on the new environments without locking the system' do
+      it 'has generated some types on the new environments without locking the system' do
         wait_for_generate_types(host)
 
         # Success here means that the system did not lock up and at least some
@@ -82,12 +82,12 @@ describe 'auto-triggered puppet generate types'  do
         # updated to cover `puppet generate types` and this is simply a
         # stop-gap to prevent killing systems until we can get to r10k.
 
-        num_generated = on(host, "ls -d #{environment_path}/testenv{1..#{env_count}}/.resource_types 2>/dev/null | wc -l", :accept_all_exit_codes => true).output.lines.last.strip.to_i
+        num_generated = on(host, "ls -d #{environment_path}/testenv{1..#{env_count}}/.resource_types 2>/dev/null | wc -l", accept_all_exit_codes: true).output.lines.last.strip.to_i
 
         expect(num_generated).to be > 1
       end
 
-      it 'should not crash the system when updating lots of type files' do
+      it 'does not crash the system when updating lots of type files' do
         on(host, 'find /etc/puppetlabs/code/environments -path "*/lib/puppet/type/**.rb" -exec echo "# test" >> {} \;')
 
         wait_for_generate_types(host)

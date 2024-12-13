@@ -4,24 +4,24 @@ require 'hocon'
 describe 'pupmod::master' do
   on_supported_os.each do |os, os_facts|
     before :all do
-      @extras = { :puppet_settings => {
+      @extras = { puppet_settings: {
         'server' => {
           'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf'
         },
         'master' => {
           'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf'
-      }}}
+        }
+      } }
     end
 
     puppetserver_content_without_jruby = File.read("#{File.dirname(__FILE__)}/data/puppetserver.txt")
     context "on #{os}" do
-
-      _server_datadir = os_facts.dig(:puppet_settings,:server,:server_datadir) ||
-         os_facts.dig(:puppet_settings,:master,:server_datadir)
+      _server_datadir = os_facts.dig(:puppet_settings, :server, :server_datadir) ||
+                        os_facts.dig(:puppet_settings, :master, :server_datadir)
 
       ['PE', 'PC1'].each do |server_distribution|
         context "server distribution '#{server_distribution}'" do
-          let(:puppetserver_svc) {
+          let(:puppetserver_svc) do
             svc = 'puppetserver'
 
             if server_distribution == 'PE'
@@ -29,13 +29,13 @@ describe 'pupmod::master' do
             end
 
             svc
-          }
+          end
 
           if server_distribution == 'PE'
             context 'on PE with default params' do
               let(:hieradata) { 'sysconfig/PE' }
 
-              let(:facts){
+              let(:facts) do
                 @extras.merge(os_facts).merge(
                   :memory => {
                     'system' => {
@@ -44,7 +44,7 @@ describe 'pupmod::master' do
                   }, 
                   :pe_build      => '2016.1.0'
                 )
-              }
+              end
 
               it 'sets $tmpdir via a pe_ini_subsetting resource' do
                 ['JAVA_ARGS', 'JAVA_ARGS_CLI'].each do |setting|
@@ -76,23 +76,26 @@ describe 'pupmod::master' do
                 puppetserver_content = File.read("#{File.dirname(__FILE__)}/data/puppetserver-j9.txt")
                 puppetserver_content.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
                   File.dirname(_server_datadir))
-                is_expected.to contain_file('/etc/sysconfig/puppetserver').with( {
-                  'owner'   => 'root',
+
+                is_expected.to contain_file('/etc/sysconfig/puppetserver').with({
+                                                                                  'owner'   => 'root',
                   'group'   => 'puppet',
                   'mode'    => '0640',
                   'content' => puppetserver_content
-                } )
+                                                                                })
               end
 
               it { is_expected.to create_class('pupmod::master::sysconfig') }
-              it { is_expected.to contain_file("#{File.dirname(_server_datadir)}/pserver_tmp").with(
+              it {
+                is_expected.to contain_file("#{File.dirname(_server_datadir)}/pserver_tmp").with(
                 {
                   'owner'  => 'puppet',
                   'group'  => 'puppet',
                   'ensure' => 'directory',
                   'mode'   => '0750'
-                }
-              )}
+                },
+              )
+              }
             end
             context 'if jruby9k set to true but file does not exist' do
               let(:hieradata) { 'sysconfig/PC1' }
@@ -104,20 +107,21 @@ describe 'pupmod::master' do
                 },
                 :puppetserver_jruby => {
                   'dir' => '/opt/puppetlabs/server/apps/puppetserver',
-                  'jarfiles' => ['x.jar','y.jar']
-                  }
-                })
-              }
+                  'jarfiles' => ['x.jar', 'y.jar']
+                }
+                                              })
+              end
+
               it do
                 puppetserver_content_without_jruby.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
                   File.dirname(_server_datadir))
 
-                is_expected.to contain_file('/etc/sysconfig/puppetserver').with( {
-                  'owner'   => 'root',
+                is_expected.to contain_file('/etc/sysconfig/puppetserver').with({
+                                                                                  'owner'   => 'root',
                   'group'   => 'puppet',
                   'mode'    => '0640',
                   'content' => puppetserver_content_without_jruby
-                } )
+                                                                                })
               end
             end
 
@@ -137,12 +141,12 @@ describe 'pupmod::master' do
                 puppetserver_content_without_jruby.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
                   File.dirname(_server_datadir))
 
-                is_expected.to contain_file('/etc/sysconfig/puppetserver').with( {
-                  'owner'   => 'root',
+                is_expected.to contain_file('/etc/sysconfig/puppetserver').with({
+                                                                                  'owner'   => 'root',
                   'group'   => 'puppet',
                   'mode'    => '0640',
                   'content' => puppetserver_content_without_jruby
-                } )
+                                                                                })
               end
             end
             context 'set jruby jar set and no fact ' do
@@ -160,12 +164,12 @@ describe 'pupmod::master' do
                 puppetserver_content_without_jruby.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
                   File.dirname(_server_datadir))
 
-                is_expected.to contain_file('/etc/sysconfig/puppetserver').with( {
-                  'owner'   => 'root',
+                is_expected.to contain_file('/etc/sysconfig/puppetserver').with({
+                                                                                  'owner'   => 'root',
                   'group'   => 'puppet',
                   'mode'    => '0640',
                   'content' => puppetserver_content_without_jruby
-                } )
+                                                                                })
               end
             end
 
@@ -187,28 +191,32 @@ describe 'pupmod::master' do
                     "Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz"
                   ]
                 },
-                :puppetserver_jruby => {
+                puppetserver_jruby: {
                   'dir' => '/opt/puppetlabs/server/apps/puppetserver',
-                  'jarfiles' => ['x.jar','y.jar', 'jruby-9k.jar']
+                  'jarfiles' => ['x.jar', 'y.jar', 'jruby-9k.jar']
                 }
-              })}
+                                              })
+              end
 
               let(:puppetserver_conf) { '/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf' }
               let(:puppetserver_conf_hash) { Hocon.parse(catalogue.resource("File[#{puppetserver_conf}]")['content']) }
+
               ['monolithic', 'primary', 'compile'].each do |server_type|
                 context "as #{server_type} server" do
-                  let(:expected_instances) {
-                    if server_type == 'compile'
-                      mi = 3
-                    else
-                      mi = 2
-                    end
+                  let(:expected_instances) do
+                    mi = if server_type == 'compile'
+                           3
+                         else
+                           2
+                         end
 
                     mi
-                  }
-                  let(:params) {{
-                    :server_type => server_type,
-                  }}
+                  end
+                  let(:params) do
+                    {
+                      server_type: server_type,
+                    }
+                  end
 
                   it { expect(puppetserver_conf_hash['jruby-puppet']['max-active-instances']).to eq(expected_instances) }
 
@@ -217,23 +225,25 @@ describe 'pupmod::master' do
                     puppetserver_content.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
                       File.dirname(_server_datadir))
 
-                    is_expected.to contain_file('/etc/sysconfig/puppetserver').with( {
-                      'owner'   => 'root',
+                    is_expected.to contain_file('/etc/sysconfig/puppetserver').with({
+                                                                                      'owner'   => 'root',
                       'group'   => 'puppet',
                       'mode'    => '0640',
                       'content' => puppetserver_content
-                    } )
+                                                                                    })
                   end
 
                   it { is_expected.to create_class('pupmod::master::sysconfig') }
-                  it { is_expected.to contain_file("#{File.dirname(_server_datadir)}/pserver_tmp").with(
+                  it {
+                    is_expected.to contain_file("#{File.dirname(_server_datadir)}/pserver_tmp").with(
                     {
                       'owner'  => 'puppet',
                       'group'  => 'puppet',
                       'ensure' => 'directory',
                       'mode'   => '0750'
-                    }
-                  )}
+                    },
+                  )
+                  }
                 end
               end
             end
@@ -256,30 +266,34 @@ describe 'pupmod::master' do
                     "Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz"
                   ]
                 },
-                :puppetserver_jruby => {
+                puppetserver_jruby: {
                   'dir' => '/opt/puppetlabs/server/apps/puppetserver',
-                  'jarfiles' => ['x.jar','y.jar', 'jruby-9k.jar']
+                  'jarfiles' => ['x.jar', 'y.jar', 'jruby-9k.jar']
                 }
-              })}
+                                              })
+              end
 
               let(:puppetserver_conf) { '/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf' }
               let(:puppetserver_conf_hash) { Hocon.parse(catalogue.resource("File[#{puppetserver_conf}]")['content']) }
+
               ['monolithic', 'primary', 'compile'].each do |server_type|
                 context "as #{server_type} server" do
-                  let(:expected_instances) {
-                    if server_type == 'compile'
-                      mi = 15
-                    elsif server_type == 'monolithic'
-                      mi = 11
-                    else
-                      mi = 4
-                    end
+                  let(:expected_instances) do
+                    mi = if server_type == 'compile'
+                           15
+                         elsif server_type == 'monolithic'
+                           11
+                         else
+                           4
+                         end
 
                     mi
-                  }
-                  let(:params) {{
-                    :server_type => server_type,
-                  }}
+                  end
+                  let(:params) do
+                    {
+                      server_type: server_type,
+                    }
+                  end
 
                   it { expect(puppetserver_conf_hash['jruby-puppet']['max-active-instances']).to eq(expected_instances) }
 
@@ -288,23 +302,25 @@ describe 'pupmod::master' do
                     puppetserver_content.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
                       File.dirname(_server_datadir))
 
-                    is_expected.to contain_file('/etc/sysconfig/puppetserver').with( {
-                      'owner'   => 'root',
+                    is_expected.to contain_file('/etc/sysconfig/puppetserver').with({
+                                                                                      'owner'   => 'root',
                       'group'   => 'puppet',
                       'mode'    => '0640',
                       'content' => puppetserver_content
-                    } )
+                                                                                    })
                   end
 
                   it { is_expected.to create_class('pupmod::master::sysconfig') }
-                  it { is_expected.to contain_file("#{File.dirname(_server_datadir)}/pserver_tmp").with(
+                  it {
+                    is_expected.to contain_file("#{File.dirname(_server_datadir)}/pserver_tmp").with(
                     {
                       'owner'  => 'puppet',
                       'group'  => 'puppet',
                       'ensure' => 'directory',
                       'mode'   => '0750'
-                    }
-                  )}
+                    },
+                  )
+                  }
                 end
               end
             end
@@ -328,11 +344,12 @@ describe 'pupmod::master' do
                     "Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz"
                   ]
                 },
-                :puppetserver_jruby => {
+                puppetserver_jruby: {
                   'dir' => '/opt/puppetlabs/server/apps/puppetserver',
-                  'jarfiles' => ['x.jar','y.jar', 'jruby-9k.jar']
+                  'jarfiles' => ['x.jar', 'y.jar', 'jruby-9k.jar']
                 }
-              })}
+                                              })
+              end
 
               let(:puppetserver_conf) { '/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf' }
               let(:puppetserver_conf_hash) { Hocon.parse(catalogue.resource("File[#{puppetserver_conf}]")['content']) }
@@ -344,23 +361,25 @@ describe 'pupmod::master' do
                 puppetserver_content.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
                   File.dirname(_server_datadir))
 
-                is_expected.to contain_file('/etc/sysconfig/puppetserver').with( {
-                  'owner'   => 'root',
+                is_expected.to contain_file('/etc/sysconfig/puppetserver').with({
+                                                                                  'owner'   => 'root',
                   'group'   => 'puppet',
                   'mode'    => '0640',
                   'content' => puppetserver_content
-                } )
+                                                                                })
               end
 
               it { is_expected.to create_class('pupmod::master::sysconfig') }
-              it { is_expected.to contain_file("#{File.dirname(_server_datadir)}/pserver_tmp").with(
+              it {
+                is_expected.to contain_file("#{File.dirname(_server_datadir)}/pserver_tmp").with(
                 {
                   'owner'  => 'puppet',
                   'group'  => 'puppet',
                   'ensure' => 'directory',
                   'mode'   => '0750'
-                }
-              )}
+                },
+              )
+              }
             end
           end
         end

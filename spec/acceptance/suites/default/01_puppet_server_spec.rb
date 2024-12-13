@@ -1,12 +1,12 @@
 require 'spec_helper_acceptance'
 
 describe 'install environment via r10k and puppetserver' do
-
   require_relative('lib/util')
 
   include GenerateTypesTestUtil
 
-  let(:master_manifest) { <<-EOF
+  let(:master_manifest) do
+    <<-EOF
     include 'iptables'
 
     # Set up a puppetserver
@@ -37,11 +37,11 @@ describe 'install environment via r10k and puppetserver' do
       dports       => 22
     }
     EOF
-  }
+  end
 
   hosts_with_role(hosts, 'simp_master').each do |master|
     context "on #{master}" do
-      it 'should enable SIMP and SIMP dependencies repos' do
+      it 'enables SIMP and SIMP dependencies repos' do
         install_simp_repos(master)
 
         os_maj = fact_on(master, 'os.release.major')
@@ -50,10 +50,10 @@ describe 'install environment via r10k and puppetserver' do
           "https://dl.fedoraproject.org/pub/epel/epel-release-latest-#{os_maj}.noarch.rpm")
       end
 
-      it 'should install puppetserver' do
-        if ( on(master, 'cat /proc/sys/crypto/fips_enabled', :accept_all_exit_codes => true).stdout.strip == '1' )
-        # Change to the following when it works for all RHEL-like OSs
-        # if master.fips_mode?
+      it 'installs puppetserver' do
+        if on(master, 'cat /proc/sys/crypto/fips_enabled', accept_all_exit_codes: true).stdout.strip == '1'
+          # Change to the following when it works for all RHEL-like OSs
+          # if master.fips_mode?
           master.install_package('yum-utils')
           master.install_package('java-headless')
           on(master, 'yumdownloader puppetserver')
@@ -63,37 +63,37 @@ describe 'install environment via r10k and puppetserver' do
         end
       end
 
-      it 'should enable autosigning' do
+      it 'enables autosigning' do
         on(master, 'puppet config --section master set autosign true')
       end
 
-      it 'should correct the permissions' do
+      it 'corrects the permissions' do
         on(master, 'chown -R puppet:puppet /etc/puppetlabs/code')
       end
 
-      it 'should apply the master manifest' do
-        apply_manifest_on(master, master_manifest, :accept_all_exit_codes => true)
+      it 'applies the master manifest' do
+        apply_manifest_on(master, master_manifest, accept_all_exit_codes: true)
         wait_for_generate_types(master)
       end
 
-      it 'should be idempotent' do
-        apply_manifest_on(master, master_manifest, :catch_changes => true )
+      it 'is idempotent' do
+        apply_manifest_on(master, master_manifest, catch_changes: true)
       end
 
-      it 'should be running jruby 9' do
+      it 'is running jruby 9' do
         result = on(master, 'puppetserver ruby --version')
         expect(result.stdout).to include('jruby 9')
       end
 
       context 'when using puppetserver gems' do
-        it 'should have hiera-eyaml available' do
+        it 'has hiera-eyaml available' do
           result = on(master, 'puppetserver gem list --local hiera-eyaml')
           expect(result.stdout).to include('hiera-eyaml')
         end
       end
 
       context 'when managing facter.conf' do
-        let(:disable_block_hieradata) {
+        let(:disable_block_hieradata) do
           <<-EOS
             pupmod::manage_facter_conf: true
             pupmod::facter_options:
@@ -101,41 +101,41 @@ describe 'install environment via r10k and puppetserver' do
                 blocklist:
                   - hypervisors
           EOS
-        }
+        end
 
         let(:enable_block_hieradata) { 'pupmod::manage_facter_conf: true' }
 
-        it 'should provide hypervisors facts initially' do
+        it 'provides hypervisors facts initially' do
           hypervisors = fact_on(master, 'hypervisors')
           exists = !(hypervisors.nil? || hypervisors.empty?)
           expect(exists).to be true
         end
 
-        it 'should create config to disable hypervisors fact block' do
+        it 'creates config to disable hypervisors fact block' do
           set_hieradata_on(master, disable_block_hieradata)
-          apply_manifest_on(master, master_manifest, :accept_all_exit_codes => true)
+          apply_manifest_on(master, master_manifest, accept_all_exit_codes: true)
         end
 
-        it 'should be idempotent' do
-          apply_manifest_on(master, master_manifest, :catch_changes => true )
+        it 'is idempotent' do
+          apply_manifest_on(master, master_manifest, catch_changes: true)
         end
 
-        it 'should no longer provide hypervisors facts' do
+        it 'noes longer provide hypervisors facts' do
           hypervisors = fact_on(master, 'hypervisors')
           exists = !(hypervisors.nil? || hypervisors.empty?)
           expect(exists).to be false
         end
 
-        it 'should create config to re-enable hypervisors fact block' do
+        it 'creates config to re-enable hypervisors fact block' do
           set_hieradata_on(master, enable_block_hieradata)
-          apply_manifest_on(master, master_manifest, :accept_all_exit_codes => true)
+          apply_manifest_on(master, master_manifest, accept_all_exit_codes: true)
         end
 
-        it 'should be idempotent' do
-          apply_manifest_on(master, master_manifest, :catch_changes => true )
+        it 'is idempotent' do
+          apply_manifest_on(master, master_manifest, catch_changes: true)
         end
 
-        it 'should provide hypervisors facts again' do
+        it 'provides hypervisors facts again' do
           hypervisors = fact_on(master, 'hypervisors')
           exists = !(hypervisors.nil? || hypervisors.empty?)
           expect(exists).to be true
