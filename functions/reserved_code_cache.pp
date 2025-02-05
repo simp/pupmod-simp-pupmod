@@ -5,7 +5,8 @@
 #   The maximum number of JRuby instances that should be active on the ``puppetserver``
 #
 function pupmod::reserved_code_cache {
-  $mem_mb = Integer(Numeric(fact('memorysize_mb')))
+  # Since we can't use legacy fact memorysize_mb we are converting here.
+  $mem_mb = Integer(Numeric($facts['memory']['system']['total_bytes']) / 1048576)
 
   if $mem_mb < 8192 {
     $reserved_code_cache = 0
