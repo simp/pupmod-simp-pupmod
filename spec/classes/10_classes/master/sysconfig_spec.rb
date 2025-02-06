@@ -37,7 +37,11 @@ describe 'pupmod::master' do
 
               let(:facts){
                 @extras.merge(os_facts).merge(
-                  :memorysize_mb => 490.16,
+                  :memory => {
+                    'system' => {
+                      'total_bytes' => (490.16 * 1048576).to_i
+                    }
+                  }, 
                   :pe_build      => '2016.1.0'
                 )
               }
@@ -56,19 +60,22 @@ describe 'pupmod::master' do
             context 'on PC1 with default params' do
               let(:hieradata) { 'sysconfig/PC1' }
               let(:facts){ @extras.merge(os_facts).merge({
-                :memorysize_mb => 490.16,
+                :memory => {
+                  'system' => {
+                    'total_bytes' => (490.16 * 1048576).to_i
+                  }
+                },
                 :puppetserver_jruby => {
                   'dir' => '/opt/puppetlabs/server/apps/puppetserver',
                   'jarfiles' => ['x.jar','y.jar', 'jruby-9k.jar']
                   }
-                 })
+                })
               }
 
               it do
                 puppetserver_content = File.read("#{File.dirname(__FILE__)}/data/puppetserver-j9.txt")
                 puppetserver_content.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
                   File.dirname(_server_datadir))
-
                 is_expected.to contain_file('/etc/sysconfig/puppetserver').with( {
                   'owner'   => 'root',
                   'group'   => 'puppet',
@@ -90,7 +97,11 @@ describe 'pupmod::master' do
             context 'if jruby9k set to true but file does not exist' do
               let(:hieradata) { 'sysconfig/PC1' }
               let(:facts){ @extras.merge(os_facts).merge({
-                :memorysize_mb => 490.16,
+                :memory => {
+                  'system' => {
+                    'total_bytes' => (490.16 * 1048576).to_i
+                  }
+                },
                 :puppetserver_jruby => {
                   'dir' => '/opt/puppetlabs/server/apps/puppetserver',
                   'jarfiles' => ['x.jar','y.jar']
@@ -112,7 +123,15 @@ describe 'pupmod::master' do
 
             context 'set jrubyjar set to default ' do
               let(:hieradata) { "sysconfig/PC1_jruby_default" }
-              let(:facts){ @extras.merge(os_facts).merge(:memorysize_mb => 490.16) }
+              let(:facts){ @extras.merge(os_facts).merge({
+                :memory => {
+                  'system' => {
+                    'total_bytes' => (490.16 * 1048576).to_i
+                    }
+                  }
+                } )
+              }
+            
 
               it do
                 puppetserver_content_without_jruby.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
@@ -128,7 +147,14 @@ describe 'pupmod::master' do
             end
             context 'set jruby jar set and no fact ' do
               let(:hieradata) { "sysconfig/PC1_jruby_x" }
-              let(:facts){ @extras.merge(os_facts).merge(:memorysize_mb => 490.16) }
+              let(:facts){ @extras.merge(os_facts).merge({
+                :memory => {
+                  'system' => {
+                    'total_bytes' => (490.16 * 1048576).to_i
+                    }
+                  }
+                } )
+              }
 
               it do
                 puppetserver_content_without_jruby.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
@@ -146,7 +172,11 @@ describe 'pupmod::master' do
             context '4CPU 8G memory system auto-tune' do
               let(:hieradata) { "sysconfig/PC1" }
               let(:facts) { @extras.merge(os_facts).merge({
-                :memorysize_mb => 8192,
+                :memory => {
+                  'system' => {
+                    'total_bytes' => (490.16 * 1048576).to_i
+                  }
+                },
                 :processorcount => 4,
                 :processors => {
                   :physicalcount => 1,
@@ -212,7 +242,11 @@ describe 'pupmod::master' do
             context '16CPU 32G memory system auto-tune' do
               let(:hieradata) { "sysconfig/PC1" }
               let(:facts) { @extras.merge(os_facts).merge({
-                :memorysize_mb => 32768,
+                :memory => {
+                  'system' => {
+                    'total_bytes' => (490.16 * 1048576).to_i
+                  }
+                },
                 :processorcount => 16,
                 :processors => {
                   :physicalcount => 4,
@@ -281,7 +315,11 @@ describe 'pupmod::master' do
             context 'crazy manual tuning overrides' do
               let(:hieradata) { "sysconfig/PC1-tuning_overrides" }
               let(:facts) { @extras.merge(os_facts).merge({
-                :memorysize_mb => 32768,
+                :memory => {
+                  'system' => {
+                    'total_bytes' => (490.16 * 1048576).to_i
+                  }
+                },
                 :processorcount => 16,
                 :processors => {
                   :physicalcount => 4,
