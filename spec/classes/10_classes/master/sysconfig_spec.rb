@@ -174,7 +174,7 @@ describe 'pupmod::master' do
               let(:facts) { @extras.merge(os_facts).merge({
                 :memory => {
                   'system' => {
-                    'total_bytes' => (490.16 * 1048576).to_i
+                    'total_bytes' => (8192 * 1048576).to_i
                   }
                 },
                 :processorcount => 4,
@@ -244,7 +244,7 @@ describe 'pupmod::master' do
               let(:facts) { @extras.merge(os_facts).merge({
                 :memory => {
                   'system' => {
-                    'total_bytes' => (490.16 * 1048576).to_i
+                    'total_bytes' => (32768 * 1048576).to_i
                   }
                 },
                 :processorcount => 16,
@@ -317,7 +317,7 @@ describe 'pupmod::master' do
               let(:facts) { @extras.merge(os_facts).merge({
                 :memory => {
                   'system' => {
-                    'total_bytes' => (490.16 * 1048576).to_i
+                    'total_bytes' => (32768 * 1048576).to_i
                   }
                 },
                 :processorcount => 16,
