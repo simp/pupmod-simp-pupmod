@@ -162,7 +162,7 @@ describe 'pupmod::agent::cron' do
       end
 
       context 'with puppet service enabled' do
-                let(:facts) do
+        let(:facts) do
           custom = os_facts.dup
           custom[:networking][:ip] = '10.0.2.15'
           custom[:puppet_service_enabled] = true
