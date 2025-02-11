@@ -18,11 +18,11 @@
 # @param minute_base
 #   The default artifact to use to auto-generate a cron interval
 #
-#   * The default of ``$::ipaddress`` is used to provide a reasonable guess at
+#   * The default of ``$::networking['ip']`` is used to provide a reasonable guess at
 #     spreading the puppet runs across all of your systems. However, you can
 #     set this to *anything* that you like.
 #
-#   * Use ``$::ipaddress_eth0`` to generate the entry from the eth0 IP Address
+#   * Use ``$::networking['interfaces']['eth0']['ip']`` to generate the entry from the eth0 IP Address
 #
 #   * Use ``$::uniqueid`` to generate the entry from the system UUID
 #

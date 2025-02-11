@@ -161,7 +161,7 @@ describe 'pupmod::master' do
             it {
               expect(ca_conf_hash['certificate-authority']).to eq(
                 'certificate-status' => {
-                  'client-whitelist'       => [facts[:fqdn]],
+                  'client-whitelist'       => [facts[:networking][:fqdn]],
                   'authorization-required' => true
                 }
               )
@@ -239,7 +239,7 @@ describe 'pupmod::master' do
             it { expect(puppetserver_conf_hash).to have_key('puppet-admin') }
             it {
               expect(puppetserver_conf_hash['puppet-admin']).to eq(
-                'client-whitelist' => [ facts[:fqdn] ]
+                'client-whitelist' => [ facts[:networking][:fqdn] ]
               )
             }
           end
@@ -303,8 +303,8 @@ describe 'pupmod::master' do
                     'client-auth'       => 'need',
                     'ssl-crl-path'      => '/etc/puppetlabs/puppet/ssl/crl.pem',
                     'ssl-ca-cert'       => '/etc/puppetlabs/puppet/ssl/certs/ca.pem',
-                    'ssl-cert'          => "/etc/puppetlabs/puppet/ssl/certs/#{facts[:fqdn]}.pem",
-                    'ssl-key'           => "/etc/puppetlabs/puppet/ssl/private_keys/#{facts[:fqdn]}.pem",
+                    'ssl-cert'          => "/etc/puppetlabs/puppet/ssl/certs/#{facts[:networking][:fqdn]}.pem",
+                    'ssl-key'           => "/etc/puppetlabs/puppet/ssl/private_keys/#{facts[:networking][:fqdn]}.pem",
                     'ssl-host'          => '0.0.0.0',
                     'ssl-port'          => 8140,
                     'ssl-protocols'     => 'TLSv1.2',
@@ -317,8 +317,8 @@ describe 'pupmod::master' do
                     'client-auth'       => 'want',
                     'ssl-crl-path'      => '/etc/puppetlabs/puppet/ssl/crl.pem',
                     'ssl-ca-cert'       => '/etc/puppetlabs/puppet/ssl/certs/ca.pem',
-                    'ssl-cert'          => "/etc/puppetlabs/puppet/ssl/certs/#{facts[:fqdn]}.pem",
-                    'ssl-key'           => "/etc/puppetlabs/puppet/ssl/private_keys/#{facts[:fqdn]}.pem",
+                    'ssl-cert'          => "/etc/puppetlabs/puppet/ssl/certs/#{facts[:networking][:fqdn]}.pem",
+                    'ssl-key'           => "/etc/puppetlabs/puppet/ssl/private_keys/#{facts[:networking][:fqdn]}.pem",
                     'ssl-host'          => '0.0.0.0',
                     'ssl-port'          => 8141,
                     'ssl-protocols'     => 'TLSv1.2',

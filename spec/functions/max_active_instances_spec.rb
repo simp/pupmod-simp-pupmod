@@ -15,7 +15,6 @@ describe 'pupmod::max_active_instances' do
                         'total_bytes' => (8192 * 1048576).to_i
                       }
                     },
-                    :processorcount => 4,
                     :processors => {
                         :physicalcount => 1,
                         :count => 4,
@@ -40,7 +39,6 @@ describe 'pupmod::max_active_instances' do
                         'total_bytes' => (16384 * 1048576).to_i
                       }
                     },
-                    :processorcount => 8,
                     :processors => {
                         :physicalcount => 2,
                         :count => 8,
@@ -69,7 +67,6 @@ describe 'pupmod::max_active_instances' do
                         'total_bytes' => (32768 * 1048576).to_i
                       }
                     },
-                    :processorcount => 16,
                     :processors => {
                         :physicalcount => 4,
                         :count => 16,
@@ -107,7 +104,6 @@ describe 'pupmod::max_active_instances' do
                         'total_bytes' => (4096 * 1048576).to_i
                       }
                     },
-                    :processorcount => 16,
                     :processors => {
                         :physicalcount => 4,
                         :count => 16,
