@@ -11,7 +11,7 @@ function pupmod::java_max_memory (
 ) {
   $processor_count = pick(fact('processors.count'), 1)
   # previously we were using legacy fact memorysize_mb, here we are using totalbytes and converting to m
-  $total_system_memory = Numeric($facts['memory']['system']['total_bytes']) / 1048576
+  $total_system_memory = $facts['memory']['system']['total_bytes'] / 1048576
 
   if $processor_count < 8 {
     $per_instance_mem = 512
