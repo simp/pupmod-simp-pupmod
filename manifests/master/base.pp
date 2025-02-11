@@ -15,7 +15,7 @@ class pupmod::master::base {
     command     => '/usr/local/sbin/puppetserver_reload',
     refreshonly => true,
     subscribe   => Class['pupmod::master::service'],
-    require     => File['/usr/local/sbin/puppetserver_reload']
+    require     => File['/usr/local/sbin/puppetserver_reload'],
   }
 
   file { $pupmod::master::environmentpath:
@@ -24,7 +24,7 @@ class pupmod::master::base {
     group        => $_puppet_group,
     mode         => 'u=rwx,g=rwx,o-rwx',
     recurse      => true,
-    recurselimit => 1
+    recurselimit => 1,
   }
 
   # Some simple helper scripts
@@ -37,7 +37,7 @@ class pupmod::master::base {
       'masterport'           => $pupmod::master::masterport,
       'admin_api_mountpoint' => $pupmod::master::admin_api_mountpoint
       }
-    )
+    ),
   }
 
   $_puppetserver_reload_cmd = @(END)
@@ -52,7 +52,7 @@ class pupmod::master::base {
     owner   => 'root',
     group   => 'root',
     mode    => '0700',
-    content => $_puppetserver_reload_cmd
+    content => $_puppetserver_reload_cmd,
   }
 
   $auth_conf = '/etc/puppetlabs/puppetserver/conf.d/auth.conf'
@@ -69,6 +69,6 @@ class pupmod::master::base {
     home      => $pupmod::master::vardir,
     shell     => '/sbin/nologin',
     tag       => 'firstrun',
-    require   => Class['pupmod::master::install']
+    require   => Class['pupmod::master::install'],
   }
 }

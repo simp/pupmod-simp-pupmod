@@ -362,7 +362,7 @@ class pupmod::master (
       ensure => 'directory',
       owner  => 'root',
       group  => $_puppet_group,
-      mode   => '0640'
+      mode   => '0640',
     }
 
     # For Puppet 7+
@@ -370,21 +370,21 @@ class pupmod::master (
       ensure => 'directory',
       owner  => 'root',
       group  => $_puppet_group,
-      mode   => '0660'
+      mode   => '0660',
     }
 
     # Mode is managed by puppet itself
     file { $rundir:
       ensure => 'directory',
       owner  => $_puppet_user,
-      group  => $_puppet_group
+      group  => $_puppet_group,
     }
 
     # Mode is managed by puppet itself
     file { $ssldir:
       ensure => 'directory',
       owner  => $_puppet_user,
-      group  => $_puppet_group
+      group  => $_puppet_group,
     }
 
     file {
@@ -412,7 +412,7 @@ class pupmod::master (
         mode    => '0640',
         content => epp("${module_name}/etc/puppetserver/conf.d/os-settings.conf"),
         require => Class['pupmod::master::install'],
-        notify  => Class['pupmod::master::service']
+        notify  => Class['pupmod::master::service'],
       }
     }
 
@@ -427,7 +427,7 @@ class pupmod::master (
       confdir => $puppet_confdir,
       setting => 'trusted_server_facts',
       value   => true,
-      notify  => Class['pupmod::master::service']
+      notify  => Class['pupmod::master::service'],
     }
 
     pupmod::conf { 'master_environmentpath':
@@ -435,7 +435,7 @@ class pupmod::master (
       confdir => $puppet_confdir,
       setting => 'environmentpath',
       value   => $environmentpath,
-      notify  => Class['pupmod::master::service']
+      notify  => Class['pupmod::master::service'],
     }
 
     pupmod::conf { 'master_daemonize':
@@ -443,7 +443,7 @@ class pupmod::master (
       confdir => $puppet_confdir,
       setting => 'daemonize',
       value   => $daemonize,
-      notify  => Class['pupmod::master::service']
+      notify  => Class['pupmod::master::service'],
     }
 
     pupmod::conf { 'master_masterport':
@@ -451,7 +451,7 @@ class pupmod::master (
       confdir => $puppet_confdir,
       setting => 'masterport',
       value   => $masterport,
-      notify  => Class['pupmod::master::service']
+      notify  => Class['pupmod::master::service'],
     }
 
     # `[master] ca` is deprecated, as of Puppet 5.5.6 (SIMP-5456), and removed
@@ -481,7 +481,7 @@ class pupmod::master (
       value   => $enable_ca,
       confdir => $puppet_confdir,
       section => 'server',
-      notify  => Class['pupmod::master::service']
+      notify  => Class['pupmod::master::service'],
     }
 
     pupmod::conf { 'master_ca_port':
@@ -489,7 +489,7 @@ class pupmod::master (
       confdir => $puppet_confdir,
       setting => 'ca_port',
       value   => $ca_port,
-      notify  => Class['pupmod::master::service']
+      notify  => Class['pupmod::master::service'],
     }
 
     pupmod::conf { 'ca_ttl':
@@ -497,7 +497,7 @@ class pupmod::master (
       confdir => $puppet_confdir,
       setting => 'ca_ttl',
       value   => $ca_ttl,
-      notify  => Class['pupmod::master::service']
+      notify  => Class['pupmod::master::service'],
     }
 
     if $pupmod::fips {
@@ -512,7 +512,7 @@ class pupmod::master (
       confdir => $puppet_confdir,
       setting => 'keylength',
       value   => $_keylength,
-      notify  => Class['pupmod::master::service']
+      notify  => Class['pupmod::master::service'],
     }
 
     pupmod::conf { 'freeze_main':
@@ -522,19 +522,19 @@ class pupmod::master (
       # potential configurations.
       value   => false,
       #value   => $freeze_main,
-      notify  => Class['pupmod::master::service']
+      notify  => Class['pupmod::master::service'],
     }
 
     pupmod::conf { 'strict_hostname_checking':
       confdir => $puppet_confdir,
       setting => 'strict_hostname_checking',
       value   => $strict_hostname_checking,
-      notify  => Class['pupmod::master::service']
+      notify  => Class['pupmod::master::service'],
     }
 
     if !$strict_hostname_checking and $cve_2020_7942_warning {
       notify { 'CVE-2020-7942':
-        message => "Setting '${module_name}::pupmod::master::strict_hostname_checking' to 'true' enables CVE-2020-7942.\n\nSet '${module_name}::pupmod::master::cve_2020_7942_warning' to 'false' to disable this message."
+        message => "Setting '${module_name}::pupmod::master::strict_hostname_checking' to 'true' enables CVE-2020-7942.\n\nSet '${module_name}::pupmod::master::cve_2020_7942_warning' to 'false' to disable this message.",
       }
     }
 
@@ -544,14 +544,14 @@ class pupmod::master (
       setting => 'product.check-for-updates',
       value   => $enable_analytics,
       type    => 'boolean',
-      notify  => Class['pupmod::master::service']
+      notify  => Class['pupmod::master::service'],
     }
 
     if $auditd {
       include 'auditd'
 
       auditd::rule { 'puppet_master':
-        content => epp("${module_name}/puppet-auditd-rules")
+        content => epp("${module_name}/puppet-auditd-rules"),
       }
     }
 
@@ -562,7 +562,7 @@ class pupmod::master (
         iptables::listen::tcp_stateful { 'allow_puppet':
           order        => 11,
           trusted_nets => $trusted_nets,
-          dports       => $masterport
+          dports       => $masterport,
         }
       }
 
@@ -570,7 +570,7 @@ class pupmod::master (
         iptables::listen::tcp_stateful { 'allow_puppetca':
           order        => 11,
           trusted_nets => $trusted_nets,
-          dports       => $ca_port
+          dports       => $ca_port,
         }
       }
     }

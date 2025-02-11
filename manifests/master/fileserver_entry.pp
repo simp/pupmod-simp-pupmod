@@ -29,6 +29,6 @@ define pupmod::master::fileserver_entry (
 
   concat::fragment { "pupmod::master::fileserver_entry ${name}":
     target  => "${pupmod::confdir}/fileserver.conf",
-    content => epp("${module_name}/content/fileserver", { 'name' => $name, 'path' => $path, 'allow' => $allow, 'server_version' => $pupmod::master::_server_version })
+    content => epp("${module_name}/content/fileserver", { 'name' => $name, 'path' => $path, 'allow' => $allow, 'server_version' => $pupmod::master::_server_version }),
   }
 }
