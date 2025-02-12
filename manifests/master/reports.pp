@@ -38,6 +38,6 @@ class pupmod::master::reports (
 
   systemd::tmpfile { 'purge_puppetserver_reports.conf':
     ensure  => $_ensure,
-    content => "e ${vardir}/reports - - - ${purge_keep_days}d"
+    content => "e ${vardir}/reports - - - ${purge_keep_days}d",
   }
 }

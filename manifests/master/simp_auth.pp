@@ -63,7 +63,7 @@ class pupmod::master::simp_auth (
   # translates the parameter, which is a boolean, to the ensure parameter for the define
   $bool2ensure = {
     true  => 'present',
-    false => 'absent'
+    false => 'absent',
   }
 
   puppet_authorization::rule { 'Allow access to the mcollective PKI from the pki_files module from all hosts':
@@ -74,7 +74,7 @@ class pupmod::master::simp_auth (
     allow                => '*',
     sort_order           => 430,
     path                 => $auth_conf_path,
-    notify               => Class['pupmod::master::service']
+    notify               => Class['pupmod::master::service'],
   }
 
   puppet_authorization::rule { 'Allow access to the cacerts from the pki_files module from all hosts':
@@ -86,7 +86,7 @@ class pupmod::master::simp_auth (
     deny                 => $pki_cacerts_all_deny,
     sort_order           => 410,
     path                 => $auth_conf_path,
-    notify               => Class['pupmod::master::service']
+    notify               => Class['pupmod::master::service'],
   }
 
   puppet_authorization::rule { 'Allow access to each hosts own certs from the pki_files module':
@@ -98,7 +98,7 @@ class pupmod::master::simp_auth (
     deny                 => $keydist_from_host_deny,
     sort_order           => 440,
     path                 => $auth_conf_path,
-    notify               => Class['pupmod::master::service']
+    notify               => Class['pupmod::master::service'],
   }
 
   puppet_authorization::rule { 'Allow access to each hosts own kerberos keytabs from the krb5_files module':
@@ -110,7 +110,7 @@ class pupmod::master::simp_auth (
     deny                 => $krb5_keytabs_from_host_deny,
     sort_order           => 460,
     path                 => $auth_conf_path,
-    notify               => Class['pupmod::master::service']
+    notify               => Class['pupmod::master::service'],
   }
 
   # The puppet-agent package drops off this file for some reason, and it comes
@@ -120,6 +120,6 @@ class pupmod::master::simp_auth (
   file { '/etc/puppetlabs/puppet/auth.conf':
     ensure => absent,
     backup => true,
-    notify => Class['pupmod::master::service']
+    notify => Class['pupmod::master::service'],
   }
 }

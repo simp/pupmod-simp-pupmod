@@ -11,8 +11,8 @@ webserver: {
 <%   } -%>
     ssl-crl-path: <%= $pupmod::ssldir %>/crl.pem
     ssl-ca-cert: <%= $pupmod::ssldir %>/certs/ca.pem
-    ssl-cert: <%= $pupmod::master::ssldir %>/certs/<%= $facts['fqdn'] %>.pem
-    ssl-key: <%= $pupmod::master::ssldir %>/private_keys/<%= $facts['fqdn'] %>.pem
+    ssl-cert: <%= $pupmod::master::ssldir %>/certs/<%= $facts['networking']['fqdn'] %>.pem
+    ssl-key: <%= $pupmod::master::ssldir %>/private_keys/<%= $facts['networking']['fqdn'] %>.pem
     ssl-host: <%= $pupmod::master::bind_address %>
     ssl-port: <%= $pupmod::master::masterport %>
     ssl-protocols: "<%= join($pupmod::master::ssl_protocols,',') %>"
@@ -36,8 +36,8 @@ webserver: {
     client-auth: want
     ssl-crl-path: <%= $pupmod::ssldir %>/crl.pem
     ssl-ca-cert: <%= $pupmod::ssldir %>/certs/ca.pem
-    ssl-cert: <%= $pupmod::master::ssldir %>/certs/<%= $facts['fqdn'] %>.pem
-    ssl-key: <%= $pupmod::master::ssldir %>/private_keys/<%= $facts['fqdn'] %>.pem
+    ssl-cert: <%= $pupmod::master::ssldir %>/certs/<%= $facts['networking']['fqdn'] %>.pem
+    ssl-key: <%= $pupmod::master::ssldir %>/private_keys/<%= $facts['networking']['fqdn'] %>.pem
     ssl-host: <%= $pupmod::master::ca_bind_address %>
     ssl-port: <%= $pupmod::master::ca_port %>
     ssl-protocols: "<%= join($pupmod::master::ssl_protocols,',') %>"

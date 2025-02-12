@@ -52,7 +52,7 @@ define pupmod::conf (
     section => $_section,
     setting => $setting,
     # This needs to be a string to take effect!
-    value   => $value
+    value   => $value,
   }
 
   if ( $_section == 'server' ) {
@@ -60,7 +60,7 @@ define pupmod::conf (
       ensure  => 'absent',
       path    => "${confdir}/puppet.conf",
       section => 'master',
-      setting => $setting
+      setting => $setting,
     }
   }
 }

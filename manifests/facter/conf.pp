@@ -16,7 +16,7 @@ class pupmod::facter::conf (
     ensure => 'directory',
     owner  => 'root',
     group  => 'root',
-    mode   => '0755'
+    mode   => '0755',
   }
 
   $_facter_conf = "${facter_conf_dir}/facter.conf"
@@ -25,7 +25,7 @@ class pupmod::facter::conf (
     ensure => 'file',
     owner  => 'root',
     group  => 'root',
-    mode   => '0644'
+    mode   => '0644',
   }
 
   $facter_options.each |String $section, Hash $config| {
@@ -34,7 +34,7 @@ class pupmod::facter::conf (
         ensure  => absent,
         path    => $_facter_conf,
         setting => $section,
-        require => File[$facter_conf_dir]
+        require => File[$facter_conf_dir],
       }
     } else {
       hocon_setting { $section:
@@ -42,7 +42,7 @@ class pupmod::facter::conf (
         path    => $_facter_conf,
         setting => $section,
         value   => $config,
-        require => File[$facter_conf_dir]
+        require => File[$facter_conf_dir],
       }
     }
   }

@@ -175,14 +175,14 @@ define pupmod::pass_two (
     ensure => 'directory',
     owner  => 'root',
     group  => $_conf_group,
-    mode   => $shared_mode
+    mode   => $shared_mode,
   }
 
   file { "${confdir}/puppet.conf":
     ensure => 'file',
     owner  => 'root',
     group  => $shared_group,
-    mode   => $shared_mode
+    mode   => $shared_mode,
   }
 
   if ($_server_distribution == 'PE') {

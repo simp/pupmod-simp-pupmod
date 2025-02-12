@@ -247,14 +247,14 @@ class pupmod (
       enable     => $daemonize,
       hasrestart => true,
       hasstatus  => true,
-      subscribe  => File["${confdir}/puppet.conf"]
+      subscribe  => File["${confdir}/puppet.conf"],
     }
 
     pupmod::conf { 'agent_daemonize':
       section => 'agent',
       confdir => $confdir,
       setting => 'daemonize',
-      value   => $daemonize
+      value   => $daemonize,
     }
 
     # This takes some explaining. You may be asking yourself: Dear god? why?
@@ -299,7 +299,7 @@ class pupmod (
       pupmod::conf { 'splaylimit':
         confdir => $confdir,
         setting => 'splaylimit',
-        value   => $splaylimit
+        value   => $splaylimit,
       }
     }
 
@@ -310,7 +310,7 @@ class pupmod (
           section => 'main',
           confdir => $confdir,
           setting => 'environment',
-          value   => null
+          value   => null,
         }
       }
 
@@ -318,7 +318,7 @@ class pupmod (
         pupmod::conf { 'environment':
           confdir => $confdir,
           setting => 'environment',
-          value   => $environment
+          value   => $environment,
         }
       }
     }
@@ -374,14 +374,14 @@ class pupmod (
       owner   => 'root',
       group   => 'root',
       mode    => '0644',
-      content => "PUPPET_EXTRA_OPTS='--daemonize'\n"
+      content => "PUPPET_EXTRA_OPTS='--daemonize'\n",
     }
 
     $puppet_agent_sebool = 'puppetagent_manage_all_files'
     if $facts['os']['selinux']['enabled'] and $facts['os']['selinux']['current_mode'] and ($facts['os']['selinux']['current_mode'] != 'disabled') {
       selboolean { $puppet_agent_sebool :
         persistent => true,
-        value      => 'on'
+        value      => 'on',
       }
     }
 
@@ -400,7 +400,7 @@ class pupmod (
         $_purge_logs_content = $purge_log_dirs.map |$x| { "e ${_purge_logdir}${x} - - - ${purge_logs_duration}" }
 
         systemd::tmpfile { 'puppet_purge_puppet_service_logs.conf':
-          content => join($_purge_logs_content, "\n")
+          content => join($_purge_logs_content, "\n"),
         }
       }
     }

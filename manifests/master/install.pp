@@ -8,7 +8,7 @@ class pupmod::master::install(
 
   if pupmod::server_distribution() != 'PE' {
     package { $package_name:
-      ensure => $package_ensure
+      ensure => $package_ensure,
     }
   }
 }

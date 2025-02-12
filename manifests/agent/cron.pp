@@ -18,11 +18,11 @@
 # @param minute_base
 #   The default artifact to use to auto-generate a cron interval
 #
-#   * The default of ``$::ipaddress`` is used to provide a reasonable guess at
+#   * The default of ``$facts['networking']['ip']`` is used to provide a reasonable guess at
 #     spreading the puppet runs across all of your systems. However, you can
 #     set this to *anything* that you like.
 #
-#   * Use ``$::ipaddress_eth0`` to generate the entry from the eth0 IP Address
+#   * Use ``$facts['networking']['interfaces']['eth0']['ip']`` to generate the entry from the eth0 IP Address
 #
 #   * Use ``$::uniqueid`` to generate the entry from the system UUID
 #
@@ -208,7 +208,7 @@ class pupmod::agent::cron (
     owner   => 'root',
     group   => 'root',
     mode    => '0750',
-    content => epp("${module_name}/usr/local/bin/puppetagent_cron")
+    content => epp("${module_name}/usr/local/bin/puppetagent_cron"),
   }
 
   $_timer = @("EOM")
@@ -231,7 +231,7 @@ class pupmod::agent::cron (
     service_content => $_service,
     active          => $enable,
     enable          => $enable,
-    require         => File['/usr/local/bin/puppetagent_cron.sh']
+    require         => File['/usr/local/bin/puppetagent_cron.sh'],
   }
 
   file { '/usr/local/bin/careful_puppet_service_shutdown.sh':
@@ -239,7 +239,7 @@ class pupmod::agent::cron (
     mode    => '0750',
     owner   => 'root',
     group   => 'root',
-    content => epp("${module_name}/usr/local/bin/careful_puppet_service_shutdown")
+    content => epp("${module_name}/usr/local/bin/careful_puppet_service_shutdown"),
   }
 
 # If cron is enabled make sure puppet service is disabled.  Start in background
@@ -248,7 +248,7 @@ class pupmod::agent::cron (
   if $facts['puppet_service_enabled'] or $facts['puppet_service_started'] {
     exec { 'careful_puppet_service_shutdown':
       command => '/usr/local/bin/careful_puppet_service_shutdown.sh &',
-      require => File['/usr/local/bin/careful_puppet_service_shutdown.sh']
+      require => File['/usr/local/bin/careful_puppet_service_shutdown.sh'],
     }
   }
 }

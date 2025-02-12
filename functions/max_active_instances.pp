@@ -22,8 +22,7 @@ function pupmod::max_active_instances (
     $per_instance_mem = 1024
   }
 
-  # Do not use more than 80% of the system total memory here...
-  $_floor_mem_instances = floor((fact('memorysize_mb') * 0.8) / $per_instance_mem)
+  $_floor_mem_instances = floor((($facts['memory']['system']['total_bytes'] / 1048576) * 0.8) / $per_instance_mem)
   $memory_limited_instances = $_floor_mem_instances ? {
     0       => 1,
     default => $_floor_mem_instances,

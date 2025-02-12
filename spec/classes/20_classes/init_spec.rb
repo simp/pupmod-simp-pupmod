@@ -4,7 +4,6 @@ audit_content = File.open("#{File.dirname(__FILE__)}/data/auditd.txt", "rb").rea
 
 describe 'pupmod' do
   def mock_selinux_false_facts(os_facts)
-    os_facts[:selinux] = false
     os_facts[:os][:selinux][:config_mode] = 'disabled'
     os_facts[:os][:selinux][:current_mode] = 'disabled'
     os_facts[:os][:selinux][:enabled] = false
@@ -13,7 +12,6 @@ describe 'pupmod' do
   end
 
   def mock_selinux_enforcing_facts(os_facts)
-    os_facts[:selinux] = true
     os_facts[:os][:selinux][:config_mode] = 'enforcing'
     os_facts[:os][:selinux][:config_policy] = 'targeted'
     os_facts[:os][:selinux][:current_mode] = 'enforcing'
@@ -23,7 +21,7 @@ describe 'pupmod' do
   end
 
   on_supported_os.each do |os, os_facts|
-    let(:node){ os_facts[:fqdn] } # sets trusted facts hash
+    let(:node){ os_facts[:networking][:fqdn] } # sets trusted facts hash
     before :all do
       @extras = { :puppet_settings => {
         'master' => {
@@ -75,12 +73,12 @@ describe 'pupmod' do
 
             it { is_expected.to contain_pupmod__conf('srv_domain').with({
               'setting' => 'srv_domain',
-              'value' => facts[:domain]
+              'value' => facts[:networking][:domain]
             }) }
 
             it { is_expected.to contain_pupmod__conf('certname').with({
               'setting' => 'certname',
-              'value' => facts[:fqdn]
+              'value' => facts[:networking][:fqdn]
             }) }
 
             it { is_expected.to contain_pupmod__conf('vardir').with({

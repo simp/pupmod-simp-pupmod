@@ -110,7 +110,7 @@ class pupmod::master::sysconfig (
       ensure => 'directory',
       owner  => $user,
       group  => $group,
-      mode   => '0750'
+      mode   => '0750',
     }
 
     if ($server_distribution == 'PE') {
@@ -125,7 +125,7 @@ class pupmod::master::sysconfig (
               quote_char        => '"',
               value             => "=${_java_temp_dir}",
               key_val_separator => '=',
-              notify            => Class['pupmod::master::service']
+              notify            => Class['pupmod::master::service'],
             }
           }
         }
@@ -148,7 +148,7 @@ class pupmod::master::sysconfig (
         group   => $group,
         mode    => '0640',
         content => epp("${module_name}/etc/sysconfig/puppetserver"),
-        notify  => Class['pupmod::master::service']
+        notify  => Class['pupmod::master::service'],
       }
     }
   }

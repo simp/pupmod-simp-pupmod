@@ -7,7 +7,14 @@ describe 'pupmod::agent::cron' do
     context "on #{os}" do
 
       context 'with facts set to defaults' do
-        let(:facts) { os_facts.merge(:ipaddress => '10.0.2.15', :puppet_service_enabled => false, :puppet_service_started => false ) }
+        let(:facts) do 
+          custom = os_facts.dup
+          custom[:networking][:ip] = '10.0.2.15'
+          custom[:puppet_service_enabled] = false
+          custom[:puppet_service_started] = false
+
+          custom
+        end
 
         context 'with default params' do
           it { is_expected.to create_class('pupmod::agent::cron') }
@@ -155,7 +162,14 @@ describe 'pupmod::agent::cron' do
       end
 
       context 'with puppet service enabled' do
-        let(:facts) { os_facts.merge(:ipaddress => '10.0.2.15', :puppet_service_enabled => true, :puppet_service_started => true ) }
+        let(:facts) do
+          custom = os_facts.dup
+          custom[:networking][:ip] = '10.0.2.15'
+          custom[:puppet_service_enabled] = true
+          custom[:puppet_service_started] = true
+
+          custom
+        end
 
         it 'should exec script to disable puppet service' do
           is_expected.to contain_exec('careful_puppet_service_shutdown')

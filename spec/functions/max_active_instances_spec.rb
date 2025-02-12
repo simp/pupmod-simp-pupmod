@@ -10,8 +10,11 @@ describe 'pupmod::max_active_instances' do
 
             context '4C and 8GB' do
                 let(:facts) { os_facts.merge({
-                    :memorysize_mb => 8192,
-                    :processorcount => 4,
+                    :memory => {
+                      'system' => {
+                        'total_bytes' => (8192 * 1048576).to_i
+                      }
+                    },
                     :processors => {
                         :physicalcount => 1,
                         :count => 4,
@@ -31,8 +34,11 @@ describe 'pupmod::max_active_instances' do
 
             context '8C and 16GB' do
                 let(:facts) { os_facts.merge({
-                    :memorysize_mb => 16384,
-                    :processorcount => 8,
+                    :memory => {
+                      'system' => {
+                        'total_bytes' => (16384 * 1048576).to_i
+                      }
+                    },
                     :processors => {
                         :physicalcount => 2,
                         :count => 8,
@@ -56,8 +62,11 @@ describe 'pupmod::max_active_instances' do
 
             context '16C and 32GB' do
                 let(:facts) { os_facts.merge({
-                    :memorysize_mb => 32768,
-                    :processorcount => 16,
+                    :memory => {
+                      'system' => {
+                        'total_bytes' => (32768 * 1048576).to_i
+                      }
+                    },
                     :processors => {
                         :physicalcount => 4,
                         :count => 16,
@@ -90,8 +99,11 @@ describe 'pupmod::max_active_instances' do
             # Test memory limited
             context '16C and 4GB' do
                 let(:facts) { os_facts.merge({
-                    :memorysize_mb => 4096,
-                    :processorcount => 16,
+                    :memory => {
+                      'system' => {
+                        'total_bytes' => (4096 * 1048576).to_i
+                      }
+                    },
                     :processors => {
                         :physicalcount => 4,
                         :count => 16,

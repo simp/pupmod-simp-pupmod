@@ -69,14 +69,14 @@ class pupmod::master::generate_types (
     owner   => 'root',
     group   => 'root',
     mode    => '0755',
-    content => epp("${module_name}${_generate_types_path}.epp")
+    content => epp("${module_name}${_generate_types_path}.epp"),
   }
 
   file { $run_dir:
     ensure => 'directory',
     owner  => 'root',
     group  => 'root',
-    mode   => '0640'
+    mode   => '0640',
   }
 
   if $enable {
@@ -90,7 +90,7 @@ class pupmod::master::generate_types (
     systemd::unit_file { 'simp_generate_types.path':
       enable  => true,
       active  => true,
-      content => epp("${module_name}/etc/systemd/system/simp_generate_types.path.epp")
+      content => epp("${module_name}/etc/systemd/system/simp_generate_types.path.epp"),
     }
 
     $_simp_generate_types_service = @("HEREDOC")
@@ -100,19 +100,19 @@ class pupmod::master::generate_types (
       | HEREDOC
 
     systemd::unit_file { 'simp_generate_types.service':
-      content => $_simp_generate_types_service
+      content => $_simp_generate_types_service,
     }
 
     service { 'simp_generate_types':
       enable  => true,
-      require => Systemd::Unit_file['simp_generate_types.service']
+      require => Systemd::Unit_file['simp_generate_types.service'],
     }
 
     if $trigger_on_puppetserver_update or $trigger_on_puppet_update {
       systemd::unit_file { 'simp_generate_types_apps.path':
         enable  => true,
         active  => true,
-        content => epp("${module_name}/etc/systemd/system/simp_generate_types.path.epp", { apps => true } )
+        content => epp("${module_name}/etc/systemd/system/simp_generate_types.path.epp", { apps => true } ),
       }
 
       $_simp_generate_types_force_service = @("HEREDOC")
@@ -122,12 +122,12 @@ class pupmod::master::generate_types (
         | HEREDOC
 
       systemd::unit_file { 'simp_generate_types_force.service':
-        content => $_simp_generate_types_force_service
+        content => $_simp_generate_types_force_service,
       }
 
       service { 'simp_generate_types_force':
         enable  => true,
-        require => Systemd::Unit_file['simp_generate_types_force.service']
+        require => Systemd::Unit_file['simp_generate_types_force.service'],
       }
     }
     else {
@@ -135,7 +135,7 @@ class pupmod::master::generate_types (
 
       notify { 'simp_generate_types incron deprecated':
         message  => "simp_generate_types no longer supports incron due to continuing issues with the application. Please set ${module_name}::master::generate_types::enable to `false` for ${_target} to disable this message",
-        loglevel => 'warning'
+        loglevel => 'warning',
       }
     }
   }
@@ -153,6 +153,6 @@ class pupmod::master::generate_types (
   tidy { '/etc/incron.d':
     matches => 'simp_generate_types*',
     recurse => 1,
-    backup  => false
+    backup  => false,
   }
 }
