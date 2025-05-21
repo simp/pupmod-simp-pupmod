@@ -113,7 +113,7 @@ class pupmod::master::simp_auth (
     notify               => Class['pupmod::master::service'],
   }
 
-  # The puppet-agent package drops off this file for some reason, and it comes
+  # The agent package drops off this file for some reason, and it comes
   # as root:root. The puppetserver attempts to read this file because it exists,
   # and can't because of the permissions (puppetserver runs as puppet:puppet).
   # Back it up to preserve custom content on upgrade, and blow it away.

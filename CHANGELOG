@@ -1,3 +1,7 @@
+* Mon Jun 09 2025 Steven Pritchard <steve@sicura.us> - 8.9.0
+- Add a `agent_package` parameter to allow using something other
+  than `puppet-agent` (#192)
+
 * Mon Jun 09 2025 Steven Pritchard <steve@sicura.us> - 8.8.2
 - Support puppet-systemd 8.x
 - Clean up for rubocop

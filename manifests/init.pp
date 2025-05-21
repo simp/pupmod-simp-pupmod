@@ -160,8 +160,11 @@
 # @param pe_classlist
 #   Hash of pe classes and assorted metadata.
 #
+# @param agent_package
+#   The name of the agent package to install.
+#
 # @param package_ensure
-#   String used to specify 'latest', 'installed', or a specific version of the puppet-agent package
+#   String used to specify 'latest', 'installed', or a specific version of the agent package
 #
 # @param set_environment
 #   Set the environment on the system to the currently running environment
@@ -208,6 +211,7 @@ class pupmod (
   Boolean                                      $fips                 = simplib::lookup('simp_options::fips', { 'default_value' => false }),
   Boolean                                      $firewall             = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Hash                                         $pe_classlist         = {},
+  String[1]                                    $agent_package        = 'puppet-agent',
   String[1]                                    $package_ensure       = simplib::lookup('simp_options::package_ensure' , { 'default_value' => 'installed'}),
   Variant[Boolean, Enum['no_clean']]           $set_environment      = false,
   Boolean                                      $manage_facter_conf   = false,
@@ -231,7 +235,7 @@ class pupmod (
     if $enable_puppet_master {
       include 'pupmod::master'
     }
-    package { 'puppet-agent': ensure => $package_ensure }
+    package { $agent_package: ensure => $package_ensure }
 
     if $daemonize {
       $_puppet_service_ensure = 'running'
