@@ -230,6 +230,13 @@ describe 'pupmod' do
               it { is_expected.to contain_class('haveged') }
             end
 
+            context 'with agent_package => openvox-agent' do
+              let(:params) { { agent_package: 'openvox-agent' } }
+
+              it { is_expected.to contain_package('openvox-agent').with_ensure('installed') }
+              it { is_expected.not_to contain_package('puppet-agent') }
+            end
+
             context 'with enable_puppet_master => false' do
               let(:params) { { enable_puppet_master: true, } }
 
