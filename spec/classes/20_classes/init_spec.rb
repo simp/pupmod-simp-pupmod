@@ -21,7 +21,7 @@ describe 'pupmod' do
   end
 
   on_supported_os.each do |os, os_facts|
-    let(:node){ os_facts[:networking][:fqdn] } # sets trusted facts hash
+    let(:node) { os_facts[:networking][:fqdn] } # sets trusted facts hash
     let(:extras) do
       {
         puppet_settings: {

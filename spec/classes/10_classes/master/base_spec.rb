@@ -50,7 +50,7 @@ describe 'pupmod::master::base' do
           )
         }
         it {
-          puppetserver_clear_environment_cache = File.open("#{File.dirname(__FILE__)}/data/puppetserver_clear_environment_cache.txt", "rb").read.gsub('foo.example.com', facts[:networking][:fqdn])
+          puppetserver_clear_environment_cache = File.open("#{File.dirname(__FILE__)}/data/puppetserver_clear_environment_cache.txt", 'rb').read.gsub('foo.example.com', facts[:networking][:fqdn])
           is_expected.to contain_file('/usr/local/sbin/puppetserver_clear_environment_cache').with_content(puppetserver_clear_environment_cache)
         }
 
@@ -65,7 +65,7 @@ describe 'pupmod::master::base' do
           )
         }
         it {
-          puppetserver_reload = File.open("#{File.dirname(__FILE__)}/data/puppetserver_reload.txt", "rb").read.gsub('foo.example.com', facts[:networking][:fqdn])
+          puppetserver_reload = File.open("#{File.dirname(__FILE__)}/data/puppetserver_reload.txt", 'rb').read.gsub('foo.example.com', facts[:networking][:fqdn])
           is_expected.to contain_file('/usr/local/sbin/puppetserver_reload').with_content(puppetserver_reload)
         }
 

@@ -5,7 +5,7 @@ describe 'pupmod::agent::cron' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
       context 'with facts set to defaults' do
-        let(:facts) do 
+        let(:facts) do
           custom = os_facts.dup
           custom[:networking][:ip] = '10.0.2.15'
           custom[:puppet_service_enabled] = false

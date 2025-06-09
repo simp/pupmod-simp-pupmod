@@ -262,7 +262,7 @@ describe 'pupmod::master' do
             it { expect(puppetserver_conf_hash).to have_key('puppet-admin') }
             it {
               expect(puppetserver_conf_hash['puppet-admin']).to eq(
-                'client-whitelist' => [ facts[:networking][:fqdn] ]
+                'client-whitelist' => [ facts[:networking][:fqdn] ],
               )
             }
           end

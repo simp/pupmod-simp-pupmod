@@ -43,7 +43,7 @@ describe 'pupmod::master' do
                 extras.merge(os_facts).merge(
                   memory: {
                     'system' => {
-                      'total_bytes' => (490.16 * 1048576).to_i,
+                      'total_bytes' => (490.16 * 1_048_576).to_i,
                     },
                   },
                   pe_build: '2016.1.0',
@@ -67,7 +67,7 @@ describe 'pupmod::master' do
                 extras.merge(os_facts).merge(
                   memory: {
                     'system' => {
-                      'total_bytes' => (490.16 * 1048576).to_i,
+                      'total_bytes' => (490.16 * 1_048_576).to_i,
                     }
                   },
                   puppetserver_jruby: {
@@ -106,7 +106,7 @@ describe 'pupmod::master' do
                 extras.merge(os_facts).merge(
                   memory: {
                     'system' => {
-                      'total_bytes' => (490.16 * 1048576).to_i
+                      'total_bytes' => (490.16 * 1_048_576).to_i
                     }
                   },
                   puppetserver_jruby: {
@@ -137,7 +137,7 @@ describe 'pupmod::master' do
                 extras.merge(os_facts).merge(
                   memory: {
                     'system' => {
-                      'total_bytes' => (490.16 * 1048576).to_i,
+                      'total_bytes' => (490.16 * 1_048_576).to_i,
                     },
                   },
                 )
@@ -161,7 +161,7 @@ describe 'pupmod::master' do
                 extras.merge(os_facts).merge(
                   memory: {
                     'system' => {
-                      'total_bytes' => (490.16 * 1048576).to_i,
+                      'total_bytes' => (490.16 * 1_048_576).to_i,
                     },
                   },
                 )
@@ -186,7 +186,7 @@ describe 'pupmod::master' do
                 extras.merge(os_facts).merge(
                   memory: {
                     'system' => {
-                      'total_bytes' => (8192 * 1048576).to_i
+                      'total_bytes' => (8192 * 1_048_576).to_i
                     }
                   },
                   processors: {
@@ -262,7 +262,7 @@ describe 'pupmod::master' do
                 extras.merge(os_facts).merge(
                   memory: {
                     'system' => {
-                      'total_bytes' => (32768 * 1048576).to_i
+                      'total_bytes' => (32_768 * 1_048_576).to_i
                     }
                   },
                   processors: {
@@ -339,7 +339,7 @@ describe 'pupmod::master' do
                 extras.merge(os_facts).merge(
                   memory: {
                     'system' => {
-                      'total_bytes' => (32768 * 1048576).to_i,
+                      'total_bytes' => (32_768 * 1_048_576).to_i,
                     },
                   },
                   processors: {
