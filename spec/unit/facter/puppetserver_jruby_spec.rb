@@ -6,14 +6,18 @@ require 'spec_helper'
 describe 'custom fact puppetserver_jruby' do
   before(:each) do
     Facter.clear
+
+    allow(File).to receive(:directory?).and_call_original
+    allow(File).to receive(:readable?).and_call_original
+    allow(Dir).to receive(:glob).and_call_original
+
+    allow(File).to receive(:directory?).with('/opt/puppetlabs/server/apps/puppetserver').and_return(true)
+    allow(File).to receive(:readable?).with('/opt/puppetlabs/server/apps/puppetserver').and_return(true)
+    allow(Dir).to receive(:glob).with('/opt/puppetlabs/server/apps/puppetserver/*.jar').and_return(['/x/d/f/my.jar', '/t/t/t/honey.jar'])
   end
 
   context 'with installation directory existing' do
-    it ' should return a hash' do
-      File.expects(:directory?).with('/opt/puppetlabs/server/apps/puppetserver').returns(true)
-      File.expects(:readable?).with('/opt/puppetlabs/server/apps/puppetserver').returns(true)
-      Dir.expects(:glob).with('/opt/puppetlabs/server/apps/puppetserver/*.jar').returns(['/x/d/f/my.jar', '/t/t/t/honey.jar'])
-
+    it 'returns a hash' do
       expect(Facter.fact('puppetserver_jruby').value).to eq(
         'dir'      => '/opt/puppetlabs/server/apps/puppetserver',
         'jarfiles' => ['my.jar', 'honey.jar'],
