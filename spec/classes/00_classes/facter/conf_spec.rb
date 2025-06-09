@@ -20,10 +20,10 @@ describe 'pupmod' do
         [ 'facts', 'global', 'cli' ].each do |section|
           it {
             is_expected.to contain_hocon_setting(section).with(
-            ensure: 'absent',
-            path: conf_file,
-            setting: section,
-          )
+              ensure: 'absent',
+              path: conf_file,
+              setting: section,
+            )
           }
         end
       end
@@ -32,40 +32,40 @@ describe 'pupmod' do
         let(:facts_section) do
           {
             'blocklist' => [ 'EC2' ],
-          'ttls' => [
-            { 'processor' => '30 days' },
-            { 'timezone'  => '8 hours' },
-          ]
+            'ttls'      => [
+              { 'processor' => '30 days' },
+              { 'timezone'  => '8 hours' },
+            ],
           }
         end
 
         let(:global_section) do
           {
-            'external-dir' => [ 'path1', 'path2' ],
-          'custom-dir'       => [ 'custom/path' ],
-          'no-exernal-facts' => false,
-          'no-custom-facts'  => false,
-          'no-ruby'          => false
+            'external-dir'     => [ 'path1', 'path2' ],
+            'custom-dir'       => [ 'custom/path' ],
+            'no-exernal-facts' => false,
+            'no-custom-facts'  => false,
+            'no-ruby'          => false,
           }
         end
 
         let(:cli_section) do
           {
-            'debug' => false,
-          'trace'     => true,
-          'verbose'   => false,
-          'log-level' => 'warn'
+            'debug'     => false,
+            'trace'     => true,
+            'verbose'   => false,
+            'log-level' => 'warn',
           }
         end
 
         let(:params) do
           {
             manage_facter_conf: true,
-          facter_options: {
-            'facts'  => facts_section,
-            'global' => global_section,
-            'cli'    => cli_section
-          }
+            facter_options: {
+              'facts'  => facts_section,
+              'global' => global_section,
+              'cli'    => cli_section,
+            },
           }
         end
 
@@ -74,27 +74,27 @@ describe 'pupmod' do
         it { is_expected.to contain_file(conf_file).with_ensure('file') }
         it {
           is_expected.to contain_hocon_setting('facts').with(
-          ensure: 'present',
-          path: conf_file,
-          setting: 'facts',
-          value: facts_section,
-        )
+            ensure: 'present',
+            path: conf_file,
+            setting: 'facts',
+            value: facts_section,
+          )
         }
         it {
           is_expected.to contain_hocon_setting('global').with(
-          ensure: 'present',
-          path: conf_file,
-          setting: 'global',
-          value: global_section,
-        )
+            ensure: 'present',
+            path: conf_file,
+            setting: 'global',
+            value: global_section,
+          )
         }
         it {
           is_expected.to contain_hocon_setting('cli').with(
-          ensure: 'present',
-          path: conf_file,
-          setting: 'cli',
-          value: cli_section,
-        )
+            ensure: 'present',
+            path: conf_file,
+            setting: 'cli',
+            value: cli_section,
+          )
         }
       end
     end

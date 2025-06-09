@@ -6,36 +6,36 @@ describe 'install environment via r10k and puppetserver' do
   include GenerateTypesTestUtil
 
   let(:master_manifest) do
-    <<-EOF
-    include 'iptables'
+    <<~EOF
+      include 'iptables'
 
-    # Set up a puppetserver
-    class { 'pupmod::master':
-      firewall     => true,
-      trusted_nets => ['ALL']
-    }
+      # Set up a puppetserver
+      class { 'pupmod::master':
+        firewall     => true,
+        trusted_nets => ['ALL']
+      }
 
-    pupmod::master::autosign { 'All Test Hosts': entry => '*' }
+      pupmod::master::autosign { 'All Test Hosts': entry => '*' }
 
-    # Maintain connection to the VM
-    pam::access::rule { 'vagrant_all':
-      users      => ['vagrant'],
-      permission => '+',
-      origins    => ['ALL'],
-    }
-    sudo::user_specification { 'vagrant':
-      user_list => ['vagrant'],
-      cmnd      => ['ALL'],
-      passwd    => false,
-    }
+      # Maintain connection to the VM
+      pam::access::rule { 'vagrant_all':
+        users      => ['vagrant'],
+        permission => '+',
+        origins    => ['ALL'],
+      }
+      sudo::user_specification { 'vagrant':
+        user_list => ['vagrant'],
+        cmnd      => ['ALL'],
+        passwd    => false,
+      }
 
-    sshd_config { 'PermitRootLogin'    : value => 'yes' }
-    sshd_config { 'AuthorizedKeysFile' : value => '.ssh/authorized_keys' }
+      sshd_config { 'PermitRootLogin'    : value => 'yes' }
+      sshd_config { 'AuthorizedKeysFile' : value => '.ssh/authorized_keys' }
 
-    iptables::listen::tcp_stateful { 'allow_ssh':
-      trusted_nets => ['ALL'],
-      dports       => 22
-    }
+      iptables::listen::tcp_stateful { 'allow_ssh':
+        trusted_nets => ['ALL'],
+        dports       => 22
+      }
     EOF
   end
 
@@ -94,7 +94,7 @@ describe 'install environment via r10k and puppetserver' do
 
       context 'when managing facter.conf' do
         let(:disable_block_hieradata) do
-          <<-EOS
+          <<~EOS
             pupmod::manage_facter_conf: true
             pupmod::facter_options:
               facts:

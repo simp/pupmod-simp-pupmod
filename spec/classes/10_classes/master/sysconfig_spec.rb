@@ -83,11 +83,11 @@ describe 'pupmod::master' do
                   File.dirname(server_datadir))
 
                 is_expected.to contain_file('/etc/sysconfig/puppetserver').with(
-                    'owner'   => 'root',
-                    'group'   => 'puppet',
-                    'mode'    => '0640',
-                    'content' => puppetserver_content,
-                  )
+                  'owner'   => 'root',
+                  'group'   => 'puppet',
+                  'mode'    => '0640',
+                  'content' => puppetserver_content,
+                )
               end
 
               it { is_expected.to create_class('pupmod::master::sysconfig') }

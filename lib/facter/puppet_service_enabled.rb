@@ -2,7 +2,7 @@
 # Determine if the puppet service is enabled.
 #
 Facter.add(:puppet_service_enabled) do
-  confine kernel: 'linux'
+  confine kernel: :linux
   setcode do
     if Facter.value(:init_systems).include? 'systemd'
       Facter::Core::Execution.execute('/usr/bin/systemctl is-enabled puppet.service').include? 'enabled'

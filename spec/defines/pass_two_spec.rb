@@ -63,12 +63,12 @@ describe 'pupmod::pass_two' do
                     if key == 'server_list'
                       it {
                         is_expected.to contain_pupmod__conf(key).with(
-                        {
-                          'ensure'  => 'present',
-                          'setting' => key,
-                          'value'   => value.join(','),
-                        },
-                      )
+                          {
+                            'ensure'  => 'present',
+                            'setting' => key,
+                            'value'   => value.join(','),
+                          },
+                        )
                       }
                       it {
                         is_expected.to contain_pupmod__conf('server').with(
@@ -235,10 +235,10 @@ describe 'pupmod::pass_two' do
                   let(:pre_condition) do
                     <<~EOM
                       #{assert_private_shim}
-                      include ::puppet_enterprise
-                      include ::puppet_enterprise::profile::master
-                      class { "::pupmod":
-                        mock => true
+                      include puppet_enterprise
+                      include puppet_enterprise::profile::master
+                      class { 'pupmod':
+                        mock => true,
                       }
                       include pupmod::master
                     EOM
@@ -254,10 +254,10 @@ describe 'pupmod::pass_two' do
                   let(:pre_condition) do
                     <<~EOM
                       #{assert_private_shim}
-                      include ::puppet_enterprise
-                      include ::puppet_enterprise::profile::master
-                      class { "::pupmod":
-                        mock => true
+                      include puppet_enterprise
+                      include puppet_enterprise::profile::master
+                      class { 'pupmod':
+                        mock => true,
                       }
                     EOM
                   end
@@ -265,18 +265,18 @@ describe 'pupmod::pass_two' do
                   it { is_expected.to compile }
                   it { is_expected.to contain_class('pupmod::master::sysconfig') }
                   {
-                    '2015.1.1' => true,
+                    '2015.1.1'  => true,
                     '2015.20.1' => true,
-                    '2016.1.0' => true,
-                    '2016.2.0' => true,
-                    '2016.4.0' => false,
-                    '2016.4.1' => false,
-                    '2016.5.1' => false,
-                    '2017.1.0' => false,
+                    '2016.1.0'  => true,
+                    '2016.2.0'  => true,
+                    '2016.4.0'  => false,
+                    '2016.4.1'  => false,
+                    '2016.5.1'  => false,
+                    '2017.1.0'  => false,
                     '2017.20.1' => false,
-                    '2018.1.0' => false,
-                    '2020.1.0' => false,
-                    '2021.1.0' => false,
+                    '2018.1.0'  => false,
+                    '2020.1.0'  => false,
+                    '2021.1.0'  => false,
                   }.each do |pe_version, tmpdir|
                     it { is_expected.to contain_file("#{File.dirname(facts[:puppet_settings][:master][:server_datadir])}/pserver_tmp") }
 

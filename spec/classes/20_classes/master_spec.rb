@@ -41,57 +41,57 @@ describe 'pupmod::master' do
           it { is_expected.to create_class('pupmod::master::base') }
           it { is_expected.to contain_class('pupmod::master::sysconfig').that_comes_before('Class[Pupmod::Master::Service]') }
           it {
-            is_expected.to contain_file('/etc/puppetlabs/puppetserver').with({
-                                                                               'ensure' => 'directory',
-            'owner'  => 'root',
-            'group'  => 'puppet',
-            'mode'   => '0660'
-                                                                             })
+            is_expected.to contain_file('/etc/puppetlabs/puppetserver').with(
+              'ensure' => 'directory',
+              'owner'  => 'root',
+              'group'  => 'puppet',
+              'mode'   => '0660',
+            )
           }
 
           it {
-            is_expected.to contain_file('/etc/puppetlabs/puppetserver/conf.d').with({
-                                                                                      'ensure' => 'directory',
-            'owner'  => 'root',
-            'group'  => 'puppet',
-            'mode'   => '0640'
-                                                                                    })
+            is_expected.to contain_file('/etc/puppetlabs/puppetserver/conf.d').with(
+              'ensure' => 'directory',
+              'owner'  => 'root',
+              'group'  => 'puppet',
+              'mode'   => '0640',
+            )
           }
 
           it {
-            is_expected.to contain_file('/etc/puppetlabs/puppet/ssl').with({
-                                                                             'ensure' => 'directory',
-            'owner'  => 'puppet',
-            'group'  => 'puppet'
-                                                                           })
+            is_expected.to contain_file('/etc/puppetlabs/puppet/ssl').with(
+              'ensure' => 'directory',
+              'owner'  => 'puppet',
+              'group'  => 'puppet',
+            )
           }
 
           it {
-            is_expected.to contain_file('/var/run/puppetlabs/puppetserver').with({
-                                                                                   'ensure' => 'directory',
-            'owner'  => 'puppet',
-            'group'  => 'puppet'
-                                                                                 })
+            is_expected.to contain_file('/var/run/puppetlabs/puppetserver').with(
+              'ensure' => 'directory',
+              'owner'  => 'puppet',
+              'group'  => 'puppet',
+            )
           }
 
           it {
-            is_expected.to contain_file('/etc/puppetlabs/code').with({
-                                                                       'ensure' => 'directory',
-            'owner'  => 'root',
-            'group'  => 'puppet',
-            'mode'   => '0640'
-                                                                     })
+            is_expected.to contain_file('/etc/puppetlabs/code').with(
+              'ensure' => 'directory',
+              'owner'  => 'root',
+              'group'  => 'puppet',
+              'mode'   => '0640',
+            )
           }
 
           it {
-            is_expected.to contain_file(ca_cfg).with({
-                                                       'ensure' => 'file',
-            'owner'   => 'root',
-            'group'   => 'puppet',
-            'mode'    => '0640',
-            'require' => 'Class[Pupmod::Master::Install]',
-            'notify'  => 'Class[Pupmod::Master::Service]'
-                                                     })
+            is_expected.to contain_file(ca_cfg).with(
+              'ensure'  => 'file',
+              'owner'   => 'root',
+              'group'   => 'puppet',
+              'mode'    => '0640',
+              'require' => 'Class[Pupmod::Master::Install]',
+              'notify'  => 'Class[Pupmod::Master::Service]',
+            )
           }
 
           it {
@@ -106,61 +106,65 @@ describe 'pupmod::master' do
 
           if puppetserver_version >= '5.1.0'
             it {
-              expect(ca_cfg_lines).to eq([
-                                           'puppetlabs.services.ca.certificate-authority-service/certificate-authority-service',
-                                           'puppetlabs.trapperkeeper.services.watcher.filesystem-watch-service/filesystem-watch-service',
-                                         ])
+              expect(ca_cfg_lines).to eq(
+                [
+                  'puppetlabs.services.ca.certificate-authority-service/certificate-authority-service',
+                  'puppetlabs.trapperkeeper.services.watcher.filesystem-watch-service/filesystem-watch-service',
+                ],
+              )
             }
           else
             it {
-              expect(ca_cfg_lines).to eq([
-                                           'puppetlabs.services.ca.certificate-authority-service/certificate-authority-service',
-                                         ])
+              expect(ca_cfg_lines).to eq(
+                [
+                  'puppetlabs.services.ca.certificate-authority-service/certificate-authority-service',
+                ],
+              )
             }
           end
 
           it {
-            is_expected.to contain_file('/etc/puppetlabs/puppetserver/logback.xml').with({
-                                                                                           'ensure' => 'file',
-            'owner'   => 'root',
-            'group'   => 'puppet',
-            'mode'    => '0640',
-            'require' => 'Class[Pupmod::Master::Install]',
-            'notify'  => 'Class[Pupmod::Master::Service]',
-            'content' => <<~CONTENT
-              <!--
-                This file managed by Puppet.
-                Any changes will be erased at the next run.
-              -->
-              <configuration>
-                  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-                      <encoder>
-                          <pattern>%d %-5p [%c{2}] %m%n</pattern>
-                      </encoder>
-                  </appender>
+            is_expected.to contain_file('/etc/puppetlabs/puppetserver/logback.xml').with(
+              'ensure'  => 'file',
+              'owner'   => 'root',
+              'group'   => 'puppet',
+              'mode'    => '0640',
+              'require' => 'Class[Pupmod::Master::Install]',
+              'notify'  => 'Class[Pupmod::Master::Service]',
+              'content' => <<~CONTENT,
+                <!--
+                  This file managed by Puppet.
+                  Any changes will be erased at the next run.
+                -->
+                <configuration>
+                    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+                        <encoder>
+                            <pattern>%d %-5p [%c{2}] %m%n</pattern>
+                        </encoder>
+                    </appender>
 
-                  <appender name="SYSLOG" class="ch.qos.logback.classic.net.SyslogAppender">
-                    <syslogHost>localhost</syslogHost>
-                    <facility>LOCAL6</facility>
-                    <suffixPattern>%logger[%thread]: %msg</suffixPattern>
-                    <throwableExcluded>true</throwableExcluded>
-                  </appender>
+                    <appender name="SYSLOG" class="ch.qos.logback.classic.net.SyslogAppender">
+                      <syslogHost>localhost</syslogHost>
+                      <facility>LOCAL6</facility>
+                      <suffixPattern>%logger[%thread]: %msg</suffixPattern>
+                      <throwableExcluded>true</throwableExcluded>
+                    </appender>
 
-                  <appender name="F1" class="ch.qos.logback.core.FileAppender">
-                      <file>/var/log/puppetlabs/puppetserver/puppetserver.log</file>
-                      <append>true</append>
-                      <encoder>
-                          <pattern>%d %-5p [%c{2}] %m%n</pattern>
-                      </encoder>
-                  </appender>
+                    <appender name="F1" class="ch.qos.logback.core.FileAppender">
+                        <file>/var/log/puppetlabs/puppetserver/puppetserver.log</file>
+                        <append>true</append>
+                        <encoder>
+                            <pattern>%d %-5p [%c{2}] %m%n</pattern>
+                        </encoder>
+                    </appender>
 
-                  <logger name="org.eclipse.jetty" level="WARN"/>
+                    <logger name="org.eclipse.jetty" level="WARN"/>
 
-                  <root level="WARN">
-                  </root>
-              </configuration>
-              CONTENT
-                                                                                         })
+                    <root level="WARN">
+                    </root>
+                </configuration>
+                CONTENT
+            )
           }
 
           context 'when processing ca.conf' do
@@ -168,14 +172,14 @@ describe 'pupmod::master' do
             let(:ca_conf_hash) { Hocon.parse(catalogue.resource("File[#{ca_conf}]")['content']) }
 
             it {
-              is_expected.to contain_file('/etc/puppetlabs/puppetserver/conf.d/ca.conf').with({
-                                                                                                'ensure' => 'file',
-              'owner'   => 'root',
-              'group'   => 'puppet',
-              'mode'    => '0640',
-              'require' => 'Class[Pupmod::Master::Install]',
-              'notify'  => 'Class[Pupmod::Master::Service]'
-                                                                                              })
+              is_expected.to contain_file('/etc/puppetlabs/puppetserver/conf.d/ca.conf').with(
+                'ensure'  => 'file',
+                'owner'   => 'root',
+                'group'   => 'puppet',
+                'mode'    => '0640',
+                'require' => 'Class[Pupmod::Master::Install]',
+                'notify'  => 'Class[Pupmod::Master::Service]',
+              )
             }
 
             it { expect(ca_conf_hash).to have_key('certificate-authority') }
@@ -183,7 +187,7 @@ describe 'pupmod::master' do
               expect(ca_conf_hash['certificate-authority']).to eq(
                 'certificate-status' => {
                   'client-whitelist'       => [facts[:networking][:fqdn]],
-                  'authorization-required' => true
+                  'authorization-required' => true,
                 },
               )
             }
@@ -196,14 +200,14 @@ describe 'pupmod::master' do
             let(:puppetserver_conf_hash) { Hocon.parse(catalogue.resource("File[#{puppetserver_conf}]")['content']) }
 
             it {
-              is_expected.to contain_file(puppetserver_conf).with({
-                                                                    'ensure' => 'file',
-              'owner'   => 'root',
-              'group'   => 'puppet',
-              'mode'    => '0640',
-              'require' => 'Class[Pupmod::Master::Install]',
-              'notify'  => 'Class[Pupmod::Master::Service]'
-                                                                  })
+              is_expected.to contain_file(puppetserver_conf).with(
+                'ensure'  => 'file',
+                'owner'   => 'root',
+                'group'   => 'puppet',
+                'mode'    => '0640',
+                'require' => 'Class[Pupmod::Master::Install]',
+                'notify'  => 'Class[Pupmod::Master::Service]',
+              )
             }
 
             it { expect(puppetserver_conf_hash).to have_key('jruby-puppet') }
@@ -272,14 +276,14 @@ describe 'pupmod::master' do
             let(:web_routes_conf_hash) { Hocon.parse(catalogue.resource("File[#{web_routes_conf}]")['content']) }
 
             it {
-              is_expected.to contain_file(web_routes_conf).with({
-                                                                  'ensure' => 'file',
-              'owner'   => 'root',
-              'group'   => 'puppet',
-              'mode'    => '0640',
-              'require' => 'Class[Pupmod::Master::Install]',
-              'notify'  => 'Class[Pupmod::Master::Service]'
-                                                                })
+              is_expected.to contain_file(web_routes_conf).with(
+                'ensure'  => 'file',
+                'owner'   => 'root',
+                'group'   => 'puppet',
+                'mode'    => '0640',
+                'require' => 'Class[Pupmod::Master::Install]',
+                'notify'  => 'Class[Pupmod::Master::Service]',
+              )
             }
 
             it { expect(web_routes_conf_hash).to have_key('web-router-service') }
@@ -295,7 +299,7 @@ describe 'pupmod::master' do
                 'puppetlabs.trapperkeeper.services.status.status-service/status-service'        => '/status',
                 'puppetlabs.services.master.master-service/master-service'                      => '/puppet',
                 'puppetlabs.services.legacy-routes.legacy-routes-service/legacy-routes-service' => '',
-                'puppetlabs.services.puppet-admin.puppet-admin-service/puppet-admin-service'    => '/puppet-admin-api'
+                'puppetlabs.services.puppet-admin.puppet-admin-service/puppet-admin-service'    => '/puppet-admin-api',
               }
 
               if puppetserver_version >= '5.1.0'
@@ -311,14 +315,14 @@ describe 'pupmod::master' do
             let(:webserver_conf_hash) { Hocon.parse(catalogue.resource("File[#{webserver_conf}]")['content']) }
 
             it {
-              is_expected.to contain_file(webserver_conf).with({
-                                                                 'ensure' => 'file',
-              'owner'   => 'root',
-              'group'   => 'puppet',
-              'mode'    => '0640',
-              'require' => 'Class[Pupmod::Master::Install]',
-              'notify'  => 'Class[Pupmod::Master::Service]'
-                                                               })
+              is_expected.to contain_file(webserver_conf).with(
+                'ensure'  => 'file',
+                'owner'   => 'root',
+                'group'   => 'puppet',
+                'mode'    => '0640',
+                'require' => 'Class[Pupmod::Master::Install]',
+                'notify'  => 'Class[Pupmod::Master::Service]',
+              )
             }
 
             it { expect(webserver_conf_hash).to have_key('webserver') }
@@ -335,7 +339,7 @@ describe 'pupmod::master' do
                     'ssl-host'          => '0.0.0.0',
                     'ssl-port'          => 8140,
                     'ssl-protocols'     => 'TLSv1.2',
-                    'default-server'    => true
+                    'default-server'    => true,
                   },
                 ),
                 'ca' => a_hash_including(
@@ -359,7 +363,7 @@ describe 'pupmod::master' do
             context 'when setting the cipher suites' do
               let(:params) do
                 {
-                  ssl_cipher_suites: ['TLS_RSA_WITH_AES_256_CBC_SHA256', 'TLS_RSA_WITH_AES_128_CBC_SHA256']
+                  ssl_cipher_suites: ['TLS_RSA_WITH_AES_256_CBC_SHA256', 'TLS_RSA_WITH_AES_128_CBC_SHA256'],
                 }
               end
 
@@ -372,21 +376,25 @@ describe 'pupmod::master' do
                 {
                   # Simple setting override
                   server_webserver_options: {
-                    'port' => '1212'
+                    'port' => '1212',
                   },
-                # Complex setting
-                ca_webserver_options: {
-                  'static-content' => '[{ resource: "./web-assets", path: "/assets" }]'
-                }
+                  # Complex setting
+                  ca_webserver_options: {
+                    'static-content' => '[{ resource: "./web-assets", path: "/assets" }]',
+                  },
                 }
               end
 
               it { expect(webserver_conf_hash['webserver']['base']['port']).to eq(1212) }
               it {
-                expect(webserver_conf_hash['webserver']['ca']['static-content']).to eq([{
-                                                                                         'resource' => './web-assets',
-                  'path' => '/assets'
-                                                                                       }])
+                expect(webserver_conf_hash['webserver']['ca']['static-content']).to eq(
+                  [
+                    {
+                      'resource' => './web-assets',
+                      'path'     => '/assets',
+                    },
+                  ],
+                )
               }
             end
 
@@ -396,11 +404,11 @@ describe 'pupmod::master' do
                   # Simple setting override
                   extra_webserver_sections: {
                     'bob' => {
-                      'port' => '1212',
-                      'static-content' => '[{ resource: "./web-assets", path: "/assets" }]'
+                      'port'           => '1212',
+                      'static-content' => '[{ resource: "./web-assets", path: "/assets" }]',
                     },
                     'alice' => {
-                      'port' => '2345',
+                      'port'           => '2345',
                       'static-content' => '[{ resource: "./other-web-assets", path: "/other-assets" }]'
                     }
                   }
@@ -409,61 +417,69 @@ describe 'pupmod::master' do
 
               it { expect(webserver_conf_hash['webserver']['bob']['port']).to eq(1212) }
               it {
-                expect(webserver_conf_hash['webserver']['bob']['static-content']).to eq([{
-                                                                                          'resource' => './web-assets',
-                  'path'     => '/assets'
-                                                                                        }])
+                expect(webserver_conf_hash['webserver']['bob']['static-content']).to eq(
+                  [
+                    {
+                      'resource' => './web-assets',
+                      'path'     => '/assets',
+                    },
+                  ],
+                )
               }
               it { expect(webserver_conf_hash['webserver']['alice']['port']).to eq(2345) }
               it {
-                expect(webserver_conf_hash['webserver']['alice']['static-content']).to eq([{
-                                                                                            'resource' => './other-web-assets',
-                  'path'     => '/other-assets'
-                                                                                          }])
+                expect(webserver_conf_hash['webserver']['alice']['static-content']).to eq(
+                  [
+                    {
+                      'resource' => './other-web-assets',
+                      'path'     => '/other-assets',
+                    },
+                  ],
+                )
               }
             end
           end
 
           it 'handles `trusted_server_facts` correctly for the Puppet version' do
             if Puppet.version.split('.').first >= '5'
-              is_expected.to contain_pupmod__conf('trusted_server_facts').with({
-                                                                                 'ensure' => 'absent'
-                                                                               })
+              is_expected.to contain_pupmod__conf('trusted_server_facts').with(
+                'ensure' => 'absent',
+              )
             else
-              is_expected.to contain_pupmod__conf('trusted_server_facts').with({
-                                                                                 'ensure' => 'present',
+              is_expected.to contain_pupmod__conf('trusted_server_facts').with(
+                'ensure'  => 'present',
                 'setting' => 'trusted_server_facts',
                 'value'   => true,
-                'notify'  => 'Class[Pupmod::Master::Service]'
-                                                                               })
+                'notify'  => 'Class[Pupmod::Master::Service]',
+              )
             end
           end
 
           it {
-            is_expected.to contain_pupmod__conf('master_environmentpath').with({
-                                                                                 'section' => 'server',
-            'setting' => 'environmentpath',
-            'value'   => '/etc/puppetlabs/code/environments',
-            'notify'  => 'Class[Pupmod::Master::Service]'
-                                                                               })
+            is_expected.to contain_pupmod__conf('master_environmentpath').with(
+              'section' => 'server',
+              'setting' => 'environmentpath',
+              'value'   => '/etc/puppetlabs/code/environments',
+              'notify'  => 'Class[Pupmod::Master::Service]',
+            )
           }
 
           it {
-            is_expected.to contain_pupmod__conf('master_daemonize').with({
-                                                                           'section' => 'server',
-            'setting' => 'daemonize',
-            'value'   => 'true',
-            'notify'  => 'Class[Pupmod::Master::Service]'
-                                                                         })
+            is_expected.to contain_pupmod__conf('master_daemonize').with(
+              'section' => 'server',
+              'setting' => 'daemonize',
+              'value'   => 'true',
+              'notify'  => 'Class[Pupmod::Master::Service]',
+            )
           }
 
           it {
-            is_expected.to contain_pupmod__conf('master_masterport').with({
-                                                                            'section' => 'server',
-            'setting' => 'masterport',
-            'value'   => 8140,
-            'notify'  => 'Class[Pupmod::Master::Service]'
-                                                                          })
+            is_expected.to contain_pupmod__conf('master_masterport').with(
+              'section' => 'server',
+              'setting' => 'masterport',
+              'value'   => 8140,
+              'notify'  => 'Class[Pupmod::Master::Service]',
+            )
           }
 
           if Gem::Version.new(Puppet.version) >= Gem::Version.new('5.5.6')
@@ -472,57 +488,57 @@ describe 'pupmod::master' do
             end
           else
             it 'ensures that "[master] ca = true" is absent when Puppet < 5.5.6' do
-              is_expected.to contain_pupmod__conf('master_ca').with({
-                                                                      'section' => 'server',
+              is_expected.to contain_pupmod__conf('master_ca').with(
+                'section' => 'server',
                 'setting' => 'ca',
                 'value'   => true,
                 'notify'  => 'Class[Pupmod::Master::Service]',
-                                                                    })
+              )
             end
           end
 
           it {
-            is_expected.to contain_pupmod__conf('master_ca_port').with({
-                                                                         'section' => 'server',
-            'setting' => 'ca_port',
-            'value'   => 8141,
-            'notify'  => 'Class[Pupmod::Master::Service]'
-                                                                       })
+            is_expected.to contain_pupmod__conf('master_ca_port').with(
+              'section' => 'server',
+              'setting' => 'ca_port',
+              'value'   => 8141,
+              'notify'  => 'Class[Pupmod::Master::Service]',
+            )
           }
 
           it {
-            is_expected.to contain_pupmod__conf('ca_ttl').with({
-                                                                 'section' => 'server',
-            'setting' => 'ca_ttl',
-            'value'   => '10y',
-            'notify'  => 'Class[Pupmod::Master::Service]'
-                                                               })
+            is_expected.to contain_pupmod__conf('ca_ttl').with(
+              'section' => 'server',
+              'setting' => 'ca_ttl',
+              'value'   => '10y',
+              'notify'  => 'Class[Pupmod::Master::Service]',
+            )
           }
 
           # fips_enabled fact take precedence over hieradata use_fips
           it {
-            is_expected.to contain_pupmod__conf('keylength').with({
-                                                                    'section' => 'server',
-            'setting' => 'keylength',
-            'value'   => 4096,
-            'notify'  => 'Class[Pupmod::Master::Service]'
-                                                                  })
+            is_expected.to contain_pupmod__conf('keylength').with(
+              'section' => 'server',
+              'setting' => 'keylength',
+              'value'   => 4096,
+              'notify'  => 'Class[Pupmod::Master::Service]',
+            )
           }
 
           it {
-            is_expected.to contain_pupmod__conf('freeze_main').with({
-                                                                      'setting' => 'freeze_main',
-            'value'   => false,
-            'notify'  => 'Class[Pupmod::Master::Service]'
-                                                                    })
+            is_expected.to contain_pupmod__conf('freeze_main').with(
+              'setting' => 'freeze_main',
+              'value'   => false,
+              'notify'  => 'Class[Pupmod::Master::Service]',
+            )
           }
 
           it {
-            is_expected.to contain_pupmod__conf('strict_hostname_checking').with({
-                                                                                   'setting' => 'strict_hostname_checking',
+            is_expected.to contain_pupmod__conf('strict_hostname_checking').with(
+              'setting' => 'strict_hostname_checking',
               'value'   => true,
-              'notify'  => 'Class[Pupmod::Master::Service]'
-                                                                                 })
+              'notify'  => 'Class[Pupmod::Master::Service]',
+            )
           }
 
           it { is_expected.to contain_ini_setting('pupmod_master_environmentpath') }
@@ -579,20 +595,22 @@ describe 'pupmod::master' do
               }
 
               it {
-                is_expected.to contain_file(ca_cfg).with({
-                                                           'ensure' => 'file',
-                'owner'   => 'root',
-                'group'   => 'puppet',
-                'mode'    => '0640',
-                'require' => 'Class[Pupmod::Master::Install]',
-                'notify'  => 'Class[Pupmod::Master::Service]'
-                                                         })
+                is_expected.to contain_file(ca_cfg).with(
+                  'ensure'  => 'file',
+                  'owner'   => 'root',
+                  'group'   => 'puppet',
+                  'mode'    => '0640',
+                  'require' => 'Class[Pupmod::Master::Install]',
+                  'notify'  => 'Class[Pupmod::Master::Service]',
+                )
               }
 
               it {
-                expect(ca_cfg_lines).to eq([
-                                             'puppetlabs.services.ca.certificate-authority-disabled-service/certificate-authority-disabled-service',
-                                           ])
+                expect(ca_cfg_lines).to eq(
+                  [
+                    'puppetlabs.services.ca.certificate-authority-disabled-service/certificate-authority-disabled-service',
+                  ],
+                )
               }
             end
           end
@@ -601,49 +619,49 @@ describe 'pupmod::master' do
             let(:params) { { syslog: true, log_to_file: true } }
 
             it {
-              is_expected.to contain_file('/etc/puppetlabs/puppetserver/logback.xml').with({
-                                                                                             'ensure' => 'file',
-              'owner'   => 'root',
-              'group'   => 'puppet',
-              'mode'    => '0640',
-              'require' => 'Class[Pupmod::Master::Install]',
-              'notify'  => 'Class[Pupmod::Master::Service]',
-              'content' => <<~CONTENT
-                <!--
-                  This file managed by Puppet.
-                  Any changes will be erased at the next run.
-                -->
-                <configuration>
-                    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-                        <encoder>
-                            <pattern>%d %-5p [%c{2}] %m%n</pattern>
-                        </encoder>
-                    </appender>
+              is_expected.to contain_file('/etc/puppetlabs/puppetserver/logback.xml').with(
+                'ensure' => 'file',
+                'owner'   => 'root',
+                'group'   => 'puppet',
+                'mode'    => '0640',
+                'require' => 'Class[Pupmod::Master::Install]',
+                'notify'  => 'Class[Pupmod::Master::Service]',
+                'content' => <<~CONTENT,
+                  <!--
+                    This file managed by Puppet.
+                    Any changes will be erased at the next run.
+                  -->
+                  <configuration>
+                      <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+                          <encoder>
+                              <pattern>%d %-5p [%c{2}] %m%n</pattern>
+                          </encoder>
+                      </appender>
 
-                    <appender name="SYSLOG" class="ch.qos.logback.classic.net.SyslogAppender">
-                      <syslogHost>localhost</syslogHost>
-                      <facility>LOCAL6</facility>
-                      <suffixPattern>%logger[%thread]: %msg</suffixPattern>
-                      <throwableExcluded>true</throwableExcluded>
-                    </appender>
+                      <appender name="SYSLOG" class="ch.qos.logback.classic.net.SyslogAppender">
+                        <syslogHost>localhost</syslogHost>
+                        <facility>LOCAL6</facility>
+                        <suffixPattern>%logger[%thread]: %msg</suffixPattern>
+                        <throwableExcluded>true</throwableExcluded>
+                      </appender>
 
-                    <appender name="F1" class="ch.qos.logback.core.FileAppender">
-                        <file>/var/log/puppetlabs/puppetserver/puppetserver.log</file>
-                        <append>true</append>
-                        <encoder>
-                            <pattern>%d %-5p [%c{2}] %m%n</pattern>
-                        </encoder>
-                    </appender>
+                      <appender name="F1" class="ch.qos.logback.core.FileAppender">
+                          <file>/var/log/puppetlabs/puppetserver/puppetserver.log</file>
+                          <append>true</append>
+                          <encoder>
+                              <pattern>%d %-5p [%c{2}] %m%n</pattern>
+                          </encoder>
+                      </appender>
 
-                    <logger name="org.eclipse.jetty" level="WARN"/>
+                      <logger name="org.eclipse.jetty" level="WARN"/>
 
-                    <root level="WARN">
-                        <appender-ref ref="SYSLOG"/>
-                        <appender-ref ref="F1"/>
-                    </root>
-                </configuration>
+                      <root level="WARN">
+                          <appender-ref ref="SYSLOG"/>
+                          <appender-ref ref="F1"/>
+                      </root>
+                  </configuration>
                 CONTENT
-                                                                                           })
+              )
             }
           end
 
@@ -656,7 +674,7 @@ describe 'pupmod::master' do
               let(:params) do
                 {
                   strict_hostname_checking: false,
-                cve_2020_7942_warning: false
+                  cve_2020_7942_warning: false,
                 }
               end
 
@@ -672,14 +690,14 @@ describe 'pupmod::master' do
               let(:ca_conf_hash) { Hocon.parse(catalogue.resource("File[#{ca_conf}]")['content']) }
 
               it {
-                is_expected.to contain_file('/etc/puppetlabs/puppetserver/conf.d/ca.conf').with({
-                                                                                                  'ensure'  => 'file',
-                'owner'   => 'root',
-                'group'   => 'puppet',
-                'mode'    => '0640',
-                'require' => 'Class[Pupmod::Master::Install]',
-                'notify'  => 'Class[Pupmod::Master::Service]'
-                                                                                                })
+                is_expected.to contain_file('/etc/puppetlabs/puppetserver/conf.d/ca.conf').with(
+                  'ensure'  => 'file',
+                  'owner'   => 'root',
+                  'group'   => 'puppet',
+                  'mode'    => '0640',
+                  'require' => 'Class[Pupmod::Master::Install]',
+                  'notify'  => 'Class[Pupmod::Master::Service]',
+                )
               }
 
               it { expect(ca_conf_hash).to have_key('certificate-authority') }
@@ -698,14 +716,14 @@ describe 'pupmod::master' do
               let(:ca_conf_hash) { Hocon.parse(catalogue.resource("File[#{ca_conf}]")['content']) }
 
               it {
-                is_expected.to contain_file('/etc/puppetlabs/puppetserver/conf.d/ca.conf').with({
-                                                                                                  'ensure'  => 'file',
-                'owner'   => 'root',
-                'group'   => 'puppet',
-                'mode'    => '0640',
-                'require' => 'Class[Pupmod::Master::Install]',
-                'notify'  => 'Class[Pupmod::Master::Service]'
-                                                                                                })
+                is_expected.to contain_file('/etc/puppetlabs/puppetserver/conf.d/ca.conf').with(
+                  'ensure'  => 'file',
+                  'owner'   => 'root',
+                  'group'   => 'puppet',
+                  'mode'    => '0640',
+                  'require' => 'Class[Pupmod::Master::Install]',
+                  'notify'  => 'Class[Pupmod::Master::Service]',
+                )
               }
 
               it { expect(ca_conf_hash).to have_key('certificate-authority') }
@@ -724,14 +742,14 @@ describe 'pupmod::master' do
               let(:ca_conf_hash) { Hocon.parse(catalogue.resource("File[#{ca_conf}]")['content']) }
 
               it {
-                is_expected.to contain_file('/etc/puppetlabs/puppetserver/conf.d/ca.conf').with({
-                                                                                                  'ensure'  => 'file',
-                'owner'   => 'root',
-                'group'   => 'puppet',
-                'mode'    => '0640',
-                'require' => 'Class[Pupmod::Master::Install]',
-                'notify'  => 'Class[Pupmod::Master::Service]'
-                                                                                                })
+                is_expected.to contain_file('/etc/puppetlabs/puppetserver/conf.d/ca.conf').with(
+                  'ensure'  => 'file',
+                  'owner'   => 'root',
+                  'group'   => 'puppet',
+                  'mode'    => '0640',
+                  'require' => 'Class[Pupmod::Master::Install]',
+                  'notify'  => 'Class[Pupmod::Master::Service]',
+                )
               }
 
               it { expect(ca_conf_hash).to have_key('certificate-authority') }
@@ -753,14 +771,14 @@ describe 'pupmod::master' do
               let(:os_settings_conf_hash) { Hocon.parse(catalogue.resource("File[#{os_settings_conf}]")['content']) }
 
               it {
-                is_expected.to contain_file(os_settings_conf).with({
-                                                                     'ensure' => 'file',
-              'owner'   => 'root',
-              'group'   => 'puppet',
-              'mode'    => '0640',
-              'require' => 'Class[Pupmod::Master::Install]',
-              'notify'  => 'Class[Pupmod::Master::Service]'
-                                                                   })
+                is_expected.to contain_file(os_settings_conf).with(
+                  'ensure' => 'file',
+                  'owner'   => 'root',
+                  'group'   => 'puppet',
+                  'mode'    => '0640',
+                  'require' => 'Class[Pupmod::Master::Install]',
+                  'notify'  => 'Class[Pupmod::Master::Service]',
+                )
               }
 
               it { expect(os_settings_conf_hash).to have_key('os-settings') }
@@ -776,8 +794,8 @@ describe 'pupmod::master' do
             let(:params) do
               {
                 ssl_protocols: [],
-              ssl_cipher_suites: ['TLS_RSA_WITH_AES_256_CBC_SHA256', 'TLS_RSA_WITH_AES_128_CBC_SHA256'],
-              admin_api_whitelist: ['foo.example.com', 'bar.example.com']
+                ssl_cipher_suites: ['TLS_RSA_WITH_AES_256_CBC_SHA256', 'TLS_RSA_WITH_AES_128_CBC_SHA256'],
+                admin_api_whitelist: ['foo.example.com', 'bar.example.com'],
               }
             end
 
@@ -808,7 +826,7 @@ describe 'pupmod::master' do
             let(:params) do
               {
                 admin_api_mountpoint: 'admin_mount_point',
-              enable_ca: false
+                enable_ca: false,
               }
             end
 
@@ -832,7 +850,7 @@ describe 'pupmod::master' do
             let(:params) do
               {
                 ca_port: 12_345,
-              masterport: 12_345
+                masterport: 12_345,
               }
             end
 
@@ -871,18 +889,18 @@ describe 'pupmod::master' do
 
             it { is_expected.to contain_class('iptables') }
             it {
-              is_expected.to contain_iptables__listen__tcp_stateful('allow_puppet').with({
-                                                                                           'order' => '11',
+              is_expected.to contain_iptables__listen__tcp_stateful('allow_puppet').with(
+                'order'        => '11',
                 'trusted_nets' => ['127.0.0.1', '::1'],
-                'dports'       => 8140
-                                                                                         })
+                'dports'       => 8140,
+              )
             }
             it {
-              is_expected.to contain_iptables__listen__tcp_stateful('allow_puppetca').with({
-                                                                                             'order' => '11',
+              is_expected.to contain_iptables__listen__tcp_stateful('allow_puppetca').with(
+                'order'        => '11',
                 'trusted_nets' => ['127.0.0.1', '::1'],
-                'dports'       => 8141
-                                                                                           })
+                'dports'       => 8141,
+              )
             }
           end
 

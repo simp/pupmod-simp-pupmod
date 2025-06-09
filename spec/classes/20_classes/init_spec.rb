@@ -214,9 +214,9 @@ describe 'pupmod' do
 
             context 'with_selinux_disabled' do
               let(:facts) do
-                os_facts = extras.merge(os_facts)
-                os_facts = mock_selinux_false_facts(os_facts)
-                os_facts
+                custom = extras.merge(os_facts)
+                custom = mock_selinux_false_facts(custom)
+                custom
               end
 
               it { is_expected.not_to contain_selboolean('puppetagent_manage_all_files') }
@@ -241,13 +241,13 @@ describe 'pupmod' do
 
               it { is_expected.to contain_class('pupmod::agent::cron') }
               it {
-                is_expected.to contain_service('puppet').with({
-                                                                'ensure' => 'running',
-                'enable'     => true,
-                'hasrestart' => true,
-                'hasstatus'  => true,
-                'subscribe'  => 'File[/etc/puppetlabs/puppet/puppet.conf]'
-                                                              })
+                is_expected.to contain_service('puppet').with(
+                  'ensure'     => 'running',
+                  'enable'     => true,
+                  'hasrestart' => true,
+                  'hasstatus'  => true,
+                  'subscribe'  => 'File[/etc/puppetlabs/puppet/puppet.conf]',
+                )
               }
             end
 
@@ -255,10 +255,10 @@ describe 'pupmod' do
               let(:params) { { splaylimit: 5 } }
 
               it {
-                is_expected.to contain_pupmod__conf('splaylimit').with({
-                                                                         'setting' => 'splaylimit',
-                'value' => 5
-                                                                       })
+                is_expected.to contain_pupmod__conf('splaylimit').with(
+                  'setting' => 'splaylimit',
+                  'value'   => 5,
+                )
               }
 
               it { is_expected.to contain_ini_setting('pupmod_splaylimit') }
@@ -268,19 +268,19 @@ describe 'pupmod' do
               let(:params) { { set_environment: true } }
 
               it {
-                is_expected.to contain_pupmod__conf('environment').with({
-                                                                          'section' => 'agent',
-                'setting' => 'environment',
-                'value' => 'rp_env'
-                                                                        })
+                is_expected.to contain_pupmod__conf('environment').with(
+                  'section' => 'agent',
+                  'setting' => 'environment',
+                  'value'   => 'rp_env',
+                )
               }
 
               it {
-                is_expected.to contain_pupmod__conf('remove environment from main').with({
-                                                                                           'ensure' => 'absent',
-                'section' => 'main',
-                'setting' => 'environment'
-                                                                                         })
+                is_expected.to contain_pupmod__conf('remove environment from main').with(
+                  'ensure'  => 'absent',
+                  'section' => 'main',
+                  'setting' => 'environment',
+                )
               }
 
               context 'running from bolt' do

@@ -47,9 +47,9 @@ describe 'pupmod::master::generate_types' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
       let(:facts) do
-        os_facts.merge({
-                         puppet_environmentpath: '/etc/puppetlabs/code/environments'
-                       })
+        os_facts.merge(
+          puppet_environmentpath: '/etc/puppetlabs/code/environments',
+        )
       end
 
       context 'with default input' do
@@ -84,7 +84,7 @@ describe 'pupmod::master::generate_types' do
       context 'when disabling puppetserver triggers' do
         let(:params) do
           {
-            trigger_on_puppetserver_update: false
+            trigger_on_puppetserver_update: false,
           }
         end
 
@@ -118,7 +118,7 @@ describe 'pupmod::master::generate_types' do
       context 'when disabling puppet triggers' do
         let(:params) do
           {
-            trigger_on_puppet_update: false
+            trigger_on_puppet_update: false,
           }
         end
 
@@ -153,7 +153,7 @@ describe 'pupmod::master::generate_types' do
         let(:params) do
           {
             trigger_on_puppet_update: false,
-         trigger_on_puppetserver_update: false
+            trigger_on_puppetserver_update: false,
           }
         end
 
@@ -178,7 +178,7 @@ describe 'pupmod::master::generate_types' do
       context 'when disabling environment triggers' do
         let(:params) do
           {
-            trigger_on_new_environment: false
+            trigger_on_new_environment: false,
           }
         end
 
@@ -212,7 +212,7 @@ describe 'pupmod::master::generate_types' do
       context 'when disabling type change triggers' do
         let(:params) do
           {
-            trigger_on_type_change: false
+            trigger_on_type_change: false,
           }
         end
 
@@ -245,9 +245,9 @@ describe 'pupmod::master::generate_types' do
 
       context 'with multiple environment paths' do
         let(:facts) do
-          os_facts.merge({
-                           puppet_environmentpath: '/etc/puppetlabs/code/environments:/foo/bar/baz'
-                         })
+          os_facts.merge(
+            puppet_environmentpath: '/etc/puppetlabs/code/environments:/foo/bar/baz',
+          )
         end
 
         systemd_path_content = <<~EOM
@@ -282,7 +282,7 @@ describe 'pupmod::master::generate_types' do
       context 'when disabled' do
         let(:params) do
           {
-            enable: false
+            enable: false,
           }
         end
 

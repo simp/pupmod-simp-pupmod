@@ -16,7 +16,7 @@ describe 'pupmod::conf' do
           {
             setting: 'test',
             value: 20,
-            confdir: '/whatever'
+            confdir: '/whatever',
           }
         end
 
@@ -34,7 +34,7 @@ describe 'pupmod::conf' do
           {
             setting: 'environment',
             value: 'foobar',
-            confdir: '/whatever'
+            confdir: '/whatever',
           }
         end
 
@@ -53,7 +53,7 @@ describe 'pupmod::conf' do
             setting: 'foo',
             section: 'master',
             value: 'foobar',
-            confdir: '/whatever'
+            confdir: '/whatever',
           }
         end
 
