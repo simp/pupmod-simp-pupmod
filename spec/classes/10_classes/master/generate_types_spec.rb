@@ -10,7 +10,7 @@ describe 'pupmod::master::generate_types' do
     it { is_expected.to create_tidy('/etc/incron.d').with_matches('simp_generate_types*') }
   end
 
-  shared_examples_for 'generate_types_systemd' do |content, force_content=nil|
+  shared_examples_for 'generate_types_systemd' do |content, force_content = nil|
     it { is_expected.to create_systemd__unit_file('simp_generate_types.path').with_enable(true) }
     it { is_expected.to create_systemd__unit_file('simp_generate_types.path').with_active(true) }
     it { is_expected.to create_systemd__unit_file('simp_generate_types.path').with_content(content) }
@@ -27,8 +27,8 @@ describe 'pupmod::master::generate_types' do
       it { is_expected.to create_systemd__unit_file('simp_generate_types_apps.path').with_content(force_content) }
       it { is_expected.to create_systemd__unit_file('simp_generate_types_force.service').with_content(force_service_content) }
     else
-      it { is_expected.to_not create_systemd__unit_file('simp_generate_types_apps.path') }
-      it { is_expected.to_not create_systemd__unit_file('simp_generate_types_force.service') }
+      it { is_expected.not_to create_systemd__unit_file('simp_generate_types_apps.path') }
+      it { is_expected.not_to create_systemd__unit_file('simp_generate_types_force.service') }
     end
 
     service_content = <<~EOM
@@ -46,11 +46,11 @@ describe 'pupmod::master::generate_types' do
 
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
-      let(:facts){
-        os_facts.merge({
-          :puppet_environmentpath => '/etc/puppetlabs/code/environments'
-        })
-      }
+      let(:facts) do
+        os_facts.merge(
+          puppet_environmentpath: '/etc/puppetlabs/code/environments',
+        )
+      end
 
       context 'with default input' do
         systemd_path_content = <<~EOM
@@ -82,9 +82,11 @@ describe 'pupmod::master::generate_types' do
       end
 
       context 'when disabling puppetserver triggers' do
-        let(:params){{
-          :trigger_on_puppetserver_update => false
-        }}
+        let(:params) do
+          {
+            trigger_on_puppetserver_update: false,
+          }
+        end
 
         systemd_path_content = <<~EOM
           [Install]
@@ -114,9 +116,11 @@ describe 'pupmod::master::generate_types' do
       end
 
       context 'when disabling puppet triggers' do
-        let(:params){{
-          :trigger_on_puppet_update => false
-        }}
+        let(:params) do
+          {
+            trigger_on_puppet_update: false,
+          }
+        end
 
         systemd_path_content = <<~EOM
           [Install]
@@ -146,10 +150,12 @@ describe 'pupmod::master::generate_types' do
       end
 
       context 'when disabling puppetserver and puppet triggers' do
-        let(:params){{
-          :trigger_on_puppet_update       => false,
-          :trigger_on_puppetserver_update => false
-        }}
+        let(:params) do
+          {
+            trigger_on_puppet_update: false,
+            trigger_on_puppetserver_update: false,
+          }
+        end
 
         systemd_path_content = <<~EOM
           [Install]
@@ -170,9 +176,11 @@ describe 'pupmod::master::generate_types' do
       end
 
       context 'when disabling environment triggers' do
-        let(:params){{
-          :trigger_on_new_environment => false
-        }}
+        let(:params) do
+          {
+            trigger_on_new_environment: false,
+          }
+        end
 
         systemd_path_content = <<~EOM
           [Install]
@@ -202,9 +210,11 @@ describe 'pupmod::master::generate_types' do
       end
 
       context 'when disabling type change triggers' do
-        let(:params){{
-          :trigger_on_type_change => false
-        }}
+        let(:params) do
+          {
+            trigger_on_type_change: false,
+          }
+        end
 
         systemd_path_content = <<~EOM
           [Install]
@@ -234,11 +244,11 @@ describe 'pupmod::master::generate_types' do
       end
 
       context 'with multiple environment paths' do
-        let(:facts){
-          os_facts.merge({
-            :puppet_environmentpath => '/etc/puppetlabs/code/environments:/foo/bar/baz'
-          })
-        }
+        let(:facts) do
+          os_facts.merge(
+            puppet_environmentpath: '/etc/puppetlabs/code/environments:/foo/bar/baz',
+          )
+        end
 
         systemd_path_content = <<~EOM
           [Install]
@@ -270,14 +280,16 @@ describe 'pupmod::master::generate_types' do
       end
 
       context 'when disabled' do
-        let(:params) {{
-          :enable => false
-        }}
+        let(:params) do
+          {
+            enable: false,
+          }
+        end
 
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to create_file('/usr/local/sbin/simp_generate_types') }
         it { is_expected.to create_file('/var/run/simp_generate_types') }
-        it { is_expected.to_not create_exec('simp_generate_types') }
+        it { is_expected.not_to create_exec('simp_generate_types') }
         it { is_expected.to create_service('simp_generate_types').with_enable(false) }
         it { is_expected.to create_service('simp_generate_types_force').with_enable(false) }
         if Array(os_facts[:init_systems]).include?('systemd')
@@ -286,10 +298,10 @@ describe 'pupmod::master::generate_types' do
           it { is_expected.to create_systemd__unit_file('simp_generate_types.service').with_ensure('absent') }
           it { is_expected.to create_systemd__unit_file('simp_generate_types_force.service').with_ensure('absent') }
         else
-          it { is_expected.to_not create_systemd__unit_file('simp_generate_types.path').with_ensure('absent') }
-          it { is_expected.to_not create_systemd__unit_file('simp_generate_types_apps.path').with_ensure('absent') }
-          it { is_expected.to_not create_systemd__unit_file('simp_generate_types.service').with_ensure('absent') }
-          it { is_expected.to_not create_systemd__unit_file('simp_generate_types_force.service').with_ensure('absent') }
+          it { is_expected.not_to create_systemd__unit_file('simp_generate_types.path').with_ensure('absent') }
+          it { is_expected.not_to create_systemd__unit_file('simp_generate_types_apps.path').with_ensure('absent') }
+          it { is_expected.not_to create_systemd__unit_file('simp_generate_types.service').with_ensure('absent') }
+          it { is_expected.not_to create_systemd__unit_file('simp_generate_types_force.service').with_ensure('absent') }
         end
         it { is_expected.to create_tidy('/etc/incron.d').with_matches('simp_generate_types*') }
       end

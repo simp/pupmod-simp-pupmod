@@ -11,7 +11,7 @@ Facter.add('puppetserver_jruby') do
       'jarfiles' => []
     }
     jarfiles = Dir.glob("#{jruby_hash['dir']}/*.jar")
-    jruby_hash['jarfiles'] = jarfiles.map { |x| File.basename(x)}
+    jruby_hash['jarfiles'] = jarfiles.map { |x| File.basename(x) }
     jruby_hash
   end
 end

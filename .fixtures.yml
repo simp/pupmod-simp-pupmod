@@ -4,25 +4,21 @@ fixtures:
     auditd: https://github.com/simp/pupmod-simp-auditd.git
     augeas_core:
       repo: https://github.com/simp/pupmod-puppetlabs-augeas_core.git
-      puppet_version: ">= 6.0.0"
     augeasproviders_core: https://github.com/simp/augeasproviders_core.git
     augeasproviders_grub: https://github.com/simp/augeasproviders_grub.git
     augeasproviders_puppet: https://github.com/simp/augeasproviders_puppet.git
     cron_core:
       repo: https://github.com/simp/pupmod-puppetlabs-cron_core.git
-      puppet_version: ">= 6.0.0"
     firewalld: https://github.com/simp/pupmod-voxpupuli-firewalld.git
     haveged: https://github.com/simp/pupmod-simp-haveged.git
     inifile: https://github.com/simp/puppetlabs-inifile.git
     iptables: https://github.com/simp/pupmod-simp-iptables.git
     selinux_core:
       repo: https://github.com/simp/pupmod-puppetlabs-selinux_core.git
-      puppet_version: ">= 6.0.0"
     compliance_markup: https://github.com/simp/pupmod-simp-compliance_markup.git
     concat: https://github.com/simp/puppetlabs-concat.git
     hocon:
       repo: https://github.com/puppetlabs/puppetlabs-hocon.git
-      ref: v1.1.0
     logrotate: https://github.com/simp/pupmod-simp-logrotate.git
     pki: https://github.com/simp/pupmod-simp-pki.git
     rsyslog: https://github.com/simp/pupmod-simp-rsyslog.git
@@ -34,10 +30,8 @@ fixtures:
     pam: https://github.com/simp/pupmod-simp-pam.git
     puppet_enterprise:
       repo: https://github.com/simp/pupmod-mock-puppet_enterprise.git
-      ref: 0.3.0
     puppet_authorization:
       repo: https://github.com/simp/puppetlabs-puppet_authorization.git
-      ref: 0.5.1
     augeasproviders_ssh: https://github.com/simp/augeasproviders_ssh.git
     sudo: https://github.com/simp/pupmod-simp-sudo.git
   symlinks:

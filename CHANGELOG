@@ -1,3 +1,7 @@
+* Mon Jun 09 2025 Steven Pritchard <steve@sicura.us> - 8.8.2
+- Support puppet-systemd 8.x
+- Clean up for rubocop
+
 * Mon Feb 10 2025 Richard Gardner <rick@sicura.us> - 8.8.1
 - Cleaned up old legacy fact use.
 

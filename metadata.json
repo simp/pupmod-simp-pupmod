@@ -1,6 +1,6 @@
 {
   "name": "simp-pupmod",
-  "version": "8.8.1",
+  "version": "8.8.2",
   "author": "SIMP Team",
   "summary": "A puppet module to manage puppetserver and puppet agents",
   "license": "Apache-2.0",
@@ -19,7 +19,7 @@
   "dependencies": [
     {
       "name": "puppet/systemd",
-      "version_requirement": ">= 4.0.2 < 8.0.0"
+      "version_requirement": ">= 4.0.2 < 9.0.0"
     },
     {
       "name": "simp/haveged",
