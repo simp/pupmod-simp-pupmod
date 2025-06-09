@@ -2,7 +2,15 @@ require 'spec_helper'
 require 'yaml'
 data = YAML.load_file("#{File.dirname(__FILE__)}/data/moduledata.yaml")
 
-attr_accessor :pe_mode
+# rubocop:disable Style/TrivialAccessors
+def pe_mode
+  @pe_mode
+end
+
+def pe_mode=(value)
+  @pe_mode = value
+end
+# rubocop:enable Style/TrivialAccessors
 
 describe 'pupmod::pass_two' do
   on_supported_os.each do |os, facts|
