@@ -2,6 +2,8 @@ require 'spec_helper'
 require 'yaml'
 data = YAML.load_file("#{File.dirname(__FILE__)}/data/moduledata.yaml")
 
+attr_accessor :pe_mode
+
 describe 'pupmod::pass_two' do
   on_supported_os.each do |os, facts|
     context "on #{os}" do
@@ -10,9 +12,9 @@ describe 'pupmod::pass_two' do
       end
 
       let(:assert_private_shim) do
-        <<-EOM
+        <<~EOM
         function assert_private { true }
-      EOM
+        EOM
       end
 
       let(:pre_condition) { assert_private_shim }
@@ -29,55 +31,51 @@ describe 'pupmod::pass_two' do
             context "with puppet_enterprise in the catalog is #{pe_included}" do
               if pe_included == true
                 let(:pre_condition) do
-                  <<-EOM
-                  #{assert_private_shim}
-                  include ::puppet_enterprise
+                  <<~EOM
+                    #{assert_private_shim}
+                    include puppet_enterprise
                   EOM
                 end
               end
-              $pe_mode = if (pe_included == true) || (distribution == 'PE')
-                           true
-                         else
-                           false
-                         end
+              pe_mode = if (pe_included == true) || (distribution == 'PE')
+                          true
+                        else
+                          false
+                        end
               let(:title) { 'main' }
-              let(:params) do
-                {
-                  server_distribution: distribution
-                }
-              end
+              let(:params) { { server_distribution: distribution } }
 
               {
                 'server_list' => ['11.22.33.44', '5.6.7.8'],
                 'server' => '11.22.33.44'
-              }.each do |key, data|
-                context "with pupmod_server as #{data}" do
-                  if $pe_mode
+              }.each do |key, value|
+                context "with pupmod_server as #{value}" do
+                  if pe_mode
                     it { is_expected.not_to contain_ini_setting("pupmod_#{key}") }
                   else
                     let(:title) { 'main' }
                     let(:params) do
                       {
                         server_distribution: distribution,
-                        pupmod_server: data
+                        pupmod_server: value,
                       }
                     end
                     if key == 'server_list'
                       it {
                         is_expected.to contain_pupmod__conf(key).with(
                         {
-                          'ensure' => 'present',
+                          'ensure'  => 'present',
                           'setting' => key,
-                          'value' => data.join(',')
+                          'value'   => value.join(','),
                         },
                       )
                       }
                       it {
                         is_expected.to contain_pupmod__conf('server').with(
                           {
-                            'ensure' => 'absent',
+                            'ensure'  => 'absent',
                             'setting' => 'server',
-                            'value' => ''
+                            'value'   => '',
                           },
                         )
                       }
@@ -85,18 +83,18 @@ describe 'pupmod::pass_two' do
                       it {
                         is_expected.to contain_pupmod__conf(key).with(
                           {
-                            'ensure' => 'present',
+                            'ensure'  => 'present',
                             'setting' => key,
-                            'value' => data
+                            'value'   => value,
                           },
                         )
                       }
                       it {
                         is_expected.to contain_pupmod__conf('server_list').with(
                           {
-                            'ensure' => 'absent',
+                            'ensure'  => 'absent',
                             'setting' => 'server_list',
-                            'value' => ''
+                            'value'   => '',
                           },
                         )
                       }
@@ -107,26 +105,26 @@ describe 'pupmod::pass_two' do
 
               {
                 'ca_server' => {
-                  'value' => '$server'
+                  'value' => '$server',
                 },
                 'masterport' => {
-                  'value' => 8140
+                  'value' => 8140,
                 },
                 'report' => {
                   'value' => false,
-                  'section' => 'agent'
+                  'section' => 'agent',
                 },
                 'ca_port' => {
-                  'value' => 8141
-                }
+                  'value' => 8141,
+                },
               }.each do |key, value|
-                if $pe_mode
+                if pe_mode
                   it { is_expected.not_to contain_ini_setting("pupmod_#{key}") }
                 else
                   it {
                     is_expected.to contain_pupmod__conf(key).with(
                       {
-                        'setting' => key
+                        'setting' => key,
                       }.merge(value),
                     )
                   }
@@ -134,7 +132,7 @@ describe 'pupmod::pass_two' do
                 end
               end
 
-              if $pe_mode
+              if pe_mode
                 mode = nil
                 group = nil
               else
@@ -142,60 +140,60 @@ describe 'pupmod::pass_two' do
                 group = 'puppet'
               end
               it {
-                is_expected.to contain_file('/etc/puppetlabs/puppet').with({
-                                                                             'ensure' => 'directory',
-                'owner'  => 'root',
-                'group'  => 'puppet',
-                'mode'   => mode,
-                                                                           })
+                is_expected.to contain_file('/etc/puppetlabs/puppet').with(
+                  'ensure' => 'directory',
+                  'owner'  => 'root',
+                  'group'  => 'puppet',
+                  'mode'   => mode,
+                )
               }
               it {
-                is_expected.to contain_file('/etc/puppetlabs/puppet/puppet.conf').with({
-                                                                                         'ensure' => 'file',
-                'owner'  => 'root',
-                'group'  => group,
-                'mode'   => mode
-                                                                                       })
+                is_expected.to contain_file('/etc/puppetlabs/puppet/puppet.conf').with(
+                  'ensure' => 'file',
+                  'owner'  => 'root',
+                  'group'  => group,
+                  'mode'   => mode,
+                )
               }
               it {
-                is_expected.to contain_group('puppet').with({
-                                                              'ensure' => 'present',
-                'allowdupe' => false,
-                'tag' => 'firstrun',
-                                                            })
+                is_expected.to contain_group('puppet').with(
+                  'ensure' => 'present',
+                  'allowdupe' => false,
+                  'tag' => 'firstrun',
+                )
               }
 
-              if $pe_mode
+              if pe_mode
                 classlist = data['pupmod::pe_classlist']
                 classlist.each do |key, value|
                   next if ['pupmod', 'pupmod::master'].include?(key)
                   context "when #{key} is included in the catalog" do
                     let(:pre_condition) do
                       ret = if key == 'puppet_enterprise::profile::master'
-                              %(
-                          #{assert_private_shim}
-                          include puppet_enterprise
-                          class { 'pupmod':
-                            mock => true
-                          }
-                          include #{key}
-                        )
+                              <<~EOM
+                                #{assert_private_shim}
+                                include puppet_enterprise
+                                class { 'pupmod':
+                                  mock => true
+                                }
+                                include #{key}
+                              EOM
                             else
-                              %(
-                          #{assert_private_shim}
-                          include puppet_enterprise
-                          include #{key}
-                        )
+                              <<~EOM
+                                #{assert_private_shim}
+                                include puppet_enterprise
+                                include #{key}
+                              EOM
                             end
 
                       if defined?(data)
-                        _services = []
+                        services = []
                         data['pupmod::pe_classlist'].each_pair do |_k, v|
-                          _services += v['services'] if v['services']
+                          services += v['services'] if v['services']
                         end
 
-                        _services.uniq.each do |_service|
-                          ret << %{\nensure_resource('service', '#{_service}')}
+                        services.uniq.each do |service|
+                          ret << %{\nensure_resource('service', '#{service}')}
                         end
                       end
 
@@ -232,10 +230,10 @@ describe 'pupmod::pass_two' do
                 end
               end
 
-              if $pe_mode
+              if pe_mode
                 context 'with pupmod::master defined' do
                   let(:pre_condition) do
-                    <<-EOM
+                    <<~EOM
                       #{assert_private_shim}
                       include ::puppet_enterprise
                       include ::puppet_enterprise::profile::master
@@ -247,12 +245,14 @@ describe 'pupmod::pass_two' do
                   end
 
                   it {
-                    is_expected.to compile.and_raise_error(%r{.*pupmod::master is NOT supported on PE masters. Please remove the pupmod::master classification from hiera or the puppet console before proceeding.*})
+                    is_expected.to compile.and_raise_error(
+                      %r{.*pupmod::master is NOT supported on PE masters. Please remove the pupmod::master classification from hiera or the puppet console before proceeding.*},
+                    )
                   }
                 end
                 context 'with pupmod::master not defined' do
                   let(:pre_condition) do
-                    <<-EOM
+                    <<~EOM
                       #{assert_private_shim}
                       include ::puppet_enterprise
                       include ::puppet_enterprise::profile::master

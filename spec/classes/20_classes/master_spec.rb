@@ -3,12 +3,14 @@ require 'spec_helper'
 describe 'pupmod::master' do
   audit_content = File.open("#{File.dirname(__FILE__)}/data/auditd.txt", 'rb').read
 
-  before :all do
-    @extras = { puppet_settings: {
-      'master' => {
-        'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf'
-      }
-    } }
+  let(:extras) do
+    {
+      puppet_settings: {
+        'master' => {
+          'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf',
+        },
+      },
+    }
   end
 
   puppetserver_versions = ['7.12.0', '8.2.3']
@@ -20,7 +22,7 @@ describe 'pupmod::master' do
     puppetserver_versions.each do |puppetserver_version|
       context "on #{os} with puppet server #{puppetserver_version}" do
         let(:facts) do
-          facts = @extras.merge(os_facts)
+          facts = extras.merge(os_facts)
           facts[:simp_pupmod_serverversion] = puppetserver_version
           facts[:serverversion] = puppetserver_version
 

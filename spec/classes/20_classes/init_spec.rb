@@ -22,16 +22,18 @@ describe 'pupmod' do
 
   on_supported_os.each do |os, os_facts|
     let(:node){ os_facts[:networking][:fqdn] } # sets trusted facts hash
-    before :all do
-      @extras = { puppet_settings: {
-        'master' => {
-          'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf'
-        }
-      } }
+    let(:extras) do
+      {
+        puppet_settings: {
+          'master' => {
+            'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf',
+          },
+        },
+      }
     end
     context "on #{os}" do
       let(:facts) do
-        os_facts = @extras.merge(os_facts)
+        os_facts = extras.merge(os_facts)
         mock_selinux_enforcing_facts(os_facts)
       end
 
@@ -49,111 +51,116 @@ describe 'pupmod' do
             it { is_expected.to contain_package('puppet-agent').with_ensure('installed') }
             it { is_expected.to contain_class('pupmod::agent::cron') }
             it {
-              is_expected.to contain_service('puppet').with({
-                                                              'ensure' => 'stopped',
-              'enable'     => false,
-              'hasrestart' => true,
-              'hasstatus'  => true,
-              'subscribe'  => 'File[/etc/puppetlabs/puppet/puppet.conf]'
-                                                            })
+              is_expected.to contain_service('puppet').with(
+                'ensure'     => 'stopped',
+                'enable'     => false,
+                'hasrestart' => true,
+                'hasstatus'  => true,
+                'subscribe'  => 'File[/etc/puppetlabs/puppet/puppet.conf]',
+              )
             }
             it {
-              is_expected.to contain_pupmod__conf('agent_daemonize').with({
-                                                                            'section' => 'agent',
-              'setting' => 'daemonize',
-              'value' => 'false'
-                                                                          })
+              is_expected.to contain_pupmod__conf('agent_daemonize').with(
+                'section' => 'agent',
+                'setting' => 'daemonize',
+                'value'   => 'false',
+              )
             }
 
             it {
-              is_expected.to contain_pupmod__conf('splay').with({
-                                                                  'setting' => 'splay',
-              'value' => false
-                                                                })
+              is_expected.to contain_pupmod__conf('splay').with(
+                'setting' => 'splay',
+                'value'   => false,
+              )
             }
 
             it { is_expected.not_to contain_pupmod__conf('splaylimit') }
             it { is_expected.not_to contain_pupmod__conf('environment') }
 
             it {
-              is_expected.to contain_pupmod__conf('syslogfacility').with({
-                                                                           'setting' => 'syslogfacility',
-              'value' => 'local6'
-                                                                         })
-            }
-
-            it { is_expected.to contain_pupmod__conf('srv_domain').with({
-              'setting' => 'srv_domain',
-              'value' => facts[:networking][:domain]
-            }) }
-
-            it { is_expected.to contain_pupmod__conf('certname').with({
-              'setting' => 'certname',
-              'value' => facts[:networking][:fqdn]
-            }) }
-
-            it {
-              is_expected.to contain_pupmod__conf('vardir').with({
-                                                                   'setting' => 'vardir',
-              'value' => '/opt/puppetlabs/puppet/cache',
-                                                                 })
+              is_expected.to contain_pupmod__conf('syslogfacility').with(
+                'setting' => 'syslogfacility',
+                'value'   => 'local6',
+              )
             }
 
             it {
-              is_expected.to contain_pupmod__conf('classfile').with({
-                                                                      'setting' => 'classfile',
-              'value' => '$vardir/classes.txt'
-                                                                    })
+              is_expected.to contain_pupmod__conf('srv_domain').with(
+                'setting' => 'srv_domain',
+                'value'   => facts[:networking][:domain],
+              )
             }
 
             it {
-              is_expected.to contain_pupmod__conf('confdir').with({
-                                                                    'setting' => 'confdir',
-              'value' => '/etc/puppetlabs/puppet'
-                                                                  })
+              is_expected.to contain_pupmod__conf('certname').with(
+                'setting' => 'certname',
+                'value'   => facts[:networking][:fqdn],
+              )
             }
 
             it {
-              is_expected.to contain_pupmod__conf('logdir').with({
-                                                                   'setting' => 'logdir',
-              'value' => '/var/log/puppetlabs/puppet'
-                                                                 })
+              is_expected.to contain_pupmod__conf('vardir').with(
+                'setting' => 'vardir',
+                'value'   => '/opt/puppetlabs/puppet/cache',
+              )
             }
 
             it {
-              is_expected.to contain_pupmod__conf('rundir').with({
-                                                                   'setting' => 'rundir',
-              'value' => '/var/run/puppetlabs'
-                                                                 })
+              is_expected.to contain_pupmod__conf('classfile').with(
+                'setting' => 'classfile',
+                'value'   => '$vardir/classes.txt',
+              )
             }
 
             it {
-              is_expected.to contain_pupmod__conf('runinterval').with({
-                                                                        'setting' => 'runinterval',
-              'value' => 1800
-                                                                      })
+              is_expected.to contain_pupmod__conf('confdir').with(
+                'setting' => 'confdir',
+                'value'   => '/etc/puppetlabs/puppet',
+              )
             }
 
             it {
-              is_expected.to contain_pupmod__conf('ssldir').with({
-                                                                   'setting' => 'ssldir',
-              'value' => '/etc/puppetlabs/puppet/ssl'
-                                                                 })
+              is_expected.to contain_pupmod__conf('logdir').with(
+                'setting' => 'logdir',
+                'value'   => '/var/log/puppetlabs/puppet',
+              )
             }
 
             it {
-              is_expected.to contain_pupmod__conf('stringify_facts').with({
-                                                                            'setting' => 'stringify_facts',
-              'value' => false
-                                                                          })
+              is_expected.to contain_pupmod__conf('rundir').with(
+                'setting' => 'rundir',
+                'value'   => '/var/run/puppetlabs',
+              )
             }
 
             it {
-              is_expected.to contain_pupmod__conf('digest_algorithm').with({
-                                                                             'setting' => 'digest_algorithm',
-              'value' => 'sha256'
-                                                                           })
+              is_expected.to contain_pupmod__conf('runinterval').with(
+                'setting' => 'runinterval',
+                'value'   => 1800,
+              )
             }
+
+            it {
+              is_expected.to contain_pupmod__conf('ssldir').with(
+                'setting' => 'ssldir',
+                'value'   => '/etc/puppetlabs/puppet/ssl',
+              )
+            }
+
+            it {
+              is_expected.to contain_pupmod__conf('stringify_facts').with(
+                'setting' => 'stringify_facts',
+                'value'   => false,
+              )
+            }
+
+            it {
+              is_expected.to contain_pupmod__conf('digest_algorithm').with(
+                'setting' => 'digest_algorithm',
+                'value'   => 'sha256',
+              )
+            }
+
             it { is_expected.to contain_ini_setting('pupmod_agent_daemonize') }
 
             it { is_expected.to contain_ini_setting('pupmod_splay') }
@@ -173,7 +180,9 @@ describe 'pupmod' do
             it { is_expected.to contain_ini_setting('pupmod_logdir') }
 
             it { is_expected.not_to contain_class('auditd') }
+
             it { is_expected.not_to contain_auditd__rule('puppet_master').with_content(audit_content) }
+
             it { is_expected.to contain_ini_setting('pupmod_rundir') }
 
             it { is_expected.to contain_ini_setting('pupmod_runinterval') }
@@ -184,17 +193,16 @@ describe 'pupmod' do
 
             it { is_expected.to contain_ini_setting('pupmod_digest_algorithm') }
 
-            it { is_expected.not_to contain_class('auditd') }
             it { is_expected.not_to contain_auditd__add_rules('puppet_master').with_content(audit_content) }
 
             it {
-              is_expected.to contain_file('/etc/sysconfig/puppet').with({
-                                                                          'ensure' => 'file',
-              'owner'   => 'root',
-              'group'   => 'root',
-              'mode'    => '0644',
-              'content' => "PUPPET_EXTRA_OPTS='--daemonize'\n"
-                                                                        })
+              is_expected.to contain_file('/etc/sysconfig/puppet').with(
+                'ensure'  => 'file',
+                'owner'   => 'root',
+                'group'   => 'root',
+                'mode'    => '0644',
+                'content' => "PUPPET_EXTRA_OPTS='--daemonize'\n",
+              )
             }
             it { is_expected.to contain_selboolean('puppetagent_manage_all_files') }
             it { is_expected.not_to contain_class('pupmod::facter::conf') }
@@ -206,9 +214,9 @@ describe 'pupmod' do
 
             context 'with_selinux_disabled' do
               let(:facts) do
-                _facts = @extras.merge(os_facts)
-                _facts = mock_selinux_false_facts(_facts)
-                _facts
+                os_facts = extras.merge(os_facts)
+                os_facts = mock_selinux_false_facts(os_facts)
+                os_facts
               end
 
               it { is_expected.not_to contain_selboolean('puppetagent_manage_all_files') }

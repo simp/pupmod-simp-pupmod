@@ -105,22 +105,16 @@ describe 'compliance_markup', type: :class do
                            })
           end
           let(:compliance_report) do
-            @compliance_report ||= JSON.parse(
-                catalogue.resource("File[#{facts[:puppet_vardir]}/compliance_report.json]")[:content],
-              )
-
-            @compliance_report
+            JSON.parse(
+              catalogue.resource("File[#{facts[:puppet_vardir]}/compliance_report.json]")[:content],
+            )
           end
           let(:compliance_profile_data) do
-            @compliance_profile_data ||= compliance_report['compliance_profiles'][target_profile]
-
-            @compliance_profile_data
+            compliance_report['compliance_profiles'][target_profile]
           end
 
           let(:pre_condition) do
-            %(
-            #{expected_classes.map { |c| %(include #{c}) }.join("\n")}
-          )
+            expected_classes.map { |c| %(include #{c}) }.join("\n")
           end
 
           let(:hieradata) { 'compliance-engine' }

@@ -1,17 +1,19 @@
 require 'spec_helper'
 
 describe 'pupmod::master::reports' do
-  before :all do
-    @extras = { puppet_settings: {
-      'master' => {
-        'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf'
-      }
-    } }
+  let(:extras) do
+    {
+      puppet_settings: {
+        'master' => {
+          'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf',
+        },
+      },
+    }
   end
 
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
-      let(:facts) { @extras.merge(os_facts) }
+      let(:facts) { extras.merge(os_facts) }
       let(:pre_condition) { 'include "pupmod::master"' }
 
       it {

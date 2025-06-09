@@ -1,21 +1,21 @@
 require 'spec_helper'
 
 describe 'pupmod::master::fileserver_entry' do
-  on_supported_os.each do |os, facts|
+  on_supported_os.each do |os, os_facts|
     context "on #{os}" do
       let(:title) { 'fileserver_entry_test' }
 
       context 'puppetserver 4.0.0' do
         let(:facts) do
-          _facts = facts.dup
-          _facts[:simp_pupmod_serverversion] = '4.0.0'
-          _facts
+          os_facts.merge(
+            simp_pupmod_serverversion: '4.0.0',
+          )
         end
 
         let(:params) do
           {
             path: '/good/path',
-         allow: ['foo.bar.baz']
+            allow: ['foo.bar.baz'],
           }
         end
 
@@ -31,15 +31,15 @@ describe 'pupmod::master::fileserver_entry' do
 
       context 'puppetserver 5.0.0' do
         let(:facts) do
-          _facts = facts.dup
-          _facts[:simp_pupmod_serverversion] = '5.0.0'
-          _facts
+          os_facts.merge(
+            simp_pupmod_serverversion: '5.0.0',
+          )
         end
 
         let(:params) do
           {
             path: '/good/path',
-         allow: ['foo.bar.baz']
+            allow: ['foo.bar.baz'],
           }
         end
 

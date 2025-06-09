@@ -4,15 +4,17 @@ File.open("#{File.dirname(__FILE__)}/data/auditd.txt", 'rb').read
 
 describe 'pupmod' do
   on_supported_os.each do |os, os_facts|
-    before :all do
-      @extras = { puppet_settings: {
-        'master' => {
-          'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf'
-        }
-      } }
+    let(:extras) do
+      {
+        puppet_settings: {
+          'master' => {
+            'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf',
+          },
+        },
+      }
     end
     context "on #{os}" do
-      let(:facts) { @extras.merge(os_facts) }
+      let(:facts) { extras.merge(os_facts) }
 
       [
         'PC1',

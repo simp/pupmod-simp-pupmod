@@ -105,22 +105,26 @@ describe 'install environment via r10k and puppetserver' do
 
         let(:enable_block_hieradata) { 'pupmod::manage_facter_conf: true' }
 
+        # rubocop:disable RSpec/RepeatedExample
         it 'provides hypervisors facts initially' do
           hypervisors = fact_on(master, 'hypervisors')
           exists = !(hypervisors.nil? || hypervisors.empty?)
           expect(exists).to be true
         end
+        # rubocop:enable RSpec/RepeatedExample
 
         it 'creates config to disable hypervisors fact block' do
           set_hieradata_on(master, disable_block_hieradata)
           apply_manifest_on(master, master_manifest, accept_all_exit_codes: true)
         end
 
+        # rubocop:disable RSpec/RepeatedDescription, RSpec/RepeatedExample
         it 'is idempotent' do
           apply_manifest_on(master, master_manifest, catch_changes: true)
         end
+        # rubocop:enable RSpec/RepeatedDescription, RSpec/RepeatedExample
 
-        it 'noes longer provide hypervisors facts' do
+        it 'no longer provides hypervisors facts' do
           hypervisors = fact_on(master, 'hypervisors')
           exists = !(hypervisors.nil? || hypervisors.empty?)
           expect(exists).to be false
@@ -131,15 +135,19 @@ describe 'install environment via r10k and puppetserver' do
           apply_manifest_on(master, master_manifest, accept_all_exit_codes: true)
         end
 
+        # rubocop:disable RSpec/RepeatedDescription, RSpec/RepeatedExample
         it 'is idempotent' do
           apply_manifest_on(master, master_manifest, catch_changes: true)
         end
+        # rubocop:enable RSpec/RepeatedDescription, RSpec/RepeatedExample
 
+        # rubocop:disable RSpec/RepeatedExample
         it 'provides hypervisors facts again' do
           hypervisors = fact_on(master, 'hypervisors')
           exists = !(hypervisors.nil? || hypervisors.empty?)
           expect(exists).to be true
         end
+        # rubocop:enable RSpec/RepeatedExample
       end
     end
   end

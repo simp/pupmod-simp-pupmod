@@ -2,18 +2,20 @@ require 'spec_helper'
 
 describe 'pupmod::master::base' do
   on_supported_os.each do |os, os_facts|
-    before :all do
-      @extras = { puppet_settings: {
-        'master' => {
-          'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf'
+    let(:extras) do
+      {
+        puppet_settings: {
+          'master' => {
+            'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf',
+          },
+          'server' => {
+            'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf',
+          },
         },
-        'server' => {
-          'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf'
-        }
-      } }
+      }
     end
     context "on #{os}" do
-      let(:facts) { @extras.merge(os_facts) }
+      let(:facts) { extras.merge(os_facts) }
 
       context 'with default parameters' do
         it { is_expected.to create_class('pupmod::master::base') }

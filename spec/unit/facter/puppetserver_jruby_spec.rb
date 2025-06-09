@@ -14,10 +14,10 @@ describe 'custom fact puppetserver_jruby' do
       File.expects(:readable?).with('/opt/puppetlabs/server/apps/puppetserver').returns(true)
       Dir.expects(:glob).with('/opt/puppetlabs/server/apps/puppetserver/*.jar').returns(['/x/d/f/my.jar', '/t/t/t/honey.jar'])
 
-      expect(Facter.fact('puppetserver_jruby').value).to eq({
-                                                              'dir' => '/opt/puppetlabs/server/apps/puppetserver',
-        'jarfiles' => ['my.jar', 'honey.jar']
-                                                            })
+      expect(Facter.fact('puppetserver_jruby').value).to eq(
+        'dir'      => '/opt/puppetlabs/server/apps/puppetserver',
+        'jarfiles' => ['my.jar', 'honey.jar'],
+      )
     end
   end
 end

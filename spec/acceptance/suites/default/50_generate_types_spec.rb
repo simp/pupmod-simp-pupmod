@@ -37,9 +37,11 @@ describe 'auto-triggered puppet generate types' do
         on(host, "ls -al #{environment_path}/new_environment/.resource_types")
       end
 
+      # rubocop:disable RSpec/RepeatedDescription, RepeatedExample
       it 'does not trigger on removing the .resource_types directories' do
         on(host, "/bin/rm -rf #{environment_path}/*/.resource_types")
       end
+      # rubocop:enable RSpec/RepeatedDescription, RepeatedExample
 
       it 'regenerates *all* resource caches if the puppet binary is updated' do
         on(host, "/bin/echo '' >> /opt/puppetlabs/puppet/bin/puppet")
@@ -50,9 +52,11 @@ describe 'auto-triggered puppet generate types' do
         on(host, "ls #{environment_path}/*/.resource_types")
       end
 
+      # rubocop:disable RSpec/RepeatedDescription, RepeatedExample
       it 'does not trigger on removing the .resource_types directories' do
         on(host, "/bin/rm -rf #{environment_path}/*/.resource_types")
       end
+      # rubocop:enable RSpec/RepeatedDescription, RepeatedExample
 
       it 'regenerates *all* resource caches if the puppetserver binary is updated' do
         on(host, "/bin/echo '' >> /opt/puppetlabs/server/apps/puppetserver/bin/puppetserver")
@@ -63,9 +67,11 @@ describe 'auto-triggered puppet generate types' do
         on(host, "ls #{environment_path}/*/.resource_types")
       end
 
+      # rubocop:disable RSpec/RepeatedDescription, RepeatedExample
       it 'does not trigger on removing the .resource_types directories' do
         on(host, "/bin/rm -rf #{environment_path}/*/.resource_types")
       end
+      # rubocop:enable RSpec/RepeatedDescription, RepeatedExample
 
       it "does not crash the system when creating #{env_count} new environments" do
         on(host, "for x in {1..#{env_count}}; do cp -rl #{environment_path}/production #{environment_path}/testenv$x; done")
