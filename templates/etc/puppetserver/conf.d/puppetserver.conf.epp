@@ -3,7 +3,7 @@
 
 # configuration for the JRuby interpreters
 jruby-puppet: {
-    # Where the puppet-agent dependency places puppet, facter, etc...
+    # Where the agent package dependency places puppet, facter, etc...
     # Puppet server expects to load Puppet from this location
     ruby-load-path: [/opt/puppetlabs/puppet/lib/ruby/vendor_ruby]
 

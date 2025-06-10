@@ -95,6 +95,7 @@ The following parameters are available in the `pupmod` class:
 * [`mock`](#-pupmod--mock)
 * [`firewall`](#-pupmod--firewall)
 * [`pe_classlist`](#-pupmod--pe_classlist)
+* [`agent_package`](#-pupmod--agent_package)
 * [`package_ensure`](#-pupmod--package_ensure)
 * [`set_environment`](#-pupmod--set_environment)
 
@@ -418,11 +419,19 @@ Hash of pe classes and assorted metadata.
 
 Default value: `{}`
 
+##### <a name="-pupmod--agent_package"></a>`agent_package`
+
+Data type: `String[1]`
+
+The name of the agent package to install.
+
+Default value: `'puppet-agent'`
+
 ##### <a name="-pupmod--package_ensure"></a>`package_ensure`
 
 Data type: `String[1]`
 
-String used to specify 'latest', 'installed', or a specific version of the puppet-agent package
+String used to specify 'latest', 'installed', or a specific version of the agent package
 
 Default value: `simplib::lookup('simp_options::package_ensure' , { 'default_value' => 'installed'})`
 
