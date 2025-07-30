@@ -26,9 +26,6 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
 
-env:
-  PUPPET_VERSION: '~> 7'
-
 jobs:
   puppet-syntax:
     name: 'Puppet Syntax'
@@ -130,12 +127,39 @@ jobs:
       - run: 'bundle exec rake parallel_spec'
         continue-on-error: ${{matrix.puppet.experimental}}
 
-#  dump_contexts:
-#    name: 'Examine Context contents'
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Dump contexts
-#        env:
-#          GITHUB_CONTEXT: ${{ toJson(github) }}
-#        run: echo "$GITHUB_CONTEXT"
-#
+  acceptance:
+    runs-on:
+      - ubuntu-latest
+    strategy:
+      matrix:
+        node:
+          - docker_alma8
+          - docker_alma9
+          - docker_alma10
+          - docker_centos9
+          - docker_centos10
+          - docker_oel8
+          - docker_oel9
+          - docker_rhel8
+          - docker_rhel9
+          - docker_rhel10
+          - docker_rocky8
+          - docker_rocky9
+      fail-fast: false
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+      - name: setup ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2
+      - name: bundle install
+        run: |
+          bundle install
+      - name: Setup podman
+        run: |
+          systemctl start --user podman.socket
+          echo "DOCKER_HOST=unix:///run/user/$(id -u)/podman/podman.sock" >> "$GITHUB_ENV"
+      - name: beaker
+        run: |
+          bundle exec rake beaker:suites[default,${{ matrix.node }}]
