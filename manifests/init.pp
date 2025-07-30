@@ -219,7 +219,6 @@ class pupmod (
   Hash                                         $facter_options,      # module data
   Boolean                                      $mock                 = false
 ) {
-
   unless $mock {
     simplib::assert_metadata($module_name)
 

@@ -1,18 +1,8 @@
 ---
 HOSTS:
-  puppet.el7:
-    roles:
-    - default
-    - simp_master
-    platform: el-7-x86_64
-    box: centos/7
-    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
-    vagrant_memsize: 4608
-    vagrant_cpus: 2
-    family: centos-cloud/centos-7
-    gce_machine_type: n1-standard-2
   puppet.el8:
     roles:
+    - default
     - simp_master
     platform: el-8-x86_64
     box: generic/centos8

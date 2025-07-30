@@ -1,0 +1,14 @@
+---
+HOSTS:
+  el8:
+    platform: el-8-x86_64
+    box: generic/rocky8
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
+    family: rocky-linux-cloud/rocky-linux-8
+    gce_machine_type: n1-standard-2
+CONFIG:
+  log_level: verbose
+  synced_folder: disabled
+  type: aio
+  vagrant_memsize: 512
+  puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>"

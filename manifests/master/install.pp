@@ -1,7 +1,7 @@
 # @summary Install the puppetserver
 #
-class pupmod::master::install(
-  String[1] $package_name = pupmod::server_distribution() ? { 'PE' => 'pe-puppetserver', default => 'puppetserver'},
+class pupmod::master::install (
+  String[1] $package_name = pupmod::server_distribution() ? { 'PE' => 'pe-puppetserver', default => 'openvox' },
   String[1] $package_ensure = pick(getvar('pupmod::master::package_ensure'), 'installed')
 ) {
   assert_private()
