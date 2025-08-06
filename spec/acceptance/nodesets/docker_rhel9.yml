@@ -2,7 +2,7 @@
 HOSTS:
   rhel9:
     roles:
-      - client
+    - simp_master
     platform: el-9-x86_64
     hypervisor: docker
     image: redhat/ubi9

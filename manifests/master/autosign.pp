@@ -37,7 +37,6 @@ define pupmod::master::autosign (
     $_content = "${name}\n"
   }
 
-
   concat::fragment { "pupmod::master::autosign ${name}":
     target  => "${pupmod::confdir}/autosign.conf",
     content => $_content,

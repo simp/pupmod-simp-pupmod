@@ -2,7 +2,7 @@
 HOSTS:
   alma10:
     roles:
-      - client
+    - simp_master
     platform: el-10-x86_64
     hypervisor: docker
     image: almalinux:10

@@ -2,7 +2,7 @@
 HOSTS:
   centos9:
     roles:
-      - client
+    - simp_master
     platform: el-9-x86_64
     hypervisor: docker
     image: quay.io/centos/centos:stream9

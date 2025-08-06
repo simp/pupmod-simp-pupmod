@@ -2,7 +2,7 @@
 HOSTS:
   oel8:
     roles:
-      - client
+    - simp_master
     platform: el-8-x86_64
     hypervisor: docker
     image: oraclelinux:8

@@ -2,7 +2,7 @@
 HOSTS:
   rocky8:
     roles:
-      - client
+    - simp_master
     platform: el-8-x86_64
     hypervisor: docker
     image: rockylinux:8

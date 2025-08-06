@@ -18,7 +18,7 @@
 #
 define pupmod::pass_two (
   String                                       $namevar             = $name,
-  Simplib::ServerDistribution                  $server_distribution = pupmod::server_distribution(),
+  Enum['openvox-server', 'PC1', 'PE']          $server_distribution = pupmod::server_distribution(),
   Stdlib::AbsolutePath                         $confdir             = '/etc/puppetlabs/puppet',
   Optional[Boolean]                            $firewall            = undef,
   Hash                                         $pe_classlist        = lookup('pupmod::pe_classlist'),
@@ -37,7 +37,7 @@ define pupmod::pass_two (
   }
 
   # These are agent specific variables, that only apply on Puppet 4+ systems:
-  if ($_server_distribution == 'PC1') {
+  if ($_server_distribution == 'PC1') or ($_server_distribution == 'openvox-server') {
     if $pupmod_server =~ Array {
       $server_list = join($pupmod_server, ',')
       pupmod::conf { 'server_list':
@@ -86,7 +86,6 @@ define pupmod::pass_two (
       confdir => $confdir,
       setting => 'ca_port',
       value   => $pupmod_ca_port,
-
     }
     pupmod::conf { 'report':
       section => 'agent',
@@ -126,7 +125,7 @@ define pupmod::pass_two (
           # lint:ignore:variable_scope
           $data['services'].map |$service| { Service[$service] }
           # lint:endignore
-          }
+        }
       }
     }
     $_group_notify = unique(flatten(delete_undef_values($notify_resources)))
@@ -163,7 +162,7 @@ define pupmod::pass_two (
   }
 
   # These items are managed on different files by both the FOSS and PE versions
-  if ($_server_distribution == 'PC1') {
+  if ($_server_distribution == 'PC1') or ($_server_distribution == 'openvox-server') {
     $shared_mode = '0640'
     $shared_group = $_conf_group
   } elsif ($_server_distribution == 'PE') {
@@ -189,7 +188,7 @@ define pupmod::pass_two (
     $pe_classlist.each |String $class, Hash $data| {
       if (defined(Class[$class])) {
         if ($data['configure_access'] == true) {
-          pam::access::rule { "Add rule for ${class}": users => $data['users'], origins => ['ALL'], comment =>  'fix for init scripts that use su' }
+          pam::access::rule { "Add rule for ${class}": users => $data['users'], origins => ['ALL'], comment => 'fix for init scripts that use su' }
         }
       }
     }

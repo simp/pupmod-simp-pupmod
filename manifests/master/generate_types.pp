@@ -59,8 +59,7 @@ class pupmod::master::generate_types (
   Integer[0]           $timeout                        = 300,
   Integer[0]           $stability_timeout              = 500,
   Stdlib::AbsolutePath $run_dir                        = '/var/run/simp_generate_types'
-){
-
+) {
   $_generate_types_path = '/usr/local/sbin/simp_generate_types'
   $_generate_types_command = "${_generate_types_path} --syslog --all --batch --timeout ${timeout} --stability_timeout ${stability_timeout}"
 
@@ -97,6 +96,7 @@ class pupmod::master::generate_types (
       [Service]
       Type=simple
       ExecStart=${_generate_types_command}
+      # Environment=PATH=/opt/puppetlabs/bin:/usr/bin:/usr/sbin:/bin
       | HEREDOC
 
     systemd::unit_file { 'simp_generate_types.service':
@@ -112,7 +112,7 @@ class pupmod::master::generate_types (
       systemd::unit_file { 'simp_generate_types_apps.path':
         enable  => true,
         active  => true,
-        content => epp("${module_name}/etc/systemd/system/simp_generate_types.path.epp", { apps => true } ),
+        content => epp("${module_name}/etc/systemd/system/simp_generate_types.path.epp", { apps => true }),
       }
 
       $_simp_generate_types_force_service = @("HEREDOC")
@@ -144,7 +144,7 @@ class pupmod::master::generate_types (
     service { 'simp_generate_types_force': enable => false }
 
     systemd::unit_file { 'simp_generate_types.path': ensure => absent }
-    systemd::unit_file { 'simp_generate_types_apps.path': ensure =>  absent }
+    systemd::unit_file { 'simp_generate_types_apps.path': ensure => absent }
     systemd::unit_file { 'simp_generate_types.service': ensure => absent }
     systemd::unit_file { 'simp_generate_types_force.service': ensure => absent }
   }

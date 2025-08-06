@@ -1,6 +1,8 @@
 ---
 HOSTS:
-  el9:
+  alma9:
+    roles:
+    - simp_master
     platform: el-9-x86_64
     box: generic/alma9
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"

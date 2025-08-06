@@ -1,6 +1,8 @@
 ---
 HOSTS:
-  el9:
+  centos9:
+    roles:
+    - simp_master
     platform: el-9-x86_64
     box: generic/centos9s
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"

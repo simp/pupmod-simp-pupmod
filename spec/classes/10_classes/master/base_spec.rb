@@ -79,7 +79,7 @@ describe 'pupmod::master::base' do
           )
         }
         it {
-          is_expected.to contain_package('puppetserver').with(
+          is_expected.to contain_package('openvox-server').with(
             {
               'ensure' => 'installed',
             },

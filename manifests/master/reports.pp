@@ -28,7 +28,6 @@ class pupmod::master::reports (
   Optional[Boolean]       $purge_verbose   = undef,
   Optional[Simplib::Port] $port            = undef
 ) inherits pupmod::master {
-
   assert_private()
 
   # Remove this when the deprecated options above are removed

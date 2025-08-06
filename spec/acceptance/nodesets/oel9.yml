@@ -1,6 +1,8 @@
 ---
 HOSTS:
   oel9:
+    roles:
+    - simp_master
     platform: el-9-x86_64
     box: generic/oracle9
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
