@@ -96,7 +96,6 @@ class pupmod::master::generate_types (
       [Service]
       Type=simple
       ExecStart=${_generate_types_command}
-      # Environment=PATH=/opt/puppetlabs/bin:/usr/bin:/usr/sbin:/bin
       | HEREDOC
 
     systemd::unit_file { 'simp_generate_types.service':

@@ -7,8 +7,27 @@ class pupmod::master::install (
   assert_private()
 
   if pupmod::server_distribution() != 'PE' {
-    package { $package_name:
-      ensure => $package_ensure,
+    if $package_name == 'openvox-server' {
+      # If openvox_rpm_path is given, install it directly
+      if $pupmod::openvox_rpm_path {
+        package { $package_name:
+          ensure => $package_ensure,
+          source => $pupmod::openvox_rpm_path,
+        }
+      } else {
+        # If the openvox_rpm_path is not provided, install the release package and then the server package
+        package { $pupmod::openvox_repo_path:
+          ensure => $package_ensure,
+        }
+        package { $package_name:
+          ensure  => $package_ensure,
+          require => Package[$pupmod::openvox_repo_path],
+        }
+      }
+    } else {
+      package { $package_name:
+        ensure => $package_ensure,
+      }
     }
   }
 }

@@ -1,3 +1,4 @@
+pupmod::openvox_repo_path: https://yum.voxpupuli.org/openvox8-release-el-9.noarch.rpm
 pupmod::master::ssl_cipher_suites:
   - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
   - TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
