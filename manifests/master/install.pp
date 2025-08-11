@@ -1,5 +1,7 @@
 # @summary Install the puppetserver
 #
+# @param package_name
+# @param package_ensure
 class pupmod::master::install (
   String[1] $package_name = pupmod::server_distribution() ? { 'PE' => 'pe-puppetserver', default => 'openvox-server' },
   String[1] $package_ensure = pick(getvar('pupmod::master::package_ensure'), 'installed')
@@ -15,13 +17,18 @@ class pupmod::master::install (
           source => $pupmod::openvox_rpm_path,
         }
       } else {
-        # If the openvox_rpm_path is not provided, install the release package and then the server package
-        package { $pupmod::openvox_repo_path:
+        # If the openvox_release_url is not provided, calculate the release package url
+        $_openvox_release_url = if $facts['os']['name'] == 'Amazon' and $facts['os']['release']['major'] == '2' {
+          "${pupmod::openvox_base_url}/openvox8-release-amazon-2.noarch.rpm "
+        } else {
+          "${pupmod::openvox_base_url}/openvox8-release-el-${facts['os']['release']['major']}.noarch.rpm"
+        }
+        package { $_openvox_release_url:
           ensure => $package_ensure,
         }
         package { $package_name:
           ensure  => $package_ensure,
-          require => Package[$pupmod::openvox_repo_path],
+          require => Package[$_openvox_release_url],
         }
       }
     } else {

@@ -21,10 +21,6 @@
 #   The server distribution used. This changes the configuration based on whether
 #   we are using PC1 or PE
 #
-# @param openvox_repo_url
-#   If the server distribution is openvox-server this will determine the url for
-#   the openvox yum repo
-#
 # @param certname
 #   The puppet certificate CN name of the system.
 #
@@ -155,12 +151,15 @@
 #   - See https://puppet.com/docs/facter/latest/configuring_facter.html
 #     for details on how to configure Facter.
 #
-# @param openvox_repo_path
-#   The local path or url for the 
+# @param openvox_base_url
+#   The base url for the openvox package repo
+#
+# @param openvox_release_url
+#   The url for the openvox release package.
 #
 # @param openvox_rpm_path
 #   The location of the openvox-server rpm to be installed
-#   The openvox_repo_path parameter will be ignored if this parameter is set
+#   The openvox_release_url parameter will be ignored if this parameter is set.
 #
 # @param mock
 #   If true, disable all code.
@@ -192,7 +191,6 @@ class pupmod (
   Simplib::Port                                           $ca_port              = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
   Variant[Simplib::Host, Array[Simplib::Host]]            $puppet_server        = simplib::lookup('simp_options::puppet::server', { 'default_value' => "puppet.${facts['networking']['domain']}" }),
   Enum['openvox-server', 'PC1', 'PE']                     $server_distribution  = pupmod::server_distribution(false), # Can't self-reference in this lookup
-  String[1]                                               $openvox_repo_url     = 'https://yum.voxpupuli.org/openvox8/el',
   Simplib::Host                                           $certname             = ($trusted['authenticatedx'] ? {
                                                                   'remote' => $trusted['certname'],
                                                                   default  => pick($facts['clientcert'], $facts['networking']['fqdn']),
@@ -216,13 +214,14 @@ class pupmod (
   Boolean                                                  $fips                 = simplib::lookup('simp_options::fips', { 'default_value' => false }),
   Boolean                                                  $firewall             = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Hash                                                     $pe_classlist         = {},
-  String[1]                                                $agent_package        = 'puppet-agent',
+  String[1]                                                $agent_package        = 'openvox-agent',
   String[1]                                                $package_ensure       = simplib::lookup('simp_options::package_ensure' , { 'default_value' => 'installed' }),
   Variant[Boolean, Enum['no_clean']]                       $set_environment      = false,
   Boolean                                                  $manage_facter_conf   = false,
   Stdlib::Absolutepath                                     $facter_conf_dir      = '/etc/puppetlabs/facter',
   Boolean                                                  $mock                 = false,
-  Variant[Stdlib::Absolutepath, Stdlib::HTTPUrl]           $openvox_repo_path,   # module data
+  Stdlib::HTTPUrl                                          $openvox_base_url     = 'https://yum.voxpupuli.org',
+  Optional[Variant[Stdlib::Absolutepath, Stdlib::HTTPUrl]] $openvox_release_url  = undef,
   Optional[Variant[Stdlib::Absolutepath, Stdlib::HTTPUrl]] $openvox_rpm_path     = undef,
   Stdlib::AbsolutePath                                     $confdir,
   Hash                                                     $facter_options,      # module data
@@ -245,10 +244,11 @@ class pupmod (
       include '::haveged'
     }
 
+    include pupmod::agent::install
+
     if $enable_puppet_master {
       include 'pupmod::master'
     }
-    package { $agent_package: ensure => $package_ensure }
 
     if $daemonize {
       $_puppet_service_ensure = 'running'
