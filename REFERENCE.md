@@ -8,7 +8,7 @@
 
 * [`pupmod`](#pupmod): A class for managing Puppet configurations.  This is mainly a stub class for hooking other classes along the way with a small bit of logic to
 * [`pupmod::agent::cron`](#pupmod--agent--cron): This class configures the scheduled run settings for a non-daemonized puppet client  Note: The parameters are present for backwards compatibi
-* [`pupmod::agent::install`](#pupmod--agent--install): Install the puppetserver
+* [`pupmod::agent::install`](#pupmod--agent--install): Install the puppet agent
 * [`pupmod::facter::conf`](#pupmod--facter--conf): A class to manage Facter configuration
 * [`pupmod::master`](#pupmod--master): Provides configuration for a puppet master.
 * [`pupmod::master::base`](#pupmod--master--base): A break out of the mostly static files used by the Puppet master.
@@ -714,7 +714,7 @@ Default value: `undef`
 
 ### <a name="pupmod--agent--install"></a>`pupmod::agent::install`
 
-Install the puppetserver
+Install the puppet agent
 
 #### Parameters
 
@@ -727,7 +727,7 @@ The following parameters are available in the `pupmod::agent::install` class:
 
 Data type: `String[1]`
 
-
+The name of the agent package to be installed
 
 Default value: `$pupmod::agent_package`
 
@@ -735,7 +735,7 @@ Default value: `$pupmod::agent_package`
 
 Data type: `String[1]`
 
-
+Should be set to installed, latest, or a specific version
 
 Default value: `pick(getvar('pupmod::package_ensure'), 'installed')`
 
@@ -1505,12 +1505,14 @@ The following parameters are available in the `pupmod::master::install` class:
 
 * [`package_name`](#-pupmod--master--install--package_name)
 * [`package_ensure`](#-pupmod--master--install--package_ensure)
+* [`version`](#-pupmod--master--install--version)
+* [`release_package_url`](#-pupmod--master--install--release_package_url)
 
 ##### <a name="-pupmod--master--install--package_name"></a>`package_name`
 
 Data type: `String[1]`
 
-
+The name of the server package to be installed
 
 Default value: `pupmod::server_distribution() ? { 'PE' => 'pe-puppetserver', default => 'openvox-server'`
 
@@ -1518,9 +1520,31 @@ Default value: `pupmod::server_distribution() ? { 'PE' => 'pe-puppetserver', def
 
 Data type: `String[1]`
 
-
+Should be set to installed, latest, or a specific version
 
 Default value: `pick(getvar('pupmod::master::package_ensure'), 'installed')`
+
+##### <a name="-pupmod--master--install--version"></a>`version`
+
+Data type: `Integer`
+
+The major version of the puppetserver to be installed
+
+Default value: `8`
+
+##### <a name="-pupmod--master--install--release_package_url"></a>`release_package_url`
+
+Data type: `Stdlib::HTTPUrl`
+
+The url for the release package to be installed for openvox
+
+Default value:
+
+```puppet
+$facts['os']['name'] ? {
+    'Amazon' => "${pupmod::openvox_base_url}/openvox${version}-release-${facts['os']['name'].downcase}-${facts['os']['release']['major']}.noarch.rpm",
+    default  => "${pupmod::openvox_base_url}/openvox${version}-release-el-${facts['os']['release']['major']}.noarch.rpm"
+```
 
 ### <a name="pupmod--master--reports"></a>`pupmod::master::reports`
 
