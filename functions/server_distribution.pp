@@ -8,9 +8,7 @@
 #
 function pupmod::server_distribution (
   Boolean $lookup_from_pupmod = true
-){
-
-
+) {
   # In Puppet 6.19 the section "master" was renamed to "server" in Puppet.settings.
   # pick is used here to determine correct value for backwards compatability
   $_puppet_user = pick(
@@ -26,11 +24,11 @@ function pupmod::server_distribution (
       # Just in case someone set these to what they *want* it to be:
       $server_type = pick(
         getvar('pupmod::server_distribution'),
-        simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'PC1' })
+        simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'openvox-server' })
       )
     }
     else {
-      $server_type = simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'PC1' })
+      $server_type = simplib::lookup('simp_options::puppet::server_distribution', { 'default_value' => 'openvox-server' })
     }
   }
 

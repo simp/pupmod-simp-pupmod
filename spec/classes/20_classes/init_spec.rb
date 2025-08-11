@@ -48,7 +48,7 @@ describe 'pupmod' do
             it { is_expected.to create_class('pupmod') }
             it { is_expected.to compile.with_all_deps }
             it { is_expected.not_to contain_class('haveged') }
-            it { is_expected.to contain_package('puppet-agent').with_ensure('installed') }
+            it { is_expected.to contain_package('openvox-agent').with_ensure('installed') }
             it { is_expected.to contain_class('pupmod::agent::cron') }
             it {
               is_expected.to contain_service('puppet').with(
@@ -230,11 +230,11 @@ describe 'pupmod' do
               it { is_expected.to contain_class('haveged') }
             end
 
-            context 'with agent_package => openvox-agent' do
-              let(:params) { { agent_package: 'openvox-agent' } }
+            context 'with agent_package => puppet-agent' do
+              let(:params) { { agent_package: 'puppet-agent' } }
 
-              it { is_expected.to contain_package('openvox-agent').with_ensure('installed') }
-              it { is_expected.not_to contain_package('puppet-agent') }
+              it { is_expected.to contain_package('puppet-agent').with_ensure('installed') }
+              it { is_expected.not_to contain_package('openvox-agent') }
             end
 
             context 'with enable_puppet_master => false' do

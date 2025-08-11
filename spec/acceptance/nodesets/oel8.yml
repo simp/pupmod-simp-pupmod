@@ -1,19 +1,16 @@
 ---
 HOSTS:
-  puppet.oel8:
+  oel8:
     roles:
-    - default
     - simp_master
     platform: el-8-x86_64
     box: generic/oracle8
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
-    vagrant_memsize: 4608
-    vagrant_cpus: 2
     family: sicura-image-build/oracle-linux-8
     gce_machine_type: n1-standard-2
 CONFIG:
   log_level: verbose
-  type: aio
-  vagrant_memsize: 256
   synced_folder: disabled
-  puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'puppet7') %>"
+  type: aio
+  vagrant_memsize: 512
+  puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>"

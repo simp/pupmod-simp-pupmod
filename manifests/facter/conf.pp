@@ -9,7 +9,6 @@ class pupmod::facter::conf (
   Stdlib::Absolutepath $facter_conf_dir  = $::pupmod::facter_conf_dir,
   Hash                 $facter_options   = $::pupmod::facter_options
 ) {
-
   assert_private()
 
   file { $facter_conf_dir:
@@ -21,7 +20,7 @@ class pupmod::facter::conf (
 
   $_facter_conf = "${facter_conf_dir}/facter.conf"
 
-  file {$_facter_conf:
+  file { $_facter_conf:
     ensure => 'file',
     owner  => 'root',
     group  => 'root',

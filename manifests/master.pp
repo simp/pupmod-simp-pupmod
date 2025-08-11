@@ -337,7 +337,6 @@ class pupmod::master (
   Optional[Hash[String[1],Hash[String[1],String[1]]]] $extra_webserver_sections        = undef,
   Boolean                                             $mock                            = false
 ) inherits pupmod {
-
   $_server_version = pupmod::server_version()
   # In Puppet 6.19 the section "master" was renamed to "server" in Puppet.settings.
   # pick is used here to determine correct value for backwards compatability

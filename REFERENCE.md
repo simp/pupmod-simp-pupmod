@@ -8,6 +8,7 @@
 
 * [`pupmod`](#pupmod): A class for managing Puppet configurations.  This is mainly a stub class for hooking other classes along the way with a small bit of logic to
 * [`pupmod::agent::cron`](#pupmod--agent--cron): This class configures the scheduled run settings for a non-daemonized puppet client  Note: The parameters are present for backwards compatibi
+* [`pupmod::agent::install`](#pupmod--agent--install): Install the puppet agent
 * [`pupmod::facter::conf`](#pupmod--facter--conf): A class to manage Facter configuration
 * [`pupmod::master`](#pupmod--master): Provides configuration for a puppet master.
 * [`pupmod::master::base`](#pupmod--master--base): A break out of the mostly static files used by the Puppet master.
@@ -92,6 +93,9 @@ The following parameters are available in the `pupmod` class:
 * [`manage_facter_conf`](#-pupmod--manage_facter_conf)
 * [`facter_conf_dir`](#-pupmod--facter_conf_dir)
 * [`facter_options`](#-pupmod--facter_options)
+* [`openvox_base_url`](#-pupmod--openvox_base_url)
+* [`openvox_release_url`](#-pupmod--openvox_release_url)
+* [`openvox_rpm_path`](#-pupmod--openvox_rpm_path)
 * [`mock`](#-pupmod--mock)
 * [`firewall`](#-pupmod--firewall)
 * [`pe_classlist`](#-pupmod--pe_classlist)
@@ -125,7 +129,7 @@ Default value: `simplib::lookup('simp_options::puppet::server', { 'default_value
 
 ##### <a name="-pupmod--server_distribution"></a>`server_distribution`
 
-Data type: `Simplib::ServerDistribution`
+Data type: `Enum['openvox-server', 'PC1', 'PE']`
 
 The server distribution used. This changes the configuration based on whether
 we are using PC1 or PE
@@ -395,6 +399,31 @@ Hash of Facter configuration options.
 - See https://puppet.com/docs/facter/latest/configuring_facter.html
   for details on how to configure Facter.
 
+##### <a name="-pupmod--openvox_base_url"></a>`openvox_base_url`
+
+Data type: `Stdlib::HTTPUrl`
+
+The base url for the openvox package repo
+
+Default value: `'https://yum.voxpupuli.org'`
+
+##### <a name="-pupmod--openvox_release_url"></a>`openvox_release_url`
+
+Data type: `Optional[Variant[Stdlib::Absolutepath, Stdlib::HTTPUrl]]`
+
+The url for the openvox release package.
+
+Default value: `undef`
+
+##### <a name="-pupmod--openvox_rpm_path"></a>`openvox_rpm_path`
+
+Data type: `Optional[Variant[Stdlib::Absolutepath, Stdlib::HTTPUrl]]`
+
+The location of the openvox-server rpm to be installed
+The openvox_release_url parameter will be ignored if this parameter is set.
+
+Default value: `undef`
+
 ##### <a name="-pupmod--mock"></a>`mock`
 
 Data type: `Boolean`
@@ -425,7 +454,7 @@ Data type: `String[1]`
 
 The name of the agent package to install.
 
-Default value: `'puppet-agent'`
+Default value: `'openvox-agent'`
 
 ##### <a name="-pupmod--package_ensure"></a>`package_ensure`
 
@@ -433,7 +462,7 @@ Data type: `String[1]`
 
 String used to specify 'latest', 'installed', or a specific version of the agent package
 
-Default value: `simplib::lookup('simp_options::package_ensure' , { 'default_value' => 'installed'})`
+Default value: `simplib::lookup('simp_options::package_ensure' , { 'default_value' => 'installed' })`
 
 ##### <a name="-pupmod--set_environment"></a>`set_environment`
 
@@ -682,6 +711,33 @@ before being forcibly enabled
   cron frequency and ``$maxruntime``.
 
 Default value: `undef`
+
+### <a name="pupmod--agent--install"></a>`pupmod::agent::install`
+
+Install the puppet agent
+
+#### Parameters
+
+The following parameters are available in the `pupmod::agent::install` class:
+
+* [`package_name`](#-pupmod--agent--install--package_name)
+* [`package_ensure`](#-pupmod--agent--install--package_ensure)
+
+##### <a name="-pupmod--agent--install--package_name"></a>`package_name`
+
+Data type: `String[1]`
+
+The name of the agent package to be installed
+
+Default value: `$pupmod::agent_package`
+
+##### <a name="-pupmod--agent--install--package_ensure"></a>`package_ensure`
+
+Data type: `String[1]`
+
+Should be set to installed, latest, or a specific version
+
+Default value: `pick(getvar('pupmod::package_ensure'), 'installed')`
 
 ### <a name="pupmod--facter--conf"></a>`pupmod::facter::conf`
 
@@ -1449,22 +1505,46 @@ The following parameters are available in the `pupmod::master::install` class:
 
 * [`package_name`](#-pupmod--master--install--package_name)
 * [`package_ensure`](#-pupmod--master--install--package_ensure)
+* [`version`](#-pupmod--master--install--version)
+* [`release_package_url`](#-pupmod--master--install--release_package_url)
 
 ##### <a name="-pupmod--master--install--package_name"></a>`package_name`
 
 Data type: `String[1]`
 
+The name of the server package to be installed
 
-
-Default value: `pupmod::server_distribution() ? { 'PE' => 'pe-puppetserver', default => 'puppetserver'`
+Default value: `pupmod::server_distribution() ? { 'PE' => 'pe-puppetserver', default => 'openvox-server'`
 
 ##### <a name="-pupmod--master--install--package_ensure"></a>`package_ensure`
 
 Data type: `String[1]`
 
-
+Should be set to installed, latest, or a specific version
 
 Default value: `pick(getvar('pupmod::master::package_ensure'), 'installed')`
+
+##### <a name="-pupmod--master--install--version"></a>`version`
+
+Data type: `Integer`
+
+The major version of the puppetserver to be installed
+
+Default value: `8`
+
+##### <a name="-pupmod--master--install--release_package_url"></a>`release_package_url`
+
+Data type: `Stdlib::HTTPUrl`
+
+The url for the release package to be installed for openvox
+
+Default value:
+
+```puppet
+$facts['os']['name'] ? {
+    'Amazon' => "${pupmod::openvox_base_url}/openvox${version}-release-${facts['os']['name'].downcase}-${facts['os']['release']['major']}.noarch.rpm",
+    default  => "${pupmod::openvox_base_url}/openvox${version}-release-el-${facts['os']['release']['major']}.noarch.rpm"
+```
 
 ### <a name="pupmod--master--reports"></a>`pupmod::master::reports`
 
@@ -1839,7 +1919,7 @@ Default value: `120`
 
 ##### <a name="-pupmod--master--sysconfig--server_distribution"></a>`server_distribution`
 
-Data type: `Simplib::ServerDistribution`
+Data type: `Enum['openvox-server', 'PC1', 'PE']`
 
 The Puppet distribution that is being managed.
 
@@ -2021,7 +2101,7 @@ Default value: `$name`
 
 ##### <a name="-pupmod--pass_two--server_distribution"></a>`server_distribution`
 
-Data type: `Simplib::ServerDistribution`
+Data type: `Enum['openvox-server', 'PC1', 'PE']`
 
 
 

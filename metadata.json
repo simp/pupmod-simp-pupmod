@@ -1,6 +1,6 @@
 {
   "name": "simp-pupmod",
-  "version": "8.9.0",
+  "version": "9.0.0",
   "author": "SIMP Team",
   "summary": "A puppet module to manage puppetserver and puppet agents",
   "license": "Apache-2.0",
@@ -68,23 +68,22 @@
     {
       "operatingsystem": "CentOS",
       "operatingsystemrelease": [
-        "7",
         "8",
-        "9"
+        "9",
+        "10"
       ]
     },
     {
       "operatingsystem": "RedHat",
       "operatingsystemrelease": [
-        "7",
         "8",
-        "9"
+        "9",
+        "10"
       ]
     },
     {
       "operatingsystem": "OracleLinux",
       "operatingsystemrelease": [
-        "7",
         "8",
         "9"
       ]
@@ -100,7 +99,8 @@
       "operatingsystem": "AlmaLinux",
       "operatingsystemrelease": [
         "8",
-        "9"
+        "9",
+        "10"
       ]
     }
   ]
