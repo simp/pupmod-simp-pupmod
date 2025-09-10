@@ -23,7 +23,7 @@ group :test do
   puppet_version = ENV.fetch('PUPPET_VERSION', ['>= 7', '< 9'])
   major_puppet_version = Array(puppet_version).first.scan(%r{(\d+)(?:\.|\Z)}).flatten.first.to_i
   gem 'hiera-puppet-helper'
-  gem 'pathspec', '~> 0.2' if Gem::Requirement.create('< 2.6').satisfied_by?(Gem::Version.new(RUBY_VERSION.dup))
+  gem 'pathspec', '~> 2.0' if Gem::Requirement.create('< 2.6').satisfied_by?(Gem::Version.new(RUBY_VERSION.dup))
   gem('pdk', ENV.fetch('PDK_VERSION', ['>= 2.0', '< 4.0']), require: false) if major_puppet_version > 5
   gem 'puppet', puppet_version
   gem 'puppetlabs_spec_helper'
