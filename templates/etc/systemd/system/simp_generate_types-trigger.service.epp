@@ -1,0 +1,12 @@
+<%- | Boolean $apps = false | -%>
+[Unit]
+StartLimitIntervalSec=0
+StartLimitBurst=0
+
+[Service]
+Type=oneshot
+<% if $apps { -%>
+ExecStart=/usr/bin/systemctl start simp_generate_types_force.service
+<% } else { -%>
+ExecStart=/usr/bin/systemctl start simp_generate_types.service
+<% } -%>

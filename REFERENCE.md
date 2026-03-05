@@ -102,6 +102,8 @@ The following parameters are available in the `pupmod` class:
 * [`agent_package`](#-pupmod--agent_package)
 * [`package_ensure`](#-pupmod--package_ensure)
 * [`set_environment`](#-pupmod--set_environment)
+* [`puppet_agent_sebool_package`](#-pupmod--puppet_agent_sebool_package)
+* [`manage_puppet_sebool_package`](#-pupmod--manage_puppet_sebool_package)
 
 ##### <a name="-pupmod--ca_port"></a>`ca_port`
 
@@ -154,8 +156,8 @@ Default value:
 
 ```puppet
 ($trusted['authenticatedx'] ? {
-                                                                  'remote' => $trusted['certname'],
-                                                                  default  => pick($facts['clientcert'], $facts['networking']['fqdn'])
+      'remote' => $trusted['certname'],
+      default  => pick($facts['clientcert'], $facts['networking']['fqdn'])
 ```
 
 ##### <a name="-pupmod--classfile"></a>`classfile`
@@ -476,6 +478,18 @@ Set the environment on the system to the currently running environment
   `no_clean` and the entry will be preserved if present.
 
 Default value: `false`
+
+##### <a name="-pupmod--puppet_agent_sebool_package"></a>`puppet_agent_sebool_package`
+
+Data type: `String`
+
+
+
+##### <a name="-pupmod--manage_puppet_sebool_package"></a>`manage_puppet_sebool_package`
+
+Data type: `Boolean`
+
+
 
 ### <a name="pupmod--agent--cron"></a>`pupmod::agent::cron`
 
@@ -1397,8 +1411,7 @@ The following parameters are available in the `pupmod::master::generate_types` c
 * [`puppetserver_exe`](#-pupmod--master--generate_types--puppetserver_exe)
 * [`trigger_on_puppet_update`](#-pupmod--master--generate_types--trigger_on_puppet_update)
 * [`puppet_exe`](#-pupmod--master--generate_types--puppet_exe)
-* [`trigger_on_new_environment`](#-pupmod--master--generate_types--trigger_on_new_environment)
-* [`trigger_on_type_change`](#-pupmod--master--generate_types--trigger_on_type_change)
+* [`trigger_on_environment_change`](#-pupmod--master--generate_types--trigger_on_environment_change)
 * [`timeout`](#-pupmod--master--generate_types--timeout)
 * [`stability_timeout`](#-pupmod--master--generate_types--stability_timeout)
 * [`run_dir`](#-pupmod--master--generate_types--run_dir)
@@ -1445,20 +1458,12 @@ Fully qualified path to the ``puppet`` executable
 
 Default value: `'/opt/puppetlabs/puppet/bin/puppet'`
 
-##### <a name="-pupmod--master--generate_types--trigger_on_new_environment"></a>`trigger_on_new_environment`
+##### <a name="-pupmod--master--generate_types--trigger_on_environment_change"></a>`trigger_on_environment_change`
 
 Data type: `Boolean`
 
-Run ``puppet generate types`` on new environments as soon as they are
-created
-
-Default value: `true`
-
-##### <a name="-pupmod--master--generate_types--trigger_on_type_change"></a>`trigger_on_type_change`
-
-Data type: `Boolean`
-
-Watch all type files for changes and generate types when types are updated
+Run ``puppet generate types`` on all environments if the environment path
+is changed
 
 Default value: `true`
 

@@ -192,9 +192,9 @@ class pupmod (
   Variant[Simplib::Host, Array[Simplib::Host]]            $puppet_server        = simplib::lookup('simp_options::puppet::server', { 'default_value' => "puppet.${facts['networking']['domain']}" }),
   Enum['openvox-server', 'PC1', 'PE']                     $server_distribution  = pupmod::server_distribution(false), # Can't self-reference in this lookup
   Simplib::Host                                           $certname             = ($trusted['authenticatedx'] ? {
-                                                                  'remote' => $trusted['certname'],
-                                                                  default  => pick($facts['clientcert'], $facts['networking']['fqdn']),
-                                                                }),
+      'remote' => $trusted['certname'],
+      default  => pick($facts['clientcert'], $facts['networking']['fqdn']),
+  }),
   String[0]                                                $classfile            = '$vardir/classes.txt',
   Boolean                                                  $daemonize            = false,
   Enum['md5','sha256']                                     $digest_algorithm     = 'sha256',
@@ -223,8 +223,10 @@ class pupmod (
   Stdlib::HTTPUrl                                          $openvox_base_url     = 'https://yum.voxpupuli.org',
   Optional[Variant[Stdlib::Absolutepath, Stdlib::HTTPUrl]] $openvox_release_url  = undef,
   Optional[Variant[Stdlib::Absolutepath, Stdlib::HTTPUrl]] $openvox_rpm_path     = undef,
+  String                                                   $puppet_agent_sebool_package,  # module data
+  Boolean                                                  $manage_puppet_sebool_package, # module data
   Stdlib::AbsolutePath                                     $confdir,
-  Hash                                                     $facter_options,      # module data
+  Hash                                                     $facter_options,               # module data
   Stdlib::AbsolutePath                                     $vardir,
   Stdlib::AbsolutePath                                     $ssldir,
   Stdlib::AbsolutePath                                     $rundir,
@@ -241,7 +243,7 @@ class pupmod (
     assert_type(Pattern['^(\$(?!/)|/).+'], $classfile)
 
     if $haveged {
-      include '::haveged'
+      include 'haveged'
     }
 
     include pupmod::agent::install
@@ -396,6 +398,14 @@ class pupmod (
 
     $puppet_agent_sebool = 'puppetagent_manage_all_files'
     if $facts['os']['selinux']['enabled'] and $facts['os']['selinux']['current_mode'] and ($facts['os']['selinux']['current_mode'] != 'disabled') {
+      if $manage_puppet_sebool_package {
+        package { $puppet_agent_sebool_package:
+          ensure  => 'installed',
+        }
+
+        Package[$puppet_agent_sebool_package] -> Selboolean[$puppet_agent_sebool]
+      }
+
       selboolean { $puppet_agent_sebool :
         persistent => true,
         value      => 'on',

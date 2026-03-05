@@ -1,3 +1,6 @@
+* Thu Mar 05 2026 Mike Riddle <mike@sicura.us> - 10.0.0
+- Fixed the simp_generate_types script and supporting services for el10
+
 * Wed Jul 30 2025 Mike Riddle <mike@sicura.us> - 9.0.0
 - Removed el7 support
 - Added el10 support

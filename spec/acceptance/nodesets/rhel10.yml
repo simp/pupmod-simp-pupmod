@@ -1,0 +1,34 @@
+---
+HOSTS:
+  server-el10:
+    roles:
+    - simp_master
+    platform: el-10-x86_64
+    box: generic/rhel10
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+    vagrant_provisioners:
+    - type: shell
+      inline: |
+        set -e
+        # Make eth0 win forever
+        nmcli con mod "System eth0" ipv4.route-metric 50 || true
+        nmcli con mod "System eth1" ipv4.route-metric 200 || true
+        nmcli con up "System eth0" || true
+        nmcli con up "System eth1" || true
+        # Ensure the crb repo is enabled for el10 to get the puppet agent sebool package
+        dnf -y install dnf-plugins-core
+        dnf config-manager --set-enabled codeready-builder-for-rhel-10-x86_64-rpms
+    setup:
+      - |
+        dnf -y install dnf-plugins-core
+        dnf config-manager --set-enabled codeready-builder-for-rhel-10-x86_64-rpms
+    # There are not currently any el10 images available on google cloud
+    # family: rhel-cloud/rhel-10
+    # gce_machine_type: n1-standard-2
+CONFIG:
+  validate: false
+  log_level: verbose
+  type: aio
+  puppet_collection: <%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>

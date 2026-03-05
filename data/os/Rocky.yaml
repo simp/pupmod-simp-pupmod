@@ -1,3 +1,7 @@
+pupmod::manage_puppet_sebool_package: true
+
+pupmod::puppet_agent_sebool_package: 'selinux-policy-targeted-extra'
+
 pupmod::master::ssl_cipher_suites:
   - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
   - TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384

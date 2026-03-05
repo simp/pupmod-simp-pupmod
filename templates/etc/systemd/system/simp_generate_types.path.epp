@@ -4,7 +4,7 @@ WantedBy=multi-user.target
 
 [Path]
 <% if $apps { -%>
-Unit=simp_generate_types_force.service
+Unit=simp_generate_types-trigger_app.service
 <%   if $pupmod::master::generate_types::trigger_on_puppetserver_update { -%>
 PathChanged=<%= $pupmod::master::generate_types::puppetserver_exe %>
 <%   } -%>
@@ -13,17 +13,13 @@ PathChanged=<%= $pupmod::master::generate_types::puppet_exe %>
 <%   } -%>
 <% } -%>
 <% else { -%>
-Unit=simp_generate_types.service
-<%   if $pupmod::master::generate_types::trigger_on_new_environment { -%>
-PathChanged=/etc/puppetlabs/code/environments
-<%   } -%>
-<%
-    if $pupmod::master::generate_types::trigger_on_type_change {
-      split($facts['puppet_environmentpath'], ':').each |$env_path| {
+Unit=simp_generate_types-trigger.service
+<%   if $pupmod::master::generate_types::trigger_on_environment_change {
+       split($facts['puppet_environmentpath'], ':').each |$env_path| {
 -%>
-PathExistsGlob=<%= $env_path %>/*/modules/*/lib/puppet/type/*.rb
-<%
-      }
-    }
-  }
+PathChanged=<%= $env_path %>
+<%     
+       }
+     }
+   }
 -%>
