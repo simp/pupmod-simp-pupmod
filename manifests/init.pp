@@ -400,7 +400,7 @@ class pupmod (
     if $facts['os']['selinux']['enabled'] and $facts['os']['selinux']['current_mode'] and ($facts['os']['selinux']['current_mode'] != 'disabled') {
       if $manage_puppet_sebool_package {
         package { $puppet_agent_sebool_package:
-          ensure  => 'installed',
+          ensure => 'installed',
         }
 
         Package[$puppet_agent_sebool_package] -> Selboolean[$puppet_agent_sebool]
