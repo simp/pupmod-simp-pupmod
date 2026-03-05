@@ -15,16 +15,9 @@ HOSTS:
     vagrant_provisioners:
     - type: shell
       inline: |
-        set -e
-        # Make eth0 win forever
-        nmcli con mod "System eth0" ipv4.route-metric 50 || true
-        nmcli con mod "System eth1" ipv4.route-metric 200 || true
-        nmcli con up "System eth0" || true
-        nmcli con up "System eth1" || true
+        dnf -y install dnf-plugins-core
+        dnf -y config-manager --set-enabled crb
 CONFIG:
   log_level: verbose
   type: aio
   puppet_collection: <%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>
-  setup:
-    - dnf -y install dnf-plugins-core
-    - dnf -y config-manager --set-enabled crb
