@@ -77,6 +77,14 @@ REPO
         wait_for_generate_types(master)
       end
 
+      it 'has selinux-policy-targeted-extra installed on EL10+' do
+        os_maj = fact_on(master, 'os.release.major').to_i
+
+        skip('Only relevant on EL10+') if os_maj < 10
+
+        on(master, 'rpm -q selinux-policy-targeted-extra')
+      end
+
       it 'is idempotent' do
         apply_manifest_on(master, master_manifest, catch_changes: true)
       end

@@ -96,14 +96,14 @@ The following parameters are available in the `pupmod` class:
 * [`openvox_base_url`](#-pupmod--openvox_base_url)
 * [`openvox_release_url`](#-pupmod--openvox_release_url)
 * [`openvox_rpm_path`](#-pupmod--openvox_rpm_path)
+* [`puppet_agent_sebool_package`](#-pupmod--puppet_agent_sebool_package)
+* [`manage_puppet_sebool_package`](#-pupmod--manage_puppet_sebool_package)
 * [`mock`](#-pupmod--mock)
 * [`firewall`](#-pupmod--firewall)
 * [`pe_classlist`](#-pupmod--pe_classlist)
 * [`agent_package`](#-pupmod--agent_package)
 * [`package_ensure`](#-pupmod--package_ensure)
 * [`set_environment`](#-pupmod--set_environment)
-* [`puppet_agent_sebool_package`](#-pupmod--puppet_agent_sebool_package)
-* [`manage_puppet_sebool_package`](#-pupmod--manage_puppet_sebool_package)
 
 ##### <a name="-pupmod--ca_port"></a>`ca_port`
 
@@ -426,6 +426,19 @@ The openvox_release_url parameter will be ignored if this parameter is set.
 
 Default value: `undef`
 
+##### <a name="-pupmod--puppet_agent_sebool_package"></a>`puppet_agent_sebool_package`
+
+Data type: `String`
+
+The name of the package that provides the SELinux boolean to allow the puppet agent to manage all files.
+This is required if `manage_puppet_sebool_package` is `true`.
+
+##### <a name="-pupmod--manage_puppet_sebool_package"></a>`manage_puppet_sebool_package`
+
+Data type: `Boolean`
+
+Whether to manage the package that provides the SELinux boolean to allow the puppet agent to manage all files.
+
 ##### <a name="-pupmod--mock"></a>`mock`
 
 Data type: `Boolean`
@@ -478,18 +491,6 @@ Set the environment on the system to the currently running environment
   `no_clean` and the entry will be preserved if present.
 
 Default value: `false`
-
-##### <a name="-pupmod--puppet_agent_sebool_package"></a>`puppet_agent_sebool_package`
-
-Data type: `String`
-
-
-
-##### <a name="-pupmod--manage_puppet_sebool_package"></a>`manage_puppet_sebool_package`
-
-Data type: `Boolean`
-
-
 
 ### <a name="pupmod--agent--cron"></a>`pupmod::agent::cron`
 

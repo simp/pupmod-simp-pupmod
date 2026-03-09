@@ -161,6 +161,13 @@
 #   The location of the openvox-server rpm to be installed
 #   The openvox_release_url parameter will be ignored if this parameter is set.
 #
+# @param puppet_agent_sebool_package
+#   The name of the package that provides the SELinux boolean to allow the puppet agent to manage all files.
+#   This is required if `manage_puppet_sebool_package` is `true`.
+#
+# @param manage_puppet_sebool_package
+#   Whether to manage the package that provides the SELinux boolean to allow the puppet agent to manage all files.
+#
 # @param mock
 #   If true, disable all code.
 #
