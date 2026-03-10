@@ -85,6 +85,10 @@ REPO
         on(master, 'rpm -q selinux-policy-targeted-extra')
       end
 
+      it 'has the puppet semodule installed' do
+        on(master, 'semodule -l | grep -i puppet')
+      end
+
       it 'is idempotent' do
         apply_manifest_on(master, master_manifest, catch_changes: true)
       end

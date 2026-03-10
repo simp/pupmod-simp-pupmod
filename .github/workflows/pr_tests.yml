@@ -133,7 +133,7 @@ jobs:
     strategy:
       matrix:
         node:
-          - alma9
+          - alma8
           - alma10
       fail-fast: false
     steps:
