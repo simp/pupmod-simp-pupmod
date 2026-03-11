@@ -408,7 +408,6 @@ class pupmod (
       if $manage_puppet_sebool_package {
         package { $puppet_agent_sebool_package:
           ensure => 'installed',
-          notify => Exec["Refresh semodules after installing ${puppet_agent_sebool_package}"],
         }
 
         exec { "Refresh semodules after installing ${puppet_agent_sebool_package}":
@@ -416,7 +415,9 @@ class pupmod (
           refreshonly => true,
         }
 
-        Package[$puppet_agent_sebool_package] -> Selboolean[$puppet_agent_sebool]
+        Package[$puppet_agent_sebool_package]
+        ~> Exec["Refresh semodules after installing ${puppet_agent_sebool_package}"]
+        -> Selboolean[$puppet_agent_sebool]
       }
 
       selboolean { $puppet_agent_sebool :
