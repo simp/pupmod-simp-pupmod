@@ -1,19 +1,17 @@
 ---
 HOSTS:
-  puppet.el8:
+  server-oel10.simp.beaker:
     roles:
-    - default
     - simp_master
-    platform: el-9-x86_64
-    box: generic/centos9
+    platform: el-10-x86_64
+    box: oraclelinux/10
+    box_url: https://oracle.github.io/vagrant-projects/boxes/oraclelinux/10.json
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
-    vagrant_memsize: 4608
+    vagrant_memsize: 2048
     vagrant_cpus: 2
-    family: centos-cloud/centos-stream-9
+    family: sicura-image-build/oracle-linux-10
     gce_machine_type: n1-standard-2
 CONFIG:
   log_level: verbose
   type: aio
-  vagrant_memsize: 256
-  synced_folder: disabled
   puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>"

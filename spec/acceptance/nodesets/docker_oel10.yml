@@ -1,11 +1,11 @@
 ---
 HOSTS:
-  alma8:
+  oel10:
     roles:
     - simp_master
-    platform: el-8-x86_64
+    platform: el-10-x86_64
     hypervisor: docker
-    image: almalinux:8
+    image: oraclelinux:10
     docker_cmd: '/usr/sbin/init'
     docker_preserve_image: true
     docker_image_commands:

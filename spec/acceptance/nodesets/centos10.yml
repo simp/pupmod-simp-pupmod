@@ -4,7 +4,7 @@ HOSTS:
     roles:
     - simp_master
     platform: el-10-x86_64
-    box: generic/centos10
+    box: centos/stream10
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
     vagrant_memsize: 2048
     vagrant_cpus: 2

@@ -4,7 +4,7 @@ HOSTS:
     roles:
     - simp_master
     platform: el-9-x86_64
-    box: generic/centos9s
+    box: centos/stream9
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
     family: centos-cloud/centos-stream-9
     gce_machine_type: n1-standard-2
