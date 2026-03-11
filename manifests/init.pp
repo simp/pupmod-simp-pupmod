@@ -412,7 +412,7 @@ class pupmod (
 
         exec { "Refresh semodules after installing ${puppet_agent_sebool_package}":
           command => '/usr/sbin/semodule --refresh',
-          unless  => "/usr/sbin/semanage boolean -l | grep -q '^${puppet_agent_sebool_package}\\b'",
+          unless  => "/usr/sbin/getsebool ${puppet_agent_sebool}",
         }
 
         Package[$puppet_agent_sebool_package]
