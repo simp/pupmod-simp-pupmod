@@ -411,12 +411,12 @@ class pupmod (
         }
 
         exec { "Refresh semodules after installing ${puppet_agent_sebool_package}":
-          command     => '/usr/sbin/semodule --refresh',
-          refreshonly => true,
+          command => '/usr/sbin/semodule --refresh',
+          onlyif  => "/usr/bin/test $(/usr/sbin/getsebool ${puppet_agent_sebool_package}) -eq 0",
         }
 
         Package[$puppet_agent_sebool_package]
-        ~> Exec["Refresh semodules after installing ${puppet_agent_sebool_package}"]
+        -> Exec["Refresh semodules after installing ${puppet_agent_sebool_package}"]
         -> Selboolean[$puppet_agent_sebool]
       }
 
