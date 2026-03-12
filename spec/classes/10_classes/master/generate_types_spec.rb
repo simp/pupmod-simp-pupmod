@@ -58,9 +58,8 @@ describe 'pupmod::master::generate_types' do
           WantedBy=multi-user.target
 
           [Path]
-          Unit=simp_generate_types.service
+          Unit=simp_generate_types-trigger.service
           PathChanged=/etc/puppetlabs/code/environments
-          PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.rb
         EOM
 
         systemd_app_content = <<~EOM
@@ -68,7 +67,7 @@ describe 'pupmod::master::generate_types' do
           WantedBy=multi-user.target
 
           [Path]
-          Unit=simp_generate_types_force.service
+          Unit=simp_generate_types-trigger_app.service
           PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
           PathChanged=/opt/puppetlabs/puppet/bin/puppet
         EOM
@@ -93,9 +92,8 @@ describe 'pupmod::master::generate_types' do
           WantedBy=multi-user.target
 
           [Path]
-          Unit=simp_generate_types.service
+          Unit=simp_generate_types-trigger.service
           PathChanged=/etc/puppetlabs/code/environments
-          PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.rb
         EOM
 
         systemd_app_content = <<~EOM
@@ -103,7 +101,7 @@ describe 'pupmod::master::generate_types' do
           WantedBy=multi-user.target
 
           [Path]
-          Unit=simp_generate_types_force.service
+          Unit=simp_generate_types-trigger_app.service
           PathChanged=/opt/puppetlabs/puppet/bin/puppet
         EOM
 
@@ -127,9 +125,8 @@ describe 'pupmod::master::generate_types' do
           WantedBy=multi-user.target
 
           [Path]
-          Unit=simp_generate_types.service
+          Unit=simp_generate_types-trigger.service
           PathChanged=/etc/puppetlabs/code/environments
-          PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.rb
         EOM
 
         systemd_app_content = <<~EOM
@@ -137,7 +134,7 @@ describe 'pupmod::master::generate_types' do
           WantedBy=multi-user.target
 
           [Path]
-          Unit=simp_generate_types_force.service
+          Unit=simp_generate_types-trigger_app.service
           PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
         EOM
 
@@ -162,9 +159,8 @@ describe 'pupmod::master::generate_types' do
           WantedBy=multi-user.target
 
           [Path]
-          Unit=simp_generate_types.service
+          Unit=simp_generate_types-trigger.service
           PathChanged=/etc/puppetlabs/code/environments
-          PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.rb
         EOM
 
         it_behaves_like 'generate_types'
@@ -178,7 +174,7 @@ describe 'pupmod::master::generate_types' do
       context 'when disabling environment triggers' do
         let(:params) do
           {
-            trigger_on_new_environment: false,
+            trigger_on_environment_change: false,
           }
         end
 
@@ -187,8 +183,7 @@ describe 'pupmod::master::generate_types' do
           WantedBy=multi-user.target
 
           [Path]
-          Unit=simp_generate_types.service
-          PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.rb
+          Unit=simp_generate_types-trigger.service
         EOM
 
         systemd_app_content = <<~EOM
@@ -196,41 +191,7 @@ describe 'pupmod::master::generate_types' do
           WantedBy=multi-user.target
 
           [Path]
-          Unit=simp_generate_types_force.service
-          PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
-          PathChanged=/opt/puppetlabs/puppet/bin/puppet
-        EOM
-
-        it_behaves_like 'generate_types'
-        if Array(os_facts[:init_systems]).include?('systemd')
-          it_behaves_like 'generate_types_systemd', systemd_path_content, systemd_app_content
-        else
-          it_behaves_like 'generate_types_incron_deprecated'
-        end
-      end
-
-      context 'when disabling type change triggers' do
-        let(:params) do
-          {
-            trigger_on_type_change: false,
-          }
-        end
-
-        systemd_path_content = <<~EOM
-          [Install]
-          WantedBy=multi-user.target
-
-          [Path]
-          Unit=simp_generate_types.service
-          PathChanged=/etc/puppetlabs/code/environments
-        EOM
-
-        systemd_app_content = <<~EOM
-          [Install]
-          WantedBy=multi-user.target
-
-          [Path]
-          Unit=simp_generate_types_force.service
+          Unit=simp_generate_types-trigger_app.service
           PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
           PathChanged=/opt/puppetlabs/puppet/bin/puppet
         EOM
@@ -255,10 +216,9 @@ describe 'pupmod::master::generate_types' do
           WantedBy=multi-user.target
 
           [Path]
-          Unit=simp_generate_types.service
+          Unit=simp_generate_types-trigger.service
           PathChanged=/etc/puppetlabs/code/environments
-          PathExistsGlob=/etc/puppetlabs/code/environments/*/modules/*/lib/puppet/type/*.rb
-          PathExistsGlob=/foo/bar/baz/*/modules/*/lib/puppet/type/*.rb
+          PathChanged=/foo/bar/baz
         EOM
 
         systemd_app_content = <<~EOM
@@ -266,7 +226,7 @@ describe 'pupmod::master::generate_types' do
           WantedBy=multi-user.target
 
           [Path]
-          Unit=simp_generate_types_force.service
+          Unit=simp_generate_types-trigger_app.service
           PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
           PathChanged=/opt/puppetlabs/puppet/bin/puppet
         EOM
@@ -295,11 +255,15 @@ describe 'pupmod::master::generate_types' do
         if Array(os_facts[:init_systems]).include?('systemd')
           it { is_expected.to create_systemd__unit_file('simp_generate_types.path').with_ensure('absent') }
           it { is_expected.to create_systemd__unit_file('simp_generate_types_apps.path').with_ensure('absent') }
+          it { is_expected.to create_systemd__unit_file('simp_generate_types-trigger.service').with_ensure('absent') }
+          it { is_expected.to create_systemd__unit_file('simp_generate_types-trigger_app.service').with_ensure('absent') }
           it { is_expected.to create_systemd__unit_file('simp_generate_types.service').with_ensure('absent') }
           it { is_expected.to create_systemd__unit_file('simp_generate_types_force.service').with_ensure('absent') }
         else
           it { is_expected.not_to create_systemd__unit_file('simp_generate_types.path').with_ensure('absent') }
           it { is_expected.not_to create_systemd__unit_file('simp_generate_types_apps.path').with_ensure('absent') }
+          it { is_expected.not_to create_systemd__unit_file('simp_generate_types-trigger.service').with_ensure('absent') }
+          it { is_expected.not_to create_systemd__unit_file('simp_generate_types-trigger_app.service').with_ensure('absent') }
           it { is_expected.not_to create_systemd__unit_file('simp_generate_types.service').with_ensure('absent') }
           it { is_expected.not_to create_systemd__unit_file('simp_generate_types_force.service').with_ensure('absent') }
         end

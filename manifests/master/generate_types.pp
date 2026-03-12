@@ -22,13 +22,9 @@
 # @param puppet_exe
 #   Fully qualified path to the ``puppet`` executable
 #
-# @param trigger_on_new_environment
-#   Run ``puppet generate types`` on new environments as soon as they are
-#   created
-#
-# @param trigger_on_type_change
-#
-#   Watch all type files for changes and generate types when types are updated
+# @param trigger_on_environment_change
+#   Run ``puppet generate types`` on all environments if the environment path
+#   is changed
 #
 # @param timeout
 #   Seconds before the simp_generate_types script will kill any other
@@ -54,8 +50,7 @@ class pupmod::master::generate_types (
   Stdlib::AbsolutePath $puppetserver_exe               = '/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver',
   Boolean              $trigger_on_puppet_update       = true,
   Stdlib::AbsolutePath $puppet_exe                     = '/opt/puppetlabs/puppet/bin/puppet',
-  Boolean              $trigger_on_new_environment     = true,
-  Boolean              $trigger_on_type_change         = true,
+  Boolean              $trigger_on_environment_change  = true,
   Integer[0]           $timeout                        = 300,
   Integer[0]           $stability_timeout              = 500,
   Stdlib::AbsolutePath $run_dir                        = '/var/run/simp_generate_types'
@@ -86,6 +81,10 @@ class pupmod::master::generate_types (
       subscribe   => File[$_generate_types_path],
     }
 
+    systemd::unit_file { 'simp_generate_types-trigger.service':
+      content => epp("${module_name}/etc/systemd/system/simp_generate_types-trigger.service.epp"),
+    }
+
     systemd::unit_file { 'simp_generate_types.path':
       enable  => true,
       active  => true,
@@ -112,6 +111,10 @@ class pupmod::master::generate_types (
         enable  => true,
         active  => true,
         content => epp("${module_name}/etc/systemd/system/simp_generate_types.path.epp", { apps => true }),
+      }
+
+      systemd::unit_file { 'simp_generate_types-trigger_app.service':
+        content => epp("${module_name}/etc/systemd/system/simp_generate_types-trigger.service.epp", { apps => true }),
       }
 
       $_simp_generate_types_force_service = @("HEREDOC")
@@ -144,6 +147,8 @@ class pupmod::master::generate_types (
 
     systemd::unit_file { 'simp_generate_types.path': ensure => absent }
     systemd::unit_file { 'simp_generate_types_apps.path': ensure => absent }
+    systemd::unit_file { 'simp_generate_types-trigger.service': ensure => absent }
+    systemd::unit_file { 'simp_generate_types-trigger_app.service': ensure => absent }
     systemd::unit_file { 'simp_generate_types.service': ensure => absent }
     systemd::unit_file { 'simp_generate_types_force.service': ensure => absent }
   }

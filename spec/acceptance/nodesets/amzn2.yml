@@ -1,0 +1,14 @@
+HOSTS:
+  amzn2:
+    roles:
+    - simp_master
+    platform: el-7-x86_64
+    box: gbailey/amzn2
+    vagrant_memsize: 512
+    vagrant_cpus: 2
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
+
+CONFIG:
+  log_level: verbose
+  type: aio
+  puppet_collection: <%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>

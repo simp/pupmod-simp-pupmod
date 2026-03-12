@@ -3,6 +3,7 @@
 require 'ostruct'
 require 'optparse'
 require 'pathname'
+require 'etc'
 
 PUPPET_CMD = '/opt/puppetlabs/bin/puppet'
 GENERATE_LOCK = '/var/run/simp_generate_types.generatelock'
@@ -323,9 +324,31 @@ def process_paths(to_process, options)
       ensure
         if File.exist?(resource_types_dir)
           require 'fileutils'
+          require 'etc'
 
-          FileUtils.chown_R(nil, puppet_group, resource_types_dir)
-          FileUtils.chmod_R('g+rX,o-rwx', resource_types_dir)
+          gid = Etc.getgrnam(puppet_group).gid
+
+          Dir.glob("#{resource_types_dir}/**/*", File::FNM_DOTMATCH).each do |p|
+            next if ['.', '..'].include?(File.basename(p))
+            st = File.lstat(p)
+
+            # Fix group only if wrong
+            if st.gid != gid
+              FileUtils.chown(nil, puppet_group, p)
+            end
+
+            # Fix perms only if "others" has any perms OR group is missing read
+            mode = st.mode & 0o777
+            need_fix = ((mode & 0o007) != 0) || ((mode & 0o040) == 0)
+
+            if need_fix
+              # approximate your intent: add g+r, strip all o perms; keep existing exec bits
+              new_mode = mode
+              new_mode |= 0o040     # g+r
+              new_mode &= 0o770     # strip o-rwx
+              FileUtils.chmod(new_mode, p)
+            end
+          end
         end
       end
     end

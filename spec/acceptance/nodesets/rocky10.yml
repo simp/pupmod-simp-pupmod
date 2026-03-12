@@ -1,16 +1,16 @@
 ---
 HOSTS:
-  alma9:
+  el10:
     roles:
     - simp_master
-    platform: el-9-x86_64
-    box: generic/alma9
+    platform: el-10-x86_64
+    box: rockylinux/10
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
-    family: almalinux-cloud/almalinux-9
-    vagrant_memsize: 1024
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+    family: rocky-linux-cloud/rocky-linux-10
     gce_machine_type: n1-standard-2
 CONFIG:
   log_level: verbose
-  synced_folder: disabled
   type: aio
   puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>"

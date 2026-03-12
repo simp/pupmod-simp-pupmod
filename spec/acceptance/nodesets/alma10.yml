@@ -1,0 +1,23 @@
+---
+HOSTS:
+  server-almalinux10.simp.beaker:
+    roles:
+    - simp_master
+    platform: el-10-x86_64
+    box: almalinux/10
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+    yum_repos:
+      crb:
+        mirrorlist: https://mirrors.almalinux.org/mirrorlist/$releasever/crb
+        enabled: 1
+    vagrant_provisioners:
+    - type: shell
+      inline: |
+        dnf -y install dnf-plugins-core
+        dnf -y config-manager --set-enabled crb
+CONFIG:
+  log_level: verbose
+  type: aio
+  puppet_collection: <%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>

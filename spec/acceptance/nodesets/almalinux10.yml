@@ -1,0 +1,26 @@
+---
+HOSTS:
+  server-almalinux10.simp.beaker:
+    roles:
+    - simp_master
+    platform: el-10-x86_64
+    box: almalinux/10
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+    # There are not currently any el10 images available on google cloud
+    # family: almalinux-cloud/almalinux-10
+    # gce_machine_type: n1-standard-2
+    vagrant_provisioners:
+    - type: shell
+      inline: |
+        set -e
+        # Make eth0 win forever
+        nmcli con mod "System eth0" ipv4.route-metric 50 || true
+        nmcli con mod "System eth1" ipv4.route-metric 200 || true
+        nmcli con up "System eth0" || true
+        nmcli con up "System eth1" || true
+CONFIG:
+  log_level: verbose
+  type: aio
+  puppet_collection: <%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>

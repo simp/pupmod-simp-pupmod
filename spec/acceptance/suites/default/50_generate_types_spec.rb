@@ -45,6 +45,7 @@ describe 'auto-triggered puppet generate types' do
 
       it 'regenerates *all* resource caches if the puppet binary is updated' do
         on(host, "/bin/echo '' >> /opt/puppetlabs/puppet/bin/puppet")
+        sleep(11)
 
         wait_for_generate_types(host)
 
@@ -60,6 +61,7 @@ describe 'auto-triggered puppet generate types' do
 
       it 'regenerates *all* resource caches if the puppetserver binary is updated' do
         on(host, "/bin/echo '' >> /opt/puppetlabs/server/apps/puppetserver/bin/puppetserver")
+        sleep(11)
 
         wait_for_generate_types(host)
 
@@ -75,6 +77,7 @@ describe 'auto-triggered puppet generate types' do
 
       it "does not crash the system when creating #{env_count} new environments" do
         on(host, "for x in {1..#{env_count}}; do cp -rl #{environment_path}/production #{environment_path}/testenv$x; done")
+        sleep(11)
         wait_for_generate_types(host)
 
         on(host, "ls #{environment_path} | wc -l")

@@ -15,7 +15,7 @@ describe 'install environment via r10k and openvox-server' do
 
       pupmod::master::autosign { 'All Test Hosts': entry => '*' }
 
-      # Maintain connection to the VM
+      # Maintain connection to the VMinstall env
       pam::access::rule { 'vagrant_all':
         users      => ['vagrant'],
         permission => '+',
@@ -73,11 +73,23 @@ REPO
 
       it 'applies the master manifest' do
         apply_manifest_on(master, master_manifest, accept_all_exit_codes: true)
+        apply_manifest_on(master, master_manifest, accept_all_exit_codes: true)
         wait_for_generate_types(master)
       end
 
+      it 'has selinux-policy-targeted-extra installed on EL10+' do
+        os_maj = fact_on(master, 'os.release.major').to_i
+
+        skip('Only relevant on EL10+') if os_maj < 10
+
+        on(master, 'rpm -q selinux-policy-targeted-extra')
+      end
+
+      it 'has the puppet semodule installed' do
+        on(master, 'semodule -l | grep -i puppet')
+      end
+
       it 'is idempotent' do
-        pending('Needs further invesigation as to why the generate_types service keeps failing')
         apply_manifest_on(master, master_manifest, catch_changes: true)
       end
 
@@ -90,6 +102,33 @@ REPO
         it 'has hiera-eyaml available' do
           result = on(master, 'puppetserver gem list --local hiera-eyaml')
           expect(result.stdout).to include('hiera-eyaml')
+        end
+      end
+
+      context 'when selinux is enforcing' do
+        before(:all) do
+          # Make sure SELinux is enabled at boot (not just runtime)
+          on(master, "grep -q '^SELINUX=' /etc/selinux/config && sed -ri 's/^SELINUX=.*/SELINUX=enforcing/' /etc/selinux/config || echo 'SELINUX=enforcing' >> /etc/selinux/config")
+
+          # Runtime switch (works if kernel not booted with selinux=0)
+          on(master, 'setenforce 1', acceptable_exit_codes: [0])
+
+          # Sanity
+          result = on(master, 'getenforce')
+          raise "SELinux not enforcing: #{result.output}" unless result.output.strip == 'Enforcing'
+        end
+
+        it 'sets puppetagent_manage_all_files sebool properly' do
+          apply_manifest_on(master, master_manifest, catch_errors: true)
+        end
+
+        def sebool_present?(host, name)
+          r = on(host, "getsebool -a | awk '{print $1}' | grep -Fx #{name}", acceptable_exit_codes: [0, 1])
+          r.exit_code == 0
+        end
+
+        it 'has puppetagent_manage_all_files boolean available' do
+          expect(sebool_present?(master, 'puppetagent_manage_all_files')).to be(true)
         end
       end
 

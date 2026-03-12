@@ -1,16 +1,15 @@
 ---
 HOSTS:
-  oel8:
+  server-oel8.simp.beaker:
     roles:
     - simp_master
     platform: el-8-x86_64
-    box: generic/oracle8
+    box: oraclelinux/8
+    box_url: https://oracle.github.io/vagrant-projects/boxes/oraclelinux/8.json
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
     family: sicura-image-build/oracle-linux-8
     gce_machine_type: n1-standard-2
 CONFIG:
   log_level: verbose
-  synced_folder: disabled
   type: aio
-  vagrant_memsize: 512
   puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>"

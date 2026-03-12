@@ -4,16 +4,16 @@ HOSTS:
     roles:
     - default
     - simp_master
-    platform: el-8-x86_64
-    box: generic/centos8
+    platform: el-9-x86_64
+    box: generic/centos9
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
     vagrant_memsize: 4608
     vagrant_cpus: 2
-    family: centos-cloud/centos-stream-8
+    family: centos-cloud/centos-stream-9
     gce_machine_type: n1-standard-2
 CONFIG:
   log_level: verbose
   type: aio
   vagrant_memsize: 256
   synced_folder: disabled
-  puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'puppet7') %>"
+  puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>"

@@ -96,6 +96,8 @@ The following parameters are available in the `pupmod` class:
 * [`openvox_base_url`](#-pupmod--openvox_base_url)
 * [`openvox_release_url`](#-pupmod--openvox_release_url)
 * [`openvox_rpm_path`](#-pupmod--openvox_rpm_path)
+* [`puppet_agent_sebool_package`](#-pupmod--puppet_agent_sebool_package)
+* [`manage_puppet_sebool_package`](#-pupmod--manage_puppet_sebool_package)
 * [`mock`](#-pupmod--mock)
 * [`firewall`](#-pupmod--firewall)
 * [`pe_classlist`](#-pupmod--pe_classlist)
@@ -154,8 +156,8 @@ Default value:
 
 ```puppet
 ($trusted['authenticatedx'] ? {
-                                                                  'remote' => $trusted['certname'],
-                                                                  default  => pick($facts['clientcert'], $facts['networking']['fqdn'])
+      'remote' => $trusted['certname'],
+      default  => pick($facts['clientcert'], $facts['networking']['fqdn'])
 ```
 
 ##### <a name="-pupmod--classfile"></a>`classfile`
@@ -423,6 +425,19 @@ The location of the openvox-server rpm to be installed
 The openvox_release_url parameter will be ignored if this parameter is set.
 
 Default value: `undef`
+
+##### <a name="-pupmod--puppet_agent_sebool_package"></a>`puppet_agent_sebool_package`
+
+Data type: `String`
+
+The name of the package that provides the SELinux boolean to allow the puppet agent to manage all files.
+This is required if `manage_puppet_sebool_package` is `true`.
+
+##### <a name="-pupmod--manage_puppet_sebool_package"></a>`manage_puppet_sebool_package`
+
+Data type: `Boolean`
+
+Whether to manage the package that provides the SELinux boolean to allow the puppet agent to manage all files.
 
 ##### <a name="-pupmod--mock"></a>`mock`
 
@@ -1397,8 +1412,7 @@ The following parameters are available in the `pupmod::master::generate_types` c
 * [`puppetserver_exe`](#-pupmod--master--generate_types--puppetserver_exe)
 * [`trigger_on_puppet_update`](#-pupmod--master--generate_types--trigger_on_puppet_update)
 * [`puppet_exe`](#-pupmod--master--generate_types--puppet_exe)
-* [`trigger_on_new_environment`](#-pupmod--master--generate_types--trigger_on_new_environment)
-* [`trigger_on_type_change`](#-pupmod--master--generate_types--trigger_on_type_change)
+* [`trigger_on_environment_change`](#-pupmod--master--generate_types--trigger_on_environment_change)
 * [`timeout`](#-pupmod--master--generate_types--timeout)
 * [`stability_timeout`](#-pupmod--master--generate_types--stability_timeout)
 * [`run_dir`](#-pupmod--master--generate_types--run_dir)
@@ -1445,20 +1459,12 @@ Fully qualified path to the ``puppet`` executable
 
 Default value: `'/opt/puppetlabs/puppet/bin/puppet'`
 
-##### <a name="-pupmod--master--generate_types--trigger_on_new_environment"></a>`trigger_on_new_environment`
+##### <a name="-pupmod--master--generate_types--trigger_on_environment_change"></a>`trigger_on_environment_change`
 
 Data type: `Boolean`
 
-Run ``puppet generate types`` on new environments as soon as they are
-created
-
-Default value: `true`
-
-##### <a name="-pupmod--master--generate_types--trigger_on_type_change"></a>`trigger_on_type_change`
-
-Data type: `Boolean`
-
-Watch all type files for changes and generate types when types are updated
+Run ``puppet generate types`` on all environments if the environment path
+is changed
 
 Default value: `true`
 
