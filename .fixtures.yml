@@ -15,7 +15,6 @@ fixtures:
     iptables: https://github.com/simp/pupmod-simp-iptables.git
     selinux_core:
       repo: https://github.com/simp/pupmod-puppetlabs-selinux_core.git
-    compliance_markup: https://github.com/simp/pupmod-simp-compliance_markup.git
     concat: https://github.com/simp/puppetlabs-concat.git
     hocon:
       repo: https://github.com/puppetlabs/puppetlabs-hocon.git
