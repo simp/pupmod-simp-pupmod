@@ -1,5 +1,6 @@
 * Mon May 11 2026 Steven Pritchard <steve@sicura.us> - 11.0.0
 - Remove unmaintained Compliance Engine data
+- Drop Puppet 7 support; require openvox >= 8 < 9
 
 * Thu Mar 05 2026 Mike Riddle <mike@sicura.us> - 10.0.0
 - Fixed the simp_generate_types script and supporting services for el10

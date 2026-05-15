@@ -4,7 +4,7 @@ HOSTS:
     roles:
     - simp_master
     platform: el-9-x86_64
-    box: generic/alma9
+    box: almalinux/9
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
     family: almalinux-cloud/almalinux-9
     vagrant_memsize: 1024
