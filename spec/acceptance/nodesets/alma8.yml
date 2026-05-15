@@ -4,7 +4,7 @@ HOSTS:
     roles:
     - simp_master
     platform: el-8-x86_64
-    box: generic/alma8
+    box: almalinux/8
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
     family: almalinux-cloud/almalinux-8
     gce_machine_type: n1-standard-2
