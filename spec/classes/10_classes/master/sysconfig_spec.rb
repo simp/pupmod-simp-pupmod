@@ -68,7 +68,7 @@ describe 'pupmod::master' do
                   memory: {
                     'system' => {
                       'total_bytes' => (490.16 * 1_048_576).to_i,
-                    }
+                    },
                   },
                   puppetserver_jruby: {
                     'dir'      => '/opt/puppetlabs/server/apps/puppetserver',
@@ -106,8 +106,8 @@ describe 'pupmod::master' do
                 extras.merge(os_facts).merge(
                   memory: {
                     'system' => {
-                      'total_bytes' => (490.16 * 1_048_576).to_i
-                    }
+                      'total_bytes' => (490.16 * 1_048_576).to_i,
+                    },
                   },
                   puppetserver_jruby: {
                     'dir'      => '/opt/puppetlabs/server/apps/puppetserver',
@@ -186,8 +186,8 @@ describe 'pupmod::master' do
                 extras.merge(os_facts).merge(
                   memory: {
                     'system' => {
-                      'total_bytes' => (8192 * 1_048_576).to_i
-                    }
+                      'total_bytes' => (8192 * 1_048_576).to_i,
+                    },
                   },
                   processors: {
                     physicalcount: 1,
@@ -262,8 +262,8 @@ describe 'pupmod::master' do
                 extras.merge(os_facts).merge(
                   memory: {
                     'system' => {
-                      'total_bytes' => (32_768 * 1_048_576).to_i
-                    }
+                      'total_bytes' => (32_768 * 1_048_576).to_i,
+                    },
                   },
                   processors: {
                     physicalcount: 4,

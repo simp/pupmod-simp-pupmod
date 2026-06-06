@@ -38,13 +38,13 @@ describe 'install environment via r10k and openvox-server' do
         os_maj = fact_on(master, 'os.release.major')
         architecture = fact_on(master, 'os.architecture')
 
-        repo_content = <<-REPO
-[openvox-release]
-name=Openvox
-baseurl=https://yum.voxpupuli.org/openvox8/el/#{os_maj}/#{architecture}/
-enabled=1
-gpgcheck=0
-REPO
+        repo_content = <<~REPO
+          [openvox-release]
+          name=Openvox
+          baseurl=https://yum.voxpupuli.org/openvox8/el/#{os_maj}/#{architecture}/
+          enabled=1
+          gpgcheck=0
+        REPO
         create_remote_file(master, '/etc/yum.repos.d/openvox.repo', repo_content)
       end
 

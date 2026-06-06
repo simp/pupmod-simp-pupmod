@@ -1,3 +1,6 @@
+* Sat Jun 06 2026 Steven Pritchard <steve@sicura.us> - 11.0.1
+- Additional cleanup for rubocop
+
 * Mon May 11 2026 Steven Pritchard <steve@sicura.us> - 11.0.0
 - Remove unmaintained Compliance Engine data
 

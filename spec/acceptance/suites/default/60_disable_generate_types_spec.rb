@@ -41,7 +41,7 @@ describe 'disable automatic puppet generate types' do
 
       let(:hieradata) do
         {
-          'pupmod::master::generate_types::enable' => false
+          'pupmod::master::generate_types::enable' => false,
         }
       end
 

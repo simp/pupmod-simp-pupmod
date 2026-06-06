@@ -21,7 +21,7 @@ describe 'pupmod::pass_two' do
 
       let(:assert_private_shim) do
         <<~EOM
-        function assert_private { true }
+          function assert_private { true }
         EOM
       end
 
@@ -55,7 +55,7 @@ describe 'pupmod::pass_two' do
 
               {
                 'server_list' => ['11.22.33.44', '5.6.7.8'],
-                'server' => '11.22.33.44'
+                'server' => '11.22.33.44',
               }.each do |key, value|
                 context "with pupmod_server as #{value}" do
                   if pe_mode
@@ -229,7 +229,7 @@ describe 'pupmod::pass_two' do
                     firewall&.each do |rule|
                       let(:params) do
                         {
-                          'firewall' => true
+                          'firewall' => true,
                         }
                       end
                       it { is_expected.to contain_iptables__listen__tcp_stateful("#{key} - #{rule['proto']} - #{rule['port']}").with({ 'dports' => rule['port'] }) }

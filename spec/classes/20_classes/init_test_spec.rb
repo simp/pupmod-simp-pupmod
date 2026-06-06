@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-File.open("#{File.dirname(__FILE__)}/data/auditd.txt", 'rb').read
+File.binread("#{File.dirname(__FILE__)}/data/auditd.txt")
 
 describe 'pupmod' do
   on_supported_os.each do |os, os_facts|
