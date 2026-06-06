@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe 'pupmod::master' do
-  audit_content = File.open("#{File.dirname(__FILE__)}/data/auditd.txt", 'rb').read
+  audit_content = File.binread("#{File.dirname(__FILE__)}/data/auditd.txt")
 
   let(:extras) do
     {
@@ -226,7 +226,7 @@ describe 'pupmod::master' do
                 'borrow-timeout'                  => 1_200_000,
                 'environment-class-cache-enabled' => true,
                 'compile-mode'                    => 'off',
-                'use-legacy-auth-conf'            => false
+                'use-legacy-auth-conf'            => false,
               }
 
               if puppetserver_version >= '5.1.0'
@@ -293,8 +293,8 @@ describe 'pupmod::master' do
                 'puppetlabs.services.ca.certificate-authority-service/certificate-authority-service' => {
                   'default' => {
                     'route'  => '/puppet-ca',
-                    'server' => 'ca'
-                  }
+                    'server' => 'ca',
+                  },
                 },
                 'puppetlabs.trapperkeeper.services.status.status-service/status-service'        => '/status',
                 'puppetlabs.services.master.master-service/master-service'                      => '/puppet',
@@ -409,9 +409,9 @@ describe 'pupmod::master' do
                     },
                     'alice' => {
                       'port'           => '2345',
-                      'static-content' => '[{ resource: "./other-web-assets", path: "/other-assets" }]'
-                    }
-                  }
+                      'static-content' => '[{ resource: "./other-web-assets", path: "/other-assets" }]',
+                    },
+                  },
                 }
               end
 

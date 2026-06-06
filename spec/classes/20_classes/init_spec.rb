@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-audit_content = File.open("#{File.dirname(__FILE__)}/data/auditd.txt", 'rb').read
+audit_content = File.binread("#{File.dirname(__FILE__)}/data/auditd.txt")
 
 describe 'pupmod' do
   def mock_selinux_false_facts(os_facts)
@@ -238,7 +238,7 @@ describe 'pupmod' do
             end
 
             context 'with enable_puppet_master => false' do
-              let(:params) { { enable_puppet_master: true, } }
+              let(:params) { { enable_puppet_master: true } }
 
               it { is_expected.to create_class('pupmod::master') }
             end

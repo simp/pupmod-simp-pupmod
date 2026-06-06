@@ -118,7 +118,7 @@ describe 'pupmod::agent::cron' do
               hour: 2,
               monthday: 3,
               month: 4,
-              weekday: 5
+              weekday: 5,
             }
           end
 
