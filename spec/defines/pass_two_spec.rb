@@ -1,6 +1,5 @@
 require 'spec_helper'
 require 'yaml'
-data = YAML.load_file("#{File.dirname(__FILE__)}/data/moduledata.yaml")
 
 # rubocop:disable Style/TrivialAccessors
 def pe_mode
@@ -11,6 +10,8 @@ def pe_mode=(value)
   @pe_mode = value
 end
 # rubocop:enable Style/TrivialAccessors
+
+DATA = YAML.load_file("#{File.dirname(__FILE__)}/data/moduledata.yaml")
 
 describe 'pupmod::pass_two' do
   on_supported_os.each do |os, facts|
@@ -141,26 +142,26 @@ describe 'pupmod::pass_two' do
               end
 
               if pe_mode
-                mode = nil
-                group = nil
+                let(:expected_mode) { nil }
+                let(:expected_group) { nil }
               else
-                mode = '0640'
-                group = 'puppet'
+                let(:expected_mode) { '0640' }
+                let(:expected_group) { 'puppet' }
               end
               it {
                 is_expected.to contain_file('/etc/puppetlabs/puppet').with(
                   'ensure' => 'directory',
                   'owner'  => 'root',
                   'group'  => 'puppet',
-                  'mode'   => mode,
+                  'mode'   => expected_mode,
                 )
               }
               it {
                 is_expected.to contain_file('/etc/puppetlabs/puppet/puppet.conf').with(
                   'ensure' => 'file',
                   'owner'  => 'root',
-                  'group'  => group,
-                  'mode'   => mode,
+                  'group'  => expected_group,
+                  'mode'   => expected_mode,
                 )
               }
               it {
@@ -172,7 +173,7 @@ describe 'pupmod::pass_two' do
               }
 
               if pe_mode
-                classlist = data['pupmod::pe_classlist']
+                classlist = DATA['pupmod::pe_classlist']
                 classlist.each do |key, value|
                   next if ['pupmod', 'pupmod::master'].include?(key)
                   context "when #{key} is included in the catalog" do
@@ -194,9 +195,9 @@ describe 'pupmod::pass_two' do
                               EOM
                             end
 
-                      if defined?(data)
+                      if defined?(DATA)
                         services = []
-                        data['pupmod::pe_classlist'].each_pair do |_k, v|
+                        DATA['pupmod::pe_classlist'].each_pair do |_k, v|
                           services += v['services'] if v['services']
                         end
 

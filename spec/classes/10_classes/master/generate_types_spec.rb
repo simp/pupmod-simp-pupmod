@@ -16,11 +16,13 @@ describe 'pupmod::master::generate_types' do
     it { is_expected.to create_systemd__unit_file('simp_generate_types.path').with_content(content) }
 
     if force_content
-      force_service_content = <<~EOM
-        [Service]
-        Type=simple
-        ExecStart=/usr/local/sbin/simp_generate_types --syslog --all --batch --timeout 300 --stability_timeout 500 --force
-      EOM
+      let(:force_service_content) do
+        <<~EOM
+          [Service]
+          Type=simple
+          ExecStart=/usr/local/sbin/simp_generate_types --syslog --all --batch --timeout 300 --stability_timeout 500 --force
+        EOM
+      end
 
       it { is_expected.to create_systemd__unit_file('simp_generate_types_apps.path').with_enable(true) }
       it { is_expected.to create_systemd__unit_file('simp_generate_types_apps.path').with_active(true) }
@@ -31,11 +33,13 @@ describe 'pupmod::master::generate_types' do
       it { is_expected.not_to create_systemd__unit_file('simp_generate_types_force.service') }
     end
 
-    service_content = <<~EOM
-      [Service]
-      Type=simple
-      ExecStart=/usr/local/sbin/simp_generate_types --syslog --all --batch --timeout 300 --stability_timeout 500
-    EOM
+    let(:service_content) do
+      <<~EOM
+        [Service]
+        Type=simple
+        ExecStart=/usr/local/sbin/simp_generate_types --syslog --all --batch --timeout 300 --stability_timeout 500
+      EOM
+    end
 
     it { is_expected.to create_systemd__unit_file('simp_generate_types.service').with_content(service_content) }
   end
@@ -53,24 +57,28 @@ describe 'pupmod::master::generate_types' do
       end
 
       context 'with default input' do
-        systemd_path_content = <<~EOM
-          [Install]
-          WantedBy=multi-user.target
+        def self.systemd_path_content
+          <<~EOM
+            [Install]
+            WantedBy=multi-user.target
 
-          [Path]
-          Unit=simp_generate_types-trigger.service
-          PathChanged=/etc/puppetlabs/code/environments
-        EOM
+            [Path]
+            Unit=simp_generate_types-trigger.service
+            PathChanged=/etc/puppetlabs/code/environments
+          EOM
+        end
 
-        systemd_app_content = <<~EOM
-          [Install]
-          WantedBy=multi-user.target
+        def self.systemd_app_content
+          <<~EOM
+            [Install]
+            WantedBy=multi-user.target
 
-          [Path]
-          Unit=simp_generate_types-trigger_app.service
-          PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
-          PathChanged=/opt/puppetlabs/puppet/bin/puppet
-        EOM
+            [Path]
+            Unit=simp_generate_types-trigger_app.service
+            PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
+            PathChanged=/opt/puppetlabs/puppet/bin/puppet
+          EOM
+        end
 
         it_behaves_like 'generate_types'
         if Array(os_facts[:init_systems]).include?('systemd')
@@ -87,23 +95,27 @@ describe 'pupmod::master::generate_types' do
           }
         end
 
-        systemd_path_content = <<~EOM
-          [Install]
-          WantedBy=multi-user.target
+        def self.systemd_path_content
+          <<~EOM
+            [Install]
+            WantedBy=multi-user.target
 
-          [Path]
-          Unit=simp_generate_types-trigger.service
-          PathChanged=/etc/puppetlabs/code/environments
-        EOM
+            [Path]
+            Unit=simp_generate_types-trigger.service
+            PathChanged=/etc/puppetlabs/code/environments
+          EOM
+        end
 
-        systemd_app_content = <<~EOM
-          [Install]
-          WantedBy=multi-user.target
+        def self.systemd_app_content
+          <<~EOM
+            [Install]
+            WantedBy=multi-user.target
 
-          [Path]
-          Unit=simp_generate_types-trigger_app.service
-          PathChanged=/opt/puppetlabs/puppet/bin/puppet
-        EOM
+            [Path]
+            Unit=simp_generate_types-trigger_app.service
+            PathChanged=/opt/puppetlabs/puppet/bin/puppet
+          EOM
+        end
 
         it_behaves_like 'generate_types'
         if Array(os_facts[:init_systems]).include?('systemd')
@@ -120,23 +132,27 @@ describe 'pupmod::master::generate_types' do
           }
         end
 
-        systemd_path_content = <<~EOM
-          [Install]
-          WantedBy=multi-user.target
+        def self.systemd_path_content
+          <<~EOM
+            [Install]
+            WantedBy=multi-user.target
 
-          [Path]
-          Unit=simp_generate_types-trigger.service
-          PathChanged=/etc/puppetlabs/code/environments
-        EOM
+            [Path]
+            Unit=simp_generate_types-trigger.service
+            PathChanged=/etc/puppetlabs/code/environments
+          EOM
+        end
 
-        systemd_app_content = <<~EOM
-          [Install]
-          WantedBy=multi-user.target
+        def self.systemd_app_content
+          <<~EOM
+            [Install]
+            WantedBy=multi-user.target
 
-          [Path]
-          Unit=simp_generate_types-trigger_app.service
-          PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
-        EOM
+            [Path]
+            Unit=simp_generate_types-trigger_app.service
+            PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
+          EOM
+        end
 
         it_behaves_like 'generate_types'
         if Array(os_facts[:init_systems]).include?('systemd')
@@ -154,14 +170,16 @@ describe 'pupmod::master::generate_types' do
           }
         end
 
-        systemd_path_content = <<~EOM
-          [Install]
-          WantedBy=multi-user.target
+        def self.systemd_path_content
+          <<~EOM
+            [Install]
+            WantedBy=multi-user.target
 
-          [Path]
-          Unit=simp_generate_types-trigger.service
-          PathChanged=/etc/puppetlabs/code/environments
-        EOM
+            [Path]
+            Unit=simp_generate_types-trigger.service
+            PathChanged=/etc/puppetlabs/code/environments
+          EOM
+        end
 
         it_behaves_like 'generate_types'
         if Array(os_facts[:init_systems]).include?('systemd')
@@ -178,23 +196,27 @@ describe 'pupmod::master::generate_types' do
           }
         end
 
-        systemd_path_content = <<~EOM
-          [Install]
-          WantedBy=multi-user.target
+        def self.systemd_path_content
+          <<~EOM
+            [Install]
+            WantedBy=multi-user.target
 
-          [Path]
-          Unit=simp_generate_types-trigger.service
-        EOM
+            [Path]
+            Unit=simp_generate_types-trigger.service
+          EOM
+        end
 
-        systemd_app_content = <<~EOM
-          [Install]
-          WantedBy=multi-user.target
+        def self.systemd_app_content
+          <<~EOM
+            [Install]
+            WantedBy=multi-user.target
 
-          [Path]
-          Unit=simp_generate_types-trigger_app.service
-          PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
-          PathChanged=/opt/puppetlabs/puppet/bin/puppet
-        EOM
+            [Path]
+            Unit=simp_generate_types-trigger_app.service
+            PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
+            PathChanged=/opt/puppetlabs/puppet/bin/puppet
+          EOM
+        end
 
         it_behaves_like 'generate_types'
         if Array(os_facts[:init_systems]).include?('systemd')
@@ -211,25 +233,29 @@ describe 'pupmod::master::generate_types' do
           )
         end
 
-        systemd_path_content = <<~EOM
-          [Install]
-          WantedBy=multi-user.target
+        def self.systemd_path_content
+          <<~EOM
+            [Install]
+            WantedBy=multi-user.target
 
-          [Path]
-          Unit=simp_generate_types-trigger.service
-          PathChanged=/etc/puppetlabs/code/environments
-          PathChanged=/foo/bar/baz
-        EOM
+            [Path]
+            Unit=simp_generate_types-trigger.service
+            PathChanged=/etc/puppetlabs/code/environments
+            PathChanged=/foo/bar/baz
+          EOM
+        end
 
-        systemd_app_content = <<~EOM
-          [Install]
-          WantedBy=multi-user.target
+        def self.systemd_app_content
+          <<~EOM
+            [Install]
+            WantedBy=multi-user.target
 
-          [Path]
-          Unit=simp_generate_types-trigger_app.service
-          PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
-          PathChanged=/opt/puppetlabs/puppet/bin/puppet
-        EOM
+            [Path]
+            Unit=simp_generate_types-trigger_app.service
+            PathChanged=/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver
+            PathChanged=/opt/puppetlabs/puppet/bin/puppet
+          EOM
+        end
 
         it_behaves_like 'generate_types'
         if Array(os_facts[:init_systems]).include?('systemd')
