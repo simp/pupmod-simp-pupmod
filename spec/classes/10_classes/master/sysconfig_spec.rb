@@ -16,7 +16,8 @@ describe 'pupmod::master' do
       }
     end
 
-    puppetserver_content_without_jruby = File.read("#{File.dirname(__FILE__)}/data/puppetserver.txt")
+    let(:puppetserver_content_without_jruby) { File.read("#{File.dirname(__FILE__)}/data/puppetserver.txt") }
+
     context "on #{os}" do
       let(:server_datadir) do
         os_facts.dig(:puppet_settings, :server, :server_datadir) ||

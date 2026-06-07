@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe 'pupmod::master' do
-  audit_content = File.binread("#{File.dirname(__FILE__)}/data/auditd.txt")
+  let(:audit_content) { File.binread("#{File.dirname(__FILE__)}/data/auditd.txt") }
 
   let(:extras) do
     {
@@ -919,10 +919,9 @@ describe 'pupmod::master' do
           end
 
           context 'when autosigning' do
-            autosign_hosts = ['foo.bar', '*.baz']
-            let(:params) { { autosign_hosts: autosign_hosts } }
+            let(:params) { { autosign_hosts: ['foo.bar', '*.baz'] } }
 
-            autosign_hosts.each do |autosign_host|
+            ['foo.bar', '*.baz'].each do |autosign_host|
               it { is_expected.to contain_pupmod__master__autosign(autosign_host) }
             end
           end

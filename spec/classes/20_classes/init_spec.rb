@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-audit_content = File.binread("#{File.dirname(__FILE__)}/data/auditd.txt")
-
 describe 'pupmod' do
+  let(:audit_content) { File.binread("#{File.dirname(__FILE__)}/data/auditd.txt") }
+
   def mock_selinux_false_facts(os_facts)
     os_facts[:os][:selinux][:config_mode] = 'disabled'
     os_facts[:os][:selinux][:current_mode] = 'disabled'
