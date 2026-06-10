@@ -180,6 +180,11 @@
 # @param agent_package
 #   The name of the agent package to install.
 #
+# @param agent_package_install_options
+#   An array of install options passed to the agent package provider.
+#   See the Puppet `package` resource `install_options` attribute for the
+#   provider-specific format.
+#
 # @param package_ensure
 #   String used to specify 'latest', 'installed', or a specific version of the agent package
 #
@@ -222,6 +227,7 @@ class pupmod (
   Boolean                                                  $firewall             = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Hash                                                     $pe_classlist         = {},
   String[1]                                                $agent_package        = 'openvox-agent',
+  Optional[Array[Variant[String[1], Hash]]]                $agent_package_install_options = undef,
   String[1]                                                $package_ensure       = simplib::lookup('simp_options::package_ensure' , { 'default_value' => 'installed' }),
   Variant[Boolean, Enum['no_clean']]                       $set_environment      = false,
   Boolean                                                  $manage_facter_conf   = false,
@@ -261,12 +267,16 @@ class pupmod (
 
     if $daemonize {
       $_puppet_service_ensure = 'running'
+      cron { 'puppetagent': ensure => 'absent' }
+      systemd::timer { 'puppet_agent.timer': ensure => 'absent' }
+      file { ['/usr/local/bin/puppetagent_cron.sh', '/usr/local/bin/careful_puppet_service_shutdown.sh']:
+        ensure => 'absent',
+      }
     }
     else {
       $_puppet_service_ensure = 'stopped'
+      include 'pupmod::agent::cron'
     }
-
-    include 'pupmod::agent::cron'
 
     service { 'puppet':
       ensure     => $_puppet_service_ensure,
