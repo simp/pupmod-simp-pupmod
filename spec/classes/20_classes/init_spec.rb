@@ -246,7 +246,11 @@ describe 'pupmod' do
             context 'with daemonize enabled' do
               let(:params) { { daemonize: true } }
 
-              it { is_expected.to contain_class('pupmod::agent::cron') }
+              it { is_expected.not_to contain_class('pupmod::agent::cron') }
+              it { is_expected.to contain_cron('puppetagent').with_ensure('absent') }
+              it { is_expected.to contain_systemd__timer('puppet_agent.timer').with_ensure('absent') }
+              it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_ensure('absent') }
+              it { is_expected.to contain_file('/usr/local/bin/careful_puppet_service_shutdown.sh').with_ensure('absent') }
               it {
                 is_expected.to contain_service('puppet').with(
                   'ensure'     => 'running',
@@ -254,6 +258,17 @@ describe 'pupmod' do
                   'hasrestart' => true,
                   'hasstatus'  => true,
                   'subscribe'  => 'File[/etc/puppetlabs/puppet/puppet.conf]',
+                )
+              }
+            end
+
+            context 'with agent_package_install_options set' do
+              let(:params) { { agent_package_install_options: ['--enablerepo=foo', { '--setopt' => 'protect=1' }] } }
+
+              it {
+                is_expected.to contain_package('openvox-agent').with(
+                  'ensure'          => 'installed',
+                  'install_options' => ['--enablerepo=foo', { '--setopt' => 'protect=1' }],
                 )
               }
             end

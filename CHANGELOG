@@ -1,3 +1,10 @@
+* Thu Jul 16 2026 Nicholas Markowski <nicholas.markowski@onyxpoint.com> - 12.2.0
+- Added `pupmod::agent_package_install_options` to pass install_options
+  through to the agent package resource (#161)
+- When `daemonize` is true, ensure the puppetagent cron entry, the
+  puppet_agent.timer, and the puppetagent_cron.sh and
+  careful_puppet_service_shutdown.sh helper scripts are absent (#161)
+
 * Thu Jul 09 2026 Steven Pritchard <steve@sicura.us> - 12.1.1
 - Fix puppet-lint offenses (exec idempotency, topscope variable, duplicate
   parameter docs, params_not_optional_with_undef, lookup_in_parameter)
