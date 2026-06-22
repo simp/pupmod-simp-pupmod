@@ -4,6 +4,7 @@ fixtures:
     auditd: https://github.com/simp/pupmod-simp-auditd.git
     augeas_core:
       repo: https://github.com/simp/pupmod-puppetlabs-augeas_core.git
+      ref: v1.5.0
     augeasproviders_core: https://github.com/simp/augeasproviders_core.git
     augeasproviders_grub: https://github.com/simp/augeasproviders_grub.git
     augeasproviders_puppet: https://github.com/simp/augeasproviders_puppet.git
