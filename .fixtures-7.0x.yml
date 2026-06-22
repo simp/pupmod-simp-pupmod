@@ -9,7 +9,7 @@ fixtures:
     augeasproviders_puppet: https://github.com/simp/augeasproviders_puppet.git
     cron_core:
       repo: https://github.com/simp/pupmod-puppetlabs-cron_core.git
-      ref: v1.4.0 # last puppet 7 compatible version
+      ref: v1.3.0
     firewalld: https://github.com/simp/pupmod-voxpupuli-firewalld.git
     haveged: https://github.com/simp/pupmod-simp-haveged.git
     inifile: https://github.com/simp/puppetlabs-inifile.git
