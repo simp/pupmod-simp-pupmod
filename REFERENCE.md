@@ -102,6 +102,7 @@ The following parameters are available in the `pupmod` class:
 * [`firewall`](#-pupmod--firewall)
 * [`pe_classlist`](#-pupmod--pe_classlist)
 * [`agent_package`](#-pupmod--agent_package)
+* [`agent_package_install_options`](#-pupmod--agent_package_install_options)
 * [`package_ensure`](#-pupmod--package_ensure)
 * [`set_environment`](#-pupmod--set_environment)
 
@@ -471,6 +472,16 @@ The name of the agent package to install.
 
 Default value: `'openvox-agent'`
 
+##### <a name="-pupmod--agent_package_install_options"></a>`agent_package_install_options`
+
+Data type: `Optional[Array[Variant[String[1], Hash]]]`
+
+An array of install options passed to the agent package provider.
+See the Puppet `package` resource `install_options` attribute for the
+provider-specific format.
+
+Default value: `undef`
+
 ##### <a name="-pupmod--package_ensure"></a>`package_ensure`
 
 Data type: `String[1]`
@@ -737,6 +748,7 @@ The following parameters are available in the `pupmod::agent::install` class:
 
 * [`package_name`](#-pupmod--agent--install--package_name)
 * [`package_ensure`](#-pupmod--agent--install--package_ensure)
+* [`install_options`](#-pupmod--agent--install--install_options)
 
 ##### <a name="-pupmod--agent--install--package_name"></a>`package_name`
 
@@ -753,6 +765,14 @@ Data type: `String[1]`
 Should be set to installed, latest, or a specific version
 
 Default value: `pick(getvar('pupmod::package_ensure'), 'installed')`
+
+##### <a name="-pupmod--agent--install--install_options"></a>`install_options`
+
+Data type: `Optional[Array[Variant[String[1], Hash]]]`
+
+Options that get passed to the package provider
+
+Default value: `$pupmod::agent_package_install_options`
 
 ### <a name="pupmod--facter--conf"></a>`pupmod::facter::conf`
 
