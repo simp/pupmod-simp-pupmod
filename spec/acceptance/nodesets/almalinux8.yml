@@ -3,6 +3,7 @@ HOSTS:
   almalinux8:
     roles:
     - default
+    - simp_master
     - master
     - server
     - el8

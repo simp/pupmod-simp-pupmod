@@ -3,6 +3,7 @@ HOSTS:
   almalinux9:
     roles:
     - default
+    - simp_master
     - master
     - server
     - el9
