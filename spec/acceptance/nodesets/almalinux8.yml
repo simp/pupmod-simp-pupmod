@@ -1,16 +1,20 @@
 ---
 HOSTS:
-  alma8:
+  almalinux8:
     roles:
+    - default
     - simp_master
+    - master
+    - server
+    - el8
     platform: el-8-x86_64
-    box: generic/alma8
+    box: almalinux/8
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
     family: almalinux-cloud/almalinux-8
     gce_machine_type: n1-standard-2
 CONFIG:
   log_level: verbose
-  synced_folder: disabled
   type: aio
-  vagrant_memsize: 512
   puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>"

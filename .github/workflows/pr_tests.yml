@@ -8,21 +8,11 @@
 #
 # ==============================================================================
 #
-# The testing matrix considers ruby/puppet versions supported by SIMP and PE:
-# ------------------------------------------------------------------------------
-# Release       Puppet   Ruby    EOL
-# PE 2019.8     6.22     2.5     2022-12 (LTS)
-# PE 2021.Y     7.x      2.7     Quarterly updates
-#
-# https://puppet.com/docs/pe/latest/component_versions_in_recent_pe_releases.html
-# https://puppet.com/misc/puppet-enterprise-lifecycle
-# ==============================================================================
-#
 # https://docs.github.com/en/actions/reference/events-that-trigger-workflows
 #
-
+---
 name: PR Tests
-on:
+'on':
   pull_request:
     types: [opened, reopened, synchronize]
 
@@ -32,10 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: "Install Ruby 2.7"
+      - name: "Install Ruby 3.2"
         uses: ruby/setup-ruby@v1  # ruby/setup-ruby@ec106b438a1ff6ff109590de34ddc62c540232e0
         with:
-          ruby-version: 2.7.8
+          ruby-version: 3.2.11
           bundler-cache: true
       - run: "bundle exec rake syntax"
 
@@ -44,10 +34,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: "Install Ruby 2.7"
+      - name: "Install Ruby 3.2"
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.7.8
+          ruby-version: 3.2.11
           bundler-cache: true
       - run: "bundle exec rake lint"
       - run: "bundle exec rake metadata_lint"
@@ -58,10 +48,10 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v6
-      - name: "Install Ruby 2.7"
+      - name: "Install Ruby 3.4"
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.7.8
+          ruby-version: 3.4.9
           bundler-cache: true
       - run: |
           bundle show
@@ -72,10 +62,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: 'Install Ruby 2.7'
+      - name: 'Install Ruby 3.4'
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.7.8
+          ruby-version: 3.4.9
           bundler-cache: true
       - run: bundle exec rake check:dot_underscore
       - run: bundle exec rake check:test_file
@@ -85,10 +75,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: 'Install Ruby 2.7'
+      - name: 'Install Ruby 3.4'
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.7.8
+          ruby-version: 3.4.9
           bundler-cache: true
       - name: 'Tags and changelogs'
         run: |
@@ -105,10 +95,6 @@ jobs:
     strategy:
       matrix:
         puppet:
-          - label: 'Puppet 7.x [SIMP 6.6/PE 2021.7]'
-            puppet_version: '~> 7.0'
-            ruby_version: '2.7'
-            experimental: false
           - label: 'Puppet 8.x'
             puppet_version: '~> 8.0'
             ruby_version: '3.2'
@@ -135,8 +121,8 @@ jobs:
     strategy:
       matrix:
         node:
-          - alma8
-          - alma10
+          - almalinux9
+          - almalinux10
       fail-fast: false
     steps:
       - name: checkout repo

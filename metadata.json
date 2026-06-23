@@ -1,12 +1,12 @@
 {
   "name": "simp-pupmod",
-  "version": "11.1.0",
+  "version": "12.1.0",
   "author": "SIMP Team",
   "summary": "A puppet module to manage puppetserver and puppet agents",
   "license": "Apache-2.0",
   "source": "https://github.com/simp/pupmod-simp-pupmod",
   "project_page": "https://github.com/simp/pupmod-simp-pupmod",
-  "issues_url": "https://simp-project.atlassian.net",
+  "issues_url": "https://github.com/simp/pupmod-simp-pupmod/issues",
   "tags": [
     "simp",
     "ci",
@@ -19,7 +19,7 @@
   "dependencies": [
     {
       "name": "puppet/systemd",
-      "version_requirement": ">= 4.0.2 < 9.0.0"
+      "version_requirement": ">= 4.0.2 < 10.0.0"
     },
     {
       "name": "simp/haveged",
@@ -47,21 +47,21 @@
     },
     {
       "name": "simp/iptables",
-      "version_requirement": ">= 6.5.3 < 8.0.0"
+      "version_requirement": ">= 6.5.3 < 9.0.0"
     },
     {
       "name": "simp/simplib",
-      "version_requirement": ">= 4.9.0 < 5.0.0"
+      "version_requirement": ">= 4.9.0 < 6.0.0"
     },
     {
       "name": "simp/pki",
-      "version_requirement": ">= 6.2.0 < 7.0.0"
+      "version_requirement": ">= 6.2.0 < 8.0.0"
     }
   ],
   "requirements": [
     {
-      "name": "puppet",
-      "version_requirement": ">= 7.0.0 < 9.0.0"
+      "name": "openvox",
+      "version_requirement": ">= 8.0.0 < 9.0.0"
     }
   ],
   "operatingsystem_support": [
