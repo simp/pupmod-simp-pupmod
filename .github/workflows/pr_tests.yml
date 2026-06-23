@@ -110,8 +110,6 @@ jobs:
           ruby-version: ${{matrix.puppet.ruby_version}}
           bundler-cache: true
       - run: 'command -v rpm || if command -v apt-get; then sudo apt-get update; sudo apt-get install -y rpm; fi ||:'
-      # Use optional versioned fixtures file, if it exists
-      - run: 'versioned_fixtures_file=".fixtures-${PUPPET_VERSION/~> /}x.yml"; test -f "$versioned_fixtures_file" && cp "$versioned_fixtures_file" .fixtures.yml || :'
       - run: 'bundle exec rake parallel_spec'
         continue-on-error: ${{matrix.puppet.experimental}}
 
