@@ -1,3 +1,6 @@
+* Mon Jun 22 2026 Chris Tessmer <chris.tessmer@onyxpoint.com> - 12.1.0
+- Update puppetagent_cron.sh to remove stale lockfiles when agent is dead
+
 * Mon Jun 08 2026 Steven Pritchard <steven.pritchard@gmail.com> - 12.0.0
 - Switch `requirements` from `puppet` to `openvox` (>= 8 < 9)
 - Point `issues_url` at GitHub Issues

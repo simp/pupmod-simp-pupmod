@@ -52,6 +52,9 @@ if [ -f "${puppet_run_lockfile}" ]; then
     wait;
     /bin/logger -s -p 'local6.warn' -t 'puppet' "Puppet processes forcibly killed.";
     /bin/rm -f "${puppet_run_lockfile}";
+  elif [[ -z "${pup_status}" ]]; then
+    /bin/logger -s -p 'local6.warn' -t 'puppet' "Cleaning up stale lockfile.";
+    /bin/rm -f "${puppet_run_lockfile}";
   fi
 fi
 
