@@ -180,6 +180,8 @@ The path to the puppet configuration directory.
 See http://docs.puppetlabs.com/references/latest/configuration.html for
 additional details.
 
+Default value: `'/etc/puppetlabs/puppet'`
+
 ##### <a name="-pupmod--daemonize"></a>`daemonize`
 
 Data type: `Boolean`
@@ -214,6 +216,8 @@ Data type: `Stdlib::AbsolutePath`
 
 The path to the directory holding the puppet environments.
 
+Default value: `'/etc/puppetlabs/code/environments'`
+
 ##### <a name="-pupmod--listen"></a>`listen`
 
 Data type: `Boolean`
@@ -235,6 +239,8 @@ The path to the puppet log directory.
 
 See http://docs.puppetlabs.com/references/latest/configuration.html for
 additional details.
+
+Default value: `'/var/log/puppetlabs/puppet'`
 
 ##### <a name="-pupmod--purge_logs"></a>`purge_logs`
 
@@ -289,6 +295,8 @@ The path to the puppet run status directory.
 See http://docs.puppetlabs.com/references/latest/configuration.html for
 additional details.
 
+Default value: `'/var/run/puppetlabs'`
+
 ##### <a name="-pupmod--runinterval"></a>`runinterval`
 
 Data type: `Integer[0]`
@@ -334,6 +342,8 @@ The path to the puppet ssl directory.
 See http://docs.puppetlabs.com/references/latest/configuration.html for
 additional details.
 
+Default value: `'/etc/puppetlabs/puppet/ssl'`
+
 ##### <a name="-pupmod--syslogfacility"></a>`syslogfacility`
 
 Data type: `Simplib::Syslog::Facility`
@@ -372,6 +382,8 @@ Data type: `Stdlib::AbsolutePath`
 
 The directory where puppet will store all of its 'variable' data.
 
+Default value: `'/opt/puppetlabs/puppet/cache'`
+
 ##### <a name="-pupmod--manage_facter_conf"></a>`manage_facter_conf`
 
 Data type: `Boolean`
@@ -400,6 +412,8 @@ Hash of Facter configuration options.
   be removed entirely from the Facter configuration file.
 - See https://puppet.com/docs/facter/latest/configuring_facter.html
   for details on how to configure Facter.
+
+Default value: `{ 'facts' => {}, 'global' => {}, 'cli' => {} }`
 
 ##### <a name="-pupmod--openvox_base_url"></a>`openvox_base_url`
 
@@ -997,11 +1011,15 @@ Data type: `Stdlib::AbsolutePath`
 
 The Puppet client configuration directory.
 
+Default value: `'/etc/puppetlabs/puppetserver/conf.d'`
+
 ##### <a name="-pupmod--master--codedir"></a>`codedir`
 
 Data type: `Stdlib::AbsolutePath`
 
 The directory holding the Puppet configuration codebase.
+
+Default value: `'/etc/puppetlabs/code'`
 
 ##### <a name="-pupmod--master--vardir"></a>`vardir`
 
@@ -1009,11 +1027,15 @@ Data type: `Stdlib::AbsolutePath`
 
 The Puppet server 'var' directory
 
+Default value: `'/opt/puppetlabs/server/data/puppetserver'`
+
 ##### <a name="-pupmod--master--rundir"></a>`rundir`
 
 Data type: `Stdlib::AbsolutePath`
 
 The Puppet server runtime directory
+
+Default value: `'/var/run/puppetlabs/puppetserver'`
 
 ##### <a name="-pupmod--master--logdir"></a>`logdir`
 
@@ -1021,11 +1043,15 @@ Data type: `Stdlib::AbsolutePath`
 
 The log directory for the Puppet server
 
+Default value: `'/var/log/puppetlabs/puppetserver'`
+
 ##### <a name="-pupmod--master--ssldir"></a>`ssldir`
 
 Data type: `Stdlib::AbsolutePath`
 
 The SSL configuration directory for the Puppet server
+
+Default value: `'%{alias('pupmod::ssldir')}'`
 
 ##### <a name="-pupmod--master--use_legacy_auth_conf"></a>`use_legacy_auth_conf`
 
@@ -1820,17 +1846,23 @@ Data type: `Stdlib::AbsolutePath`
 
 The installation directory for the ``puppetserver``.
 
+Default value: `'/opt/puppetlabs/server/apps/puppetserver'`
+
 ##### <a name="-pupmod--master--sysconfig--config"></a>`config`
 
 Data type: `Stdlib::AbsolutePath`
 
 The configuration directory for the ``puppetserver``.
 
+Default value: `'%{alias('pupmod::master::confdir')}'`
+
 ##### <a name="-pupmod--master--sysconfig--bootstrap_config"></a>`bootstrap_config`
 
 Data type: `Array[Stdlib::AbsolutePath]`
 
 The bootstrap configuration directory for the ``puppetserver``.
+
+Default value: `['/etc/puppetlabs/puppetserver/services.d/', '/opt/puppetlabs/server/apps/puppetserver/config/services.d/']`
 
 ##### <a name="-pupmod--master--sysconfig--java_bin"></a>`java_bin`
 
