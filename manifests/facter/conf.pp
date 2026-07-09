@@ -6,8 +6,8 @@
 # @param facter_options Facter configuration Hash
 #
 class pupmod::facter::conf (
-  Stdlib::Absolutepath $facter_conf_dir  = $::pupmod::facter_conf_dir,
-  Hash                 $facter_options   = $::pupmod::facter_options
+  Stdlib::Absolutepath $facter_conf_dir  = $pupmod::facter_conf_dir,
+  Hash                 $facter_options   = $pupmod::facter_options
 ) {
   assert_private()
 

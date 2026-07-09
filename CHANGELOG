@@ -1,3 +1,8 @@
+* Thu Jul 09 2026 Steven Pritchard <steve@sicura.us> - 12.1.1
+- Fix puppet-lint offenses (exec idempotency, topscope variable, duplicate
+  parameter docs, params_not_optional_with_undef, lookup_in_parameter)
+- Disable the strict_indent puppet-lint check (unreliable with heredocs)
+
 * Mon Jun 22 2026 Chris Tessmer <chris.tessmer@onyxpoint.com> - 12.1.0
 - Update puppetagent_cron.sh to remove stale lockfiles when agent is dead
 

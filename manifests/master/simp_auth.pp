@@ -13,8 +13,6 @@
 #   Allow access to the mcollective PKI from the `pki_files` module from all
 #   hosts
 #
-# @param pki_cacerts_all
-#   If enabled, allow access to the cacerts from the `pki_files` module from all hosts
 # @param pki_cacerts_all_rule
 #   The regex rule to match requests against. The provided rule matched requests
 #   coming from the `files/keydist/cacerts` directory from the pki_files module
@@ -43,20 +41,20 @@
 #
 #
 class pupmod::master::simp_auth (
-  Stdlib::AbsolutePath                  $auth_conf_path               = '/etc/puppetlabs/puppetserver/conf.d/auth.conf',
-  Boolean                               $pki_mcollective_all          = true,
-  Boolean                               $pki_cacerts_all              = true,
-  NotUndef                              $pki_cacerts_all_rule         = '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/cacerts',
-  NotUndef                              $pki_cacerts_all_allow        = '*',
-  Any                                   $pki_cacerts_all_deny         = undef,
-  Boolean                               $keydist_from_host            = true,
-  NotUndef                              $keydist_from_host_rule       = '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/([^/]+)',
-  NotUndef                              $keydist_from_host_allow      = '$2',
-  Any                                   $keydist_from_host_deny       = undef,
-  Boolean                               $krb5_keytabs_from_host       = true,
-  NotUndef                              $krb5_keytabs_from_host_rule  = '^/puppet/v3/file_(metadata|content)/modules/krb5_files/keytabs/([^/]+)',
-  NotUndef                              $krb5_keytabs_from_host_allow = '$2',
-  Any                                   $krb5_keytabs_from_host_deny  = undef,
+  Stdlib::AbsolutePath                                          $auth_conf_path               = '/etc/puppetlabs/puppetserver/conf.d/auth.conf',
+  Boolean                                                        $pki_mcollective_all          = true,
+  Boolean                                                        $pki_cacerts_all              = true,
+  NotUndef                                                       $pki_cacerts_all_rule         = '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/cacerts',
+  NotUndef                                                       $pki_cacerts_all_allow        = '*',
+  Optional[Variant[Array[Variant[String, Hash]], String, Hash]]  $pki_cacerts_all_deny         = undef,
+  Boolean                                                        $keydist_from_host            = true,
+  NotUndef                                                       $keydist_from_host_rule       = '^/puppet/v3/file_(metadata|content)/modules/pki_files/keydist/([^/]+)',
+  NotUndef                                                       $keydist_from_host_allow      = '$2',
+  Optional[Variant[Array[Variant[String, Hash]], String, Hash]]  $keydist_from_host_deny       = undef,
+  Boolean                                                        $krb5_keytabs_from_host       = true,
+  NotUndef                                                       $krb5_keytabs_from_host_rule  = '^/puppet/v3/file_(metadata|content)/modules/krb5_files/keytabs/([^/]+)',
+  NotUndef                                                       $krb5_keytabs_from_host_allow = '$2',
+  Optional[Variant[Array[Variant[String, Hash]], String, Hash]]  $krb5_keytabs_from_host_deny  = undef,
 ) {
   include 'pupmod::master::service'
 

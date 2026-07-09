@@ -8,6 +8,11 @@
 # @param confdir
 # @param firewall
 # @param pe_classlist
+#   A Hash of PE profile classes to process
+#
+#   * When ``undef`` (the default), this is looked up from the
+#     ``pupmod::pe_classlist`` Hiera key. This is a defined type, so it
+#     cannot use automatic parameter lookup and must do so explicitly.
 # @param pupmod_server
 # @param pupmod_ca_server
 # @param pupmod_ca_port
@@ -21,7 +26,7 @@ define pupmod::pass_two (
   Enum['openvox-server', 'PC1', 'PE']          $server_distribution = pupmod::server_distribution(),
   Stdlib::AbsolutePath                         $confdir             = '/etc/puppetlabs/puppet',
   Optional[Boolean]                            $firewall            = undef,
-  Hash                                         $pe_classlist        = lookup('pupmod::pe_classlist'),
+  Optional[Hash]                               $pe_classlist        = undef,
   Variant[Simplib::Host, Array[Simplib::Host]] $pupmod_server       = '1.2.3.4',
   Variant[Simplib::Host,Enum['$server']]       $pupmod_ca_server    = '$server',
   Simplib::Port                                $pupmod_ca_port      = 8141,
@@ -29,6 +34,12 @@ define pupmod::pass_two (
   Simplib::Port                                $pupmod_masterport   = 8140,
 ) {
   assert_private()
+
+  if $pe_classlist {
+    $_pe_classlist = $pe_classlist
+  } else {
+    $_pe_classlist = lookup('pupmod::pe_classlist')
+  }
 
   if (defined(Class['puppet_enterprise'])) {
     $_server_distribution = 'PE'
@@ -113,13 +124,13 @@ define pupmod::pass_two (
   # For safety that means that releases of SIMP are only supported on specified
   # PE releases. We need to have a matrix of supported versions.
   if ($_server_distribution == 'PE') {
-    $available = $pe_classlist.map |$class, $data| {
+    $available = $_pe_classlist.map |$class, $data| {
       if (defined(Class[$class])) {
         $data['users']
       }
     }
 
-    $notify_resources = $pe_classlist.map |$class, $data| {
+    $notify_resources = $_pe_classlist.map |$class, $data| {
       if (defined(Class[$class])) {
         if ($data['services'] != undef) {
           # lint:ignore:variable_scope
@@ -185,7 +196,7 @@ define pupmod::pass_two (
   }
 
   if ($_server_distribution == 'PE') {
-    $pe_classlist.each |String $class, Hash $data| {
+    $_pe_classlist.each |String $class, Hash $data| {
       if (defined(Class[$class])) {
         if ($data['configure_access'] == true) {
           pam::access::rule { "Add rule for ${class}": users => $data['users'], origins => ['ALL'], comment => 'fix for init scripts that use su' }
@@ -201,7 +212,7 @@ define pupmod::pass_two (
   # data model anyway
   if ($firewall) {
     if ($_server_distribution == 'PE') {
-      $pe_classlist.each |String $class, Hash $data| {
+      $_pe_classlist.each |String $class, Hash $data| {
         if (defined(Class[$class])) {
           $rules = $data['firewall_rules']
           if ($rules != undef) {

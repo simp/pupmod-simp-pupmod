@@ -785,7 +785,7 @@ Data type: `Stdlib::Absolutepath`
 
 Facter configuration directory
 
-Default value: `$::pupmod::facter_conf_dir`
+Default value: `$pupmod::facter_conf_dir`
 
 ##### <a name="-pupmod--facter--conf--facter_options"></a>`facter_options`
 
@@ -793,7 +793,7 @@ Data type: `Hash`
 
 Facter configuration Hash
 
-Default value: `$::pupmod::facter_options`
+Default value: `$pupmod::facter_options`
 
 ### <a name="pupmod--master"></a>`pupmod::master`
 
@@ -1670,7 +1670,6 @@ The following parameters are available in the `pupmod::master::simp_auth` class:
 * [`auth_conf_path`](#-pupmod--master--simp_auth--auth_conf_path)
 * [`pki_cacerts_all`](#-pupmod--master--simp_auth--pki_cacerts_all)
 * [`pki_mcollective_all`](#-pupmod--master--simp_auth--pki_mcollective_all)
-* [`pki_cacerts_all`](#-pupmod--master--simp_auth--pki_cacerts_all)
 * [`pki_cacerts_all_rule`](#-pupmod--master--simp_auth--pki_cacerts_all_rule)
 * [`pki_cacerts_all_allow`](#-pupmod--master--simp_auth--pki_cacerts_all_allow)
 * [`pki_cacerts_all_deny`](#-pupmod--master--simp_auth--pki_cacerts_all_deny)
@@ -1708,12 +1707,6 @@ hosts
 
 Default value: `true`
 
-##### <a name="-pupmod--master--simp_auth--pki_cacerts_all"></a>`pki_cacerts_all`
-
-If enabled, allow access to the cacerts from the `pki_files` module from all hosts
-
-Default value: `true`
-
 ##### <a name="-pupmod--master--simp_auth--pki_cacerts_all_rule"></a>`pki_cacerts_all_rule`
 
 Data type: `NotUndef`
@@ -1733,7 +1726,7 @@ Default value: `'*'`
 
 ##### <a name="-pupmod--master--simp_auth--pki_cacerts_all_deny"></a>`pki_cacerts_all_deny`
 
-Data type: `Any`
+Data type: `Optional[Variant[Array[Variant[String, Hash]], String, Hash]]`
 
 
 
@@ -1767,7 +1760,7 @@ Default value: `'$2'`
 
 ##### <a name="-pupmod--master--simp_auth--keydist_from_host_deny"></a>`keydist_from_host_deny`
 
-Data type: `Any`
+Data type: `Optional[Variant[Array[Variant[String, Hash]], String, Hash]]`
 
 Rules that the puppetserver should deny
 @see https://puppet.com/docs/puppetserver/2.7/config_file_auth.html#rules
@@ -1802,7 +1795,7 @@ Default value: `'$2'`
 
 ##### <a name="-pupmod--master--simp_auth--krb5_keytabs_from_host_deny"></a>`krb5_keytabs_from_host_deny`
 
-Data type: `Any`
+Data type: `Optional[Variant[Array[Variant[String, Hash]], String, Hash]]`
 
 Rules that the puppetserver should deny
 @see https://puppet.com/docs/puppetserver/2.7/config_file_auth.html#rules
@@ -2163,11 +2156,15 @@ Default value: `undef`
 
 ##### <a name="-pupmod--pass_two--pe_classlist"></a>`pe_classlist`
 
-Data type: `Hash`
+Data type: `Optional[Hash]`
 
+A Hash of PE profile classes to process
 
+* When ``undef`` (the default), this is looked up from the
+  ``pupmod::pe_classlist`` Hiera key. This is a defined type, so it
+  cannot use automatic parameter lookup and must do so explicitly.
 
-Default value: `lookup('pupmod::pe_classlist')`
+Default value: `undef`
 
 ##### <a name="-pupmod--pass_two--pupmod_server"></a>`pupmod_server`
 
