@@ -13,123 +13,123 @@ fileserver entries, report purging, a systemd-timer-based agent run schedule, an
 distribution-aware: it detects and adapts to FOSS/OpenVox puppetserver vs. Puppet
 Enterprise (PE).
 
-The top-level `pupmod` class (`manifests/init.pp:196-452`) is the agent-side
+The top-level `pupmod` class (`manifests/init.pp`) is the agent-side
 entry point and a "stub" that hooks in the other classes; setting
 `pupmod::enable_puppet_master: true` pulls in the server side via
-`pupmod::master` (`init.pp:258-260`). Nearly every class honours a `$mock`
+`pupmod::master` (`init.pp`). Nearly every class honours a `$mock`
 parameter that short-circuits the body so the catalog can be compiled/inspected
-without declaring real resources (`init.pp:244`, `master.pp:346`,
-`sysconfig.pp:88`).
+without declaring real resources (`init.pp`, `master.pp`,
+`sysconfig.pp`).
 
 ### Business logic
 
 The module has **many** classes/defines. Only five classes call
 `assert_private()`; everything else is part of the public API even when it is
 "internal" in spirit. Verified `assert_private()` calls: `pupmod::agent::install`
-(`agent/install.pp:11`), `pupmod::facter::conf` (`facter/conf.pp:12`),
-`pupmod::master::install` (`master/install.pp:21`), `pupmod::master::reports`
-(`master/reports.pp:31`), `pupmod::pass_two` (`pass_two.pp:31`).
+(`agent/install.pp`), `pupmod::facter::conf` (`facter/conf.pp`),
+`pupmod::master::install` (`master/install.pp`), `pupmod::master::reports`
+(`master/reports.pp`), `pupmod::pass_two` (`pass_two.pp`).
 
 Agent side:
 
-- **`pupmod` (`manifests/init.pp:196-452`)** — Public entry class. Guarded by
-  `unless $mock` (`init.pp:244`); first runs `simplib::assert_metadata($module_name)`
-  (`init.pp:245`) and `assert_type` on `$classfile` (`init.pp:250`). Orchestration:
-  optionally `include 'haveged'` if `$haveged` (`init.pp:252-254`); always
-  `include pupmod::agent::install` (`init.pp:256`); `include 'pupmod::master'` when
-  `$enable_puppet_master` (`init.pp:258-260`); always `include 'pupmod::agent::cron'`
-  (`init.pp:269`). Manages `service { 'puppet' }` — running+enabled only when
-  `$daemonize`, otherwise stopped (`init.pp:262-277`), subscribed to
+- **`pupmod` (`manifests/init.pp`)** — Public entry class. Guarded by
+  `unless $mock` (`init.pp`); first runs `simplib::assert_metadata($module_name)`
+  (`init.pp`) and `assert_type` on `$classfile` (`init.pp`). Orchestration:
+  optionally `include 'haveged'` if `$haveged` (`init.pp`); always
+  `include pupmod::agent::install` (`init.pp`); `include 'pupmod::master'` when
+  `$enable_puppet_master` (`init.pp`); always `include 'pupmod::agent::cron'`
+  (`init.pp`). Manages `service { 'puppet' }` — running+enabled only when
+  `$daemonize`, otherwise stopped (`init.pp`), subscribed to
   `puppet.conf`. Emits many `pupmod::conf` settings (splay, syslogfacility,
   certname, vardir, runinterval, ssldir, digest_algorithm, etc.,
-  `init.pp:352-394`) plus `daemonize` (`init.pp:279-284`) and an optional
-  `splaylimit` (`init.pp:324-330`). Handles `$set_environment` (`init.pp:332-350`),
-  SELinux boolean `puppetagent_manage_all_files` (`init.pp:406-427`), and
-  systemd-tmpfile log purging (`init.pp:433-450`). See the pass-two note below.
-- **`pupmod::agent::install` (`manifests/agent/install.pp:7-15`)** — Private
-  (`assert_private()`, `install.pp:11`). Installs `$package_name`
-  (default `$pupmod::agent_package` → `openvox-agent`, `init.pp:224`).
-- **`pupmod::agent::cron` (`manifests/agent/cron.pp:134-254`)** — Public. Despite
-  the name it configures a **systemd timer** (`systemd::timer`, `cron.pp:229`), not
-  cron; it removes legacy `puppetd`/`puppetagent` cron jobs (`cron.pp:153`).
+  `init.pp`) plus `daemonize` (`init.pp`) and an optional
+  `splaylimit` (`init.pp`). Handles `$set_environment` (`init.pp`),
+  SELinux boolean `puppetagent_manage_all_files` (`init.pp`), and
+  systemd-tmpfile log purging (`init.pp`). See the pass-two note below.
+- **`pupmod::agent::install` (`manifests/agent/install.pp`)** — Private
+  (`assert_private()`, `install.pp`). Installs `$package_name`
+  (default `$pupmod::agent_package` → `openvox-agent`, `init.pp`).
+- **`pupmod::agent::cron` (`manifests/agent/cron.pp`)** — Public. Despite
+  the name it configures a **systemd timer** (`systemd::timer`, `cron.pp`), not
+  cron; it removes legacy `puppetd`/`puppetagent` cron jobs (`cron.pp`).
   `$minute` supports randomization algorithms `ip_mod`/`rand`/`sha256` via
-  `simplib::rand_cron` (`cron.pp:155-173`), converted to a systemd calendar with
-  `simplib::cron::to_systemd` (`cron.pp:190-204`). Disables the `puppet` service in
-  the background when cron is enabled (`cron.pp:245-253`, works around PUP-1320).
-- **`pupmod::facter::conf` (`manifests/facter/conf.pp:8-48`)** — Private
-  (`assert_private()`, `facter/conf.pp:12`). Writes `facter.conf` HOCON settings
-  from the `$facter_options` hash (`facter/conf.pp:30-47`). Only included when
-  `pupmod::manage_facter_conf` is true (`init.pp:429-431`).
-- **`pupmod::conf` (define, `manifests/conf.pp:33-66`)** — Public define. Thin
+  `simplib::rand_cron` (`cron.pp`), converted to a systemd calendar with
+  `simplib::cron::to_systemd` (`cron.pp`). Disables the `puppet` service in
+  the background when cron is enabled (`cron.pp`, works around PUP-1320).
+- **`pupmod::facter::conf` (`manifests/facter/conf.pp`)** — Private
+  (`assert_private()`, `facter/conf.pp`). Writes `facter.conf` HOCON settings
+  from the `$facter_options` hash (`facter/conf.pp`). Only included when
+  `pupmod::manage_facter_conf` is true (`init.pp`).
+- **`pupmod::conf` (define, `manifests/conf.pp`)** — Public define. Thin
   wrapper over `ini_setting` on `puppet.conf`; the module's primary way of setting
   puppet.conf keys. `master` section is auto-rewritten to `server`
-  (`conf.pp:42-47`) and a matching stale `master`-section entry is removed
-  (`conf.pp:58-64`); `environment` is forced into the `agent` section
-  (`conf.pp:37`, SIMP-6820).
-- **`pupmod::pass_two` (define, `manifests/pass_two.pp:19-224`)** — Private
-  (`assert_private()`, `pass_two.pp:31`). Declared virtually and realized
+  (`conf.pp`) and a matching stale `master`-section entry is removed
+  (`conf.pp`); `environment` is forced into the `agent` section
+  (`conf.pp`, SIMP-6820).
+- **`pupmod::pass_two` (define, `manifests/pass_two.pp`)** — Private
+  (`assert_private()`, `pass_two.pp`). Declared virtually and realized
   immediately in `pupmod` (`@pupmod::pass_two { 'main' }` then
-  `Pupmod::Pass_two <| |>`, `init.pp:311-322`) to defer its logic to the catalog
+  `Pupmod::Pass_two <| |>`, `init.pp`) to defer its logic to the catalog
   compiler's **second pass** so `defined(Class[...])` PE-detection checks are
-  reliable (see the long comment `init.pp:286-309`). Sets `server`/`server_list`,
+  reliable (see the long comment `init.pp`). Sets `server`/`server_list`,
   `ca_server`, ports, and report settings for FOSS/OpenVox
-  (`pass_two.pp:40-96`); builds PE user/service/firewall data from
-  `$pe_classlist` (`pass_two.pp:115-133,187-223`); and **`fail()`s if both
+  (`pass_two.pp`); builds PE user/service/firewall data from
+  `$pe_classlist` (`pass_two.pp`); and **`fail()`s if both
   `puppet_enterprise::profile::master` and `pupmod::master` are classified**
-  (`pass_two.pp:156-162`).
+  (`pass_two.pp`).
 
 Server side (`pupmod::master*`):
 
-- **`pupmod::master` (`manifests/master.pp:282-583`)** — Public. `inherits pupmod`
-  (`master.pp:339`), `unless $mock` (`master.pp:346`) it includes and orders the
-  six master subclasses (`master.pp:347-356`), writes the puppetserver HOCON/EPP
+- **`pupmod::master` (`manifests/master.pp`)** — Public. `inherits pupmod`
+  (`master.pp`), `unless $mock` (`master.pp`) it includes and orders the
+  six master subclasses (`master.pp`), writes the puppetserver HOCON/EPP
   config files (`ca.cfg`, `logback.xml`, `ca.conf`, `puppetserver.conf`,
-  `web-routes.conf`, `webserver.conf`, `master.pp:389-404`), and emits many
+  `web-routes.conf`, `webserver.conf`, `master.pp`), and emits many
   `pupmod::conf` server-section settings. Notable branches: **`keylength` is 2048
-  under FIPS else 4096** (`if $pupmod::fips`, `master.pp:502-515`); the deprecated
-  `[master] ca` setting is version-gated (`master.pp:456-500`); a **CVE-2020-7942
+  under FIPS else 4096** (`if $pupmod::fips`, `master.pp`); the deprecated
+  `[master] ca` setting is version-gated (`master.pp`); a **CVE-2020-7942
   warning** fires when `$strict_hostname_checking` is false
-  (`master.pp:534-538`); optional `auditd` rule (`master.pp:549-555`) and `iptables`
-  openings for the master/CA ports when `$firewall` (`master.pp:557-575`);
-  `autosign_hosts` realized via `ensure_resource` (`master.pp:577-581`).
-- **`pupmod::master::install` (`manifests/master/install.pp:11-47`)** — Private
-  (`assert_private()`, `master/install.pp:21`). Installs the server package
+  (`master.pp`); optional `auditd` rule (`master.pp`) and `iptables`
+  openings for the master/CA ports when `$firewall` (`master.pp`);
+  `autosign_hosts` realized via `ensure_resource` (`master.pp`).
+- **`pupmod::master::install` (`manifests/master/install.pp`)** — Private
+  (`assert_private()`, `master/install.pp`). Installs the server package
   (`openvox-server`, or `pe-puppetserver` on PE). For OpenVox it either installs a
   directly-supplied RPM (`pupmod::openvox_rpm_path`) or the OpenVox release RPM +
-  server package from `pupmod::openvox_base_url` (`master/install.pp:23-45`).
-- **`pupmod::master::service` (`manifests/master/service.pp:7-18`)** — Public.
+  server package from `pupmod::openvox_base_url` (`master/install.pp`).
+- **`pupmod::master::service` (`manifests/master/service.pp`)** — Public.
   Manages `service { 'puppetserver' }` (running+enabled) on non-PE
-  (`master/service.pp:10-17`). Most config resources `notify` this class.
-- **`pupmod::master::base` (`manifests/master/base.pp:3-74`)** — Public. Static
+  (`master/service.pp`). Most config resources `notify` this class.
+- **`pupmod::master::base` (`manifests/master/base.pp`)** — Public. Static
   helper files/scripts: `puppetserver_reload` / `puppetserver_clear_environment_cache`
   scripts, the environments dir, the `puppet` user, and a base `auth.conf`
-  (`puppet_authorization`, `base.pp:60-62`).
-- **`pupmod::master::sysconfig` (`manifests/master/sysconfig.pp:67-153`)** —
+  (`puppet_authorization`, `base.pp`).
+- **`pupmod::master::sysconfig` (`manifests/master/sysconfig.pp`)** —
   Public. `inherits pupmod`, `unless $mock`. Computes JVM heap
   (`pupmod::java_max_memory`) and writes `/etc/sysconfig/puppetserver` (FOSS) or PE
-  ini subsettings (`sysconfig.pp:114-151`); selects the JRuby jar from the
-  `puppetserver_jruby` fact (`sysconfig.pp:135-142`).
-- **`pupmod::master::reports` (`manifests/master/reports.pp:24-42`)** — Private
-  (`assert_private()`, `master/reports.pp:31`). `inherits pupmod::master`. Purges
-  old reports via a `systemd::tmpfile` (`reports.pp:38-41`); `$port`/`$purge_verbose`
+  ini subsettings (`sysconfig.pp`); selects the JRuby jar from the
+  `puppetserver_jruby` fact (`sysconfig.pp`).
+- **`pupmod::master::reports` (`manifests/master/reports.pp`)** — Private
+  (`assert_private()`, `master/reports.pp`). `inherits pupmod::master`. Purges
+  old reports via a `systemd::tmpfile` (`reports.pp`); `$port`/`$purge_verbose`
   are deprecated no-ops.
-- **`pupmod::master::generate_types` (`manifests/master/generate_types.pp:47-162`)** —
+- **`pupmod::master::generate_types` (`manifests/master/generate_types.pp`)** —
   Public. Runs `puppet generate types` via systemd path/service units triggered on
-  environment/app changes (`generate_types.pp:76-134`); **incron support is
+  environment/app changes (`generate_types.pp`); **incron support is
   removed** and emits a deprecation `notify` if triggers are disabled
-  (`generate_types.pp:135-141`), plus a `tidy` of legacy `/etc/incron.d`
-  (`generate_types.pp:157-161`).
-- **`pupmod::master::simp_auth` (`manifests/master/simp_auth.pp:45-125`)** —
+  (`generate_types.pp`), plus a `tidy` of legacy `/etc/incron.d`
+  (`generate_types.pp`).
+- **`pupmod::master::simp_auth` (`manifests/master/simp_auth.pp`)** —
   Public. Adds SIMP-specific `puppet_authorization::rule` entries (pki_files
   cacerts/keydist, krb5 keytabs) to the puppetserver `auth.conf`
-  (`simp_auth.pp:69-114`) and removes the stray agent-dropped
-  `/etc/puppetlabs/puppet/auth.conf` (`simp_auth.pp:120-124`).
-- **`pupmod::master::autosign` (define, `manifests/master/autosign.pp:12-44`)** —
+  (`simp_auth.pp`) and removes the stray agent-dropped
+  `/etc/puppetlabs/puppet/auth.conf` (`simp_auth.pp`).
+- **`pupmod::master::autosign` (define, `manifests/master/autosign.pp`)** —
   Public. Adds a `concat::fragment` autosign entry; `fail()`s if `$name` is not a
-  valid autosign pattern when no `$entry` is given (`autosign.pp:33-35`).
+  valid autosign pattern when no `$entry` is given (`autosign.pp`).
 - **`pupmod::master::fileserver_entry` (define,
-  `manifests/master/fileserver_entry.pp:12-34`)** — Public. Adds a
-  `fileserver.conf` `[segment]` via `concat::fragment` (`fileserver_entry.pp:30-33`).
+  `manifests/master/fileserver_entry.pp`)** — Public. Adds a
+  `fileserver.conf` `[segment]` via `concat::fragment` (`fileserver_entry.pp`).
 
 Puppet-language functions (`functions/`, all `pupmod::*`): `server_distribution`
 (FOSS/OpenVox/PE detection, `functions/server_distribution.pp`), `server_version`,
@@ -140,38 +140,38 @@ Puppet-language functions (`functions/`, all `pupmod::*`): `server_distribution`
 ### Gotchas / non-obvious details
 
 - **The "pass two" trick is load-bearing.** `pupmod::pass_two` is declared as a
-  virtual resource and realized immediately (`init.pp:311-322`) purely to push its
+  virtual resource and realized immediately (`init.pp`) purely to push its
   logic into the catalog compiler's second pass, so its `defined(Class[...])`
   PE-detection is reliable. Don't "simplify" it into inline code — read the comment
-  at `init.pp:286-309`.
+  at `init.pp`.
 - **`pupmod::master` on a PE master is a hard failure.** If both
   `puppet_enterprise::profile::master` and `pupmod::master` are classified,
-  `pupmod::pass_two` calls `fail()` (`pass_two.pp:156-162`).
+  `pupmod::pass_two` calls `fail()` (`pass_two.pp`).
 - **`pupmod::agent::cron` is a systemd timer, not cron.** The name is retained for
-  backward compatibility (`agent/cron.pp:2-4`); it declares `systemd::timer`
-  (`cron.pp:229`) and removes the old cron jobs.
-- **FIPS lowers the CA keylength to 2048** (`master.pp:502-507`) — 2048 under
+  backward compatibility (`agent/cron.pp`); it declares `systemd::timer`
+  (`cron.pp`) and removes the old cron jobs.
+- **FIPS lowers the CA keylength to 2048** (`master.pp`) — 2048 under
   `pupmod::fips`, 4096 otherwise. `$pupmod::fips` itself comes from the
-  `simp_options::fips` seam (`init.pp:221`).
+  `simp_options::fips` seam (`init.pp`).
 - **`$mock` compiles a no-op catalog.** `pupmod`, `pupmod::master`, and
   `pupmod::master::sysconfig` wrap their bodies in `unless $mock`
-  (`init.pp:244`, `master.pp:346`, `sysconfig.pp:88`) — used for testing/inspection.
+  (`init.pp`, `master.pp`, `sysconfig.pp`) — used for testing/inspection.
 - **`master` → `server` section rewriting is pervasive.** `pupmod::conf` rewrites
-  the `master` section to `server` and cleans the stale entry (`conf.pp:42-64`);
+  the `master` section to `server` and cleans the stale entry (`conf.pp`);
   many manifests use `pick($facts.dig('puppet_settings','server',...),
   $facts.dig('puppet_settings','master',...))` to bridge the Puppet 6.19 rename
-  (e.g. `base.pp:12`, `master.pp:343-344`, `pass_two.pp:100-103`).
+  (e.g. `base.pp`, `master.pp`, `pass_two.pp`).
 - **CVE-2020-7942 is deliberately guarded.** Turning off
-  `strict_hostname_checking` emits a warning `notify` (`master.pp:534-538`); it
+  `strict_hostname_checking` emits a warning `notify` (`master.pp`); it
   defaults to `true`.
 - **`simp/simp_options` is NOT a declared dependency** in `metadata.json`, yet the
   manifests consume the `simp_options::*` seam via `simplib::lookup` (provided by
-  `simp/simplib`). `simp_options` appears only as a fixture (`.fixtures.yml:25`).
+  `simp/simplib`). `simp_options` appears only as a fixture (`.fixtures.yml`).
   The `default_value` in each `simplib::lookup` call is what makes the classes
   compile without it.
 - **Several declared dependencies are used conditionally.** `simp/iptables`
-  (`master.pp:558`, `pass_two.pp:211`), `simp/haveged` (`init.pp:253`), and
-  `auditd` (`master.pp:550`, not a declared dep — pulled in only via `$auditd`) are
+  (`master.pp`, `pass_two.pp`), `simp/haveged` (`init.pp`), and
+  `auditd` (`master.pp`, not a declared dep — pulled in only via `$auditd`) are
   `include`d only inside feature branches. `simp/pki` is a declared dependency but
   no `pki::` call appears in `manifests/` (retained as SIMP baseline / referenced by
   the `simp_auth` pki_files rules by path).
@@ -185,21 +185,21 @@ Puppet-language functions (`functions/`, all `pupmod::*`): `server_distribution`
 The SIMP feature-toggle seam. All calls are in `manifests/init.pp` and
 `manifests/master.pp`:
 
-| Line | Key | `default_value` |
+| File | Key | `default_value` |
 |------|-----|-----------------|
-| `init.pp:197` | `simp_options::puppet::ca` | `'$server'` |
-| `init.pp:198` | `simp_options::puppet::ca_port` | `8141` |
-| `init.pp:199` | `simp_options::puppet::server` | `"puppet.${facts['networking']['domain']}"` |
-| `init.pp:220` | `simp_options::haveged` | `false` |
-| `init.pp:221` | `simp_options::fips` | `false` |
-| `init.pp:222` | `simp_options::firewall` | `false` |
-| `init.pp:225` | `simp_options::package_ensure` | `'installed'` |
-| `master.pp:287` | `simp_options::auditd` | `false` |
-| `master.pp:288` | `simp_options::puppet::ca_port` | `8141` |
-| `master.pp:289` | `simp_options::trusted_nets` | `['127.0.0.1','::1']` |
-| `master.pp:309` | `simp_options::firewall` | `false` |
-| `master.pp:328` | `simp_options::syslog` | `false` |
-| `master.pp:333` | `simp_options::package_ensure` | `'installed'` |
+| `init.pp` | `simp_options::puppet::ca` | `'$server'` |
+| `init.pp` | `simp_options::puppet::ca_port` | `8141` |
+| `init.pp` | `simp_options::puppet::server` | `"puppet.${facts['networking']['domain']}"` |
+| `init.pp` | `simp_options::haveged` | `false` |
+| `init.pp` | `simp_options::fips` | `false` |
+| `init.pp` | `simp_options::firewall` | `false` |
+| `init.pp` | `simp_options::package_ensure` | `'installed'` |
+| `master.pp` | `simp_options::auditd` | `false` |
+| `master.pp` | `simp_options::puppet::ca_port` | `8141` |
+| `master.pp` | `simp_options::trusted_nets` | `['127.0.0.1','::1']` |
+| `master.pp` | `simp_options::firewall` | `false` |
+| `master.pp` | `simp_options::syslog` | `false` |
+| `master.pp` | `simp_options::package_ensure` | `'installed'` |
 
 Keep routing SIMP feature toggles through `simplib::lookup('simp_options::*', {
 'default_value' => ... })` with an explicit default rather than assuming
@@ -228,7 +228,7 @@ Module dependencies (from `metadata.json`):
 - `simp/pki` `>= 6.2.0 < 8.0.0` (SIMP baseline; no `pki::` call in `manifests/`)
 
 No `simp.optional_dependencies` block is present in `metadata.json`. `auditd`
-(used at `master.pp:550`) and `puppet_enterprise` (detected via `defined()`) are
+(used at `master.pp`) and `puppet_enterprise` (detected via `defined()`) are
 **not** declared dependencies; both appear only as fixtures (`.fixtures.yml`, with
 `puppet_enterprise` mocked via `pupmod-mock-puppet_enterprise`).
 
@@ -305,8 +305,8 @@ Relevant gem pins (from `Gemfile`): `puppetlabs_spec_helper ~> 8.0.0`,
 `simp-rake-helpers ~> 5.24.0`, `simp-rspec-puppet-facts ~> 4.0.0`,
 `simp-beaker-helpers ~> 2.0.0`. Rubocop is pinned to `~> 1.88.0`. The `:test`
 group loads **both** `openvox` and `puppet` gems, defaulting to the `>= 8 < 9`
-range (`Gemfile:22-33`). `spec/spec_helper.rb` uses
-`require 'puppetlabs_spec_helper/module_spec_helper'` (`spec_helper.rb:11`).
+range (`Gemfile`). `spec/spec_helper.rb` uses
+`require 'puppetlabs_spec_helper/module_spec_helper'` (`spec_helper.rb`).
 
 ## Conventions
 
@@ -314,12 +314,12 @@ range (`Gemfile:22-33`). `spec/spec_helper.rb` uses
   `REFERENCE.md`. Regenerate `REFERENCE.md` after changing docs or parameters.
 - Write `puppet.conf` settings through the `pupmod::conf` define rather than
   managing `ini_setting` directly, so the `master`→`server` rewrite and service
-  triggers stay consistent (`conf.pp:33-66`).
+  triggers stay consistent (`conf.pp`).
 - Continue routing SIMP feature toggles through
   `simplib::lookup('simp_options::*', { 'default_value' => ... })` with an explicit
   default rather than assuming `simp_options` is included.
 - Keep the `pupmod::pass_two` second-pass mechanism intact for any logic that must
-  observe whether PE classes are in the catalog (`init.pp:286-322`,
+  observe whether PE classes are in the catalog (`init.pp`,
   `pass_two.pp`).
 - Route puppetserver config-changing resources through
   `notify => Class['pupmod::master::service']` so the server reloads, matching the
