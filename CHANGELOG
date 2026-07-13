@@ -1,3 +1,8 @@
+* Thu Jul 09 2026 Steven Pritchard <steve@sicura.us> - 12.1.1
+- Fix puppet-lint offenses (exec idempotency, topscope variable, duplicate
+  parameter docs, params_not_optional_with_undef, lookup_in_parameter)
+- Disable the strict_indent puppet-lint check (unreliable with heredocs)
+
 * Mon Jun 22 2026 Chris Tessmer <chris.tessmer@onyxpoint.com> - 12.1.0
 - Update puppetagent_cron.sh to remove stale lockfiles when agent is dead
 
@@ -382,7 +387,7 @@
 * Mon Feb 20 2017 Jeanne Greuich <jeanne.greulich@onyxpoint.com> - 7.1.0-0
 - Fix typos in the puppetagent cron script
 
-* Mon Dec 10 2016 Nick Miller <nick.miller@onyxpoint.com> - 7.1.0-0
+* Sat Dec 10 2016 Nick Miller <nick.miller@onyxpoint.com> - 7.1.0-0
 - Updated assets and versions
 - Converted to puppet-strings
 - Switched to the new catalyst pattern with simplib::lookup

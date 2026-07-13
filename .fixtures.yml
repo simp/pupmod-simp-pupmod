@@ -33,5 +33,3 @@ fixtures:
       repo: https://github.com/simp/puppetlabs-puppet_authorization.git
     augeasproviders_ssh: https://github.com/simp/augeasproviders_ssh.git
     sudo: https://github.com/simp/pupmod-simp-sudo.git
-  symlinks:
-    pupmod: "#{source_dir}"

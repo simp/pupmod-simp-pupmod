@@ -248,6 +248,11 @@ class pupmod::agent::cron (
   if $facts['puppet_service_enabled'] or $facts['puppet_service_started'] {
     exec { 'careful_puppet_service_shutdown':
       command => '/usr/local/bin/careful_puppet_service_shutdown.sh &',
+      # The script itself is idempotent (it merely ensures the puppet
+      # service is disabled/stopped), but this guard prevents kicking off
+      # a redundant background shutdown when the service is already down,
+      # mirroring the compile-time condition above.
+      unless  => '/usr/bin/systemctl is-enabled --quiet puppet.service; test $? -ne 0 && ! /usr/bin/systemctl is-active --quiet puppet.service',
       require => File['/usr/local/bin/careful_puppet_service_shutdown.sh'],
     }
   }
