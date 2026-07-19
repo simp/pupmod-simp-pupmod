@@ -417,12 +417,12 @@ class pupmod (
 
         Package[$puppet_agent_sebool_package]
         -> Exec["Refresh semodules after installing ${puppet_agent_sebool_package}"]
-        -> Selboolean[$puppet_agent_sebool]
+        -> Exec["Set ${puppet_agent_sebool} seboolean"]
       }
 
-      selboolean { $puppet_agent_sebool :
-        persistent => true,
-        value      => 'on',
+      exec { "Set ${puppet_agent_sebool} seboolean":
+        command => "/usr/sbin/setsebool -P ${puppet_agent_sebool} on",
+        unless  => "/bin/sh -c '/usr/sbin/getsebool ${puppet_agent_sebool} | /usr/bin/grep -q \" --> on\"'",
       }
     }
 
