@@ -79,6 +79,12 @@ describe 'install environment via r10k and openvox-server' do
         package_check = on(master, 'rpm -q selinux-policy-targeted-extra', acceptable_exit_codes: [0, 1])
         skip('selinux-policy-targeted-extra is already installed') if package_check.exit_code == 0
 
+        selinux_mode = on(master, 'getenforce').stdout.strip
+        skip('SELinux is disabled') if selinux_mode == 'Disabled'
+
+        on(master, 'setenforce 1') unless selinux_mode == 'Enforcing'
+        expect(on(master, 'getenforce').stdout.strip).to eq('Enforcing')
+
         apply_manifest_on(master, master_manifest, catch_failures: true, noop: true)
       end
 
