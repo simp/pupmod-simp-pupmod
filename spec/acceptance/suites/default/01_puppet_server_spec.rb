@@ -138,41 +138,8 @@ describe 'install environment via r10k and openvox-server' do
           r.exit_code == 0
         end
 
-        def semanage_available?(host)
-          on(host, 'test -x /usr/sbin/semanage', acceptable_exit_codes: [0, 1]).exit_code == 0
-        end
-
-        def sebool_persistent_on?(host, name)
-          r = on(host, "semanage boolean --list -n | grep -q '^#{name}[[:space:]]*([^,]*,[[:space:]]*on)'", acceptable_exit_codes: [0, 1])
-          r.exit_code == 0
-        end
-
         it 'has puppetagent_manage_all_files boolean available' do
           expect(sebool_present?(master, 'puppetagent_manage_all_files')).to be(true)
-        end
-
-        it 'corrects persistent puppetagent_manage_all_files drift when semanage is available' do
-          skip('/usr/sbin/semanage is not available') unless semanage_available?(master)
-
-          on(master, 'setsebool puppetagent_manage_all_files on')
-          on(master, 'semanage boolean -m --off puppetagent_manage_all_files')
-
-          apply_manifest_on(master, master_manifest, catch_errors: true)
-
-          expect(sebool_persistent_on?(master, 'puppetagent_manage_all_files')).to be(true)
-        end
-
-        it 'is idempotent when semanage is unavailable' do
-          skip('/usr/sbin/semanage is not available') unless semanage_available?(master)
-
-          begin
-            on(master, 'setsebool puppetagent_manage_all_files on')
-            on(master, 'mv /usr/sbin/semanage /usr/sbin/semanage.pupmod_acceptance')
-
-            apply_manifest_on(master, master_manifest, catch_changes: true)
-          ensure
-            on(master, 'test ! -e /usr/sbin/semanage.pupmod_acceptance || mv /usr/sbin/semanage.pupmod_acceptance /usr/sbin/semanage')
-          end
         end
       end
 

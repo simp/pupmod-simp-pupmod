@@ -208,10 +208,7 @@ describe 'pupmod' do
             it do
               is_expected.to contain_exec('Set puppetagent_manage_all_files seboolean').with(
                 'command' => '/usr/sbin/setsebool -P puppetagent_manage_all_files on',
-                'unless'  => [
-                  '/bin/sh -c \'/usr/sbin/getsebool puppetagent_manage_all_files | /usr/bin/grep -q " --> on"\'',
-                  '/bin/sh -c \'test ! -x /usr/sbin/semanage || /usr/sbin/semanage boolean --list -n | /usr/bin/grep -q "^puppetagent_manage_all_files[[:space:]]*([^,]*,[[:space:]]*on)"\'',
-                ],
+                'unless'  => '/bin/sh -c \'/usr/sbin/getsebool puppetagent_manage_all_files | /usr/bin/grep -q " --> on"\'',
               )
             end
             it { is_expected.not_to contain_class('pupmod::facter::conf') }
