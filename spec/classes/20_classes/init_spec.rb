@@ -210,7 +210,7 @@ describe 'pupmod' do
                 'command' => '/usr/sbin/setsebool -P puppetagent_manage_all_files on',
                 'unless'  => [
                   '/bin/sh -c \'/usr/sbin/getsebool puppetagent_manage_all_files | /usr/bin/grep -q " --> on"\'',
-                  '/bin/sh -c \'/usr/sbin/semanage boolean --list -n | /usr/bin/grep -q "^puppetagent_manage_all_files[[:space:]]*([^,]*,[[:space:]]*on)"\'',
+                  '/bin/sh -c \'test ! -x /usr/sbin/semanage || /usr/sbin/semanage boolean --list -n | /usr/bin/grep -q "^puppetagent_manage_all_files[[:space:]]*([^,]*,[[:space:]]*on)"\'',
                 ],
               )
             end
