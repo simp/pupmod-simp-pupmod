@@ -246,7 +246,30 @@ describe 'pupmod' do
             context 'with daemonize enabled' do
               let(:params) { { daemonize: true } }
 
-              it { is_expected.to contain_class('pupmod::agent::cron') }
+              it { is_expected.not_to contain_class('pupmod::agent::cron') }
+              it { is_expected.to contain_cron('puppetagent').with_ensure('absent') }
+              it {
+                is_expected.to contain_systemd__timer('puppet_agent.timer').with(
+                  'ensure' => 'absent',
+                  'active' => false,
+                  'enable' => false,
+                )
+              }
+              # The timer must be stopped/disabled before its unit file is removed
+              it {
+                is_expected.to contain_service('puppet_agent.timer').with(
+                  'ensure' => false,
+                  'enable' => false,
+                ).that_comes_before('File[/etc/systemd/system/puppet_agent.timer]')
+              }
+              it {
+                is_expected.to contain_systemd__unit_file('puppet_agent.service')
+                  .with_ensure('absent')
+                  .that_requires('Systemd::Timer[puppet_agent.timer]')
+              }
+              it { is_expected.to contain_file('/etc/systemd/system/puppet_agent.service').with_ensure('absent') }
+              it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_ensure('absent') }
+              it { is_expected.to contain_file('/usr/local/bin/careful_puppet_service_shutdown.sh').with_ensure('absent') }
               it {
                 is_expected.to contain_service('puppet').with(
                   'ensure'     => 'running',
@@ -254,6 +277,17 @@ describe 'pupmod' do
                   'hasrestart' => true,
                   'hasstatus'  => true,
                   'subscribe'  => 'File[/etc/puppetlabs/puppet/puppet.conf]',
+                )
+              }
+            end
+
+            context 'with agent_package_install_options set' do
+              let(:params) { { agent_package_install_options: ['--enablerepo=foo', { '--setopt' => 'protect=1' }] } }
+
+              it {
+                is_expected.to contain_package('openvox-agent').with(
+                  'ensure'          => 'installed',
+                  'install_options' => ['--enablerepo=foo', { '--setopt' => 'protect=1' }],
                 )
               }
             end
