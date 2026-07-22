@@ -268,9 +268,25 @@ class pupmod (
     if $daemonize {
       $_puppet_service_ensure = 'running'
       cron { 'puppetagent': ensure => 'absent' }
-      systemd::timer { 'puppet_agent.timer': ensure => 'absent' }
-      file { ['/usr/local/bin/puppetagent_cron.sh', '/usr/local/bin/careful_puppet_service_shutdown.sh']:
+
+      # Stop and disable the timer before its unit file is removed so it is
+      # unloaded and its timers.target.wants symlink is cleaned up
+      systemd::timer { 'puppet_agent.timer':
         ensure => 'absent',
+        active => false,
+        enable => false,
+      }
+
+      # systemd::timer only manages the companion service unit when content
+      # is passed, so its removal must be declared explicitly
+      systemd::unit_file { 'puppet_agent.service':
+        ensure  => 'absent',
+        require => Systemd::Timer['puppet_agent.timer'],
+      }
+
+      file { ['/usr/local/bin/puppetagent_cron.sh', '/usr/local/bin/careful_puppet_service_shutdown.sh']:
+        ensure  => 'absent',
+        require => Systemd::Timer['puppet_agent.timer'],
       }
     }
     else {
