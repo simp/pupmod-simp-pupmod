@@ -430,6 +430,7 @@ class pupmod (
     }
 
     $puppet_agent_sebool = 'puppetagent_manage_all_files'
+    $puppet_agent_sebool_active_check = "/bin/sh -c '/usr/sbin/getsebool ${puppet_agent_sebool} | /usr/bin/grep -q \" --> on\"'"
     if $facts['os']['selinux']['enabled'] and $facts['os']['selinux']['current_mode'] and ($facts['os']['selinux']['current_mode'] != 'disabled') {
       if $manage_puppet_sebool_package {
         package { $puppet_agent_sebool_package:
@@ -443,12 +444,12 @@ class pupmod (
 
         Package[$puppet_agent_sebool_package]
         -> Exec["Refresh semodules after installing ${puppet_agent_sebool_package}"]
-        -> Selboolean[$puppet_agent_sebool]
+        -> Exec["Set ${puppet_agent_sebool} seboolean"]
       }
 
-      selboolean { $puppet_agent_sebool :
-        persistent => true,
-        value      => 'on',
+      exec { "Set ${puppet_agent_sebool} seboolean":
+        command => "/usr/sbin/setsebool -P ${puppet_agent_sebool} on",
+        unless  => $puppet_agent_sebool_active_check,
       }
     }
 

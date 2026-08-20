@@ -71,6 +71,23 @@ describe 'install environment via r10k and openvox-server' do
         on(master, 'chown -R puppet:puppet /etc/puppetlabs/code')
       end
 
+      it 'does not fail a first-run noop on EL10 before the puppet sebool package exists' do
+        os_maj = fact_on(master, 'os.release.major').to_i
+
+        skip('Only relevant on EL10+') if os_maj < 10
+
+        package_check = on(master, 'rpm -q selinux-policy-targeted-extra', acceptable_exit_codes: [0, 1])
+        skip('selinux-policy-targeted-extra is already installed') if package_check.exit_code == 0
+
+        selinux_mode = on(master, 'getenforce').stdout.strip
+        skip('SELinux is disabled') if selinux_mode == 'Disabled'
+
+        on(master, 'setenforce 1') unless selinux_mode == 'Enforcing'
+        expect(on(master, 'getenforce').stdout.strip).to eq('Enforcing')
+
+        apply_manifest_on(master, master_manifest, catch_failures: true, noop: true)
+      end
+
       it 'applies the master manifest' do
         apply_manifest_on(master, master_manifest, accept_all_exit_codes: true)
         apply_manifest_on(master, master_manifest, accept_all_exit_codes: true)

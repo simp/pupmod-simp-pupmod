@@ -204,7 +204,13 @@ describe 'pupmod' do
                 'content' => "PUPPET_EXTRA_OPTS='--daemonize'\n",
               )
             }
-            it { is_expected.to contain_selboolean('puppetagent_manage_all_files') }
+            it { is_expected.not_to contain_selboolean('puppetagent_manage_all_files') }
+            it do
+              is_expected.to contain_exec('Set puppetagent_manage_all_files seboolean').with(
+                'command' => '/usr/sbin/setsebool -P puppetagent_manage_all_files on',
+                'unless'  => '/bin/sh -c \'/usr/sbin/getsebool puppetagent_manage_all_files | /usr/bin/grep -q " --> on"\'',
+              )
+            end
             it { is_expected.not_to contain_class('pupmod::facter::conf') }
 
             it {
@@ -220,6 +226,7 @@ describe 'pupmod' do
               end
 
               it { is_expected.not_to contain_selboolean('puppetagent_manage_all_files') }
+              it { is_expected.not_to contain_exec('Set puppetagent_manage_all_files seboolean') }
             end
           end
 
