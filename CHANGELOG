@@ -1,3 +1,6 @@
+* Mon Aug 24 2026 Steven Pritchard <steve@sicura.us> - 12.2.1
+- [puppetsync] Update metadata.json dependency ranges from the Forge
+
 * Wed Jul 22 2026 Nicholas Markowski <nicholas.markowski@onyxpoint.com> - 12.2.0
 - Added `pupmod::agent_package_install_options` to pass install_options
   through to the agent package resource (#161)
