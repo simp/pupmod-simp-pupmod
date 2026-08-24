@@ -23,6 +23,7 @@ describe 'pupmod::agent::cron' do
           it {
             is_expected.to contain_systemd__timer('puppet_agent.timer')
               .with_timer_content(%r{OnCalendar=\*-\* \*:27,57})
+              .with_timer_content(%r{\[Install\]\s+WantedBy=timers\.target})
               .with_service_content(%r{ExecStart=/usr/local/bin/puppetagent_cron.sh})
               .with_service_content(%r{SuccessExitStatus=2})
               .that_requires('File[/usr/local/bin/puppetagent_cron.sh]')
