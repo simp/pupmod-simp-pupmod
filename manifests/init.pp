@@ -168,6 +168,14 @@
 # @param manage_puppet_sebool_package
 #   Whether to manage the package that provides the SELinux boolean to allow the puppet agent to manage all files.
 #
+# @param manage_puppet_sebool
+#   Whether to manage the SELinux boolean that allows the puppet agent to manage all files.
+#
+#   Set this to `false` on hosts where the boolean is not guaranteed to exist and
+#   `manage_puppet_sebool_package` cannot supply it. This is independent of
+#   `manage_puppet_sebool_package`, which only governs the policy package and the
+#   semodule refresh.
+#
 # @param mock
 #   If true, disable all code.
 #
@@ -238,6 +246,7 @@ class pupmod (
   Optional[Variant[Stdlib::Absolutepath, Stdlib::HTTPUrl]] $openvox_rpm_path     = undef,
   String                                                   $puppet_agent_sebool_package,  # module data
   Boolean                                                  $manage_puppet_sebool_package, # module data
+  Boolean                                                  $manage_puppet_sebool = true,
   Stdlib::AbsolutePath                                     $confdir,
   Hash                                                     $facter_options,               # module data
   Stdlib::AbsolutePath                                     $vardir,
@@ -430,7 +439,6 @@ class pupmod (
     }
 
     $puppet_agent_sebool = 'puppetagent_manage_all_files'
-    $puppet_agent_sebool_active_check = "/bin/sh -c '/usr/sbin/getsebool ${puppet_agent_sebool} | /usr/bin/grep -q \" --> on\"'"
     if $facts['os']['selinux']['enabled'] and $facts['os']['selinux']['current_mode'] and ($facts['os']['selinux']['current_mode'] != 'disabled') {
       if $manage_puppet_sebool_package {
         package { $puppet_agent_sebool_package:
@@ -444,12 +452,22 @@ class pupmod (
 
         Package[$puppet_agent_sebool_package]
         -> Exec["Refresh semodules after installing ${puppet_agent_sebool_package}"]
-        -> Exec["Set ${puppet_agent_sebool} seboolean"]
       }
 
-      exec { "Set ${puppet_agent_sebool} seboolean":
-        command => "/usr/sbin/setsebool -P ${puppet_agent_sebool} on",
-        unless  => $puppet_agent_sebool_active_check,
+      if $manage_puppet_sebool {
+        # An `exec` is used here instead of `selboolean` so that a first-run
+        # `--noop` does not fail: the `selboolean` provider errors out when it
+        # probes a boolean that does not exist yet, whereas a failing `unless`
+        # check simply reports the command as out of sync (SIMP #241).
+        exec { "Set ${puppet_agent_sebool} seboolean":
+          command => "/usr/sbin/setsebool -P ${puppet_agent_sebool} on",
+          unless  => "/usr/sbin/getsebool ${puppet_agent_sebool} | /usr/bin/grep -q ' --> on'",
+        }
+
+        if $manage_puppet_sebool_package {
+          Exec["Refresh semodules after installing ${puppet_agent_sebool_package}"]
+          -> Exec["Set ${puppet_agent_sebool} seboolean"]
+        }
       }
     }
 

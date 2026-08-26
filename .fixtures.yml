@@ -13,8 +13,6 @@ fixtures:
     haveged: https://github.com/simp/pupmod-simp-haveged.git
     inifile: https://github.com/simp/puppetlabs-inifile.git
     iptables: https://github.com/simp/pupmod-simp-iptables.git
-    selinux_core:
-      repo: https://github.com/simp/pupmod-puppetlabs-selinux_core.git
     concat: https://github.com/simp/puppetlabs-concat.git
     hocon:
       repo: https://github.com/puppetlabs/puppetlabs-hocon.git

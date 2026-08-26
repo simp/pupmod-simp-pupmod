@@ -98,6 +98,7 @@ The following parameters are available in the `pupmod` class:
 * [`openvox_rpm_path`](#-pupmod--openvox_rpm_path)
 * [`puppet_agent_sebool_package`](#-pupmod--puppet_agent_sebool_package)
 * [`manage_puppet_sebool_package`](#-pupmod--manage_puppet_sebool_package)
+* [`manage_puppet_sebool`](#-pupmod--manage_puppet_sebool)
 * [`mock`](#-pupmod--mock)
 * [`firewall`](#-pupmod--firewall)
 * [`pe_classlist`](#-pupmod--pe_classlist)
@@ -453,6 +454,19 @@ This is required if `manage_puppet_sebool_package` is `true`.
 Data type: `Boolean`
 
 Whether to manage the package that provides the SELinux boolean to allow the puppet agent to manage all files.
+
+##### <a name="-pupmod--manage_puppet_sebool"></a>`manage_puppet_sebool`
+
+Data type: `Boolean`
+
+Whether to manage the SELinux boolean that allows the puppet agent to manage all files.
+
+Set this to `false` on hosts where the boolean is not guaranteed to exist and
+`manage_puppet_sebool_package` cannot supply it. This is independent of
+`manage_puppet_sebool_package`, which only governs the policy package and the
+semodule refresh.
+
+Default value: `true`
 
 ##### <a name="-pupmod--mock"></a>`mock`
 
