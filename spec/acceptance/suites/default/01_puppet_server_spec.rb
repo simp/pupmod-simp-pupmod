@@ -81,12 +81,27 @@ describe 'install environment via r10k and openvox-server' do
 
         sebool_package = 'selinux-policy-targeted-extra'
         package_was_installed = on(master, "rpm -q #{sebool_package}", acceptable_exit_codes: [0, 1]).exit_code == 0
+        installed_names = "rpm -qa --qf '%{NAME}\\n'"
+        removed = []
 
         begin
           # Reproduce the #241 first-run state deterministically rather than
           # skipping when the package happens to be present: on a re-provisioned
           # or preinstalled SUT the regression would otherwise never be exercised.
-          on(master, "rpm -e #{sebool_package}") if package_was_installed
+          #
+          # Let dnf resolve the removal instead of `rpm -e`. EL10 images ship
+          # selinux-policy-extra, which carries
+          # `Requires: (selinux-policy-targeted-extra if selinux-policy-targeted)`,
+          # so a bare `rpm -e` is refused. Naming both packages would fix today's
+          # image and break on the next one that adds a reverse dependency, so
+          # diff the installed set instead and let `ensure` restore exactly what
+          # went away. `--noautoremove` keeps the transaction from also sweeping
+          # out orphans, whose set varies by image.
+          if package_was_installed
+            before = on(master, installed_names).stdout.split("\n")
+            on(master, "dnf -y remove --noautoremove #{sebool_package}")
+            removed = before - on(master, installed_names).stdout.split("\n")
+          end
 
           on(master, 'setenforce 1')
           expect(on(master, 'getenforce').stdout.strip).to eq('Enforcing')
@@ -104,7 +119,7 @@ describe 'install environment via r10k and openvox-server' do
           # original enforcement mode, and a leaked `Enforcing` would change the
           # conditions of the first real apply.
           on(master, "setenforce #{(original_mode == 'Enforcing') ? '1' : '0'}", accept_all_exit_codes: true)
-          master.install_package(sebool_package) if package_was_installed
+          on(master, "dnf -y install #{removed.join(' ')}") unless removed.empty?
         end
       end
 
