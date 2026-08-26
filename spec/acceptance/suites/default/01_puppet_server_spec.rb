@@ -32,6 +32,25 @@ describe 'install environment via r10k and openvox-server' do
     EOF
   end
 
+  # Deliberately minimal. #241 is an agent-side regression in how `pupmod`
+  # manages the puppetagent_manage_all_files SELinux boolean, so that class is
+  # all the first-run noop check needs.
+  #
+  # Using the full master manifest here fails the noop for unrelated reasons:
+  # simp_firewalld's Firewalld_service provider cannot evaluate on a fresh host
+  # because `firewall-offline-cmd --zone 99_simp --list-services` exits 112
+  # (INVALID_ZONE) until a real, non-noop run has created that zone. That is the
+  # same first-run-noop bootstrap problem as #241, but in a different module,
+  # and it masks the regression this example exists to catch.
+  let(:noop_manifest) do
+    <<~EOF
+      class { 'pupmod':
+        enable_puppet_master => false,
+        firewall             => false,
+      }
+    EOF
+  end
+
   hosts_with_role(hosts, 'simp_master').each do |master|
     context "on #{master}" do
       it 'enables SIMP and SIMP dependencies repos' do
@@ -113,7 +132,7 @@ describe 'install environment via r10k and openvox-server' do
                                                  'puppetagent_manage_all_files still exists after removing ' \
                                                  "#{sebool_package}; the #241 first-run scenario was not reproduced"
 
-          apply_manifest_on(master, master_manifest, catch_failures: true, noop: true)
+          apply_manifest_on(master, noop_manifest, catch_failures: true, noop: true)
         ensure
           # Leave the SUT as we found it: the following examples assume the
           # original enforcement mode, and a leaked `Enforcing` would change the
