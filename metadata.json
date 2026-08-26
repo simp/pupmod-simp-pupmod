@@ -1,6 +1,6 @@
 {
   "name": "simp-pupmod",
-  "version": "12.1.1",
+  "version": "12.2.1",
   "author": "SIMP Team",
   "summary": "A puppet module to manage puppetserver and puppet agents",
   "license": "Apache-2.0",
@@ -19,7 +19,7 @@
   "dependencies": [
     {
       "name": "puppet/systemd",
-      "version_requirement": ">= 4.0.2 < 10.0.0"
+      "version_requirement": ">= 4.0.2 < 11.0.0"
     },
     {
       "name": "simp/haveged",
@@ -27,7 +27,7 @@
     },
     {
       "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 8.0.0 < 10.0.0"
+      "version_requirement": ">= 8.0.0 < 11.0.0"
     },
     {
       "name": "puppetlabs/inifile",
@@ -43,7 +43,7 @@
     },
     {
       "name": "puppetlabs/concat",
-      "version_requirement": ">= 6.4.0 < 10.0.0"
+      "version_requirement": ">= 6.4.0 < 11.0.0"
     },
     {
       "name": "simp/iptables",
@@ -51,7 +51,7 @@
     },
     {
       "name": "simp/simplib",
-      "version_requirement": ">= 4.9.0 < 6.0.0"
+      "version_requirement": ">= 4.9.0 < 8.0.0"
     },
     {
       "name": "simp/pki",
