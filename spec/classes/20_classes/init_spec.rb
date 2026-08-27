@@ -204,7 +204,13 @@ describe 'pupmod' do
                 'content' => "PUPPET_EXTRA_OPTS='--daemonize'\n",
               )
             }
-            it { is_expected.to contain_selboolean('puppetagent_manage_all_files') }
+            it { is_expected.not_to contain_selboolean('puppetagent_manage_all_files') }
+            it do
+              is_expected.to contain_exec('Set puppetagent_manage_all_files seboolean').with(
+                'command' => '/usr/sbin/setsebool -P puppetagent_manage_all_files on',
+                'unless'  => "/usr/sbin/getsebool puppetagent_manage_all_files | /usr/bin/grep -q ' --> on'",
+              )
+            end
             it { is_expected.not_to contain_class('pupmod::facter::conf') }
 
             it {
@@ -220,6 +226,48 @@ describe 'pupmod' do
               end
 
               it { is_expected.not_to contain_selboolean('puppetagent_manage_all_files') }
+              it { is_expected.not_to contain_exec('Set puppetagent_manage_all_files seboolean') }
+            end
+
+            context 'with manage_puppet_sebool => false' do
+              let(:params) do
+                super().merge(manage_puppet_sebool: false)
+              end
+
+              it { is_expected.to compile.with_all_deps }
+              it { is_expected.not_to contain_exec('Set puppetagent_manage_all_files seboolean') }
+              it { is_expected.not_to contain_selboolean('puppetagent_manage_all_files') }
+            end
+
+            context 'with manage_puppet_sebool => false and manage_puppet_sebool_package => true' do
+              let(:params) do
+                super().merge(
+                  manage_puppet_sebool: false,
+                  manage_puppet_sebool_package: true,
+                  puppet_agent_sebool_package: 'selinux-policy-targeted-extra',
+                )
+              end
+
+              # The ordering chain must not reference the suppressed exec
+              it { is_expected.to compile.with_all_deps }
+              it { is_expected.to contain_package('selinux-policy-targeted-extra') }
+              it { is_expected.not_to contain_exec('Set puppetagent_manage_all_files seboolean') }
+            end
+
+            context 'with manage_puppet_sebool_package => true' do
+              let(:params) do
+                super().merge(
+                  manage_puppet_sebool_package: true,
+                  puppet_agent_sebool_package: 'selinux-policy-targeted-extra',
+                )
+              end
+
+              it { is_expected.to compile.with_all_deps }
+
+              it do
+                is_expected.to contain_exec('Set puppetagent_manage_all_files seboolean')
+                  .that_requires('Exec[Refresh semodules after installing selinux-policy-targeted-extra]')
+              end
             end
           end
 

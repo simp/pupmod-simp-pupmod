@@ -1,3 +1,21 @@
+* Wed Aug 26 2026 Alex Harvey <alexharv074@gmail.com> - 12.3.0
+- Fixed a first-run `puppet agent -t --noop` failure on EL10 where
+  `Selboolean[puppetagent_manage_all_files]` could not be evaluated before
+  `selinux-policy-targeted-extra` was installed (#241)
+- NOTE: `Selboolean[puppetagent_manage_all_files]` is no longer declared. The
+  boolean is now managed by `Exec[Set puppetagent_manage_all_files seboolean]`,
+  which probes the boolean with `getsebool` in an `unless` check instead of
+  failing when it does not yet exist. Any control repo that orders against the
+  old resource title (for example
+  `require => Selboolean['puppetagent_manage_all_files']`) will fail to compile
+  after upgrading and must be updated to reference the new `Exec`.
+- Added `pupmod::manage_puppet_sebool` (default `true`) so that management of
+  the SELinux boolean itself can be disabled from Hiera, independently of
+  `pupmod::manage_puppet_sebool_package`, which only governs the policy package
+  and the semodule refresh (#241)
+- Removed the `selinux_core` spec fixture, which is no longer used now that the
+  module declares no `selboolean` or `selmodule` resources
+
 * Mon Aug 24 2026 Steven Pritchard <steve@sicura.us> - 12.2.1
 - [puppetsync] Update metadata.json dependency ranges from the Forge
 
