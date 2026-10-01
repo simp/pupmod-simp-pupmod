@@ -1,3 +1,8 @@
+* Thu Oct 01 2026 Hazel Caballero <hazel@sicura.us> - 12.3.1
+- Removed the Amazon Linux case from the default of
+  `pupmod::master::install::release_package_url`; unsupported Amazon hosts must
+  now set it explicitly
+
 * Wed Aug 26 2026 Alex Harvey <alexharv074@gmail.com> - 12.3.0
 - Fixed a first-run `puppet agent -t --noop` failure on EL10 where
   `Selboolean[puppetagent_manage_all_files]` could not be evaluated before

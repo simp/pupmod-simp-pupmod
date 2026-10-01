@@ -12,10 +12,7 @@ class pupmod::master::install (
   String[1]       $package_name = pupmod::server_distribution() ? { 'PE' => 'pe-puppetserver', default => 'openvox-server' },
   String[1]       $package_ensure       = pick(getvar('pupmod::master::package_ensure'), 'installed'),
   Integer         $version              = 8,
-  Stdlib::HTTPUrl $release_package_url = $facts['os']['name'] ? {
-    'Amazon' => "${pupmod::openvox_base_url}/openvox${version}-release-${facts['os']['name'].downcase}-${facts['os']['release']['major']}.noarch.rpm",
-    default  => "${pupmod::openvox_base_url}/openvox${version}-release-el-${facts['os']['release']['major']}.noarch.rpm",
-  },
+  Stdlib::HTTPUrl $release_package_url = "${pupmod::openvox_base_url}/openvox${version}-release-el-${facts['os']['release']['major']}.noarch.rpm",
 
 ) {
   assert_private()

@@ -1604,13 +1604,7 @@ Data type: `Stdlib::HTTPUrl`
 
 The url for the release package to be installed for openvox
 
-Default value:
-
-```puppet
-$facts['os']['name'] ? {
-    'Amazon' => "${pupmod::openvox_base_url}/openvox${version}-release-${facts['os']['name'].downcase}-${facts['os']['release']['major']}.noarch.rpm",
-    default  => "${pupmod::openvox_base_url}/openvox${version}-release-el-${facts['os']['release']['major']}.noarch.rpm"
-```
+Default value: `"${pupmod::openvox_base_url}/openvox${version}-release-el-${facts['os']['release']['major']}.noarch.rpm"`
 
 ### <a name="pupmod--master--reports"></a>`pupmod::master::reports`
 
