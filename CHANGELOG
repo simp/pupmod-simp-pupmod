@@ -1,3 +1,7 @@
+* Thu Oct 01 2026 Hazel Caballero <hazel@sicura.us> - 12.3.2
+- Fixed `pupmod::server_distribution()` failing catalog compilation when the
+  `puppet_settings` fact is missing
+
 * Thu Oct 01 2026 Hazel Caballero <hazel@sicura.us> - 12.3.1
 - Removed the Amazon Linux case from the default of
   `pupmod::master::install::release_package_url`; unsupported Amazon hosts must
