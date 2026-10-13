@@ -2363,4 +2363,3 @@ Alias of `Pattern['^\d+(g|k|m|%)$']`
 puppetserver profiling modes
 
 Alias of `Enum['off', 'api', 'flat', 'graph', 'html', 'json', 'service']`
-

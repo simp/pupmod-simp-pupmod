@@ -1,3 +1,7 @@
+* Thu Oct 08 2026 Steven Pritchard <steve@sicura.us> - 12.4.0
+- Add support for OpenVox 9
+- Update metadata.json dependency ranges from the Forge
+
 * Thu Oct 01 2026 Hazel Caballero <hazel@sicura.us> - 12.3.1
 - Removed the Amazon Linux case from the default of
   `pupmod::master::install::release_package_url`; unsupported Amazon hosts must
