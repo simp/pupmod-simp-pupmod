@@ -56,11 +56,13 @@ describe 'install environment via r10k and openvox-server' do
       it 'enables SIMP and SIMP dependencies repos' do
         os_maj = fact_on(master, 'os.release.major')
         architecture = fact_on(master, 'os.architecture')
+        # Same lookup order simp-beaker-helpers uses to install the agent
+        collection = ENV['BEAKER_OPENVOX_COLLECTION'] || ENV['BEAKER_PUPPET_COLLECTION'] || master.options['puppet_collection'] || 'openvox9'
 
         repo_content = <<~REPO
           [openvox-release]
           name=Openvox
-          baseurl=https://yum.voxpupuli.org/openvox8/el/#{os_maj}/#{architecture}/
+          baseurl=https://yum.voxpupuli.org/#{collection}/el/#{os_maj}/#{architecture}/
           enabled=1
           gpgcheck=0
         REPO
@@ -164,9 +166,13 @@ describe 'install environment via r10k and openvox-server' do
         apply_manifest_on(master, master_manifest, catch_changes: true)
       end
 
-      it 'is running jruby 9' do
+      it 'is running the JRuby that ships with its openvox-server major' do
+        # openvox-server 8 runs JRuby 9.4; openvox-server 9 runs JRuby 10
+        server_major = on(master, "rpm -q --qf '%{VERSION}' openvox-server").stdout.split('.').first.to_i
+        expected_jruby = (server_major >= 9) ? 'jruby 10' : 'jruby 9'
+
         result = on(master, 'puppetserver ruby --version')
-        expect(result.stdout).to include('jruby 9')
+        expect(result.stdout).to include(expected_jruby)
       end
 
       context 'when using puppetserver gems' do
