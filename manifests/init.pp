@@ -356,7 +356,7 @@ class pupmod (
     }
     Pupmod::Pass_two <| |>
 
-    if !empty($splaylimit) {
+    if $splaylimit =~ NotUndef {
       pupmod::conf { 'splaylimit':
         confdir => $confdir,
         setting => 'splaylimit',
