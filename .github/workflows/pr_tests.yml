@@ -180,11 +180,7 @@ jobs:
         run: |
           bundle install
       - name: Setup libvirt for Vagrant
-        run: |
-          sudo add-apt-repository ppa:evgeni/vagrant
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends vagrant vagrant-libvirt libvirt-daemon-system libvirt-daemon qemu-system-x86 qemu-utils dnsmasq
-          sudo chmod 666 /var/run/libvirt/libvirt-sock
+        uses: simp/gha-workflows/.github/actions/setup-vagrant-libvirt@v1.1.0
       - name: beaker
         env:
           BEAKER_HYPERVISOR: 'vagrant_libvirt'

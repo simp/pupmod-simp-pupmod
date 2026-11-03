@@ -1,0 +1,45 @@
+# Keep ppa:evgeni/vagrant's packages in the Actions cache for acceptance
+# ------------------------------------------------------------------------------
+#
+#             NOTICE: **This file is maintained with puppetsync**
+#
+# This file is updated automatically as part of a puppet module baseline.
+#
+# The next baseline sync will overwrite any local changes to this file!
+#
+# ==============================================================================
+#
+# The acceptance job's "Setup libvirt for Vagrant" step installs from this
+# cache when it can, so a Launchpad outage doesn't fail it. A pull request
+# can only restore caches saved from its own ref, its base branch or the
+# default branch, so the cache is saved here, from the default branch. The
+# runner must be on an Ubuntu series the PPA publishes for, and the
+# scheduled runs keep the entry from being evicted after seven days unused.
+# On push it runs only when this file changes, which seeds the cache when
+# the workflow lands without adding a run (that fails while Launchpad is
+# down) to every merge.
+#
+# Only modules whose acceptance job uses Vagrant have this file, so it isn't
+# in the pupmod baseline's present_action_files: a sync session adds it with
+# merge_github_workflows' ensure_files, and later syncs refresh it where it
+# exists. See simp/puppetsync#122.
+#
+---
+name: 'Vagrant package cache'
+
+'on':
+  push:
+    branches: [master, main]
+    paths: ['.github/workflows/vagrant_package_cache.yml']
+  schedule:
+    - cron: '17 6 * * 1,4'
+  workflow_dispatch: {}
+
+jobs:
+  cache:
+    name: 'Cache the Vagrant packages'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: simp/gha-workflows/.github/actions/setup-vagrant-libvirt@v1.1.0
+        with:
+          cache-only: 'true'
