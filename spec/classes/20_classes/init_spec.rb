@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 describe 'pupmod' do
-  let(:audit_content) { File.binread("#{File.dirname(__FILE__)}/data/auditd.txt") }
-
   def mock_selinux_false_facts(os_facts)
     os_facts[:os][:selinux][:config_mode] = 'disabled'
     os_facts[:os][:selinux][:current_mode] = 'disabled'
@@ -20,384 +18,354 @@ describe 'pupmod' do
     os_facts
   end
 
+  # Facts that only exist once puppet or puppetserver is installed and running
+  let(:post_install_facts) { [:puppet_service_enabled, :puppet_service_started, :puppetserver_jruby, :puppetserver_webserver] }
+
   on_supported_os.each do |os, os_facts|
     let(:node) { os_facts[:networking][:fqdn] } # sets trusted facts hash
-    let(:extras) do
-      {
-        puppet_settings: {
-          'master' => {
-            'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf',
-          },
-        },
-      }
-    end
+
     context "on #{os}" do
-      let(:facts) do
-        os_facts = extras.merge(os_facts)
-        mock_selinux_enforcing_facts(os_facts)
+      let(:facts) { mock_selinux_enforcing_facts(Marshal.load(Marshal.dump(os_facts))) }
+
+      # EL10 needs the package that provides the SELinux boolean
+      let(:sebool_package_needed) { os_facts[:os][:release][:major].to_i >= 10 }
+
+      context 'with a bare include' do
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to create_class('pupmod') }
+        it { is_expected.to contain_package('openvox-agent').with_ensure('installed') }
+        it { is_expected.not_to contain_class('haveged') }
+        it { is_expected.not_to contain_class('pupmod::agent::cron') }
+        it { is_expected.not_to contain_class('pupmod::facter::conf') }
+        it { is_expected.not_to contain_class('pupmod::master') }
+        it { is_expected.not_to contain_service('puppet') }
+        it { is_expected.to have_pupmod__conf_resource_count(0) }
+        it { is_expected.to have_ini_setting_resource_count(0) }
+        it { is_expected.to have_file_line_resource_count(0) }
+        it { is_expected.to have_file_resource_count(0) }
+        it { is_expected.to have_group_resource_count(0) }
+        it { is_expected.to have_exec_resource_count(0) }
+        it { is_expected.to have_cron_resource_count(0) }
+        it { is_expected.to have_systemd__timer_resource_count(0) }
+        it { is_expected.to have_systemd__tmpfile_resource_count(0) }
+        it { is_expected.to have_systemd__unit_file_resource_count(0) }
+        it { is_expected.to have_package_resource_count(1) }
       end
 
-      [
-        'PC1',
-        'PE',
-      ].each do |distribution|
-        context "with server_distribution = #{distribution}" do
-          let(:params) { { server_distribution: distribution, puppet_server: '1.2.3.4' } }
+      context 'with a bare include and no post-install facts (noop-safety)' do
+        let(:facts) do
+          mock_selinux_enforcing_facts(Marshal.load(Marshal.dump(os_facts))).reject { |k, _| post_install_facts.include?(k) }
+        end
 
-          describe 'with default parameters' do
-            it { is_expected.to create_class('pupmod') }
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to have_package_resource_count(1) }
+      end
+
+      context 'with enable_puppet_master => true and no post-install facts (noop-safety)' do
+        let(:facts) do
+          mock_selinux_enforcing_facts(Marshal.load(Marshal.dump(os_facts))).reject { |k, _| post_install_facts.include?(k) }
+        end
+        let(:params) { { enable_puppet_master: true } }
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_class('pupmod::master') }
+      end
+
+      context 'with haveged => true' do
+        let(:params) { { haveged: true } }
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_class('haveged') }
+      end
+
+      context 'with agent_package and agent_package_install_options set' do
+        let(:params) { { agent_package: 'puppet-agent', agent_package_install_options: ['--nogpgcheck'] } }
+
+        it { is_expected.to contain_package('puppet-agent').with_install_options(['--nogpgcheck']) }
+      end
+
+      describe 'puppet.conf [main] settings' do
+        {
+          splay: [true, 'true'],
+          runinterval: [900, '900'],
+          digest_algorithm: ['md5', 'md5'],
+          certname: ['foo.example.com', 'foo.example.com'],
+          classfile: ['$vardir/classes.txt', '$vardir/classes.txt'],
+          splaylimit: [300, '300'],
+          syslogfacility: ['local5', 'local5'],
+          srv_domain: ['example.org', 'example.org'],
+        }.each do |param, (value, _)|
+          context "with #{param} => #{value}" do
+            let(:params) { { param => value } }
+
             it { is_expected.to compile.with_all_deps }
-            it { is_expected.not_to contain_class('haveged') }
-            it { is_expected.to contain_package('openvox-agent').with_ensure('installed') }
-            it { is_expected.to contain_class('pupmod::agent::cron') }
             it {
-              is_expected.to contain_service('puppet').with(
-                'ensure'     => 'stopped',
-                'enable'     => false,
-                'hasrestart' => true,
-                'hasstatus'  => true,
-                'subscribe'  => 'File[/etc/puppetlabs/puppet/puppet.conf]',
+              is_expected.to contain_pupmod__conf(param.to_s).with(
+                ensure: 'present',
+                setting: param.to_s,
+                value: value,
+                confdir: '/etc/puppetlabs/puppet',
               )
             }
             it {
-              is_expected.to contain_pupmod__conf('agent_daemonize').with(
-                'section' => 'agent',
-                'setting' => 'daemonize',
-                'value'   => 'false',
+              is_expected.to contain_ini_setting("pupmod_#{param}").with(
+                ensure: 'present',
+                path: '/etc/puppetlabs/puppet/puppet.conf',
+                section: 'main',
+                setting: param.to_s,
               )
             }
-
-            it {
-              is_expected.to contain_pupmod__conf('splay').with(
-                'setting' => 'splay',
-                'value'   => false,
-              )
-            }
-
-            it { is_expected.not_to contain_pupmod__conf('splaylimit') }
-            it { is_expected.not_to contain_pupmod__conf('environment') }
-
-            it {
-              is_expected.to contain_pupmod__conf('syslogfacility').with(
-                'setting' => 'syslogfacility',
-                'value'   => 'local6',
-              )
-            }
-
-            it {
-              is_expected.to contain_pupmod__conf('srv_domain').with(
-                'setting' => 'srv_domain',
-                'value'   => facts[:networking][:domain],
-              )
-            }
-
-            it {
-              is_expected.to contain_pupmod__conf('certname').with(
-                'setting' => 'certname',
-                'value'   => facts[:networking][:fqdn],
-              )
-            }
-
-            it {
-              is_expected.to contain_pupmod__conf('vardir').with(
-                'setting' => 'vardir',
-                'value'   => '/opt/puppetlabs/puppet/cache',
-              )
-            }
-
-            it {
-              is_expected.to contain_pupmod__conf('classfile').with(
-                'setting' => 'classfile',
-                'value'   => '$vardir/classes.txt',
-              )
-            }
-
-            it {
-              is_expected.to contain_pupmod__conf('confdir').with(
-                'setting' => 'confdir',
-                'value'   => '/etc/puppetlabs/puppet',
-              )
-            }
-
-            it {
-              is_expected.to contain_pupmod__conf('logdir').with(
-                'setting' => 'logdir',
-                'value'   => '/var/log/puppetlabs/puppet',
-              )
-            }
-
-            it {
-              is_expected.to contain_pupmod__conf('rundir').with(
-                'setting' => 'rundir',
-                'value'   => '/var/run/puppetlabs',
-              )
-            }
-
-            it {
-              is_expected.to contain_pupmod__conf('runinterval').with(
-                'setting' => 'runinterval',
-                'value'   => 1800,
-              )
-            }
-
-            it {
-              is_expected.to contain_pupmod__conf('ssldir').with(
-                'setting' => 'ssldir',
-                'value'   => '/etc/puppetlabs/puppet/ssl',
-              )
-            }
-
-            it {
-              is_expected.to contain_pupmod__conf('stringify_facts').with(
-                'setting' => 'stringify_facts',
-                'value'   => false,
-              )
-            }
-
-            it {
-              is_expected.to contain_pupmod__conf('digest_algorithm').with(
-                'setting' => 'digest_algorithm',
-                'value'   => 'sha256',
-              )
-            }
-
-            it { is_expected.to contain_ini_setting('pupmod_agent_daemonize') }
-
-            it { is_expected.to contain_ini_setting('pupmod_splay') }
-
-            it { is_expected.to contain_ini_setting('pupmod_syslogfacility') }
-
-            it { is_expected.to contain_ini_setting('pupmod_srv_domain') }
-
-            it { is_expected.to contain_ini_setting('pupmod_certname') }
-
-            it { is_expected.to contain_ini_setting('pupmod_vardir') }
-
-            it { is_expected.to contain_ini_setting('pupmod_classfile') }
-
-            it { is_expected.to contain_ini_setting('pupmod_confdir') }
-
-            it { is_expected.to contain_ini_setting('pupmod_logdir') }
-
-            it { is_expected.not_to contain_class('auditd') }
-
-            it { is_expected.not_to contain_auditd__rule('puppet_master').with_content(audit_content) }
-
-            it { is_expected.to contain_ini_setting('pupmod_rundir') }
-
-            it { is_expected.to contain_ini_setting('pupmod_runinterval') }
-
-            it { is_expected.to contain_ini_setting('pupmod_ssldir') }
-
-            it { is_expected.to contain_ini_setting('pupmod_stringify_facts') }
-
-            it { is_expected.to contain_ini_setting('pupmod_digest_algorithm') }
-
-            it { is_expected.not_to contain_auditd__add_rules('puppet_master').with_content(audit_content) }
-
-            it {
-              is_expected.to contain_file('/etc/sysconfig/puppet').with(
-                'ensure'  => 'file',
-                'owner'   => 'root',
-                'group'   => 'root',
-                'mode'    => '0644',
-                'content' => "PUPPET_EXTRA_OPTS='--daemonize'\n",
-              )
-            }
-            it { is_expected.not_to contain_selboolean('puppetagent_manage_all_files') }
-            it do
-              is_expected.to contain_exec('Set puppetagent_manage_all_files seboolean').with(
-                'command' => '/usr/sbin/setsebool -P puppetagent_manage_all_files on',
-                'unless'  => "/usr/sbin/getsebool puppetagent_manage_all_files | /usr/bin/grep -q ' --> on'",
-              )
-            end
-            it { is_expected.not_to contain_class('pupmod::facter::conf') }
-
-            it {
-              is_expected.to contain_systemd__tmpfile('puppet_purge_puppet_service_logs.conf')
-                .with_content('e /var/log/puppetlabs/puppet* - - - 4w')
-            }
-
-            context 'with_selinux_disabled' do
-              let(:facts) do
-                custom = extras.merge(os_facts)
-                custom = mock_selinux_false_facts(custom)
-                custom
-              end
-
-              it { is_expected.not_to contain_selboolean('puppetagent_manage_all_files') }
-              it { is_expected.not_to contain_exec('Set puppetagent_manage_all_files seboolean') }
-            end
-
-            context 'with manage_puppet_sebool => false' do
-              let(:params) do
-                super().merge(manage_puppet_sebool: false)
-              end
-
-              it { is_expected.to compile.with_all_deps }
-              it { is_expected.not_to contain_exec('Set puppetagent_manage_all_files seboolean') }
-              it { is_expected.not_to contain_selboolean('puppetagent_manage_all_files') }
-            end
-
-            context 'with manage_puppet_sebool => false and manage_puppet_sebool_package => true' do
-              let(:params) do
-                super().merge(
-                  manage_puppet_sebool: false,
-                  manage_puppet_sebool_package: true,
-                  puppet_agent_sebool_package: 'selinux-policy-targeted-extra',
-                )
-              end
-
-              # The ordering chain must not reference the suppressed exec
-              it { is_expected.to compile.with_all_deps }
-              it { is_expected.to contain_package('selinux-policy-targeted-extra') }
-              it { is_expected.not_to contain_exec('Set puppetagent_manage_all_files seboolean') }
-            end
-
-            context 'with manage_puppet_sebool_package => true' do
-              let(:params) do
-                super().merge(
-                  manage_puppet_sebool_package: true,
-                  puppet_agent_sebool_package: 'selinux-policy-targeted-extra',
-                )
-              end
-
-              it { is_expected.to compile.with_all_deps }
-
-              it do
-                is_expected.to contain_exec('Set puppetagent_manage_all_files seboolean')
-                  .that_requires('Exec[Refresh semodules after installing selinux-policy-targeted-extra]')
-              end
-            end
           end
 
-          describe 'with non-default parameters' do
-            context 'with haveged => true' do
-              let(:params) { { haveged: true } }
+          context "with #{param} => 'absent'" do
+            let(:params) { { param => 'absent' } }
 
-              it { is_expected.to contain_class('haveged') }
-            end
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_pupmod__conf(param.to_s).with_ensure('absent') }
+            it { is_expected.to contain_ini_setting("pupmod_#{param}").with_ensure('absent') }
+          end
+        end
 
-            context 'with agent_package => puppet-agent' do
-              let(:params) { { agent_package: 'puppet-agent' } }
+        context 'with a classfile that is not a path' do
+          let(:params) { { classfile: 'classes.txt' } }
 
-              it { is_expected.to contain_package('puppet-agent').with_ensure('installed') }
-              it { is_expected.not_to contain_package('openvox-agent') }
-            end
+          it { is_expected.to compile.and_raise_error(%r{classfile}) }
+        end
 
-            context 'with enable_puppet_master => false' do
-              let(:params) { { enable_puppet_master: true } }
+        context 'with main_settings' do
+          let(:params) do
+            {
+              main_settings: {
+                'vardir' => '/opt/puppetlabs/puppet/cache',
+                'rundir' => 'absent',
+                'splay'  => true,
+              },
+              splay: false,
+            }
+          end
 
-              it { is_expected.to create_class('pupmod::master') }
-            end
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_pupmod__conf('vardir').with(ensure: 'present', setting: 'vardir', value: '/opt/puppetlabs/puppet/cache') }
+          it { is_expected.to contain_pupmod__conf('rundir').with(ensure: 'absent', setting: 'rundir') }
+          it 'takes a setting from its named parameter over main_settings' do
+            is_expected.to contain_pupmod__conf('splay').with(ensure: 'present', value: false)
+          end
+          it { is_expected.to have_pupmod__conf_resource_count(3) }
+        end
+      end
 
-            context 'with daemonize enabled' do
-              let(:params) { { daemonize: true } }
+      describe 'daemonize' do
+        context 'with daemonize => false' do
+          let(:params) { { daemonize: false } }
 
-              it { is_expected.not_to contain_class('pupmod::agent::cron') }
-              it { is_expected.to contain_cron('puppetagent').with_ensure('absent') }
-              it {
-                is_expected.to contain_systemd__timer('puppet_agent.timer').with(
-                  'ensure' => 'absent',
-                  'active' => false,
-                  'enable' => false,
-                )
-              }
-              # The timer must be stopped/disabled before its unit file is removed
-              it {
-                is_expected.to contain_service('puppet_agent.timer').with(
-                  'ensure' => false,
-                  'enable' => false,
-                ).that_comes_before('File[/etc/systemd/system/puppet_agent.timer]')
-              }
-              it {
-                is_expected.to contain_systemd__unit_file('puppet_agent.service')
-                  .with_ensure('absent')
-                  .that_requires('Systemd::Timer[puppet_agent.timer]')
-              }
-              it { is_expected.to contain_file('/etc/systemd/system/puppet_agent.service').with_ensure('absent') }
-              it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_ensure('absent') }
-              it { is_expected.to contain_file('/usr/local/bin/careful_puppet_service_shutdown.sh').with_ensure('absent') }
-              it {
-                is_expected.to contain_service('puppet').with(
-                  'ensure'     => 'running',
-                  'enable'     => true,
-                  'hasrestart' => true,
-                  'hasstatus'  => true,
-                  'subscribe'  => 'File[/etc/puppetlabs/puppet/puppet.conf]',
-                )
-              }
-            end
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_class('pupmod::agent::cron') }
+          it {
+            is_expected.to contain_service('puppet').with(
+              ensure: 'stopped',
+              enable: false,
+              hasrestart: true,
+              hasstatus: true,
+            )
+          }
+          it { is_expected.to contain_pupmod__conf('agent_daemonize').with(section: 'agent', setting: 'daemonize', value: false) }
+          it { is_expected.not_to contain_cron('puppetagent').with_ensure('present') }
+        end
 
-            context 'with agent_package_install_options set' do
-              let(:params) { { agent_package_install_options: ['--enablerepo=foo', { '--setopt' => 'protect=1' }] } }
+        context 'with daemonize => true' do
+          let(:params) { { daemonize: true } }
 
-              it {
-                is_expected.to contain_package('openvox-agent').with(
-                  'ensure'          => 'installed',
-                  'install_options' => ['--enablerepo=foo', { '--setopt' => 'protect=1' }],
-                )
-              }
-            end
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.not_to contain_class('pupmod::agent::cron') }
+          it { is_expected.to contain_service('puppet').with(ensure: 'running', enable: true) }
+          it { is_expected.to contain_pupmod__conf('agent_daemonize').with(section: 'agent', setting: 'daemonize', value: true) }
+          it { is_expected.to contain_cron('puppetagent').with_ensure('absent') }
+          it { is_expected.to contain_systemd__timer('puppet_agent.timer').with(ensure: 'absent', active: false, enable: false) }
+          it { is_expected.to contain_systemd__unit_file('puppet_agent.service').with_ensure('absent').that_requires('Systemd::Timer[puppet_agent.timer]') }
+          it { is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_ensure('absent') }
+          it { is_expected.to contain_file('/usr/local/bin/careful_puppet_service_shutdown.sh').with_ensure('absent') }
+        end
+      end
 
-            context 'with non-empty splaylimit' do
-              let(:params) { { splaylimit: 5 } }
+      describe 'puppet.conf server settings (pass_two)' do
+        context 'with puppet_server, ca_server, ca_port, masterport and report set' do
+          let(:params) do
+            {
+              puppet_server: 'puppet.example.com',
+              ca_server: '$server',
+              ca_port: 8141,
+              masterport: 8140,
+              report: false,
+            }
+          end
 
-              it {
-                is_expected.to contain_pupmod__conf('splaylimit').with(
-                  'setting' => 'splaylimit',
-                  'value'   => 5,
-                )
-              }
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_pupmod__conf('server').with(ensure: 'present', value: 'puppet.example.com') }
+          it { is_expected.to contain_pupmod__conf('server_list').with_ensure('absent') }
+          it { is_expected.to contain_pupmod__conf('ca_server').with(ensure: 'present', value: '$server') }
+          it { is_expected.to contain_pupmod__conf('ca_port').with(ensure: 'present', value: 8141) }
+          it { is_expected.to contain_pupmod__conf('masterport').with(ensure: 'present', value: 8140) }
+          it { is_expected.to contain_pupmod__conf('report').with(ensure: 'present', section: 'agent', value: false) }
+        end
 
-              it { is_expected.to contain_ini_setting('pupmod_splaylimit') }
+        context 'with simp_options set in Hiera' do
+          let(:hieradata) { 'agent_simp_options' }
 
-              it 'does not call empty() on an Integer' do
-                logs = []
-                collector = Puppet::Test::LogCollector.new(logs)
-                Puppet::Util::Log.newdestination(collector)
-                begin
-                  is_expected.to compile
-                ensure
-                  Puppet::Util::Log.close(collector)
-                end
-                expect(logs.map(&:message)).not_to include(include('empty() with Numeric value is deprecated'))
-              end
-            end
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_pupmod__conf('server').with(ensure: 'present', value: 'puppet.simp.test') }
+          it { is_expected.to contain_pupmod__conf('ca_server').with(ensure: 'present', value: 'ca.simp.test') }
+          it { is_expected.to contain_pupmod__conf('ca_port').with(ensure: 'present', value: 8141) }
+          it { is_expected.not_to contain_pupmod__conf('masterport') }
+          it { is_expected.not_to contain_pupmod__conf('report') }
+        end
 
-            context 'with set_environment enabled ' do
-              let(:params) { { set_environment: true } }
+        context 'with puppet_group set' do
+          let(:params) { { puppet_group: 'puppet' } }
 
-              it {
-                is_expected.to contain_pupmod__conf('environment').with(
-                  'section' => 'agent',
-                  'setting' => 'environment',
-                  'value'   => 'rp_env',
-                )
-              }
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_group('puppet').with(ensure: 'present', allowdupe: false, tag: 'firstrun') }
+          it { is_expected.to contain_file('/etc/puppetlabs/puppet').with(ensure: 'directory', owner: 'root', group: 'puppet', mode: '0640') }
+          it { is_expected.to contain_file('/etc/puppetlabs/puppet/puppet.conf').with(ensure: 'file', owner: 'root', group: 'puppet', mode: '0640') }
+        end
+      end
 
-              it {
-                is_expected.to contain_pupmod__conf('remove environment from main').with(
-                  'ensure'  => 'absent',
-                  'section' => 'main',
-                  'setting' => 'environment',
-                )
-              }
+      describe 'puppetagent_manage_all_files SELinux boolean' do
+        context 'with puppetagent_manage_all_files => true' do
+          let(:params) { { puppetagent_manage_all_files: true } }
 
-              context 'running from bolt' do
-                let(:environment) { 'bolt_catalog' }
-
-                it { is_expected.not_to contain_pupmod__conf('environment') }
-              end
-            end
-
-            context 'with manage_facter_conf => true' do
-              let(:params) { { manage_facter_conf: true } }
-
-              it { is_expected.to contain_class('pupmod::facter::conf') }
+          it { is_expected.to compile.with_all_deps }
+          it {
+            is_expected.to contain_exec('Set puppetagent_manage_all_files seboolean').with(
+              command: '/usr/sbin/setsebool -P puppetagent_manage_all_files on',
+              unless: "/usr/sbin/getsebool puppetagent_manage_all_files | /usr/bin/grep -q ' --> on'",
+            )
+          }
+          it 'installs the package that provides the boolean only where the OS needs it' do
+            if sebool_package_needed
+              is_expected.to contain_package('selinux-policy-targeted-extra').with_ensure('installed')
+              is_expected.to contain_exec('Refresh semodules after installing selinux-policy-targeted-extra')
+                .that_requires('Package[selinux-policy-targeted-extra]')
+                .that_comes_before('Exec[Set puppetagent_manage_all_files seboolean]')
+            else
+              is_expected.not_to contain_package('selinux-policy-targeted-extra')
+              is_expected.not_to contain_exec('Refresh semodules after installing selinux-policy-targeted-extra')
             end
           end
         end
+
+        context 'with puppetagent_manage_all_files => false' do
+          let(:params) { { puppetagent_manage_all_files: false } }
+
+          it { is_expected.to compile.with_all_deps }
+          it {
+            is_expected.to contain_exec('Set puppetagent_manage_all_files seboolean').with(
+              command: '/usr/sbin/setsebool -P puppetagent_manage_all_files off',
+              unless: "/usr/sbin/getsebool puppetagent_manage_all_files | /usr/bin/grep -q ' --> off'",
+            )
+          }
+          it { is_expected.not_to contain_package('selinux-policy-targeted-extra') }
+        end
+
+        context 'with the deprecated manage_puppet_sebool => true' do
+          let(:params) { { manage_puppet_sebool: true } }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_exec('Set puppetagent_manage_all_files seboolean').with_command(%r{ on$}) }
+        end
+
+        context 'with the deprecated manage_puppet_sebool => false' do
+          let(:params) { { manage_puppet_sebool: false } }
+
+          it { is_expected.not_to contain_exec('Set puppetagent_manage_all_files seboolean') }
+        end
+
+        context 'with SELinux disabled' do
+          let(:facts) { mock_selinux_false_facts(Marshal.load(Marshal.dump(os_facts))) }
+          let(:params) { { puppetagent_manage_all_files: true } }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.not_to contain_exec('Set puppetagent_manage_all_files seboolean') }
+          it { is_expected.not_to contain_package('selinux-policy-targeted-extra') }
+        end
+      end
+
+      describe 'puppet_extra_opts' do
+        context 'with a value' do
+          let(:params) { { puppet_extra_opts: '--daemonize' } }
+
+          it { is_expected.to compile.with_all_deps }
+          it {
+            is_expected.to contain_file_line('pupmod PUPPET_EXTRA_OPTS').with(
+              ensure: 'present',
+              path: '/etc/sysconfig/puppet',
+              line: "PUPPET_EXTRA_OPTS='--daemonize'",
+              match: '^\s*PUPPET_EXTRA_OPTS=',
+            ).that_requires('Class[pupmod::agent::install]')
+          }
+        end
+
+        context "with 'absent'" do
+          let(:params) { { puppet_extra_opts: 'absent' } }
+
+          it {
+            is_expected.to contain_file_line('pupmod PUPPET_EXTRA_OPTS').with(
+              ensure: 'absent',
+              match_for_absence: true,
+            )
+          }
+        end
+      end
+
+      describe 'purge_logs' do
+        context 'with purge_logs => true' do
+          let(:params) { { purge_logs: true } }
+
+          it { is_expected.to compile.with_all_deps }
+          it {
+            is_expected.to contain_systemd__tmpfile('puppet_purge_puppet_service_logs.conf').with(
+              content: 'e /var/log/puppetlabs/puppet* - - - 4w',
+            )
+          }
+        end
+
+        context 'with purge_logs => true and no directories' do
+          let(:params) { { purge_logs: true, purge_log_dirs: [] } }
+
+          it { is_expected.to contain_systemd__tmpfile('puppet_purge_puppet_service_logs.conf').with_ensure('absent') }
+        end
+
+        context 'with purge_logs => true and a top-level logdir' do
+          let(:params) { { purge_logs: true, logdir: '/puppet' } }
+
+          it { is_expected.to compile.and_raise_error(%r{Refusing to purge top-level directories}) }
+        end
+
+        context 'with purge_logs => false' do
+          let(:params) { { purge_logs: false } }
+
+          it { is_expected.to contain_systemd__tmpfile('puppet_purge_puppet_service_logs.conf').with_ensure('absent') }
+        end
+      end
+
+      context 'with set_environment => true' do
+        let(:params) { { set_environment: true } }
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_pupmod__conf('remove environment from main').with(ensure: 'absent', section: 'main', setting: 'environment') }
+        it { is_expected.to contain_pupmod__conf('environment').with(section: 'agent', setting: 'environment', value: 'rp_env') }
+
+        context 'running from bolt' do
+          let(:environment) { 'bolt_catalog' }
+
+          it { is_expected.not_to contain_pupmod__conf('environment') }
+        end
+      end
+
+      context "with set_environment => 'no_clean'" do
+        let(:params) { { set_environment: 'no_clean' } }
+
+        it { is_expected.not_to contain_pupmod__conf('remove environment from main') }
+        it { is_expected.to contain_pupmod__conf('environment') }
       end
     end
   end

@@ -1,0 +1,3 @@
+---
+compliance_engine::enforcement:
+  - simp:defaults

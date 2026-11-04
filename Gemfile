@@ -31,6 +31,9 @@ group :test do
   # renovate: datasource=rubygems versioning=ruby
   gem 'simp-rspec-puppet-facts', ENV.fetch('SIMP_RSPEC_PUPPET_FACTS_VERSION', '~> 4.0.0')
   gem 'syslog', require: false
+  # compliance_engine requires it; `observer` left the stdlib as a default gem
+  # in Ruby 3.4, so the bundle has to declare it.
+  gem 'observer', require: false
   # openvox 8 accepts openfact 6, which no OpenVox 8 AIO agent ships; CI pins
   # the openfact each agent release actually ships with OPENFACT_VERSION
   gem 'openfact', ENV.fetch('OPENFACT_VERSION', '>= 5')

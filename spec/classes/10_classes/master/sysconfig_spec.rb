@@ -1,396 +1,267 @@
 require 'spec_helper'
-require 'hocon'
 
-describe 'pupmod::master' do
-  on_supported_os.each do |os, os_facts|
-    let(:extras) do
-      {
-        puppet_settings: {
-          'server' => {
-            'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf',
-          },
-          'master' => {
-            'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf',
-          },
-        },
-      }
-    end
+# rubocop:disable RSpec/MultipleDescribes
 
-    let(:puppetserver_content_without_jruby) { File.read("#{File.dirname(__FILE__)}/data/puppetserver.txt") }
+describe 'pupmod::master::sysconfig' do
+  def setting(name)
+    "pupmod::master::sysconfig #{name}"
+  end
 
+  def subsetting(setting, option)
+    "pupmod::master::sysconfig #{setting} #{option}"
+  end
+
+  let(:sysconfig) { '/etc/sysconfig/puppetserver' }
+  let(:post_condition) { 'include pupmod::master' }
+
+  # 4 GiB of memory
+  let(:memory) { { memory: { 'system' => { 'total_bytes' => 4_294_967_296 } } } }
+
+  on_supported_os.to_a.values_at(0, -1).uniq.each do |os, os_facts|
     context "on #{os}" do
-      let(:server_datadir) do
-        os_facts.dig(:puppet_settings, :server, :server_datadir) ||
-          os_facts.dig(:puppet_settings, :master, :server_datadir)
+      let(:facts) { os_facts.merge(memory) }
+
+      context 'with default parameters' do
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to have_ini_setting_resource_count(0) }
+        it { is_expected.to have_ini_subsetting_resource_count(0) }
+        it { is_expected.to have_file_resource_count(0) }
       end
 
-      ['PE', 'PC1'].each do |server_distribution|
-        context "server distribution '#{server_distribution}'" do
-          let(:puppetserver_svc) do
-            svc = 'puppetserver'
+      describe 'sysconfig settings' do
+        {
+          java_bin: ['JAVA_BIN', '/usr/lib/jvm/bin/java', '"/usr/lib/jvm/bin/java"'],
+          install_dir: ['INSTALL_DIR', '/opt/puppetlabs/server/apps/puppetserver', '"/opt/puppetlabs/server/apps/puppetserver"'],
+          config: ['CONFIG', '/etc/puppetlabs/puppetserver/conf.d', '"/etc/puppetlabs/puppetserver/conf.d"'],
+          bootstrap_config: ['BOOTSTRAP_CONFIG', ['/a/services.d/', '/b/services.d/'], '"/a/services.d/,/b/services.d/"'],
+          service_stop_retries: ['SERVICE_STOP_RETRIES', 60, 60],
+          start_timeout: ['START_TIMEOUT', 120, 120],
+        }.each do |param, (name, value, written)|
+          context "with #{param} set" do
+            let(:params) { { param => value } }
 
-            if server_distribution == 'PE'
-              svc = 'pe-puppetserver'
-            end
-
-            svc
+            it { is_expected.to compile.with_all_deps }
+            it {
+              is_expected.to contain_ini_setting(setting(name)).with(
+                ensure: 'present',
+                path: sysconfig,
+                section: '',
+                setting: name,
+                value: written,
+                key_val_separator: '=',
+              ).that_requires('Class[pupmod::master::install]').that_notifies('Class[pupmod::master::service]')
+            }
           end
 
-          if server_distribution == 'PE'
-            context 'on PE with default params' do
-              let(:hieradata) { 'sysconfig/PE' }
+          context "with #{param} => 'absent'" do
+            let(:params) { { param => 'absent' } }
 
-              let(:facts) do
-                extras.merge(os_facts).merge(
-                  memory: {
-                    'system' => {
-                      'total_bytes' => (490.16 * 1_048_576).to_i,
-                    },
-                  },
-                  pe_build: '2016.1.0',
-                )
-              end
-
-              it 'sets $tmpdir via a pe_ini_subsetting resource' do
-                ['JAVA_ARGS', 'JAVA_ARGS_CLI'].each do |setting|
-                  expect(catalogue).to contain_pe_ini_subsetting("pupmod::master::sysconfig::javatempdir for #{setting}").with(
-                    'path'    => '/etc/sysconfig/pe-puppetserver',
-                    'setting' => setting,
-                    'value'   => %r{/pserver_tmp$},
-                  )
-                end
-              end
-            end
-          else
-            context 'on PC1 with default params' do
-              let(:hieradata) { 'sysconfig/PC1' }
-              let(:facts) do
-                extras.merge(os_facts).merge(
-                  memory: {
-                    'system' => {
-                      'total_bytes' => (490.16 * 1_048_576).to_i,
-                    },
-                  },
-                  puppetserver_jruby: {
-                    'dir'      => '/opt/puppetlabs/server/apps/puppetserver',
-                    'jarfiles' => ['x.jar', 'y.jar', 'jruby-9k.jar'],
-                  },
-                )
-              end
-
-              it do
-                puppetserver_content = File.read("#{File.dirname(__FILE__)}/data/puppetserver-j9.txt")
-                puppetserver_content.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
-                  File.dirname(server_datadir))
-
-                is_expected.to contain_file('/etc/sysconfig/puppetserver').with(
-                  'owner'   => 'root',
-                  'group'   => 'puppet',
-                  'mode'    => '0640',
-                  'content' => puppetserver_content,
-                )
-              end
-
-              it { is_expected.to create_class('pupmod::master::sysconfig') }
-              it {
-                is_expected.to contain_file("#{File.dirname(server_datadir)}/pserver_tmp").with(
-                  'owner'  => 'puppet',
-                  'group'  => 'puppet',
-                  'ensure' => 'directory',
-                  'mode'   => '0750',
-                )
-              }
-            end
-            context 'if jruby9k set to true but file does not exist' do
-              let(:hieradata) { 'sysconfig/PC1' }
-              let(:facts) do
-                extras.merge(os_facts).merge(
-                  memory: {
-                    'system' => {
-                      'total_bytes' => (490.16 * 1_048_576).to_i,
-                    },
-                  },
-                  puppetserver_jruby: {
-                    'dir'      => '/opt/puppetlabs/server/apps/puppetserver',
-                    'jarfiles' => ['x.jar', 'y.jar'],
-                  },
-                )
-              end
-
-              it do
-                puppetserver_content_without_jruby.gsub!(
-                  '%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
-                  File.dirname(server_datadir),
-                )
-
-                is_expected.to contain_file('/etc/sysconfig/puppetserver').with(
-                  'owner'   => 'root',
-                  'group'   => 'puppet',
-                  'mode'    => '0640',
-                  'content' => puppetserver_content_without_jruby,
-                )
-              end
-            end
-
-            context 'set jrubyjar set to default ' do
-              let(:hieradata) { 'sysconfig/PC1_jruby_default' }
-              let(:facts) do
-                extras.merge(os_facts).merge(
-                  memory: {
-                    'system' => {
-                      'total_bytes' => (490.16 * 1_048_576).to_i,
-                    },
-                  },
-                )
-              end
-
-              it do
-                puppetserver_content_without_jruby.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
-                  File.dirname(server_datadir))
-
-                is_expected.to contain_file('/etc/sysconfig/puppetserver').with(
-                  'owner'   => 'root',
-                  'group'   => 'puppet',
-                  'mode'    => '0640',
-                  'content' => puppetserver_content_without_jruby,
-                )
-              end
-            end
-            context 'set jruby jar set and no fact ' do
-              let(:hieradata) { 'sysconfig/PC1_jruby_x' }
-              let(:facts) do
-                extras.merge(os_facts).merge(
-                  memory: {
-                    'system' => {
-                      'total_bytes' => (490.16 * 1_048_576).to_i,
-                    },
-                  },
-                )
-              end
-
-              it do
-                puppetserver_content_without_jruby.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
-                  File.dirname(server_datadir))
-
-                is_expected.to contain_file('/etc/sysconfig/puppetserver').with(
-                  'owner'   => 'root',
-                  'group'   => 'puppet',
-                  'mode'    => '0640',
-                  'content' => puppetserver_content_without_jruby,
-                )
-              end
-            end
-
-            context '4CPU 8G memory system auto-tune' do
-              let(:hieradata) { 'sysconfig/PC1' }
-              let(:facts) do
-                extras.merge(os_facts).merge(
-                  memory: {
-                    'system' => {
-                      'total_bytes' => (8192 * 1_048_576).to_i,
-                    },
-                  },
-                  processors: {
-                    physicalcount: 1,
-                    count: 4,
-                    models: [
-                      'Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz',
-                      'Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz',
-                      'Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz',
-                      'Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz',
-                    ],
-                  },
-                  puppetserver_jruby: {
-                    'dir' => '/opt/puppetlabs/server/apps/puppetserver',
-                    'jarfiles' => ['x.jar', 'y.jar', 'jruby-9k.jar'],
-                  },
-                )
-              end
-
-              let(:puppetserver_conf) { '/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf' }
-              let(:puppetserver_conf_hash) { Hocon.parse(catalogue.resource("File[#{puppetserver_conf}]")['content']) }
-
-              ['monolithic', 'primary', 'compile'].each do |server_type|
-                context "as #{server_type} server" do
-                  let(:expected_instances) do
-                    mi = if server_type == 'compile'
-                           3
-                         else
-                           2
-                         end
-
-                    mi
-                  end
-                  let(:params) do
-                    {
-                      server_type: server_type,
-                    }
-                  end
-
-                  it { expect(puppetserver_conf_hash['jruby-puppet']['max-active-instances']).to eq(expected_instances) }
-
-                  it do
-                    puppetserver_content = File.read("#{File.dirname(__FILE__)}/data/puppetserver-j9-rcc-#{server_type}-48.txt")
-                    puppetserver_content.gsub!(
-                      '%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
-                      File.dirname(server_datadir),
-                    )
-
-                    is_expected.to contain_file('/etc/sysconfig/puppetserver').with(
-                      'owner'   => 'root',
-                      'group'   => 'puppet',
-                      'mode'    => '0640',
-                      'content' => puppetserver_content,
-                    )
-                  end
-
-                  it { is_expected.to create_class('pupmod::master::sysconfig') }
-                  it {
-                    is_expected.to contain_file("#{File.dirname(server_datadir)}/pserver_tmp").with(
-                      'owner'  => 'puppet',
-                      'group'  => 'puppet',
-                      'ensure' => 'directory',
-                      'mode'   => '0750',
-                    )
-                  }
-                end
-              end
-            end
-
-            context '16CPU 32G memory system auto-tune' do
-              let(:hieradata) { 'sysconfig/PC1' }
-              let(:facts) do
-                extras.merge(os_facts).merge(
-                  memory: {
-                    'system' => {
-                      'total_bytes' => (32_768 * 1_048_576).to_i,
-                    },
-                  },
-                  processors: {
-                    physicalcount: 4,
-                    count: 16,
-                    models: [
-                      'Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz',
-                      'Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz',
-                      'Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz',
-                      'Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz',
-                    ],
-                  },
-                  puppetserver_jruby: {
-                    'dir' => '/opt/puppetlabs/server/apps/puppetserver',
-                    'jarfiles' => ['x.jar', 'y.jar', 'jruby-9k.jar'],
-                  },
-                )
-              end
-
-              let(:puppetserver_conf) { '/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf' }
-              let(:puppetserver_conf_hash) { Hocon.parse(catalogue.resource("File[#{puppetserver_conf}]")['content']) }
-
-              ['monolithic', 'primary', 'compile'].each do |server_type|
-                context "as #{server_type} server" do
-                  let(:expected_instances) do
-                    mi = if server_type == 'compile'
-                           15
-                         elsif server_type == 'monolithic'
-                           11
-                         else
-                           4
-                         end
-
-                    mi
-                  end
-                  let(:params) do
-                    {
-                      server_type: server_type,
-                    }
-                  end
-
-                  it { expect(puppetserver_conf_hash['jruby-puppet']['max-active-instances']).to eq(expected_instances) }
-
-                  it do
-                    puppetserver_content = File.read("#{File.dirname(__FILE__)}/data/puppetserver-j9-rcc-#{server_type}-1632.txt")
-                    puppetserver_content.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
-                      File.dirname(server_datadir))
-
-                    is_expected.to contain_file('/etc/sysconfig/puppetserver').with(
-                      'owner'   => 'root',
-                      'group'   => 'puppet',
-                      'mode'    => '0640',
-                      'content' => puppetserver_content,
-                    )
-                  end
-
-                  it { is_expected.to create_class('pupmod::master::sysconfig') }
-                  it {
-                    is_expected.to contain_file("#{File.dirname(server_datadir)}/pserver_tmp").with(
-                      'owner'  => 'puppet',
-                      'group'  => 'puppet',
-                      'ensure' => 'directory',
-                      'mode'   => '0750',
-                    )
-                  }
-                end
-              end
-            end
-
-            # Ensure users can still override to whatever ridiculous settings they want
-            context 'crazy manual tuning overrides' do
-              let(:hieradata) { 'sysconfig/PC1-tuning_overrides' }
-              let(:facts) do
-                extras.merge(os_facts).merge(
-                  memory: {
-                    'system' => {
-                      'total_bytes' => (32_768 * 1_048_576).to_i,
-                    },
-                  },
-                  processors: {
-                    physicalcount: 4,
-                    count: 16,
-                    models: [
-                      'Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz',
-                      'Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz',
-                      'Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz',
-                      'Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz',
-                    ],
-                  },
-                  puppetserver_jruby: {
-                    'dir' => '/opt/puppetlabs/server/apps/puppetserver',
-                    'jarfiles' => ['x.jar', 'y.jar', 'jruby-9k.jar'],
-                  },
-                )
-              end
-
-              let(:puppetserver_conf) { '/etc/puppetlabs/puppetserver/conf.d/puppetserver.conf' }
-              let(:puppetserver_conf_hash) { Hocon.parse(catalogue.resource("File[#{puppetserver_conf}]")['content']) }
-
-              it { expect(puppetserver_conf_hash['jruby-puppet']['max-active-instances']).to eq(24) }
-
-              it do
-                puppetserver_content = File.read("#{File.dirname(__FILE__)}/data/puppetserver-j9-tuning_overrides.txt")
-                puppetserver_content.gsub!('%PUPPETSERVER_JAVA_TMPDIR_ROOT%',
-                  File.dirname(server_datadir))
-
-                is_expected.to contain_file('/etc/sysconfig/puppetserver').with(
-                  'owner'   => 'root',
-                  'group'   => 'puppet',
-                  'mode'    => '0640',
-                  'content' => puppetserver_content,
-                )
-              end
-
-              it { is_expected.to create_class('pupmod::master::sysconfig') }
-              it {
-                is_expected.to contain_file("#{File.dirname(server_datadir)}/pserver_tmp").with(
-                  'owner'  => 'puppet',
-                  'group'  => 'puppet',
-                  'ensure' => 'directory',
-                  'mode'   => '0750',
-                )
-              }
-            end
+            it { is_expected.to contain_ini_setting(setting(name)).with_ensure('absent') }
           end
+        end
+      end
+
+      describe 'JRUBY_JAR' do
+        let(:facts) do
+          os_facts.merge(memory).merge(
+            puppetserver_jruby: {
+              'dir'      => '/opt/puppetlabs/server/apps/puppetserver',
+              'jarfiles' => ['x.jar', 'jruby-9k.jar'],
+            },
+          )
+        end
+
+        context 'with an installed jar' do
+          let(:params) { { jruby_jar: 'x.jar' } }
+
+          it { is_expected.to contain_ini_setting(setting('JRUBY_JAR')).with(ensure: 'present', value: '"/opt/puppetlabs/server/apps/puppetserver/x.jar"') }
+        end
+
+        context 'with a jar that is not installed' do
+          let(:params) { { jruby_jar: 'missing.jar' } }
+
+          it { is_expected.to contain_ini_setting(setting('JRUBY_JAR')).with_ensure('absent') }
+        end
+
+        context "with 'default'" do
+          let(:params) { { jruby_jar: 'default' } }
+
+          it { is_expected.to contain_ini_setting(setting('JRUBY_JAR')).with_ensure('absent') }
+        end
+
+        context 'without the puppetserver_jruby fact' do
+          let(:facts) { os_facts.merge(memory).reject { |k, _| k.to_s == 'puppetserver_jruby' } }
+          let(:params) { { jruby_jar: 'x.jar' } }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_ini_setting(setting('JRUBY_JAR')).with_ensure('absent') }
+        end
+      end
+
+      describe 'JVM options' do
+        shared_examples 'a JVM option' do |option, value|
+          ['JAVA_ARGS', 'JAVA_ARGS_CLI'].each do |name|
+            it {
+              is_expected.to contain_ini_subsetting(subsetting(name, option)).with(
+                ensure: (value == 'absent') ? 'absent' : 'present',
+                path: sysconfig,
+                section: '',
+                setting: name,
+                subsetting: option,
+                value: value,
+                quote_char: '"',
+              ).that_requires('Class[pupmod::master::install]')
+            }
+          end
+        end
+
+        context 'with java_max_memory' do
+          let(:params) { { java_max_memory: '2g' } }
+
+          it_behaves_like 'a JVM option', '-Xmx', '2g'
+          # -Xms follows -Xmx when it isn't set
+          it_behaves_like 'a JVM option', '-Xms', '2g'
+        end
+
+        context 'with java_max_memory and java_start_memory' do
+          let(:params) { { java_max_memory: '2g', java_start_memory: '1g' } }
+
+          it_behaves_like 'a JVM option', '-Xmx', '2g'
+          it_behaves_like 'a JVM option', '-Xms', '1g'
+        end
+
+        context 'with a percentage for java_max_memory' do
+          let(:params) { { java_max_memory: '50%' } }
+
+          it_behaves_like 'a JVM option', '-Xmx', '2048m'
+        end
+
+        context 'with only java_start_memory' do
+          let(:params) { { java_start_memory: '1g' } }
+
+          it_behaves_like 'a JVM option', '-Xms', '1g'
+          it { is_expected.not_to contain_ini_subsetting(subsetting('JAVA_ARGS', '-Xmx')) }
+        end
+
+        context "with java_max_memory => 'absent'" do
+          let(:params) { { java_max_memory: 'absent' } }
+
+          it_behaves_like 'a JVM option', '-Xmx', 'absent'
+          it_behaves_like 'a JVM option', '-Xms', 'absent'
+        end
+
+        context 'with java_temp_dir' do
+          let(:params) { { java_temp_dir: '/opt/pserver_tmp' } }
+
+          it_behaves_like 'a JVM option', '-Djava.io.tmpdir', '=/opt/pserver_tmp'
+          it { is_expected.to contain_file('/opt/pserver_tmp').with(ensure: 'directory', owner: 'puppet', group: 'puppet', mode: '0750') }
+        end
+
+        context "with java_temp_dir => 'absent'" do
+          let(:params) { { java_temp_dir: 'absent' } }
+
+          it_behaves_like 'a JVM option', '-Djava.io.tmpdir', 'absent'
+          it { is_expected.not_to contain_file('absent') }
+        end
+
+        context 'with use_code_cache_flushing => true' do
+          let(:params) { { use_code_cache_flushing: true } }
+
+          it_behaves_like 'a JVM option', '-XX:+UseCodeCacheFlushing', ''
+          it_behaves_like 'a JVM option', '-XX:-UseCodeCacheFlushing', 'absent'
+        end
+
+        context 'with use_code_cache_flushing => false' do
+          let(:params) { { use_code_cache_flushing: false } }
+
+          it_behaves_like 'a JVM option', '-XX:-UseCodeCacheFlushing', ''
+          it_behaves_like 'a JVM option', '-XX:+UseCodeCacheFlushing', 'absent'
+        end
+
+        context 'with reserved_code_cache' do
+          let(:params) { { reserved_code_cache: 512 } }
+
+          it_behaves_like 'a JVM option', '-XX:ReservedCodeCacheSize', '=512m'
+        end
+
+        [0, 'absent'].each do |value|
+          context "with reserved_code_cache => #{value.inspect}" do
+            let(:params) { { reserved_code_cache: value } }
+
+            it_behaves_like 'a JVM option', '-XX:ReservedCodeCacheSize', 'absent'
+          end
+        end
+
+        context 'with java_redhat_fips => false' do
+          let(:params) { { java_redhat_fips: false } }
+
+          it_behaves_like 'a JVM option', '-Dcom.redhat.fips', '=false'
+        end
+
+        context "with java_redhat_fips => 'absent'" do
+          let(:params) { { java_redhat_fips: 'absent' } }
+
+          it_behaves_like 'a JVM option', '-Dcom.redhat.fips', 'absent'
+        end
+
+        context 'with extra_java_args' do
+          let(:params) { { extra_java_args: ['-Dfoo=bar', '-XX:+UseG1GC'] } }
+
+          it_behaves_like 'a JVM option', '-Dfoo=bar', ''
+          it_behaves_like 'a JVM option', '-XX:+UseG1GC', ''
         end
       end
     end
   end
 end
+
+describe 'pupmod::master' do
+  # 4 GiB of memory, 8 CPUs
+  let(:memory) { { memory: { 'system' => { 'total_bytes' => 4_294_967_296 } }, processors: { 'count' => 8 } } }
+
+  on_supported_os.to_a.values_at(0, -1).uniq.each do |os, os_facts|
+    context "on #{os}" do
+      let(:facts) { os_facts.merge(memory) }
+
+      context "with java_max_memory and reserved_code_cache => 'auto'" do
+        let(:hieradata) { 'master_sysconfig_auto' }
+
+        it { is_expected.to compile.with_all_deps }
+        # 80% of 4 GiB limits pupmod::java_max_memory(pupmod::max_active_instances())
+        it { is_expected.to contain_ini_subsetting('pupmod::master::sysconfig JAVA_ARGS -Xmx').with_value(%r{^\d+m$}) }
+        it { is_expected.to contain_ini_subsetting('pupmod::master::sysconfig JAVA_ARGS -Xms').with_value(%r{^\d+m$}) }
+        # Less than 8 GiB of memory means no reserved code cache
+        it { is_expected.to contain_ini_subsetting('pupmod::master::sysconfig JAVA_ARGS -XX:ReservedCodeCacheSize').with_ensure('absent') }
+      end
+
+      context "with java_max_memory => 'auto' and max_active_instances" do
+        let(:hieradata) { 'master_sysconfig_auto_instances' }
+
+        # 3 instances at 768 MB each with 8 CPUs
+        it { is_expected.to contain_ini_subsetting('pupmod::master::sysconfig JAVA_ARGS -Xmx').with_value('2304m') }
+      end
+
+      context 'on PE' do
+        let(:hieradata) { 'master_sysconfig_pe' }
+        let(:facts) { os_facts.merge(memory).merge(pe_build: '2016.1.0') }
+
+        it { is_expected.to compile }
+        it { is_expected.to have_ini_setting_resource_count(0) }
+        it { is_expected.to have_ini_subsetting_resource_count(0) }
+        it { is_expected.to contain_file('/opt/pserver_tmp').with_ensure('directory') }
+
+        ['JAVA_ARGS', 'JAVA_ARGS_CLI'].each do |name|
+          it {
+            is_expected.to contain_pe_ini_subsetting("pupmod::master::sysconfig::javatempdir for #{name}").with(
+              ensure: 'present',
+              path: '/etc/sysconfig/pe-puppetserver',
+              setting: name,
+              value: '=/opt/pserver_tmp',
+            )
+          }
+        end
+      end
+    end
+  end
+end
+# rubocop:enable RSpec/MultipleDescribes

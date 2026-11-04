@@ -1,0 +1,8 @@
+---
+compliance_engine::enforcement:
+  - simp:defaults
+# Destructive and disruptive toggles the profile turns on, switched back off
+# by site Hiera, which outranks the profile
+pupmod::purge_logs: false
+pupmod::master::reports::purge: false
+pupmod::master::service::service_ensure: stopped

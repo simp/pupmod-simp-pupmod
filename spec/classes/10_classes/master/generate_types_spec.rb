@@ -57,6 +57,18 @@ describe 'pupmod::master::generate_types' do
       end
 
       context 'with default input' do
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to have_file_resource_count(0) }
+        it { is_expected.to have_exec_resource_count(0) }
+        it { is_expected.to have_service_resource_count(0) }
+        it { is_expected.to have_systemd__unit_file_resource_count(0) }
+        it { is_expected.to have_tidy_resource_count(0) }
+        it { is_expected.to have_notify_resource_count(0) }
+      end
+
+      context 'with enable => true' do
+        let(:params) { { enable: true } }
+
         def self.systemd_path_content
           <<~EOM
             [Install]
@@ -91,6 +103,7 @@ describe 'pupmod::master::generate_types' do
       context 'when disabling puppetserver triggers' do
         let(:params) do
           {
+            enable: true,
             trigger_on_puppetserver_update: false,
           }
         end
@@ -128,6 +141,7 @@ describe 'pupmod::master::generate_types' do
       context 'when disabling puppet triggers' do
         let(:params) do
           {
+            enable: true,
             trigger_on_puppet_update: false,
           }
         end
@@ -165,6 +179,7 @@ describe 'pupmod::master::generate_types' do
       context 'when disabling puppetserver and puppet triggers' do
         let(:params) do
           {
+            enable: true,
             trigger_on_puppet_update: false,
             trigger_on_puppetserver_update: false,
           }
@@ -192,6 +207,7 @@ describe 'pupmod::master::generate_types' do
       context 'when disabling environment triggers' do
         let(:params) do
           {
+            enable: true,
             trigger_on_environment_change: false,
           }
         end
@@ -232,6 +248,7 @@ describe 'pupmod::master::generate_types' do
             puppet_environmentpath: '/etc/puppetlabs/code/environments:/foo/bar/baz',
           )
         end
+        let(:params) { { enable: true } }
 
         def self.systemd_path_content
           <<~EOM
@@ -273,8 +290,8 @@ describe 'pupmod::master::generate_types' do
         end
 
         it { is_expected.to compile.with_all_deps }
-        it { is_expected.to create_file('/usr/local/sbin/simp_generate_types') }
-        it { is_expected.to create_file('/var/run/simp_generate_types') }
+        it { is_expected.not_to create_file('/usr/local/sbin/simp_generate_types') }
+        it { is_expected.not_to create_file('/var/run/simp_generate_types') }
         it { is_expected.not_to create_exec('simp_generate_types') }
         it { is_expected.to create_service('simp_generate_types').with_enable(false) }
         it { is_expected.to create_service('simp_generate_types_force').with_enable(false) }

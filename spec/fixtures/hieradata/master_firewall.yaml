@@ -1,0 +1,4 @@
+---
+simp_options::firewall: true
+simp_options::trusted_nets:
+  - 10.0.0.0/8

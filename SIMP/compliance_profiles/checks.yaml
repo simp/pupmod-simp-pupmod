@@ -1,0 +1,562 @@
+# Sicura Compliance Engine checks restoring what pupmod managed by default
+# before 13.0.0, where a bare `include pupmod` (or `include pupmod::master`)
+# installs only the package. One `puppet-class-parameter` check per restored
+# parameter; the `simp:defaults` profile lists them (see
+# profile-simp_defaults.yaml).
+#
+# Values are the pre-13.0.0 defaults. Where the old default was computed:
+#
+# * from facts, the check interpolates the same fact (`certname`, `srv_domain`,
+#   the whitelists, `puppet_group`);
+# * from module data, the check aliases the same module data key, so a site
+#   that overrode the key keeps its value (the directory settings);
+# * by a function, the check sets `'auto'`, which makes the module run the
+#   same function (`max_active_instances`, `java_max_memory`,
+#   `reserved_code_cache`);
+# * from `simp_options::fips`, the check is confined on the `fips_enabled`
+#   fact (`keylength`).
+#
+# Not restored:
+#
+# * Parameters that default to a `simp_options::*` lookup (`ca_server`,
+#   `ca_port`, `puppet_server`, `haveged`, `firewall`, `auditd`, `syslog`,
+#   `trusted_nets`, `package_ensure`). They still follow `simp_options`, and
+#   a check here would override a site's `simp_options` value.
+# * Settings for obsolete Puppet versions that were removed, not written:
+#   `stringify_facts`, `trusted_server_facts` and `[server] ca`.
+---
+version: 2.0.0
+checks:
+  # --- Agent: puppet service and run schedule ---
+  simp:defaults.pupmod.daemonize:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::daemonize
+      value: false
+
+  # --- Agent: puppet.conf ---
+  simp:defaults.pupmod.splay:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::splay
+      value: false
+  simp:defaults.pupmod.syslogfacility:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::syslogfacility
+      value: local6
+  simp:defaults.pupmod.srv_domain:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::srv_domain
+      value: '%{facts.networking.domain}'
+  simp:defaults.pupmod.certname:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::certname
+      value: '%{trusted.certname}'
+  simp:defaults.pupmod.classfile:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::classfile
+      value: $vardir/classes.txt
+  simp:defaults.pupmod.runinterval:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::runinterval
+      value: 1800
+  simp:defaults.pupmod.digest_algorithm:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::digest_algorithm
+      value: sha256
+  simp:defaults.pupmod.masterport:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::masterport
+      value: 8140
+  simp:defaults.pupmod.report:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::report
+      value: false
+  simp:defaults.pupmod.main_settings:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::main_settings
+      value:
+        confdir: '%{alias(''pupmod::confdir'')}'
+        vardir: '%{alias(''pupmod::vardir'')}'
+        logdir: '%{alias(''pupmod::logdir'')}'
+        rundir: '%{alias(''pupmod::rundir'')}'
+        ssldir: '%{alias(''pupmod::ssldir'')}'
+
+  # --- Agent: other files and system settings ---
+  simp:defaults.pupmod.puppet_extra_opts:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::puppet_extra_opts
+      value: --daemonize
+  simp:defaults.pupmod.puppetagent_manage_all_files:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::puppetagent_manage_all_files
+      value: true
+  simp:defaults.pupmod.purge_logs:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::purge_logs
+      value: true
+  simp:defaults.pupmod.puppet_group:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::puppet_group
+      value: '%{facts.puppet_settings.server.group}'
+  simp:defaults.pupmod.pe_classlist:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::pe_classlist
+      value:
+        pupmod:
+          users:
+          - root
+        pupmod::master:
+          users:
+          - puppet
+        puppet_enterprise::profile::database:
+          users:
+          - pe-postgres
+          services:
+          - pe-postgresql
+          firewall_rules:
+          - proto: tcp
+            port: 5432
+        puppet_enterprise::profile::puppetdb:
+          users:
+          - pe-puppetdb
+          services:
+          - pe-puppetdb
+          firewall_rules:
+          - proto: tcp
+            port: 8081
+        puppet_enterprise::profile::console:
+          services:
+          - pe-console-services
+          - pe-nginx
+          firewall_rules:
+          - proto: tcp
+            port: 443
+          - proto: tcp
+            port: 4431
+          - proto: tcp
+            port: 4433
+        puppet_enterprise::profile::amq::broker:
+          configure_access: true
+          users:
+          - pe-activemq
+          services:
+          - pe-activemq
+          firewall_rules:
+          - proto: tcp
+            port: 45826
+          - proto: tcp
+            port: 61613
+          - proto: tcp
+            port: 61616
+        puppet_enterprise::profile::orchestrator:
+          users:
+          - pe-orchestration-services
+          services:
+          - pe-orchestration-services
+          firewall_rules:
+          - proto: tcp
+            port: 8142
+          - proto: tcp
+            port: 8143
+        puppet_enterprise::profile::master:
+          users:
+          - pe-puppet
+          services:
+          - pe-puppetserver
+          firewall_rules:
+          - proto: tcp
+            port: 8140
+          - proto: tcp
+            port: 8170
+        puppet_enterprise::profile::primary_master_replica:
+          users:
+          - pe-puppetdb
+          - pe-postgres
+          - pe-webserver
+          - pe-console-services
+          - pe-puppet
+          services:
+          - pe-puppetdb
+          - pe-postgresql
+          - pe-console-services
+          - pe-nginx
+          - pe-puppetserver
+          firewall_rules:
+          - proto: tcp
+            port: 8081
+          - proto: tcp
+            port: 5432
+          - proto: tcp
+            port: 443
+          - proto: tcp
+            port: 4431
+          - proto: tcp
+            port: 4433
+          - proto: tcp
+            port: 45826
+          - proto: tcp
+            port: 8142
+          - proto: tcp
+            port: 8143
+          - proto: tcp
+            port: 8140
+          - proto: tcp
+            port: 8170
+
+  # --- Server: resource gates ---
+  simp:defaults.pupmod.master.service.service_ensure:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::service::service_ensure
+      value: running
+  simp:defaults.pupmod.master.service.service_enable:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::service::service_enable
+      value: true
+  simp:defaults.pupmod.master.install.install_release_package:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::install::install_release_package
+      value: true
+  simp:defaults.pupmod.master.base.helper_scripts:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::base::helper_scripts
+      value: true
+  simp:defaults.pupmod.master.generate_types.enable:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::generate_types::enable
+      value: true
+  simp:defaults.pupmod.master.reports.purge:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::reports::purge
+      value: true
+
+  # --- Server: puppet.conf ---
+  simp:defaults.pupmod.master.environmentpath:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::environmentpath
+      value: '%{alias(''pupmod::environmentpath'')}'
+  simp:defaults.pupmod.master.daemonize:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::daemonize
+      value: true
+  simp:defaults.pupmod.master.masterport:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::masterport
+      value: 8140
+  simp:defaults.pupmod.master.ca_ttl:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::ca_ttl
+      value: 10y
+  simp:defaults.pupmod.master.keylength.fips:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::keylength
+      value: 2048
+    confine:
+      fips_enabled: true
+  simp:defaults.pupmod.master.keylength.non_fips:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::keylength
+      value: 4096
+    confine:
+      fips_enabled: false
+  simp:defaults.pupmod.master.freeze_main:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::freeze_main
+      value: false
+  simp:defaults.pupmod.master.strict_hostname_checking:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::strict_hostname_checking
+      value: true
+
+  # --- Server: services.d/ca.cfg, webserver.conf, web-routes.conf ---
+  simp:defaults.pupmod.master.enable_ca:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::enable_ca
+      value: true
+  simp:defaults.pupmod.master.enable_master:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::enable_master
+      value: true
+  simp:defaults.pupmod.master.bind_address:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::bind_address
+      value: 0.0.0.0
+  simp:defaults.pupmod.master.ca_bind_address:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::ca_bind_address
+      value: 0.0.0.0
+  simp:defaults.pupmod.master.admin_api_mountpoint:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::admin_api_mountpoint
+      value: /puppet-admin-api
+
+  # --- Server: ca.conf ---
+  simp:defaults.pupmod.master.ca_allow_auth_extensions:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::ca_allow_auth_extensions
+      value: false
+  simp:defaults.pupmod.master.ca_allow_alt_names:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::ca_allow_alt_names
+      value: false
+  simp:defaults.pupmod.master.ca_status_whitelist:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::ca_status_whitelist
+      value:
+        - '%{facts.networking.fqdn}'
+
+  # --- Server: puppetserver.conf ---
+  simp:defaults.pupmod.master.server_conf_dir:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::server_conf_dir
+      value: '%{alias(''pupmod::confdir'')}'
+  simp:defaults.pupmod.master.server_code_dir:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::server_code_dir
+      value: '%{alias(''pupmod::master::codedir'')}'
+  simp:defaults.pupmod.master.server_var_dir:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::server_var_dir
+      value: '%{alias(''pupmod::master::vardir'')}'
+  simp:defaults.pupmod.master.server_run_dir:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::server_run_dir
+      value: '%{alias(''pupmod::master::rundir'')}'
+  simp:defaults.pupmod.master.server_log_dir:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::server_log_dir
+      value: '%{alias(''pupmod::master::logdir'')}'
+  simp:defaults.pupmod.master.max_active_instances:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::max_active_instances
+      value: auto
+  simp:defaults.pupmod.master.max_requests_per_instance:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::max_requests_per_instance
+      value: 100000
+  simp:defaults.pupmod.master.borrow_timeout:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::borrow_timeout
+      value: 1200000
+  simp:defaults.pupmod.master.environment_class_cache_enabled:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::environment_class_cache_enabled
+      value: true
+  simp:defaults.pupmod.master.compile_mode:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::compile_mode
+      value: 'off'
+  simp:defaults.pupmod.master.use_legacy_auth_conf:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::use_legacy_auth_conf
+      value: false
+  simp:defaults.pupmod.master.max_queued_requests:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::max_queued_requests
+      value: 10
+  simp:defaults.pupmod.master.max_retry_delay:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::max_retry_delay
+      value: 1800
+  simp:defaults.pupmod.master.profiling_mode:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::profiling_mode
+      value: 'off'
+  simp:defaults.pupmod.master.profiler_output_file:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::profiler_output_file
+      value: '%{lookup(''pupmod::master::vardir'')}/server_jruby_profiling'
+  simp:defaults.pupmod.master.ssl_protocols:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::ssl_protocols
+      value:
+        - TLSv1.2
+  simp:defaults.pupmod.master.ssl_cipher_suites:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::ssl_cipher_suites
+      value:
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
+        - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256
+        - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384
+        - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
+        - TLS_DHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_DHE_RSA_WITH_AES_256_CBC_SHA256
+        - TLS_DHE_RSA_WITH_AES_128_GCM_SHA256
+        - TLS_DHE_RSA_WITH_AES_128_CBC_SHA256
+        - TLS_EMPTY_RENEGOTIATION_INFO_SCSV
+  simp:defaults.pupmod.master.enable_profiler:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::enable_profiler
+      value: false
+  simp:defaults.pupmod.master.admin_api_whitelist:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::admin_api_whitelist
+      value:
+        - '%{facts.networking.fqdn}'
+
+  # --- Server: product.conf and logback.xml ---
+  simp:defaults.pupmod.master.enable_analytics:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::enable_analytics
+      value: false
+  simp:defaults.pupmod.master.log_level:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::log_level
+      value: WARN
+  simp:defaults.pupmod.master.log_to_file:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::log_to_file
+      value: false
+
+  # --- Server: /etc/sysconfig/puppetserver ---
+  simp:defaults.pupmod.master.sysconfig.java_bin:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::sysconfig::java_bin
+      value: /usr/bin/java
+  simp:defaults.pupmod.master.sysconfig.java_max_memory:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::sysconfig::java_max_memory
+      value: auto
+  simp:defaults.pupmod.master.sysconfig.java_temp_dir:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::sysconfig::java_temp_dir
+      value: /opt/puppetlabs/puppet/cache/pserver_tmp
+  simp:defaults.pupmod.master.sysconfig.java_redhat_fips:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::sysconfig::java_redhat_fips
+      value: false
+  simp:defaults.pupmod.master.sysconfig.reserved_code_cache:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::sysconfig::reserved_code_cache
+      value: auto
+  simp:defaults.pupmod.master.sysconfig.use_code_cache_flushing:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::sysconfig::use_code_cache_flushing
+      value: true
+  simp:defaults.pupmod.master.sysconfig.jruby_jar:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::sysconfig::jruby_jar
+      value: jruby-9k.jar
+  simp:defaults.pupmod.master.sysconfig.install_dir:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::sysconfig::install_dir
+      value: /opt/puppetlabs/server/apps/puppetserver
+  simp:defaults.pupmod.master.sysconfig.config:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::sysconfig::config
+      value: '%{alias(''pupmod::master::confdir'')}'
+  simp:defaults.pupmod.master.sysconfig.bootstrap_config:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::sysconfig::bootstrap_config
+      value:
+        - /etc/puppetlabs/puppetserver/services.d/
+        - /opt/puppetlabs/server/apps/puppetserver/config/services.d/
+  simp:defaults.pupmod.master.sysconfig.service_stop_retries:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::sysconfig::service_stop_retries
+      value: 60
+  simp:defaults.pupmod.master.sysconfig.start_timeout:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::sysconfig::start_timeout
+      value: 120
+
+  # --- Server: auth.conf (only applies where pupmod::master::simp_auth is included) ---
+  simp:defaults.pupmod.master.simp_auth.pki_mcollective_all:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::simp_auth::pki_mcollective_all
+      value: true
+  simp:defaults.pupmod.master.simp_auth.pki_cacerts_all:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::simp_auth::pki_cacerts_all
+      value: true
+  simp:defaults.pupmod.master.simp_auth.keydist_from_host:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::simp_auth::keydist_from_host
+      value: true
+  simp:defaults.pupmod.master.simp_auth.krb5_keytabs_from_host:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::simp_auth::krb5_keytabs_from_host
+      value: true
+  simp:defaults.pupmod.master.simp_auth.remove_legacy_auth_conf:
+    type: puppet-class-parameter
+    settings:
+      parameter: pupmod::master::simp_auth::remove_legacy_auth_conf
+      value: true

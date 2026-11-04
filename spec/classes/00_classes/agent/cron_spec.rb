@@ -156,6 +156,25 @@ describe 'pupmod::agent::cron' do
             is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(%r{#{expected}})
           end
         end
+
+        context 'with pupmod::splaylimit set' do
+          let(:pre_condition) { "class { 'pupmod': splaylimit => 600 }" }
+
+          it 'adds the splaylimit to the computed max disable time' do
+            expected = Regexp.escape('if [[ ${pup_status} -ne 0 && $(( ${now} - ${filedate} )) -gt 16800')
+            is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(%r{#{expected}})
+          end
+        end
+
+        context "with pupmod::splaylimit => 'absent'" do
+          let(:pre_condition) { "class { 'pupmod': splaylimit => 'absent' }" }
+
+          it { is_expected.to compile.with_all_deps }
+          it 'ignores the splaylimit in the computed max disable time' do
+            expected = Regexp.escape('if [[ ${pup_status} -ne 0 && $(( ${now} - ${filedate} )) -gt 16200')
+            is_expected.to contain_file('/usr/local/bin/puppetagent_cron.sh').with_content(%r{#{expected}})
+          end
+        end
       end
 
       context 'with puppet service enabled' do

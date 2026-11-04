@@ -1,0 +1,2 @@
+---
+pupmod::master::service::service_enable: false

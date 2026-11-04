@@ -13,6 +13,8 @@
 #   * When ``undef`` (the default), this is looked up from the
 #     ``pupmod::pe_classlist`` Hiera key. This is a defined type, so it
 #     cannot use automatic parameter lookup and must do so explicitly.
+# @param puppet_group
+#   When set, the group that owns ``$confdir`` and ``puppet.conf``
 # @param pupmod_server
 # @param pupmod_ca_server
 # @param pupmod_ca_port
@@ -22,23 +24,24 @@
 # @see comment at manifests/init.pp:244
 #
 define pupmod::pass_two (
-  String                                       $namevar             = $name,
-  Enum['openvox-server', 'PC1', 'PE']          $server_distribution = pupmod::server_distribution(),
-  Stdlib::AbsolutePath                         $confdir             = '/etc/puppetlabs/puppet',
-  Optional[Boolean]                            $firewall            = undef,
-  Optional[Hash]                               $pe_classlist        = undef,
-  Variant[Simplib::Host, Array[Simplib::Host]] $pupmod_server       = '1.2.3.4',
-  Variant[Simplib::Host,Enum['$server']]       $pupmod_ca_server    = '$server',
-  Simplib::Port                                $pupmod_ca_port      = 8141,
-  Boolean                                      $pupmod_report       = false,
-  Simplib::Port                                $pupmod_masterport   = 8140,
+  String                                                                    $namevar             = $name,
+  Enum['openvox-server', 'PC1', 'PE']                                       $server_distribution = pupmod::server_distribution(),
+  Stdlib::AbsolutePath                                                      $confdir             = '/etc/puppetlabs/puppet',
+  Optional[Boolean]                                                         $firewall            = undef,
+  Optional[Hash]                                                            $pe_classlist        = undef,
+  Optional[String[1]]                                                       $puppet_group        = undef,
+  Optional[Variant[Simplib::Host, Array[Simplib::Host, 1], Enum['absent']]] $pupmod_server       = undef,
+  Optional[Variant[Simplib::Host, Enum['$server', 'absent']]]              $pupmod_ca_server    = undef,
+  Optional[Variant[Simplib::Port, Enum['absent']]]                          $pupmod_ca_port      = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                                $pupmod_report       = undef,
+  Optional[Variant[Simplib::Port, Enum['absent']]]                          $pupmod_masterport   = undef,
 ) {
   assert_private()
 
   if $pe_classlist {
     $_pe_classlist = $pe_classlist
   } else {
-    $_pe_classlist = lookup('pupmod::pe_classlist')
+    $_pe_classlist = lookup('pupmod::pe_classlist', { 'default_value' => {} })
   }
 
   if (defined(Class['puppet_enterprise'])) {
@@ -49,69 +52,44 @@ define pupmod::pass_two (
 
   # These are agent specific variables, that only apply on Puppet 4+ systems:
   if ($_server_distribution == 'PC1') or ($_server_distribution == 'openvox-server') {
-    if $pupmod_server =~ Array {
-      $server_list = join($pupmod_server, ',')
-      pupmod::conf { 'server_list':
-        ensure  => 'present',
-        confdir => $confdir,
-        setting => 'server_list',
-        value   => $server_list,
-      }
-      # 'server' and 'server_list' are mutually exclusive configs, so ensuring that
-      pupmod::conf { 'server':
-        ensure  => 'absent',
-        confdir => $confdir,
-        setting => 'server',
-        value   => '',
-      }
-    } else {
-      pupmod::conf { 'server':
-        ensure  => 'present',
-        confdir => $confdir,
-        setting => 'server',
-        value   => $pupmod_server,
-      }
-
-      # 'server' and 'server_list' are mutually exclusive configs, so ensuring that
-      pupmod::conf { 'server_list':
-        ensure  => 'absent',
-        confdir => $confdir,
-        setting => 'server_list',
-        value   => '',
-      }
+    # 'server' and 'server_list' are mutually exclusive, so setting one removes
+    # the other
+    $_server_settings = $pupmod_server ? {
+      undef    => {},
+      'absent' => { 'server' => 'absent', 'server_list' => 'absent' },
+      Array    => { 'server_list' => join($pupmod_server, ','), 'server' => 'absent' },
+      default  => { 'server' => $pupmod_server, 'server_list' => 'absent' },
     }
 
-    pupmod::conf { 'ca_server':
-      confdir => $confdir,
-      setting => 'ca_server',
-      value   => $pupmod_ca_server,
+    $_agent_settings = $_server_settings + {
+      'ca_server'  => $pupmod_ca_server,
+      'masterport' => $pupmod_masterport,
+      'ca_port'    => $pupmod_ca_port,
+      'report'     => $pupmod_report,
     }
 
-    pupmod::conf { 'masterport':
-      confdir => $confdir,
-      setting => 'masterport',
-      value   => $pupmod_masterport,
-    }
+    $_agent_settings.each |String[1] $setting, Optional[Scalar] $value| {
+      if $value =~ NotUndef {
+        $_ensure = $value ? {
+          'absent' => 'absent',
+          default  => 'present',
+        }
 
-    pupmod::conf { 'ca_port':
-      confdir => $confdir,
-      setting => 'ca_port',
-      value   => $pupmod_ca_port,
-    }
-    pupmod::conf { 'report':
-      section => 'agent',
-      confdir => $confdir,
-      setting => 'report',
-      value   => $pupmod_report,
+        $_section = $setting ? {
+          'report' => 'agent',
+          default  => 'main',
+        }
+
+        pupmod::conf { $setting:
+          ensure  => $_ensure,
+          section => $_section,
+          confdir => $confdir,
+          setting => $setting,
+          value   => $value,
+        }
+      }
     }
   }
-
-  # In Puppet 6.19 the section "master was renamed to "server" in Puppet.settings.
-  # pick is used here to determine correct value for backwards compatability
-  $_conf_group = pick(
-    $facts.dig('puppet_settings','server','group'),
-    $facts.dig('puppet_settings','master','group')
-  )
 
   # These two maps allow the user and service specifications to occur purely in
   # data and can be included /only/ if the node is classified into the
@@ -140,21 +118,52 @@ define pupmod::pass_two (
       }
     }
     $_group_notify = unique(flatten(delete_undef_values($notify_resources)))
-    $_group_members = unique(flatten(delete_undef_values($available)))
+    $_pe_group_members = unique(flatten(delete_undef_values($available)))
+
+    # Without classes to take members from, leave the members alone
+    $_group_members = empty($_pe_group_members) ? {
+      true    => undef,
+      default => $_pe_group_members,
+    }
   }
   else {
     $_group_notify = undef
     $_group_members = undef
   }
 
-  # All of those functions are required to make this 'safe' and
-  # idempotent.
-  group { $_conf_group:
-    ensure    => 'present',
-    allowdupe => false,
-    tag       => 'firstrun',
-    notify    => $_group_notify,
-    members   => $_group_members,
+  if $puppet_group =~ NotUndef {
+    # All of those functions are required to make this 'safe' and
+    # idempotent.
+    group { $puppet_group:
+      ensure    => 'present',
+      allowdupe => false,
+      tag       => 'firstrun',
+      notify    => $_group_notify,
+      members   => $_group_members,
+    }
+
+    # These items are managed on different files by both the FOSS and PE versions
+    if ($_server_distribution == 'PC1') or ($_server_distribution == 'openvox-server') {
+      $shared_mode = '0640'
+      $shared_group = $puppet_group
+    } elsif ($_server_distribution == 'PE') {
+      $shared_mode = undef
+      $shared_group = undef
+    }
+
+    file { $confdir:
+      ensure => 'directory',
+      owner  => 'root',
+      group  => $puppet_group,
+      mode   => $shared_mode,
+    }
+
+    file { "${confdir}/puppet.conf":
+      ensure => 'file',
+      owner  => 'root',
+      group  => $shared_group,
+      mode   => $shared_mode,
+    }
   }
 
   # We cannot assume that every user is going to read the SIMP docs before they
@@ -170,29 +179,6 @@ define pupmod::pass_two (
     } else {
       include 'pupmod::master::sysconfig'
     }
-  }
-
-  # These items are managed on different files by both the FOSS and PE versions
-  if ($_server_distribution == 'PC1') or ($_server_distribution == 'openvox-server') {
-    $shared_mode = '0640'
-    $shared_group = $_conf_group
-  } elsif ($_server_distribution == 'PE') {
-    $shared_mode = undef
-    $shared_group = undef
-  }
-
-  file { $confdir:
-    ensure => 'directory',
-    owner  => 'root',
-    group  => $_conf_group,
-    mode   => $shared_mode,
-  }
-
-  file { "${confdir}/puppet.conf":
-    ensure => 'file',
-    owner  => 'root',
-    group  => $shared_group,
-    mode   => $shared_mode,
   }
 
   if ($_server_distribution == 'PE') {

@@ -1,3 +1,90 @@
+* Wed Nov 04 2026 Mike Riddle <mike@sicura.us> - 13.0.0
+- BREAKING: a bare `include pupmod` installs the agent package and nothing
+  else, and a bare `include pupmod::master` installs the server package and
+  nothing else. To keep the behavior of 12.x, enforce the new `simp:defaults`
+  compliance profile (Hiera `compliance_engine::enforcement: [simp:defaults]`)
+  or set the parameters below. These are no longer automatic:
+  - every `puppet.conf` setting `pupmod` and `pupmod::master` wrote; each is
+    now written only when its parameter is set, and `'absent'` removes it
+  - managing the `puppet` service and the `puppet_agent.timer` (now
+    `pupmod::daemonize`, which defaults to `undef`)
+  - `PUPPET_EXTRA_OPTS` in `/etc/sysconfig/puppet` (`pupmod::puppet_extra_opts`)
+  - the `puppetagent_manage_all_files` SELinux boolean and its policy package
+    (`pupmod::puppetagent_manage_all_files`)
+  - agent and report log purging (`pupmod::purge_logs`,
+    `pupmod::master::reports::purge`)
+  - the `puppet` group and the ownership and mode of the Puppet directories
+    and configuration files, and the `puppet` user's settings
+    (`pupmod::puppet_group`)
+  - the Puppet Enterprise users, services, PAM rules and firewall rules
+    (`pupmod::pe_classlist`, now empty by default)
+  - managing the `puppetserver` service
+    (`pupmod::master::service::service_ensure` and `service_enable`)
+  - installing the openvox release package, which adds the openvox yum
+    repository (`pupmod::master::install::install_release_package`)
+  - the `puppetserver_reload` and `puppetserver_clear_environment_cache`
+    helper scripts and the reload on configuration changes
+    (`pupmod::master::base::helper_scripts`)
+  - `simp_generate_types` (`pupmod::master::generate_types::enable`)
+  - the `pupmod::master::simp_auth` rules, and removing the legacy
+    `/etc/puppetlabs/puppet/auth.conf`
+    (`pupmod::master::simp_auth::remove_legacy_auth_conf`)
+- BREAKING: the puppetserver configuration is edited in place, one setting at
+  a time, instead of rendering whole files. Settings the module doesn't
+  manage are left as the package or an administrator wrote them, and file
+  ownership and modes are only managed with `pupmod::puppet_group`. This
+  applies to `puppetserver.conf`, `webserver.conf`, `web-routes.conf`,
+  `ca.conf`, `services.d/ca.cfg`, `logback.xml` and
+  `/etc/sysconfig/puppetserver`.
+- BREAKING: `pupmod::ca_server`, `pupmod::ca_port`, `pupmod::puppet_server`
+  and `pupmod::master::ca_port` still default to `simp_options::puppet::*`,
+  but no longer fall back to `'$server'`, `8141` and `puppet.<domain>` when
+  those keys are unset. Set the parameters directly if you don't use
+  `simp_options`.
+- BREAKING: the `confdir`, `vardir`, `logdir`, `rundir` and `ssldir` settings
+  are written to `puppet.conf` through the new `pupmod::main_settings` Hash
+  rather than from the path parameters of the same names.
+- BREAKING: puppetserver's directories are written as
+  `jruby-puppet.server-*-dir` through the new
+  `pupmod::master::server_{conf,code,var,run,log}_dir` parameters, which
+  remove the deprecated `master-*-dir` settings.
+- BREAKING: the CA key length is set with the new `pupmod::master::keylength`
+  instead of being derived from `pupmod::fips`, which is now unused.
+- BREAKING: `stringify_facts`, `trusted_server_facts` and `[server] ca`, which
+  only applied to Puppet 5 and older, are no longer written or removed.
+- BREAKING: `pupmod::master::autosign` and `pupmod::master::fileserver_entry`
+  manage their own line in `autosign.conf` and `fileserver.conf` instead of
+  owning the whole file, and take an `ensure` parameter. Autosign entries no
+  longer get a comment line. `fileserver_entry` no longer writes `allow`
+  lines, which puppetserver ignores.
+- BREAKING: `pupmod::master::freeze_main` is now written as given; it was
+  always written as `false` before.
+- BREAKING: the values in `server_webserver_options`, `ca_webserver_options`
+  and `extra_webserver_sections` are written as HOCON values of their own
+  type, not as raw HOCON text.
+- BREAKING: `facter_options` is managed one key at a time, and is empty by
+  default.
+- BREAKING: requires puppetlabs/stdlib 9.2.0 or later.
+- Added the `simp:defaults` compliance profile, which restores the 12.x
+  behavior when `compliance_engine::enforcement` includes `simp:defaults`.
+- Added `pupmod::main_settings`, `pupmod::puppet_extra_opts`,
+  `pupmod::puppet_group`, `pupmod::puppetagent_manage_all_files`,
+  `pupmod::master::keylength`, `pupmod::master::autosign_entries`,
+  `pupmod::master::sysconfig::java_redhat_fips` and the
+  `puppetserver_webserver` fact.
+- `pupmod::master::max_active_instances`,
+  `pupmod::master::sysconfig::java_max_memory` and
+  `pupmod::master::sysconfig::reserved_code_cache` accept `'auto'` to compute
+  the value as 12.x did.
+- When the CA is given its own port (`pupmod::master::ca_port`),
+  `webserver.conf` is converted to named servers, keeping the settings of the
+  existing server under `base`.
+- Deprecated `pupmod::manage_puppet_sebool`, `pupmod::manage_facter_conf` and
+  `pupmod::master::autosign_hosts`.
+- Fixed `pupmod::purge_logs: false` not removing the log purging tmpfiles
+  drop-in.
+- Fixed the CVE-2020-7942 warning naming the wrong parameter value.
+
 * Mon Nov 02 2026 Mike Riddle <mike@sicura.us> - 12.4.1
 - Fixed a `Calling function empty() with Numeric value is deprecated` warning
   when `pupmod::splaylimit` is set

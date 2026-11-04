@@ -2,6 +2,10 @@
 lookup_options:
   pupmod::facter_options:
     merge: deep
+  pupmod::main_settings:
+    merge: deep
+  pupmod::master::autosign_entries:
+    merge: deep
   pupmod::pe_classlist:
     merge:
       strategy: hash
@@ -24,115 +28,3 @@ pupmod::master::vardir: '/opt/puppetlabs/server/data/puppetserver'
 pupmod::master::rundir: '/var/run/puppetlabs/puppetserver'
 pupmod::master::logdir: '/var/log/puppetlabs/puppetserver'
 pupmod::master::ssldir: "%{alias('pupmod::ssldir')}"
-
-pupmod::master::sysconfig::install_dir: '/opt/puppetlabs/server/apps/puppetserver'
-pupmod::master::sysconfig::config: "%{alias('pupmod::master::confdir')}"
-pupmod::master::sysconfig::bootstrap_config:
-  - '/etc/puppetlabs/puppetserver/services.d/'
-  - '/opt/puppetlabs/server/apps/puppetserver/config/services.d/'
-
-pupmod::facter_options:
-  facts: {}
-  global: {}
-  cli: {}
-pupmod::pe_classlist:
-  pupmod:
-    users:
-      - root
-  pupmod::master:
-    users:
-      - puppet
-  puppet_enterprise::profile::database:
-    users:
-      - pe-postgres
-    services:
-      - pe-postgresql
-    firewall_rules:
-      - proto: tcp
-        port: 5432
-  puppet_enterprise::profile::puppetdb:
-    users:
-      - pe-puppetdb
-    services:
-      - pe-puppetdb
-    firewall_rules:
-      - proto: tcp
-        port: 8081
-  puppet_enterprise::profile::console:
-    services:
-      - pe-console-services
-      - pe-nginx
-    firewall_rules:
-      - proto: tcp
-        port: 443
-      - proto: tcp
-        port: 4431
-      - proto: tcp
-        port: 4433
-  puppet_enterprise::profile::amq::broker:
-    configure_access: true
-    users:
-      - pe-activemq
-    services:
-      - pe-activemq
-    firewall_rules:
-      - proto: tcp
-        port: 45826
-      - proto: tcp
-        port: 61613
-      - proto: tcp
-        port: 61616
-  puppet_enterprise::profile::orchestrator:
-    users:
-      - pe-orchestration-services
-    services:
-      - pe-orchestration-services
-    firewall_rules:
-      - proto: tcp
-        port: 8142
-      - proto: tcp
-        port: 8143
-  puppet_enterprise::profile::master:
-    users:
-      - pe-puppet
-    services:
-      - pe-puppetserver
-    firewall_rules:
-      - proto: tcp
-        port: 8140
-      - proto: tcp
-        port: 8170
-  puppet_enterprise::profile::primary_master_replica:
-    users:
-      - pe-puppetdb
-      - pe-postgres
-      - pe-webserver
-      - pe-console-services
-      - pe-puppet
-    services:
-      - pe-puppetdb
-      - pe-postgresql
-      - pe-console-services
-      - pe-nginx
-      - pe-puppetserver
-    firewall_rules:
-      - proto: tcp
-        port: 8081
-      - proto: tcp
-        port: 5432
-      - proto: tcp
-        port: 443
-      - proto: tcp
-        port: 4431
-      - proto: tcp
-        port: 4433
-      - proto: tcp
-        port: 45826
-      - proto: tcp
-        port: 8142
-      - proto: tcp
-        port: 8143
-      - proto: tcp
-        port: 8140
-      - proto: tcp
-        port: 8170

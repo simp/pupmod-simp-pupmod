@@ -8,6 +8,11 @@
 # @param enable
 #   Enable or disable automatic generation of types using ``puppet generate types``
 #
+#   * ``true`` installs the ``simp_generate_types`` script and its systemd
+#     units.
+#   * ``false`` disables and removes the systemd units.
+#   * ``undef`` leaves all of it alone.
+#
 # @param trigger_on_puppetserver_update
 #   Run ``puppet generate types`` on all environments if the ``puppetserver``
 #   application is updated
@@ -45,7 +50,7 @@
 #   ``simp_generate_types`` process
 #
 class pupmod::master::generate_types (
-  Boolean              $enable                         = true,
+  Optional[Boolean]    $enable                         = undef,
   Boolean              $trigger_on_puppetserver_update = true,
   Stdlib::AbsolutePath $puppetserver_exe               = '/opt/puppetlabs/server/apps/puppetserver/bin/puppetserver',
   Boolean              $trigger_on_puppet_update       = true,
@@ -58,22 +63,22 @@ class pupmod::master::generate_types (
   $_generate_types_path = '/usr/local/sbin/simp_generate_types'
   $_generate_types_command = "${_generate_types_path} --syslog --all --batch --timeout ${timeout} --stability_timeout ${stability_timeout}"
 
-  file { $_generate_types_path:
-    ensure  => 'file',
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0755',
-    content => epp("${module_name}${_generate_types_path}.epp"),
-  }
+  if $enable == true {
+    file { $_generate_types_path:
+      ensure  => 'file',
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0755',
+      content => epp("${module_name}${_generate_types_path}.epp"),
+    }
 
-  file { $run_dir:
-    ensure => 'directory',
-    owner  => 'root',
-    group  => 'root',
-    mode   => '0640',
-  }
+    file { $run_dir:
+      ensure => 'directory',
+      owner  => 'root',
+      group  => 'root',
+      mode   => '0640',
+    }
 
-  if $enable {
     exec { 'simp_generate_types':
       command     => $_generate_types_command,
       refreshonly => true,
@@ -141,7 +146,7 @@ class pupmod::master::generate_types (
       }
     }
   }
-  else {
+  elsif $enable == false {
     service { 'simp_generate_types': enable => false }
     service { 'simp_generate_types_force': enable => false }
 
@@ -153,10 +158,12 @@ class pupmod::master::generate_types (
     systemd::unit_file { 'simp_generate_types_force.service': ensure => absent }
   }
 
-  # TODO: Remove this when enough time has passed that it is no longer necessary
-  tidy { '/etc/incron.d':
-    matches => 'simp_generate_types*',
-    recurse => 1,
-    backup  => false,
+  if $enable =~ NotUndef {
+    # TODO: Remove this when enough time has passed that it is no longer necessary
+    tidy { '/etc/incron.d':
+      matches => 'simp_generate_types*',
+      recurse => 1,
+      backup  => false,
+    }
   }
 }

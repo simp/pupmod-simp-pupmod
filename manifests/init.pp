@@ -1,58 +1,71 @@
-# A class for managing Puppet configurations.
+# @summary Manage the Puppet agent
 #
-# This is mainly a stub class for hooking other classes along the way
-# with a small bit of logic to flex the system toward being a Puppet
-# master or client.  It manages Puppet and Facter configurations.
+# A bare `include pupmod` installs the agent package and does nothing else.
+# Every other behavior is turned on by setting the parameter that controls it.
 #
-# All Puppet configuration parameters are, by default, written to the
-# [main] config block of the Puppet configuration file. Selective options
-# may be written to their respective components as necessary for deconfliction.
+# Settings follow a three-state contract:
+#
+# * `undef` (the default) leaves the setting alone
+# * a value writes it, replacing any earlier value
+# * `'absent'` removes it (`false` for the Booleans that toggle a resource)
+#
+# Unless noted otherwise, `puppet.conf` settings are written to the `[main]`
+# section.
+#
+# The `simp:defaults` compliance profile restores the behavior of `pupmod`
+# before 13.0.0. See the README for details.
 #
 # @param ca_port
-#   The port where the remote CA should be contacted.
+#   The port where the remote CA should be contacted, written as `ca_port`.
+#
+#   Defaults to `simp_options::puppet::ca_port` when that is set.
 #
 # @param ca_server
-#   The puppet CA from which to obtain your system certificates.
+#   The puppet CA from which to obtain your system certificates, written as
+#   `ca_server`.
+#
+#   Defaults to `simp_options::puppet::ca` when that is set.
 #
 # @param puppet_server
 #   One or more puppet servers from which to retrieve your configuration.
+#
+#   * A single host is written as `server`, and `server_list` is removed.
+#   * An Array is written as `server_list`, and `server` is removed.
+#   * `'absent'` removes both.
+#
+#   Defaults to `simp_options::puppet::server` when that is set.
 #
 # @param server_distribution
 #   The server distribution used. This changes the configuration based on whether
 #   we are using PC1 or PE
 #
 # @param certname
-#   The puppet certificate CN name of the system.
-#
-#   * For authenticated remote requests, this defaults to `$trusted['certname']
-#   * For all other requests (e.g., bolt), the default is `$facts['clientcert']`
-#
-#   For additional details, see:
-#
-#   * http://docs.puppetlabs.com/references/latest/configuration.html
-#   * https://puppet.com/docs/puppet/latest/lang_facts_builtin_variables.html
+#   The puppet certificate CN name of the system, written as `certname`.
 #
 # @param classfile
-#   The path to the puppet class file.
+#   The path to the puppet class file, written as `classfile`.
 #
-#   See http://docs.puppetlabs.com/references/latest/configuration.html for
-#   additional details.
+#   Must be an absolute path or begin with a puppet setting such as `$vardir`.
 #
 # @param confdir
-#   The path to the puppet configuration directory.
+#   The path to the puppet configuration directory, which holds `puppet.conf`.
 #
-#   See http://docs.puppetlabs.com/references/latest/configuration.html for
-#   additional details.
+#   This is where the module edits `puppet.conf`. It is not written to
+#   `puppet.conf`; use `main_settings` for that.
 #
 # @param daemonize
 #   Whether or not to daemonize the Puppet agent.
 #
-#   SIMP systems do not, by default, daemonize their agents so that the
-#   consumed resources can be freed for other uses and so that the cron
-#   job can maintain a safe system state over time.
+#   * `true` runs the `puppet` service, writes `daemonize = true` to the
+#     `[agent]` section, and removes the systemd timer.
+#   * `false` stops and disables the `puppet` service, writes
+#     `daemonize = false`, and schedules agent runs with
+#     `pupmod::agent::cron`.
+#   * `undef` leaves the service, the timer and the setting alone.
 #
 # @param digest_algorithm
-#   The hash Digest to use for file operations on the system.
+#   The hash Digest to use for file operations on the system, written as
+#   `digest_algorithm`.
 #
 # @param enable_puppet_master
 #   Whether or not to make the system a puppetmaster.
@@ -60,94 +73,116 @@
 # @param environmentpath
 #   The path to the directory holding the puppet environments.
 #
-# @param listen
-#   Whether or not to listen for incoming connections to the puppet
-#   agent.
+#   This is the default for `pupmod::master::environmentpath` and is not
+#   written to `puppet.conf` by this class.
 #
-#   Given the ability to run puppet remotely via SSH, MCollective, or
-#   many other means, we will not open this by default. If you decide to
-#   enable it, don't forget to add an associated IPTables rule.
+# @param listen
+#   Unused.
 #
 # @param logdir
 #   The path to the puppet log directory.
 #
-#   See http://docs.puppetlabs.com/references/latest/configuration.html for
-#   additional details.
+#   Log purging (`purge_logs`) works relative to its parent directory. It is
+#   not written to `puppet.conf`; use `main_settings` for that.
+#
+# @param main_settings
+#   Additional settings for the `[main]` section of `puppet.conf`, as
+#   `setting => value`. A value of `'absent'` removes the setting.
+#
+#   Merged with `deep`, so each Hiera layer can add, change or remove single
+#   settings. A setting that one of this class's named parameters also
+#   writes (for example `splay`) is taken from the named parameter.
 #
 # @param purge_logs
-#   Purge old logs from the system.
+#   Purge old logs from the system, using a systemd tmpfiles drop-in.
+#
+#   * `true` writes the drop-in.
+#   * `false` removes it.
+#   * `undef` leaves it alone.
 #
 # @param purge_logs_duration
 #   The timeframe after which logs will be purged.
 #
 #   * Uses systemd tmpfiles age notation
+#   * Only used when `purge_logs` is `true`
 #
 # @param purge_log_dirs
-#   The directories under `$logdir` to be purged.
+#   The directories under the parent of `$logdir` to be purged.
+#
+#   * Only used when `purge_logs` is `true`
 #
 # @param masterport
-#   The port where the Puppet Master should be contacted.
+#   The port where the Puppet Master should be contacted, written as
+#   `masterport`.
 #
 # @param report
-#   Whether or not to send reports to the report server. This is
-#   disabled by default to allow users to reduce network load unless
-#   reports are required.
+#   Whether or not to send reports to the report server, written as `report`
+#   to the `[agent]` section.
 #
 # @param rundir
 #   The path to the puppet run status directory.
 #
-#   See http://docs.puppetlabs.com/references/latest/configuration.html for
-#   additional details.
+#   It is not written to `puppet.conf`; use `main_settings` for that.
 #
 # @param runinterval
-#   The number of seconds between puppet runs.
+#   The number of seconds between puppet runs, written as `runinterval`.
+#
 #   Has no effect on the client cron job.
 #
 # @param splay
-#   Whether or not to splay the puppet runs.
-#
-#   This is done by default to add some randomization to client system
-#   runs on large systems.
+#   Whether or not to splay the puppet runs, written as `splay`.
 #
 # @param splaylimit
+#   The maximum time to delay before an agent's first run when `splay` is
+#   enabled, written as `splaylimit`.
 #
 # @param srv_domain
-#   The domain to search when using SRV records.
+#   The domain to search when using SRV records, written as `srv_domain`.
 #
 # @param ssldir
 #   The path to the puppet ssl directory.
 #
-#   See http://docs.puppetlabs.com/references/latest/configuration.html for
-#   additional details.
+#   The puppetserver configuration refers to it. It is not written to
+#   `puppet.conf`; use `main_settings` for that.
 #
 # @param syslogfacility
-#   The Syslog facility to use when outputting messages from puppet.
+#   The Syslog facility to use when outputting messages from puppet, written
+#   as `syslogfacility`.
 #
 # @param use_srv_records
-#   Whether the server will search for SRV records in DNS for the current domain.
+#   Unused.
 #
 # @param haveged
 #   If true, include haveged to assist with entropy generation.
 #
 # @param fips
-#   If true, enable fips mode
+#   Unused, and deprecated.
+#
+#   Before 13.0.0 this chose the CA key length on a puppet server. Set
+#   `pupmod::master::keylength` instead.
 #
 # @param vardir
 #   The directory where puppet will store all of its 'variable' data.
 #
+#   It is not written to `puppet.conf`; use `main_settings` for that.
+#
 # @param manage_facter_conf
-#   Whether to manage the Facter configuration file.
+#   Deprecated: the Facter configuration is managed whenever `facter_options`
+#   is not empty. Setting this to `false` still turns that off.
 #
 # @param facter_conf_dir
 #   Directory containing the Facter configuration file.
 #
 # @param facter_options
-#   Hash of Facter configuration options.
-#   - Only applies when `manage_facter_conf` is `true`.
+#   Hash of Facter configuration options, as `section => { key => value }`.
+#
 #   - Each primary key is a section in the Facter configuration file
 #     (e.g., 'facts', 'global', 'cli')
-#   - When the configuration for a section is empty, that section will
-#     be removed entirely from the Facter configuration file.
+#   - Each key in a section is written separately. A value of `'absent'`
+#     removes that key.
+#   - An empty section (`{}`) removes that section entirely.
+#   - When this is empty (the default), the Facter configuration is left
+#     alone.
 #   - See https://puppet.com/docs/facter/latest/configuring_facter.html
 #     for details on how to configure Facter.
 #
@@ -162,19 +197,42 @@
 #   The openvox_release_url parameter will be ignored if this parameter is set.
 #
 # @param puppet_agent_sebool_package
-#   The name of the package that provides the SELinux boolean to allow the puppet agent to manage all files.
-#   This is required if `manage_puppet_sebool_package` is `true`.
+#   The name of the package that provides the `puppetagent_manage_all_files`
+#   SELinux boolean.
 #
 # @param manage_puppet_sebool_package
-#   Whether to manage the package that provides the SELinux boolean to allow the puppet agent to manage all files.
+#   Whether the package named by `puppet_agent_sebool_package` must be
+#   installed before `puppetagent_manage_all_files` can be set.
+#
+#   This describes the OS release and is set in module data.
+#
+# @param puppetagent_manage_all_files
+#   The value of the `puppetagent_manage_all_files` SELinux boolean.
+#
+#   * `true` turns it on, installing `puppet_agent_sebool_package` first when
+#     `manage_puppet_sebool_package` is `true`.
+#   * `false` turns it off.
+#   * `undef` leaves it alone.
+#
+#   Only applies when SELinux is enabled.
 #
 # @param manage_puppet_sebool
-#   Whether to manage the SELinux boolean that allows the puppet agent to manage all files.
+#   Deprecated: set `puppetagent_manage_all_files` instead.
 #
-#   Set this to `false` on hosts where the boolean is not guaranteed to exist and
-#   `manage_puppet_sebool_package` cannot supply it. This is independent of
-#   `manage_puppet_sebool_package`, which only governs the policy package and the
-#   semodule refresh.
+#   `true` sets `puppetagent_manage_all_files` to `true` when that is unset.
+#
+# @param puppet_extra_opts
+#   The value of `PUPPET_EXTRA_OPTS` in `/etc/sysconfig/puppet`. `'absent'`
+#   removes the line.
+#
+# @param puppet_group
+#   The group that owns Puppet's configuration directories and files.
+#
+#   When set, the group is created if it doesn't exist, and `$confdir` and
+#   `puppet.conf` are owned by `root` and this group, with mode `0640` (except
+#   on Puppet Enterprise, where the mode is left alone). On a puppet server,
+#   `pupmod::master` manages the server's directories and configuration files
+#   the same way.
 #
 # @param mock
 #   If true, disable all code.
@@ -183,7 +241,10 @@
 #   Whether or not firewall rules should be created
 #
 # @param pe_classlist
-#   Hash of pe classes and assorted metadata.
+#   Hash of Puppet Enterprise classes and the users, services and firewall
+#   rules each one needs.
+#
+#   Empty by default, which turns off the Puppet Enterprise integration.
 #
 # @param agent_package
 #   The name of the agent package to install.
@@ -207,62 +268,58 @@
 # @author https://github.com/simp/pupmod-simp-pupmod/graphs/contributors
 #
 class pupmod (
-  Variant[Simplib::Host,Enum['$server']]                  $ca_server            = simplib::lookup('simp_options::puppet::ca', { 'default_value' => '$server' }),
-  Simplib::Port                                           $ca_port              = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
-  Variant[Simplib::Host, Array[Simplib::Host]]            $puppet_server        = simplib::lookup('simp_options::puppet::server', { 'default_value' => "puppet.${facts['networking']['domain']}" }),
-  Enum['openvox-server', 'PC1', 'PE']                     $server_distribution  = pupmod::server_distribution(false), # Can't self-reference in this lookup
-  Simplib::Host                                           $certname             = ($trusted['authenticatedx'] ? {
-      'remote' => $trusted['certname'],
-      default  => pick($facts['clientcert'], $facts['networking']['fqdn']),
-  }),
-  String[0]                                                $classfile            = '$vardir/classes.txt',
-  Boolean                                                  $daemonize            = false,
-  Enum['md5','sha256']                                     $digest_algorithm     = 'sha256',
-  Boolean                                                  $enable_puppet_master = false,
-  Boolean                                                  $listen               = false,
-  Boolean                                                  $purge_logs           = true,
-  Pattern['\d+(h|m|w)']                                    $purge_logs_duration  = '4w',
-  Array[Stdlib::AbsolutePath]                              $purge_log_dirs       = ['/puppet*'],
-  Simplib::Port                                            $masterport           = 8140,
-  Boolean                                                  $report               = false,
-  Integer[0]                                               $runinterval          = 1800,
-  Boolean                                                  $splay                = false,
-  Simplib::Host                                            $srv_domain           = $facts['networking']['domain'],
-  Simplib::Syslog::Facility                                $syslogfacility       = 'local6',
-  Boolean                                                  $use_srv_records      = false,
-  Boolean                                                  $haveged              = simplib::lookup('simp_options::haveged', { 'default_value' => false }),
-  Boolean                                                  $fips                 = simplib::lookup('simp_options::fips', { 'default_value' => false }),
-  Boolean                                                  $firewall             = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
-  Hash                                                     $pe_classlist         = {},
-  String[1]                                                $agent_package        = 'openvox-agent',
-  Optional[Array[Variant[String[1], Hash]]]                $agent_package_install_options = undef,
-  String[1]                                                $package_ensure       = simplib::lookup('simp_options::package_ensure' , { 'default_value' => 'installed' }),
-  Variant[Boolean, Enum['no_clean']]                       $set_environment      = false,
-  Boolean                                                  $manage_facter_conf   = false,
-  Stdlib::Absolutepath                                     $facter_conf_dir      = '/etc/puppetlabs/facter',
-  Boolean                                                  $mock                 = false,
-  Stdlib::HTTPUrl                                          $openvox_base_url     = 'https://yum.voxpupuli.org',
-  Optional[Variant[Stdlib::Absolutepath, Stdlib::HTTPUrl]] $openvox_release_url  = undef,
-  Optional[Variant[Stdlib::Absolutepath, Stdlib::HTTPUrl]] $openvox_rpm_path     = undef,
-  String                                                   $puppet_agent_sebool_package,  # module data
-  Boolean                                                  $manage_puppet_sebool_package, # module data
-  Boolean                                                  $manage_puppet_sebool = true,
-  Stdlib::AbsolutePath                                     $confdir,
-  Hash                                                     $facter_options,               # module data
-  Stdlib::AbsolutePath                                     $vardir,
-  Stdlib::AbsolutePath                                     $ssldir,
-  Stdlib::AbsolutePath                                     $rundir,
-  Stdlib::AbsolutePath                                     $logdir,
-  Stdlib::AbsolutePath                                     $environmentpath,
-  Optional[Integer[1]]                                     $splaylimit           = undef,
+  Optional[Variant[Simplib::Host, Enum['$server', 'absent']]]              $ca_server                     = simplib::lookup('simp_options::puppet::ca', { 'default_value' => undef }),
+  Optional[Variant[Simplib::Port, Enum['absent']]]                          $ca_port                       = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => undef }),
+  Optional[Variant[Simplib::Host, Array[Simplib::Host, 1], Enum['absent']]] $puppet_server                 = simplib::lookup('simp_options::puppet::server', { 'default_value' => undef }),
+  Enum['openvox-server', 'PC1', 'PE']                                       $server_distribution           = pupmod::server_distribution(false), # Can't self-reference in this lookup
+  Optional[Variant[Simplib::Host, Enum['absent']]]                          $certname                      = undef,
+  Optional[Variant[Pattern['^(\$(?!/)|/).+'], Enum['absent']]]              $classfile                     = undef,
+  Optional[Boolean]                                                         $daemonize                     = undef,
+  Optional[Enum['md5', 'sha256', 'absent']]                                 $digest_algorithm              = undef,
+  Boolean                                                                   $enable_puppet_master          = false,
+  Boolean                                                                   $listen                        = false,
+  Hash[String[1], Scalar]                                                   $main_settings                 = {},
+  Optional[Boolean]                                                         $purge_logs                    = undef,
+  Pattern['\d+(h|m|w)']                                                     $purge_logs_duration           = '4w',
+  Array[Stdlib::AbsolutePath]                                               $purge_log_dirs                = ['/puppet*'],
+  Optional[Variant[Simplib::Port, Enum['absent']]]                          $masterport                    = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                                $report                        = undef,
+  Optional[Variant[Integer[0], Enum['absent']]]                             $runinterval                   = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                                $splay                         = undef,
+  Optional[Variant[Simplib::Host, Enum['absent']]]                          $srv_domain                    = undef,
+  Optional[Variant[Simplib::Syslog::Facility, Enum['absent']]]              $syslogfacility                = undef,
+  Boolean                                                                   $use_srv_records               = false,
+  Boolean                                                                   $haveged                       = simplib::lookup('simp_options::haveged', { 'default_value' => false }),
+  Boolean                                                                   $fips                          = simplib::lookup('simp_options::fips', { 'default_value' => false }),
+  Boolean                                                                   $firewall                      = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
+  Hash                                                                      $pe_classlist                  = {},
+  String[1]                                                                 $agent_package                 = 'openvox-agent',
+  Optional[Array[Variant[String[1], Hash]]]                                 $agent_package_install_options = undef,
+  String[1]                                                                 $package_ensure                = simplib::lookup('simp_options::package_ensure' , { 'default_value' => 'installed' }),
+  Variant[Boolean, Enum['no_clean']]                                        $set_environment               = false,
+  Optional[Boolean]                                                         $manage_facter_conf            = undef,
+  Stdlib::Absolutepath                                                      $facter_conf_dir               = '/etc/puppetlabs/facter',
+  Boolean                                                                   $mock                          = false,
+  Stdlib::HTTPUrl                                                           $openvox_base_url              = 'https://yum.voxpupuli.org',
+  Optional[Variant[Stdlib::Absolutepath, Stdlib::HTTPUrl]]                  $openvox_release_url           = undef,
+  Optional[Variant[Stdlib::Absolutepath, Stdlib::HTTPUrl]]                  $openvox_rpm_path              = undef,
+  String                                                                    $puppet_agent_sebool_package,  # module data
+  Boolean                                                                   $manage_puppet_sebool_package, # module data
+  Optional[Boolean]                                                         $puppetagent_manage_all_files  = undef,
+  Optional[Boolean]                                                         $manage_puppet_sebool          = undef,
+  Optional[Variant[String, Enum['absent']]]                                 $puppet_extra_opts             = undef,
+  Optional[String[1]]                                                       $puppet_group                  = undef,
+  Stdlib::AbsolutePath                                                      $confdir,
+  Hash                                                                      $facter_options                = {},
+  Stdlib::AbsolutePath                                                      $vardir,
+  Stdlib::AbsolutePath                                                      $ssldir,
+  Stdlib::AbsolutePath                                                      $rundir,
+  Stdlib::AbsolutePath                                                      $logdir,
+  Stdlib::AbsolutePath                                                      $environmentpath,
+  Optional[Variant[Integer[1], Enum['absent']]]                             $splaylimit                    = undef,
 ) {
   unless $mock {
     simplib::assert_metadata($module_name)
-
-    # This regex matches absolute paths or paths that begin with an existing
-    # puppet configuration variable, like $vardir
-
-    assert_type(Pattern['^(\$(?!/)|/).+'], $classfile)
 
     if $haveged {
       include 'haveged'
@@ -274,48 +331,49 @@ class pupmod (
       include 'pupmod::master'
     }
 
-    if $daemonize {
-      $_puppet_service_ensure = 'running'
-      cron { 'puppetagent': ensure => 'absent' }
+    if $daemonize =~ NotUndef {
+      if $daemonize {
+        $_puppet_service_ensure = 'running'
+        cron { 'puppetagent': ensure => 'absent' }
 
-      # Stop and disable the timer before its unit file is removed so it is
-      # unloaded and its timers.target.wants symlink is cleaned up
-      systemd::timer { 'puppet_agent.timer':
-        ensure => 'absent',
-        active => false,
-        enable => false,
+        # Stop and disable the timer before its unit file is removed so it is
+        # unloaded and its timers.target.wants symlink is cleaned up
+        systemd::timer { 'puppet_agent.timer':
+          ensure => 'absent',
+          active => false,
+          enable => false,
+        }
+
+        # systemd::timer only manages the companion service unit when content
+        # is passed, so its removal must be declared explicitly
+        systemd::unit_file { 'puppet_agent.service':
+          ensure  => 'absent',
+          require => Systemd::Timer['puppet_agent.timer'],
+        }
+
+        file { ['/usr/local/bin/puppetagent_cron.sh', '/usr/local/bin/careful_puppet_service_shutdown.sh']:
+          ensure  => 'absent',
+          require => Systemd::Timer['puppet_agent.timer'],
+        }
+      }
+      else {
+        $_puppet_service_ensure = 'stopped'
+        include 'pupmod::agent::cron'
       }
 
-      # systemd::timer only manages the companion service unit when content
-      # is passed, so its removal must be declared explicitly
-      systemd::unit_file { 'puppet_agent.service':
-        ensure  => 'absent',
-        require => Systemd::Timer['puppet_agent.timer'],
+      service { 'puppet':
+        ensure     => $_puppet_service_ensure,
+        enable     => $daemonize,
+        hasrestart => true,
+        hasstatus  => true,
       }
 
-      file { ['/usr/local/bin/puppetagent_cron.sh', '/usr/local/bin/careful_puppet_service_shutdown.sh']:
-        ensure  => 'absent',
-        require => Systemd::Timer['puppet_agent.timer'],
+      pupmod::conf { 'agent_daemonize':
+        section => 'agent',
+        confdir => $confdir,
+        setting => 'daemonize',
+        value   => $daemonize,
       }
-    }
-    else {
-      $_puppet_service_ensure = 'stopped'
-      include 'pupmod::agent::cron'
-    }
-
-    service { 'puppet':
-      ensure     => $_puppet_service_ensure,
-      enable     => $daemonize,
-      hasrestart => true,
-      hasstatus  => true,
-      subscribe  => File["${confdir}/puppet.conf"],
-    }
-
-    pupmod::conf { 'agent_daemonize':
-      section => 'agent',
-      confdir => $confdir,
-      setting => 'daemonize',
-      value   => $daemonize,
     }
 
     # This takes some explaining. You may be asking yourself: Dear god? why?
@@ -348,6 +406,7 @@ class pupmod (
       confdir             => $confdir,
       firewall            => $firewall,
       pe_classlist        => $pe_classlist,
+      puppet_group        => $puppet_group,
       pupmod_server       => $puppet_server,
       pupmod_ca_server    => $ca_server,
       pupmod_masterport   => $masterport,
@@ -355,14 +414,6 @@ class pupmod (
       pupmod_report       => $report,
     }
     Pupmod::Pass_two <| |>
-
-    if $splaylimit =~ NotUndef {
-      pupmod::conf { 'splaylimit':
-        confdir => $confdir,
-        setting => 'splaylimit',
-        value   => $splaylimit,
-      }
-    }
 
     if $set_environment {
       unless ($set_environment == 'no_clean') {
@@ -384,63 +435,65 @@ class pupmod (
       }
     }
 
-    pupmod::conf {
-      default: confdir => $confdir;
-
-      'splay':
-        setting => 'splay',
-        value   => $splay;
-      'syslogfacility':
-        setting => 'syslogfacility',
-        value   => $syslogfacility;
-      'srv_domain':
-        setting => 'srv_domain',
-        value   => $srv_domain;
-      'certname':
-        setting => 'certname',
-        value   => $certname;
-      'vardir':
-        setting => 'vardir',
-        value   => $vardir;
-      'classfile':
-        setting => 'classfile',
-        value   => $classfile;
-      'confdir':
-        setting => 'confdir',
-        value   => $confdir,;
-      'logdir':
-        setting => 'logdir',
-        value   => $logdir;
-      'rundir':
-        setting => 'rundir',
-        value   => $rundir;
-      'runinterval':
-        setting => 'runinterval',
-        value   => $runinterval;
-      'ssldir':
-        setting => 'ssldir',
-        value   => $ssldir;
-      'stringify_facts':
-        setting => 'stringify_facts',
-        value   => false;
-      'digest_algorithm':
-        setting => 'digest_algorithm',
-        value   => $digest_algorithm;
+    # The named parameters win over the same setting in $main_settings
+    $_main_settings = $main_settings + {
+      'splay'            => $splay,
+      'splaylimit'       => $splaylimit,
+      'syslogfacility'   => $syslogfacility,
+      'srv_domain'       => $srv_domain,
+      'certname'         => $certname,
+      'classfile'        => $classfile,
+      'runinterval'      => $runinterval,
+      'digest_algorithm' => $digest_algorithm,
     }
 
-    # This is to allow the hosts to boot faster.  It should probably be
-    # re-worked.
-    file { '/etc/sysconfig/puppet':
-      ensure  => 'file',
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0644',
-      content => "PUPPET_EXTRA_OPTS='--daemonize'\n",
+    $_main_settings.each |String[1] $setting, Optional[Scalar] $value| {
+      if $value =~ NotUndef {
+        $_ensure = $value ? {
+          'absent' => 'absent',
+          default  => 'present',
+        }
+
+        pupmod::conf { $setting:
+          ensure  => $_ensure,
+          confdir => $confdir,
+          setting => $setting,
+          value   => $value,
+        }
+      }
+    }
+
+    if $puppet_extra_opts =~ NotUndef {
+      $_extra_opts = $puppet_extra_opts ? {
+        'absent' => { 'ensure' => 'absent', 'match_for_absence' => true },
+        default  => { 'ensure' => 'present' },
+      }
+
+      file_line { 'pupmod PUPPET_EXTRA_OPTS':
+        path    => '/etc/sysconfig/puppet',
+        line    => "PUPPET_EXTRA_OPTS='${puppet_extra_opts}'",
+        match   => '^\s*PUPPET_EXTRA_OPTS=',
+        require => Class['pupmod::agent::install'],
+        *       => $_extra_opts,
+      }
+    }
+
+    if $manage_puppet_sebool =~ NotUndef {
+      deprecation('pupmod::manage_puppet_sebool', 'pupmod::manage_puppet_sebool is deprecated. Set pupmod::puppetagent_manage_all_files instead.', false)
+    }
+
+    $_puppet_agent_sebool_value = $puppetagent_manage_all_files ? {
+      undef   => $manage_puppet_sebool ? {
+        true    => true,
+        default => undef,
+      },
+      default => $puppetagent_manage_all_files,
     }
 
     $puppet_agent_sebool = 'puppetagent_manage_all_files'
-    if $facts['os']['selinux']['enabled'] and $facts['os']['selinux']['current_mode'] and ($facts['os']['selinux']['current_mode'] != 'disabled') {
-      if $manage_puppet_sebool_package {
+    if ($_puppet_agent_sebool_value =~ NotUndef) and $facts['os']['selinux']['enabled'] and $facts['os']['selinux']['current_mode'] and ($facts['os']['selinux']['current_mode'] != 'disabled') {
+      # The package only provides the boolean, so it is needed to turn it on
+      if $_puppet_agent_sebool_value and $manage_puppet_sebool_package {
         package { $puppet_agent_sebool_package:
           ensure => 'installed',
         }
@@ -448,35 +501,36 @@ class pupmod (
         exec { "Refresh semodules after installing ${puppet_agent_sebool_package}":
           command => '/usr/sbin/semodule --refresh',
           unless  => "/usr/sbin/getsebool ${puppet_agent_sebool}",
+          require => Package[$puppet_agent_sebool_package],
+          before  => Exec["Set ${puppet_agent_sebool} seboolean"],
         }
-
-        Package[$puppet_agent_sebool_package]
-        -> Exec["Refresh semodules after installing ${puppet_agent_sebool_package}"]
       }
 
-      if $manage_puppet_sebool {
-        # An `exec` is used here instead of `selboolean` so that a first-run
-        # `--noop` does not fail: the `selboolean` provider errors out when it
-        # probes a boolean that does not exist yet, whereas a failing `unless`
-        # check simply reports the command as out of sync (SIMP #241).
-        exec { "Set ${puppet_agent_sebool} seboolean":
-          command => "/usr/sbin/setsebool -P ${puppet_agent_sebool} on",
-          unless  => "/usr/sbin/getsebool ${puppet_agent_sebool} | /usr/bin/grep -q ' --> on'",
-        }
+      $_sebool_state = $_puppet_agent_sebool_value ? {
+        true    => 'on',
+        default => 'off',
+      }
 
-        if $manage_puppet_sebool_package {
-          Exec["Refresh semodules after installing ${puppet_agent_sebool_package}"]
-          -> Exec["Set ${puppet_agent_sebool} seboolean"]
-        }
+      # An `exec` is used here instead of `selboolean` so that a first-run
+      # `--noop` does not fail: the `selboolean` provider errors out when it
+      # probes a boolean that does not exist yet, whereas a failing `unless`
+      # check simply reports the command as out of sync (SIMP #241).
+      exec { "Set ${puppet_agent_sebool} seboolean":
+        command => "/usr/sbin/setsebool -P ${puppet_agent_sebool} ${_sebool_state}",
+        unless  => "/usr/sbin/getsebool ${puppet_agent_sebool} | /usr/bin/grep -q ' --> ${_sebool_state}'",
       }
     }
 
-    if $manage_facter_conf {
+    if $manage_facter_conf =~ NotUndef {
+      deprecation('pupmod::manage_facter_conf', 'pupmod::manage_facter_conf is deprecated. The Facter configuration is managed whenever pupmod::facter_options is not empty.', false)
+    }
+
+    if ($manage_facter_conf != false) and !empty($facter_options) {
       include 'pupmod::facter::conf'
     }
 
-    if $purge_logs {
-      unless empty($purge_log_dirs) {
+    if $purge_logs =~ NotUndef {
+      if $purge_logs and !empty($purge_log_dirs) {
         $_purge_logdir = dirname($logdir)
 
         if empty($_purge_logdir) or ($_purge_logdir == '/') {
@@ -489,9 +543,9 @@ class pupmod (
           content => join($_purge_logs_content, "\n"),
         }
       }
-    }
-    else {
-      systemd::tmpfile { 'puppet_purge_puppet_service_logs': ensure => 'absent' }
+      else {
+        systemd::tmpfile { 'puppet_purge_puppet_service_logs.conf': ensure => 'absent' }
+      }
     }
   }
 }

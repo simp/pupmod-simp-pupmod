@@ -4,6 +4,7 @@ describe 'disable automatic puppet generate types' do
   require_relative('lib/util')
 
   include GenerateTypesTestUtil
+  include PupmodTestUtil
 
   hosts_with_role(hosts, 'simp_master').each do |host|
     context "on #{host}" do
@@ -46,7 +47,7 @@ describe 'disable automatic puppet generate types' do
       end
 
       it 'cleans up the cache' do
-        set_hieradata_on(host, hieradata)
+        set_simp_defaults_hieradata_on(host, hieradata)
         apply_manifest_on(host, master_manifest, accept_all_exit_codes: true)
 
         on(host, "rm -rf #{resource_types_cache}")

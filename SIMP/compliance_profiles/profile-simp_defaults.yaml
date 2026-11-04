@@ -1,0 +1,98 @@
+# The `simp:defaults` Sicura Compliance Engine profile.
+#
+# Enforcing it (Hiera `compliance_engine::enforcement: [simp:defaults]`)
+# restores what pupmod managed by default before 13.0.0. Checks are listed
+# directly (no controls indirection) and defined in checks.yaml.
+---
+version: 2.0.0
+profiles:
+  simp:defaults:
+    checks:
+      # Agent: puppet service and run schedule
+      simp:defaults.pupmod.daemonize: true
+      # Agent: puppet.conf
+      simp:defaults.pupmod.splay: true
+      simp:defaults.pupmod.syslogfacility: true
+      simp:defaults.pupmod.srv_domain: true
+      simp:defaults.pupmod.certname: true
+      simp:defaults.pupmod.classfile: true
+      simp:defaults.pupmod.runinterval: true
+      simp:defaults.pupmod.digest_algorithm: true
+      simp:defaults.pupmod.masterport: true
+      simp:defaults.pupmod.report: true
+      simp:defaults.pupmod.main_settings: true
+      # Agent: other files and system settings
+      simp:defaults.pupmod.puppet_extra_opts: true
+      simp:defaults.pupmod.puppetagent_manage_all_files: true
+      simp:defaults.pupmod.purge_logs: true
+      simp:defaults.pupmod.puppet_group: true
+      simp:defaults.pupmod.pe_classlist: true
+      # Server: resource gates
+      simp:defaults.pupmod.master.service.service_ensure: true
+      simp:defaults.pupmod.master.service.service_enable: true
+      simp:defaults.pupmod.master.install.install_release_package: true
+      simp:defaults.pupmod.master.base.helper_scripts: true
+      simp:defaults.pupmod.master.generate_types.enable: true
+      simp:defaults.pupmod.master.reports.purge: true
+      # Server: puppet.conf
+      simp:defaults.pupmod.master.environmentpath: true
+      simp:defaults.pupmod.master.daemonize: true
+      simp:defaults.pupmod.master.masterport: true
+      simp:defaults.pupmod.master.ca_ttl: true
+      simp:defaults.pupmod.master.keylength.fips: true
+      simp:defaults.pupmod.master.keylength.non_fips: true
+      simp:defaults.pupmod.master.freeze_main: true
+      simp:defaults.pupmod.master.strict_hostname_checking: true
+      # Server: services.d/ca.cfg, webserver.conf, web-routes.conf
+      simp:defaults.pupmod.master.enable_ca: true
+      simp:defaults.pupmod.master.enable_master: true
+      simp:defaults.pupmod.master.bind_address: true
+      simp:defaults.pupmod.master.ca_bind_address: true
+      simp:defaults.pupmod.master.admin_api_mountpoint: true
+      # Server: ca.conf
+      simp:defaults.pupmod.master.ca_allow_auth_extensions: true
+      simp:defaults.pupmod.master.ca_allow_alt_names: true
+      simp:defaults.pupmod.master.ca_status_whitelist: true
+      # Server: puppetserver.conf
+      simp:defaults.pupmod.master.server_conf_dir: true
+      simp:defaults.pupmod.master.server_code_dir: true
+      simp:defaults.pupmod.master.server_var_dir: true
+      simp:defaults.pupmod.master.server_run_dir: true
+      simp:defaults.pupmod.master.server_log_dir: true
+      simp:defaults.pupmod.master.max_active_instances: true
+      simp:defaults.pupmod.master.max_requests_per_instance: true
+      simp:defaults.pupmod.master.borrow_timeout: true
+      simp:defaults.pupmod.master.environment_class_cache_enabled: true
+      simp:defaults.pupmod.master.compile_mode: true
+      simp:defaults.pupmod.master.use_legacy_auth_conf: true
+      simp:defaults.pupmod.master.max_queued_requests: true
+      simp:defaults.pupmod.master.max_retry_delay: true
+      simp:defaults.pupmod.master.profiling_mode: true
+      simp:defaults.pupmod.master.profiler_output_file: true
+      simp:defaults.pupmod.master.ssl_protocols: true
+      simp:defaults.pupmod.master.ssl_cipher_suites: true
+      simp:defaults.pupmod.master.enable_profiler: true
+      simp:defaults.pupmod.master.admin_api_whitelist: true
+      # Server: product.conf and logback.xml
+      simp:defaults.pupmod.master.enable_analytics: true
+      simp:defaults.pupmod.master.log_level: true
+      simp:defaults.pupmod.master.log_to_file: true
+      # Server: /etc/sysconfig/puppetserver
+      simp:defaults.pupmod.master.sysconfig.java_bin: true
+      simp:defaults.pupmod.master.sysconfig.java_max_memory: true
+      simp:defaults.pupmod.master.sysconfig.java_temp_dir: true
+      simp:defaults.pupmod.master.sysconfig.java_redhat_fips: true
+      simp:defaults.pupmod.master.sysconfig.reserved_code_cache: true
+      simp:defaults.pupmod.master.sysconfig.use_code_cache_flushing: true
+      simp:defaults.pupmod.master.sysconfig.jruby_jar: true
+      simp:defaults.pupmod.master.sysconfig.install_dir: true
+      simp:defaults.pupmod.master.sysconfig.config: true
+      simp:defaults.pupmod.master.sysconfig.bootstrap_config: true
+      simp:defaults.pupmod.master.sysconfig.service_stop_retries: true
+      simp:defaults.pupmod.master.sysconfig.start_timeout: true
+      # Server: auth.conf (only applies where pupmod::master::simp_auth is included)
+      simp:defaults.pupmod.master.simp_auth.pki_mcollective_all: true
+      simp:defaults.pupmod.master.simp_auth.pki_cacerts_all: true
+      simp:defaults.pupmod.master.simp_auth.keydist_from_host: true
+      simp:defaults.pupmod.master.simp_auth.krb5_keytabs_from_host: true
+      simp:defaults.pupmod.master.simp_auth.remove_legacy_auth_conf: true

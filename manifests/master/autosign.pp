@@ -3,42 +3,50 @@
 # Ideally, autosign will not be used in your environment. However, should you
 # happen to need it
 #
+# Only this entry's line is managed; other lines in the file are left alone.
+#
 # @param name
-#   A useful comment for the entry being signed
+#   The autosign entry, or a unique label for it when ``$entry`` is set
 #
 # @param entry
-#   The autosign entry to add to the file if ``$name`` is used as a unique comment
+#   The autosign entry to add to the file if ``$name`` is used as a label
+#
+# @param ensure
+#   ``absent`` removes the entry from the file
 #
 define pupmod::master::autosign (
-  Optional[Pattern['^(\*\.)?\S+$']] $entry = undef
+  Optional[Pattern['^(\*\.)?\S+$']] $entry  = undef,
+  Enum['present', 'absent']          $ensure = 'present',
 ) {
   include 'pupmod::master'
 
-  # In Puppet 6.19 the section "master was renamed to "server" in Puppet.settings.
-  # pick is used here to determine correct value for backwards compatability
-  $_puppet_group = pick($facts.dig('puppet_settings','server','group'),$facts.dig('puppet_settings','master','group'))
-
-  ensure_resource('concat', "${pupmod::confdir}/autosign.conf", {
-    'ensure' => 'present',
-    'owner'  => 'root',
-    'group'  => $_puppet_group,
-    'mode'   => '0640',
-    'notify' => Class['pupmod::master::service']
-  })
+  $_autosign_conf = "${pupmod::confdir}/autosign.conf"
 
   if $entry {
-    $_content = "# ${name}\n${entry}\n"
+    $_entry = $entry
   }
   else {
     assert_type(Pattern['^(\*\.)?\S+$'], $name) |$expected, $actual| {
       fail("'name' should be ${expected}, got '${name}'")
     }
 
-    $_content = "${name}\n"
+    $_entry = $name
   }
 
-  concat::fragment { "pupmod::master::autosign ${name}":
-    target  => "${pupmod::confdir}/autosign.conf",
-    content => $_content,
+  if $pupmod::puppet_group =~ NotUndef {
+    ensure_resource('file', $_autosign_conf, {
+        'ensure' => 'file',
+        'owner'  => 'root',
+        'group'  => $pupmod::puppet_group,
+        'mode'   => '0640',
+        'notify' => Class['pupmod::master::service'],
+    })
+  }
+
+  file_line { "pupmod::master::autosign ${name}":
+    ensure => $ensure,
+    path   => $_autosign_conf,
+    line   => $_entry,
+    notify => Class['pupmod::master::service'],
   }
 }
