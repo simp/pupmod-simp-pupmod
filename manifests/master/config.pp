@@ -11,7 +11,11 @@ class pupmod::master::config {
 
   $_confdir = $pupmod::master::confdir
   $_conf_base = dirname($_confdir)
-  $_webserver = $facts['puppetserver_webserver']
+  # The fact reads the default conf.d, so it only describes that one
+  $_webserver = $_confdir ? {
+    '/etc/puppetlabs/puppetserver/conf.d' => $facts['puppetserver_webserver'],
+    default                               => undef,
+  }
 
   $_resource_defaults = {
     'require' => Class['pupmod::master::install'],
@@ -116,10 +120,17 @@ class pupmod::master::config {
     }
   }
 
+  # 'absent' removes masterport from puppet.conf only; the server must keep
+  # a port to listen on
+  $_ssl_port = $pupmod::master::masterport ? {
+    Integer => $pupmod::master::masterport,
+    default => undef,
+  }
+
   # Unset parameters must not replace the settings moved into 'base'
   $_main_server_params = ({
     'ssl-host'      => $pupmod::master::bind_address,
-    'ssl-port'      => $pupmod::master::masterport,
+    'ssl-port'      => $_ssl_port,
     'ssl-protocols' => $_ssl_protocols,
     'cipher-suites' => $_cipher_suites,
     'client-auth'   => $_client_auth,
@@ -211,6 +222,11 @@ class pupmod::master::config {
     true    => { 'default' => { 'route' => '/puppet-ca', 'server' => 'ca' } },
     false   => '/puppet-ca',
     default => undef,
+  }
+
+  # puppetserver needs a route for every service it runs
+  if $pupmod::master::admin_api_mountpoint == 'absent' {
+    fail('pupmod::master::admin_api_mountpoint cannot be removed: puppetserver needs a route for its admin API. Leave it unset to keep the current route.')
   }
 
   $_admin_route = $pupmod::master::admin_api_mountpoint ? {
@@ -359,7 +375,10 @@ class pupmod::master::config {
         "ins appender before *[label() = 'logger' or label() = 'root'][1]",
         'set appender[count(*) = 0]/#attribute/name SYSLOG',
       ],
-      onlyif  => "match appender[#attribute/name='SYSLOG'] size == 0",
+      # Matches only when logback.xml exists and has no SYSLOG appender, so
+      # the insert always has a logger to go before (logback.xml is missing
+      # on a fresh node under --noop)
+      onlyif  => "match root[count(../appender[#attribute/name='SYSLOG']) = 0] size == 1",
       require => Class['pupmod::master::install'],
       *       => $_logback_defaults,
     }

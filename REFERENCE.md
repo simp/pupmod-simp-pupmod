@@ -269,6 +269,10 @@ Merged with `deep`, so each Hiera layer can add, change or remove single
 settings. When one of this class's named parameters (for example
 `splay`) is set, it wins over the same setting here.
 
+`server`, `server_list`, `ca_server`, `masterport`, `ca_port`, `report`
+and `environment` are rejected here; set `puppet_server`, `ca_server`,
+`masterport`, `ca_port`, `report` or `set_environment` instead.
+
 Default value: `{}`
 
 ##### <a name="-pupmod--purge_logs"></a>`purge_logs`
@@ -1175,6 +1179,9 @@ The port upon which the Puppet master process will listen, written as
 `masterport` in the `[server]` section of `puppet.conf` and as `ssl-port`
 of the main server in `webserver.conf`.
 
+`'absent'` removes the `puppet.conf` setting only; the main server keeps
+its `ssl-port`.
+
 Default value: `undef`
 
 ##### <a name="-pupmod--master--puppet_confdir"></a>`puppet_confdir`
@@ -1190,6 +1197,11 @@ Default value: `$pupmod::confdir`
 Data type: `Stdlib::AbsolutePath`
 
 The puppetserver configuration directory (`conf.d`).
+
+The `puppetserver_webserver` fact only reads the default
+`/etc/puppetlabs/puppetserver/conf.d`. With another directory, the module
+assumes a single-server `webserver.conf` until it converts the file to
+named servers itself.
 
 Default value: `'/etc/puppetlabs/puppetserver/conf.d'`
 
@@ -1459,6 +1471,9 @@ Data type: `Optional[String[1]]`
 
 The endpoint for the Puppet Servers adminstrative API, written to
 `web-routes.conf`. Changing this may break external utilities.
+
+puppetserver needs this route, so it cannot be removed: `'absent'` fails
+the catalog.
 
 Default value: `undef`
 

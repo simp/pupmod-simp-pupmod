@@ -109,11 +109,19 @@
 #   `masterport` in the `[server]` section of `puppet.conf` and as `ssl-port`
 #   of the main server in `webserver.conf`.
 #
+#   `'absent'` removes the `puppet.conf` setting only; the main server keeps
+#   its `ssl-port`.
+#
 # @param puppet_confdir
 #   The Puppet client configuration directory, which holds `puppet.conf`.
 #
 # @param confdir
 #   The puppetserver configuration directory (`conf.d`).
+#
+#   The `puppetserver_webserver` fact only reads the default
+#   `/etc/puppetlabs/puppetserver/conf.d`. With another directory, the module
+#   assumes a single-server `webserver.conf` until it converts the file to
+#   named servers itself.
 #
 # @param codedir
 #   The directory holding the Puppet configuration codebase.
@@ -238,6 +246,9 @@
 # @param admin_api_mountpoint
 #   The endpoint for the Puppet Servers adminstrative API, written to
 #   `web-routes.conf`. Changing this may break external utilities.
+#
+#   puppetserver needs this route, so it cannot be removed: `'absent'` fails
+#   the catalog.
 #
 # @param log_to_file
 #   Whether puppetserver logs to its log file: `true` adds the `F1` appender

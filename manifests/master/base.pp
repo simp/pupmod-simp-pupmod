@@ -82,7 +82,7 @@ class pupmod::master::base (
       ensure    => 'present',
       allowdupe => false,
       comment   => 'Puppet User',
-      gid       => $_puppet_group,
+      gid       => 'puppet',
       home      => $pupmod::master::vardir,
       shell     => '/sbin/nologin',
       tag       => 'firstrun',

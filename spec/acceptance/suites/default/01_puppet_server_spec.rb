@@ -182,13 +182,16 @@ describe 'install environment via r10k and openvox-server' do
       # site would. The firewall stays off: simp_firewalld cannot preview a
       # zone that no real run has created yet (see noop_manifest).
       it 'previews simp:defaults on the server without errors' do
-        set_simp_defaults_hieradata_on(master)
+        # syslog follows simp_options::syslog, not the profile; turn it on so
+        # the preview covers inserting the SYSLOG appender into logback.xml
+        set_simp_defaults_hieradata_on(master, 'pupmod::master::syslog' => true)
         result = apply_manifest_on(master, "class { 'pupmod::master': firewall => false }", catch_failures: true, noop: true)
         # Guards against the preview quietly covering the packages alone if the
         # Compliance Engine layer stops resolving the profile
         expect(result.output).to match(%r{Hocon_setting\[pupmod::master webserver.conf webserver.base.ssl-port\].*\(noop\)})
         expect(result.output).to match(%r{Ini_subsetting\[pupmod::master::sysconfig JAVA_ARGS -Xmx\].*\(noop\)})
         expect(result.output).to match(%r{Service\[puppetserver\].*\(noop\)})
+        expect(result.output).to match(%r{Augeas\[pupmod::master logback.xml SYSLOG appender\].*\(noop\)})
       end
 
       it 'applies the master manifest' do

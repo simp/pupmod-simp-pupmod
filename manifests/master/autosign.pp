@@ -33,15 +33,20 @@ define pupmod::master::autosign (
     $_entry = $name
   }
 
-  if $pupmod::puppet_group =~ NotUndef {
-    ensure_resource('file', $_autosign_conf, {
-        'ensure' => 'file',
-        'owner'  => 'root',
-        'group'  => $pupmod::puppet_group,
-        'mode'   => '0640',
-        'notify' => Class['pupmod::master::service'],
-    })
+  # file_line fails when the file is missing, so make sure it exists;
+  # ownership is only managed with pupmod::puppet_group
+  $_autosign_file = $pupmod::puppet_group ? {
+    undef   => { 'ensure' => 'file' },
+    default => {
+      'ensure' => 'file',
+      'owner'  => 'root',
+      'group'  => $pupmod::puppet_group,
+      'mode'   => '0640',
+      'notify' => Class['pupmod::master::service'],
+    },
   }
+
+  ensure_resource('file', $_autosign_conf, $_autosign_file)
 
   file_line { "pupmod::master::autosign ${name}":
     ensure => $ensure,

@@ -127,6 +127,30 @@ describe 'pupmod::master' do
       end
 
       describe 'webserver.conf' do
+        context "with masterport => 'absent'" do
+          let(:facts) { os_facts.merge(puppetserver_webserver: single_server) }
+          let(:params) { { masterport: 'absent' } }
+
+          # Only the puppet.conf setting goes; the server keeps its port
+          it { is_expected.to contain_pupmod__conf('master_masterport').with_ensure('absent') }
+          it { is_expected.to have_hocon_setting_resource_count(0) }
+        end
+
+        context 'with a non-default confdir' do
+          let(:facts) { os_facts.merge(puppetserver_webserver: named_servers) }
+          let(:params) { { confdir: '/srv/puppetserver/conf.d', ssl_protocols: ['TLSv1.2'] } }
+
+          # The fact describes the default conf.d, so it is ignored
+          it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.ssl-protocols')).with_path('/srv/puppetserver/conf.d/webserver.conf') }
+          it { is_expected.not_to contain_hocon_setting(hocon('webserver.conf', 'webserver.base.ssl-protocols')) }
+        end
+
+        context "with admin_api_mountpoint => 'absent'" do
+          let(:params) { { admin_api_mountpoint: 'absent' } }
+
+          it { is_expected.to compile.and_raise_error(%r{admin_api_mountpoint cannot be removed}) }
+        end
+
         context 'without ca_port, on the package layout' do
           let(:facts) { os_facts.merge(puppetserver_webserver: single_server) }
           let(:params) { { masterport: 8150, bind_address: '10.0.0.1', ssl_protocols: ['TLSv1.1', 'TLSv1.2'] } }
@@ -384,7 +408,7 @@ describe 'pupmod::master' do
 
         shared_examples 'syslog on' do
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to contain_augeas('pupmod::master logback.xml SYSLOG appender').with(logback).with_onlyif("match appender[#attribute/name='SYSLOG'] size == 0") }
+          it { is_expected.to contain_augeas('pupmod::master logback.xml SYSLOG appender').with(logback).with_onlyif("match root[count(../appender[#attribute/name='SYSLOG']) = 0] size == 1") }
           it { is_expected.to contain_augeas('pupmod::master logback.xml SYSLOG').that_requires('Augeas[pupmod::master logback.xml SYSLOG appender]') }
           it {
             expect(catalogue.resource('Augeas', 'pupmod::master logback.xml SYSLOG')[:changes]).to include(

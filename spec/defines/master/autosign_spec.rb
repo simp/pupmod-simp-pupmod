@@ -14,12 +14,15 @@ describe 'pupmod::master::autosign' do
           line: '*.foo.bar',
         ).that_notifies('Class[pupmod::master::service]')
       }
-      it { is_expected.not_to contain_file('/etc/puppetlabs/puppet/autosign.conf') }
+      # file_line fails on a missing file, so the file is ensured even
+      # without puppet_group, but its ownership is left alone
+      it { is_expected.to contain_file('/etc/puppetlabs/puppet/autosign.conf').with(ensure: 'file', owner: nil, group: nil, mode: nil) }
 
       context 'with ensure => absent' do
         let(:params) { { ensure: 'absent' } }
 
         it { is_expected.to contain_file_line('pupmod::master::autosign *.foo.bar').with(ensure: 'absent', line: '*.foo.bar') }
+        it { is_expected.to contain_file('/etc/puppetlabs/puppet/autosign.conf').with_ensure('file') }
       end
 
       context 'with a label and an entry' do

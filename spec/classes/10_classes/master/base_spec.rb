@@ -50,6 +50,14 @@ describe 'pupmod::master::base' do
         it { is_expected.to contain_file('/usr/local/sbin/puppetserver_clear_environment_cache').with_content(%r{:8150/admin/v1/environment-cache}) }
       end
 
+      context 'with pupmod::puppet_group set to another group' do
+        let(:hieradata) { 'master_puppet_group_other' }
+
+        it { is_expected.to contain_file('/etc/puppetlabs/code/environments').with_group('puppetadmins') }
+        # The service user's primary group stays puppet, as in 12.x
+        it { is_expected.to contain_user('puppet').with_gid('puppet') }
+      end
+
       context 'with pupmod::puppet_group set' do
         let(:hieradata) { 'master_puppet_group' }
 

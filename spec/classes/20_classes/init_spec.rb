@@ -153,6 +153,12 @@ describe 'pupmod' do
           it { is_expected.to have_pupmod__conf_resource_count(3) }
         end
 
+        context 'with main_settings for a setting written elsewhere' do
+          let(:params) { { main_settings: { 'masterport' => 8150 } } }
+
+          it { is_expected.to compile.and_raise_error(%r{main_settings cannot set masterport}) }
+        end
+
         context 'with main_settings for a named parameter that is unset' do
           let(:params) { { main_settings: { 'splay' => true, 'runinterval' => 20 } } }
 
@@ -269,7 +275,8 @@ describe 'pupmod' do
           it {
             is_expected.to contain_exec('Set puppetagent_manage_all_files seboolean').with(
               command: '/usr/sbin/setsebool -P puppetagent_manage_all_files off',
-              unless: "/usr/sbin/getsebool puppetagent_manage_all_files | /usr/bin/grep -q ' --> off'",
+              # A missing boolean counts as off
+              unless: "/usr/sbin/getsebool puppetagent_manage_all_files | /usr/bin/grep -q ' --> off' || ! /usr/sbin/getsebool puppetagent_manage_all_files >/dev/null 2>&1",
             )
           }
           it { is_expected.not_to contain_package('selinux-policy-targeted-extra') }

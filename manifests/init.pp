@@ -93,6 +93,10 @@
 #   settings. When one of this class's named parameters (for example
 #   `splay`) is set, it wins over the same setting here.
 #
+#   `server`, `server_list`, `ca_server`, `masterport`, `ca_port`, `report`
+#   and `environment` are rejected here; set `puppet_server`, `ca_server`,
+#   `masterport`, `ca_port`, `report` or `set_environment` instead.
+#
 # @param purge_logs
 #   Purge old logs from the system, using a systemd tmpfiles drop-in.
 #
@@ -435,6 +439,14 @@ class pupmod (
       }
     }
 
+    # These are written elsewhere under the same resource titles
+    $_reserved_main_settings = ['server', 'server_list', 'ca_server', 'masterport', 'ca_port', 'report', 'environment']
+    $_misplaced_main_settings = $main_settings.keys.filter |$setting| { $setting in $_reserved_main_settings }
+
+    unless empty($_misplaced_main_settings) {
+      fail("pupmod::main_settings cannot set ${join($_misplaced_main_settings, ', ')}. Use the matching pupmod parameter (puppet_server, ca_server, masterport, ca_port, report or set_environment) instead.")
+    }
+
     # A named parameter that is set wins over the same setting in
     # $main_settings
     $_main_settings = $main_settings + {
@@ -520,9 +532,16 @@ class pupmod (
       # `--noop` does not fail: the `selboolean` provider errors out when it
       # probes a boolean that does not exist yet, whereas a failing `unless`
       # check simply reports the command as out of sync (SIMP #241).
+      # A boolean that doesn't exist (its policy package isn't installed)
+      # is already off
+      $_sebool_unless = $_sebool_state ? {
+        'off'   => "/usr/sbin/getsebool ${puppet_agent_sebool} | /usr/bin/grep -q ' --> off' || ! /usr/sbin/getsebool ${puppet_agent_sebool} >/dev/null 2>&1",
+        default => "/usr/sbin/getsebool ${puppet_agent_sebool} | /usr/bin/grep -q ' --> on'",
+      }
+
       exec { "Set ${puppet_agent_sebool} seboolean":
         command => "/usr/sbin/setsebool -P ${puppet_agent_sebool} ${_sebool_state}",
-        unless  => "/usr/sbin/getsebool ${puppet_agent_sebool} | /usr/bin/grep -q ' --> ${_sebool_state}'",
+        unless  => $_sebool_unless,
       }
     }
 
