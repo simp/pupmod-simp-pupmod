@@ -90,8 +90,8 @@
 #   `setting => value`. A value of `'absent'` removes the setting.
 #
 #   Merged with `deep`, so each Hiera layer can add, change or remove single
-#   settings. A setting that one of this class's named parameters also
-#   writes (for example `splay`) is taken from the named parameter.
+#   settings. When one of this class's named parameters (for example
+#   `splay`) is set, it wins over the same setting here.
 #
 # @param purge_logs
 #   Purge old logs from the system, using a systemd tmpfiles drop-in.
@@ -158,8 +158,8 @@
 # @param fips
 #   Unused, and deprecated.
 #
-#   Before 13.0.0 this chose the CA key length on a puppet server. Set
-#   `pupmod::master::keylength` instead.
+#   Before 13.0.0 this followed `simp_options::fips` and chose the CA key
+#   length on a puppet server. Set `pupmod::master::keylength` instead.
 #
 # @param vardir
 #   The directory where puppet will store all of its 'variable' data.
@@ -290,7 +290,7 @@ class pupmod (
   Optional[Variant[Simplib::Syslog::Facility, Enum['absent']]]              $syslogfacility                = undef,
   Boolean                                                                   $use_srv_records               = false,
   Boolean                                                                   $haveged                       = simplib::lookup('simp_options::haveged', { 'default_value' => false }),
-  Boolean                                                                   $fips                          = simplib::lookup('simp_options::fips', { 'default_value' => false }),
+  Optional[Boolean]                                                         $fips                          = undef,
   Boolean                                                                   $firewall                      = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Hash                                                                      $pe_classlist                  = {},
   String[1]                                                                 $agent_package                 = 'openvox-agent',
@@ -435,7 +435,8 @@ class pupmod (
       }
     }
 
-    # The named parameters win over the same setting in $main_settings
+    # A named parameter that is set wins over the same setting in
+    # $main_settings
     $_main_settings = $main_settings + {
       'splay'            => $splay,
       'splaylimit'       => $splaylimit,
@@ -445,7 +446,7 @@ class pupmod (
       'classfile'        => $classfile,
       'runinterval'      => $runinterval,
       'digest_algorithm' => $digest_algorithm,
-    }
+    }.filter |$setting, $value| { $value =~ NotUndef }
 
     $_main_settings.each |String[1] $setting, Optional[Scalar] $value| {
       if $value =~ NotUndef {
@@ -476,6 +477,10 @@ class pupmod (
         require => Class['pupmod::agent::install'],
         *       => $_extra_opts,
       }
+    }
+
+    if $fips =~ NotUndef {
+      deprecation('pupmod::fips', 'pupmod::fips is deprecated and unused. Set pupmod::master::keylength instead.', false)
     }
 
     if $manage_puppet_sebool =~ NotUndef {

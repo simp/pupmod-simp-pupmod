@@ -49,7 +49,8 @@
   `pupmod::master::server_{conf,code,var,run,log}_dir` parameters, which
   remove the deprecated `master-*-dir` settings.
 - BREAKING: the CA key length is set with the new `pupmod::master::keylength`
-  instead of being derived from `pupmod::fips`, which is now unused.
+  instead of being derived from `pupmod::fips`. `pupmod::fips` no longer
+  follows `simp_options::fips`, is unused, and is deprecated.
 - BREAKING: `stringify_facts`, `trusted_server_facts` and `[server] ca`, which
   only applied to Puppet 5 and older, are no longer written or removed.
 - BREAKING: `pupmod::master::autosign` and `pupmod::master::fileserver_entry`
@@ -64,12 +65,19 @@
   type, not as raw HOCON text.
 - BREAKING: `facter_options` is managed one key at a time, and is empty by
   default.
+- BREAKING: `pupmod::master::ruby_load_path` is written as one setting in
+  `os-settings.conf`; `'absent'` removes that setting rather than the file.
+- BREAKING: `pupmod::master::simp_auth` no longer declares
+  `puppet_authorization` for `auth.conf`, so it no longer resets
+  `allow-header-cert-info` or the file's mode.
 - BREAKING: requires puppetlabs/stdlib 9.2.0 or later.
+- Removed the unused puppetlabs/concat dependency.
 - Added the `simp:defaults` compliance profile, which restores the 12.x
   behavior when `compliance_engine::enforcement` includes `simp:defaults`.
 - Added `pupmod::main_settings`, `pupmod::puppet_extra_opts`,
   `pupmod::puppet_group`, `pupmod::puppetagent_manage_all_files`,
   `pupmod::master::keylength`, `pupmod::master::autosign_entries`,
+  `pupmod::master::sysconfig::extra_java_args_entries`,
   `pupmod::master::sysconfig::java_redhat_fips` and the
   `puppetserver_webserver` fact.
 - `pupmod::master::max_active_instances`,
@@ -79,8 +87,9 @@
 - When the CA is given its own port (`pupmod::master::ca_port`),
   `webserver.conf` is converted to named servers, keeping the settings of the
   existing server under `base`.
-- Deprecated `pupmod::manage_puppet_sebool`, `pupmod::manage_facter_conf` and
-  `pupmod::master::autosign_hosts`.
+- Deprecated `pupmod::manage_puppet_sebool`, `pupmod::manage_facter_conf`,
+  `pupmod::master::autosign_hosts` and
+  `pupmod::master::sysconfig::extra_java_args`.
 - Fixed `pupmod::purge_logs: false` not removing the log purging tmpfiles
   drop-in.
 - Fixed the CVE-2020-7942 warning naming the wrong parameter value.

@@ -152,6 +152,15 @@ describe 'pupmod' do
           end
           it { is_expected.to have_pupmod__conf_resource_count(3) }
         end
+
+        context 'with main_settings for a named parameter that is unset' do
+          let(:params) { { main_settings: { 'splay' => true, 'runinterval' => 20 } } }
+
+          it 'writes the setting from main_settings' do
+            is_expected.to contain_pupmod__conf('splay').with(ensure: 'present', value: true)
+            is_expected.to contain_pupmod__conf('runinterval').with(ensure: 'present', value: 20)
+          end
+        end
       end
 
       describe 'daemonize' do

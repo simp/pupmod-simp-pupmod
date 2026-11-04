@@ -45,13 +45,10 @@ describe 'pupmod::master::simp_auth' do
               allow: allow,
               sort_order: order,
               path: '/etc/puppetlabs/puppetserver/conf.d/auth.conf',
-            ).that_notifies('Class[pupmod::master::service]')
+            ).that_notifies('Class[pupmod::master::service]').that_requires('Class[pupmod::master::install]')
           }
-          it {
-            is_expected.to contain_puppet_authorization('/etc/puppetlabs/puppetserver/conf.d/auth.conf')
-              .with_version(1)
-              .that_requires('Class[pupmod::master::install]')
-          }
+          # Declaring it would reset allow-header-cert-info and the file's mode
+          it { is_expected.not_to contain_puppet_authorization('/etc/puppetlabs/puppetserver/conf.d/auth.conf') }
           it { is_expected.to have_puppet_authorization__rule_resource_count(1) }
         end
 

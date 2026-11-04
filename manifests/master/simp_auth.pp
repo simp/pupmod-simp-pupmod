@@ -99,14 +99,6 @@ class pupmod::master::simp_auth (
     },
   }.filter |$rule, $options| { $options['enable'] =~ NotUndef }
 
-  unless empty($_rules) {
-    # Creates auth.conf when it is missing; an existing file is not replaced
-    puppet_authorization { $auth_conf_path:
-      version => 1,
-      require => Class['pupmod::master::install'],
-    }
-  }
-
   $_rules.each |String $rule, Hash $options| {
     $_ensure = $options['enable'] ? {
       true    => 'present',
@@ -122,6 +114,7 @@ class pupmod::master::simp_auth (
       deny                 => $options['deny'],
       sort_order           => $options['sort_order'],
       path                 => $auth_conf_path,
+      require              => Class['pupmod::master::install'],
       notify               => Class['pupmod::master::service'],
     }
   }

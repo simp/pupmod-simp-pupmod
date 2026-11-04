@@ -6,6 +6,8 @@ lookup_options:
     merge: deep
   pupmod::master::autosign_entries:
     merge: deep
+  pupmod::master::sysconfig::extra_java_args_entries:
+    merge: deep
   pupmod::pe_classlist:
     merge:
       strategy: hash

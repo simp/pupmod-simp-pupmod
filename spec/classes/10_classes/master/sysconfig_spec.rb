@@ -210,6 +210,22 @@ describe 'pupmod::master::sysconfig' do
           it_behaves_like 'a JVM option', '-Dfoo=bar', ''
           it_behaves_like 'a JVM option', '-XX:+UseG1GC', ''
         end
+
+        context 'with extra_java_args_entries' do
+          let(:params) do
+            {
+              extra_java_args_entries: {
+                '-XX:MaxMetaspaceSize=512m' => {},
+                '-XX:MaxMetaspaceSize=256m' => { 'ensure' => 'absent' },
+                '-XX:+UseG1GC'              => { 'ensure' => 'present' },
+              },
+            }
+          end
+
+          it_behaves_like 'a JVM option', '-XX:MaxMetaspaceSize=512m', ''
+          it_behaves_like 'a JVM option', '-XX:MaxMetaspaceSize=256m', 'absent'
+          it_behaves_like 'a JVM option', '-XX:+UseG1GC', ''
+        end
       end
     end
   end

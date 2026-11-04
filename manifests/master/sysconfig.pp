@@ -50,9 +50,23 @@
 #   * Preceeding directories will not be created.
 #
 # @param extra_java_args
-#   Java options to add to ``JAVA_ARGS`` and ``JAVA_ARGS_CLI``.
+#   Deprecated: use ``extra_java_args_entries``.
 #
-#   * The sanity and syntax of this list will not be checked.
+#   Java options to add to ``JAVA_ARGS`` and ``JAVA_ARGS_CLI``. Entries can
+#   only be added.
+#
+# @param extra_java_args_entries
+#   Java options to manage in ``JAVA_ARGS`` and ``JAVA_ARGS_CLI``, each
+#   mapped to its options. ``{}`` adds the option.
+#
+#   * Each key is the whole option, such as ``-XX:MaxMetaspaceSize=256m``.
+#     To change a value, set the old option to ``{ ensure => absent }`` and
+#     add the new one.
+#   * Merged with ``deep``, so a Hiera layer can remove one entry.
+#   * The sanity and syntax of these options will not be checked.
+#
+# @option extra_java_args_entries [Enum['present', 'absent']] :ensure
+#   ``absent`` removes the option. Defaults to ``present``.
 #
 # @param use_code_cache_flushing
 #   Enable code cache flushing to alleviate memory strain on the server:
@@ -100,6 +114,7 @@ class pupmod::master::sysconfig (
   Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                $java_temp_dir           = undef,
   Optional[String[1]]                                                    $jruby_jar               = undef,
   Optional[Array[String[1]]]                                             $extra_java_args         = undef,
+  Hash[String[1], Pupmod::EntryOptions]                                  $extra_java_args_entries = {},
   Optional[Boolean]                                                      $use_code_cache_flushing = undef,
   Optional[Variant[Integer[0], Enum['auto', 'absent']]]                  $reserved_code_cache     = undef,
   Optional[Variant[Boolean, Enum['absent']]]                             $java_redhat_fips        = undef,
@@ -113,6 +128,10 @@ class pupmod::master::sysconfig (
   include 'pupmod::master::service'
 
   unless $mock {
+    if $extra_java_args =~ NotUndef {
+      deprecation('pupmod::master::sysconfig::extra_java_args', 'pupmod::master::sysconfig::extra_java_args is deprecated. Use pupmod::master::sysconfig::extra_java_args_entries instead.', false)
+    }
+
     $_pe = ($server_distribution == 'PE') or defined(Class['puppet_enterprise::profile::master'])
 
     if $java_max_memory == 'auto' {
@@ -257,7 +276,10 @@ class pupmod::master::sysconfig (
         $memo + { $option[0] => ($option[1] == 'absent').bool2str('absent', "=${option[1]}") }
       }
 
-      $_extra_java_args = pick($extra_java_args, []).reduce({}) |$memo, $arg| { $memo + { $arg => '' } }
+      # The deprecated Array is applied last, so a site's existing data still wins
+      $_extra_java_args = $extra_java_args_entries.reduce({}) |$memo, $entry| {
+        $memo + { $entry[0] => (pick($entry[1]['ensure'], 'present') == 'absent').bool2str('absent', '') }
+      } + pick($extra_java_args, []).reduce({}) |$memo, $arg| { $memo + { $arg => '' } }
 
       # JVM option => value appended to it
       $_java_args = {

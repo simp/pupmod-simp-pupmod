@@ -103,11 +103,17 @@ class pupmod::master::config {
   }
 
   # With the CA on the main port, the main server must accept agents
-  # without certificates so they can submit certificate requests
-  $_client_auth = $_ca_split ? {
-    true    => 'need',
-    false   => 'want',
-    default => undef,
+  # without certificates so they can submit certificate requests. Without a
+  # CA, it requires them.
+  if $pupmod::master::enable_ca == false {
+    $_client_auth = 'need'
+  }
+  else {
+    $_client_auth = $_ca_split ? {
+      true    => 'need',
+      false   => 'want',
+      default => undef,
+    }
   }
 
   # Unset parameters must not replace the settings moved into 'base'
@@ -148,9 +154,10 @@ class pupmod::master::config {
     }
 
     # Without a main server, the CA takes every route that doesn't name a
-    # server
+    # server; with one, the main server does
     $_ca_default_server = $pupmod::master::enable_master ? {
       false   => true,
+      true    => 'absent',
       default => undef,
     }
 
@@ -307,21 +314,18 @@ class pupmod::master::config {
   ####################
 
   if $pupmod::master::ruby_load_path =~ NotUndef {
-    if $pupmod::master::ruby_load_path == 'absent' {
-      file { "${_confdir}/os-settings.conf":
-        ensure => 'absent',
-        notify => Class['pupmod::master::service'],
-      }
+    $_ruby_load_path_ensure = $pupmod::master::ruby_load_path ? {
+      'absent' => 'absent',
+      default  => 'present',
     }
-    else {
-      file { "${_confdir}/os-settings.conf":
-        ensure  => 'file',
-        owner   => 'root',
-        group   => pick($pupmod::puppet_group, 'root'),
-        mode    => '0640',
-        content => epp("${module_name}/etc/puppetserver/conf.d/os-settings.conf"),
-        *       => $_resource_defaults,
-      }
+
+    hocon_setting { 'pupmod::master os-settings.conf os-settings.ruby-load-path':
+      ensure  => $_ruby_load_path_ensure,
+      path    => "${_confdir}/os-settings.conf",
+      setting => 'os-settings.ruby-load-path',
+      value   => [$pupmod::master::ruby_load_path],
+      type    => 'array',
+      *       => $_resource_defaults,
     }
   }
 

@@ -266,8 +266,8 @@ Additional settings for the `[main]` section of `puppet.conf`, as
 `setting => value`. A value of `'absent'` removes the setting.
 
 Merged with `deep`, so each Hiera layer can add, change or remove single
-settings. A setting that one of this class's named parameters also
-writes (for example `splay`) is taken from the named parameter.
+settings. When one of this class's named parameters (for example
+`splay`) is set, it wins over the same setting here.
 
 Default value: `{}`
 
@@ -405,14 +405,14 @@ Default value: `simplib::lookup('simp_options::haveged', { 'default_value' => fa
 
 ##### <a name="-pupmod--fips"></a>`fips`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Unused, and deprecated.
 
-Before 13.0.0 this chose the CA key length on a puppet server. Set
-`pupmod::master::keylength` instead.
+Before 13.0.0 this followed `simp_options::fips` and chose the CA key
+length on a puppet server. Set `pupmod::master::keylength` instead.
 
-Default value: `simplib::lookup('simp_options::fips', { 'default_value' => false })`
+Default value: `undef`
 
 ##### <a name="-pupmod--vardir"></a>`vardir`
 
@@ -1335,7 +1335,7 @@ Default value: `undef`
 Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 The path to the system Ruby installation to use for the Puppet Server,
-written to `os-settings.conf`. `'absent'` removes that file.
+written as `os-settings.ruby-load-path` in `os-settings.conf`.
 
 Default value: `undef`
 
@@ -2116,6 +2116,7 @@ The following parameters are available in the `pupmod::master::sysconfig` class:
 * [`jruby_jar`](#-pupmod--master--sysconfig--jruby_jar)
 * [`java_temp_dir`](#-pupmod--master--sysconfig--java_temp_dir)
 * [`extra_java_args`](#-pupmod--master--sysconfig--extra_java_args)
+* [`extra_java_args_entries`](#-pupmod--master--sysconfig--extra_java_args_entries)
 * [`use_code_cache_flushing`](#-pupmod--master--sysconfig--use_code_cache_flushing)
 * [`reserved_code_cache`](#-pupmod--master--sysconfig--reserved_code_cache)
 * [`java_redhat_fips`](#-pupmod--master--sysconfig--java_redhat_fips)
@@ -2214,11 +2215,31 @@ Default value: `undef`
 
 Data type: `Optional[Array[String[1]]]`
 
-Java options to add to ``JAVA_ARGS`` and ``JAVA_ARGS_CLI``.
+Deprecated: use ``extra_java_args_entries``.
 
-* The sanity and syntax of this list will not be checked.
+Java options to add to ``JAVA_ARGS`` and ``JAVA_ARGS_CLI``. Entries can
+only be added.
 
 Default value: `undef`
+
+##### <a name="-pupmod--master--sysconfig--extra_java_args_entries"></a>`extra_java_args_entries`
+
+Data type: `Hash[String[1], Pupmod::EntryOptions]`
+
+Java options to manage in ``JAVA_ARGS`` and ``JAVA_ARGS_CLI``, each
+mapped to its options. ``{}`` adds the option.
+
+* Each key is the whole option, such as ``-XX:MaxMetaspaceSize=256m``.
+  To change a value, set the old option to ``{ ensure => absent }`` and
+  add the new one.
+* Merged with ``deep``, so a Hiera layer can remove one entry.
+* The sanity and syntax of these options will not be checked.
+
+Options:
+
+* **:ensure** `Enum['present', 'absent']`: ``absent`` removes the option. Defaults to ``present``.
+
+Default value: `{}`
 
 ##### <a name="-pupmod--master--sysconfig--use_code_cache_flushing"></a>`use_code_cache_flushing`
 

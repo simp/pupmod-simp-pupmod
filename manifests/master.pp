@@ -179,7 +179,7 @@
 #
 # @param ruby_load_path
 #   The path to the system Ruby installation to use for the Puppet Server,
-#   written to `os-settings.conf`. `'absent'` removes that file.
+#   written as `os-settings.ruby-load-path` in `os-settings.conf`.
 #
 # @param max_active_instances
 #   The maximum number of active JRuby instances to be run by the Puppet

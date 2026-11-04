@@ -285,6 +285,24 @@ describe 'pupmod::master' do
           let(:params) { { ca_port: 8141, enable_ca: false } }
 
           it_behaves_like 'a CA on the main port'
+          # Without a CA, the main server requires client certificates, as in 12.x
+          it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.base.client-auth')).with_value('need') }
+        end
+
+        context 'with enable_ca => false on the package layout' do
+          let(:facts) { os_facts.merge(puppetserver_webserver: single_server) }
+          let(:params) { { enable_ca: false } }
+
+          it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.client-auth')).with_value('need') }
+        end
+
+        context 'with enable_master => true and a CA port' do
+          let(:facts) { os_facts.merge(puppetserver_webserver: named_servers) }
+          let(:params) { { ca_port: 8141, enable_master: true } }
+
+          # A default-server left on the CA by an earlier enable_master => false is removed
+          it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.ca.default-server')).with_ensure('absent') }
+          it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.base.default-server')).with_value(true) }
         end
 
         context 'with enable_master => false and a CA port' do
@@ -424,20 +442,21 @@ describe 'pupmod::master' do
           let(:params) { { ruby_load_path: '/usr/share/ruby' } }
 
           it {
-            is_expected.to contain_file('/etc/puppetlabs/puppetserver/conf.d/os-settings.conf').with(
-              ensure: 'file',
-              owner: 'root',
-              group: 'root',
-              mode: '0640',
-              content: %r{ruby-load-path: \[/usr/share/ruby\]},
-            )
+            is_expected.to contain_hocon_setting(hocon('os-settings.conf', 'os-settings.ruby-load-path')).with(
+              ensure: 'present',
+              path: '/etc/puppetlabs/puppetserver/conf.d/os-settings.conf',
+              value: ['/usr/share/ruby'],
+              type: 'array',
+            ).that_requires('Class[pupmod::master::install]')
           }
+          it { is_expected.not_to contain_file('/etc/puppetlabs/puppetserver/conf.d/os-settings.conf') }
         end
 
         context "with ruby_load_path => 'absent'" do
           let(:params) { { ruby_load_path: 'absent' } }
 
-          it { is_expected.to contain_file('/etc/puppetlabs/puppetserver/conf.d/os-settings.conf').with_ensure('absent') }
+          it { is_expected.to contain_hocon_setting(hocon('os-settings.conf', 'os-settings.ruby-load-path')).with_ensure('absent') }
+          it { is_expected.not_to contain_file('/etc/puppetlabs/puppetserver/conf.d/os-settings.conf') }
         end
       end
     end

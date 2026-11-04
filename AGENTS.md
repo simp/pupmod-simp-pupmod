@@ -225,7 +225,6 @@ The SIMP feature-toggle seam. All calls are in `manifests/init.pp` and
 | `init.pp` | `simp_options::puppet::ca_port` | `undef` |
 | `init.pp` | `simp_options::puppet::server` | `undef` |
 | `init.pp` | `simp_options::haveged` | `false` |
-| `init.pp` | `simp_options::fips` | `false` |
 | `init.pp` | `simp_options::firewall` | `false` |
 | `init.pp` | `simp_options::package_ensure` | `'installed'` |
 | `master.pp` | `simp_options::auditd` | `false` |
@@ -257,7 +256,6 @@ Module dependencies (from `metadata.json`):
   (`puppet_authorization` / `puppet_authorization::rule` for `auth.conf`)
 - `puppetlabs/hocon` `>= 0.9.3 < 3.0.0` (`hocon_setting` for puppetserver/Facter
   HOCON files)
-- `puppetlabs/concat` `>= 6.4.0 < 10.0.0` (autosign/fileserver fragments)
 - `simp/iptables` `>= 6.5.3 < 9.0.0` (`iptables::listen::tcp_stateful`, firewall
   branch only)
 - `simp/simplib` `>= 4.9.0 < 6.0.0` (`simplib::lookup`, `simplib::assert_metadata`,
