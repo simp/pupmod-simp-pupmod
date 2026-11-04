@@ -38,7 +38,7 @@ name: 'Vagrant package cache'
 jobs:
   cache:
     name: 'Cache the Vagrant packages'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: simp/gha-workflows/.github/actions/setup-vagrant-libvirt@v1.1.0
         with:
