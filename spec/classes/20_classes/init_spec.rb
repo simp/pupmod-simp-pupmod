@@ -351,6 +351,18 @@ describe 'pupmod' do
               }
 
               it { is_expected.to contain_ini_setting('pupmod_splaylimit') }
+
+              it 'does not call empty() on an Integer' do
+                logs = []
+                collector = Puppet::Test::LogCollector.new(logs)
+                Puppet::Util::Log.newdestination(collector)
+                begin
+                  is_expected.to compile
+                ensure
+                  Puppet::Util::Log.close(collector)
+                end
+                expect(logs.map(&:message)).not_to include(include('empty() with Numeric value is deprecated'))
+              end
             end
 
             context 'with set_environment enabled ' do

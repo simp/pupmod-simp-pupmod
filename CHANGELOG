@@ -1,3 +1,7 @@
+* Mon Nov 02 2026 Mike Riddle <mike@sicura.us> - 12.4.1
+- Fixed a `Calling function empty() with Numeric value is deprecated` warning
+  when `pupmod::splaylimit` is set
+
 * Thu Oct 08 2026 Steven Pritchard <steve@sicura.us> - 12.4.0
 - Add support for OpenVox 9
 - Update metadata.json dependency ranges from the Forge
