@@ -157,6 +157,37 @@ describe 'pupmod::master' do
           it { is_expected.not_to contain_iptables__listen__tcp_stateful('allow_puppetca') }
         end
 
+        context 'with firewall and a CA server in webserver.conf' do
+          let(:facts) do
+            os_facts.merge(
+              puppetserver_webserver: {
+                'path'      => '/etc/puppetlabs/puppetserver/conf.d/webserver.conf',
+                'webserver' => {
+                  'base' => { 'ssl-port' => 8140 },
+                  'ca'   => { 'ssl-port' => 8141 },
+                },
+              },
+            )
+          end
+
+          [8141, 'absent', nil].each do |value|
+            context "with ca_port => #{value.inspect}" do
+              let(:params) { { firewall: true, ca_port: value }.compact }
+
+              it { is_expected.to contain_iptables__listen__tcp_stateful('allow_puppet').with_dports(8140) }
+              it { is_expected.to contain_iptables__listen__tcp_stateful('allow_puppetca').with_dports(8141) }
+            end
+          end
+        end
+
+        ['absent', nil].each do |value|
+          context "with firewall, ca_port => #{value.inspect} and no webserver.conf" do
+            let(:params) { { firewall: true, ca_port: value }.compact }
+
+            it { is_expected.not_to contain_iptables__listen__tcp_stateful('allow_puppetca') }
+          end
+        end
+
         context 'with firewall and enable_master => false' do
           let(:params) { { firewall: true, ca_port: 8141, enable_master: false } }
 

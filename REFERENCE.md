@@ -1340,7 +1340,8 @@ If enabled, will use the SIMP iptables classes to manipulate IPTables.
 
 The main server's port is `masterport`, else the port in the current
 `webserver.conf`, else `8140`.
-The CA's port is opened when `ca_port` is set.
+The CA's port is opened when `ca_port` is set, or when `webserver.conf`
+already has a `ca` server.
 
 Default value: `simplib::lookup('simp_options::firewall', { 'default_value' => false })`
 

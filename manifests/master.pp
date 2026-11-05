@@ -183,7 +183,8 @@
 #
 #   The main server's port is `masterport`, else the port in the current
 #   `webserver.conf`, else `8140`.
-#   The CA's port is opened when `ca_port` is set.
+#   The CA's port is opened when `ca_port` is set, or when `webserver.conf`
+#   already has a `ca` server.
 #
 # @param ca_status_whitelist
 #   An array of certificate short names which will be allowed to query the CA end
@@ -545,11 +546,17 @@ class pupmod::master (
         }
       }
 
-      if ($enable_ca != false) and ($ca_port =~ Integer) {
+      # The CA's own port: the parameter, else the ca server in webserver.conf
+      $_firewall_ca_port = $ca_port ? {
+        Integer => $ca_port,
+        default => $_webserver.dig('ca', 'ssl-port'),
+      }
+
+      if ($enable_ca != false) and ($_firewall_ca_port =~ Integer) {
         iptables::listen::tcp_stateful { 'allow_puppetca':
           order        => 11,
           trusted_nets => $trusted_nets,
-          dports       => $ca_port,
+          dports       => $_firewall_ca_port,
         }
       }
     }
