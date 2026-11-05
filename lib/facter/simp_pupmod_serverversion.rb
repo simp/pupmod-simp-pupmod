@@ -8,7 +8,7 @@ Facter.add('simp_pupmod_serverversion') do
   end
 
   setcode do
-    version = Facter::Core::Execution.exec('/opt/puppetlabs/bin/puppetserver --version').strip.split(%r{\s+})[-1]
+    version = Facter::Core::Execution.execute('/opt/puppetlabs/bin/puppetserver --version', on_fail: nil).strip.split(%r{\s+})[-1]
 
     if version.nil? || (version.length <= 1)
       version = nil
