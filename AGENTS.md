@@ -99,8 +99,8 @@ Server side (`pupmod::master*`):
   `pupmod::conf` settings only when set (`keylength` is its own parameter;
   the profile picks 2048/4096 by `fips_enabled`). A **CVE-2020-7942
   warning** fires when `$strict_hostname_checking` is `false`; optional
-  `auditd` rule and `iptables` openings (8140 unless `masterport` is set,
-  the CA port only when `ca_port` is set) when `$firewall`;
+  `auditd` rule and `iptables` openings (the main port, from `masterport`, else
+  `webserver.conf`, else 8140; the CA port only when `ca_port` is set) when `$firewall`;
   `autosign_entries`/deprecated `autosign_hosts` realized via
   `ensure_resource`.
 - **`pupmod::master::config` (`manifests/master/config.pp`)** — Private

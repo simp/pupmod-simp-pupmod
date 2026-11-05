@@ -11,11 +11,8 @@ class pupmod::master::config {
 
   $_confdir = $pupmod::master::confdir
   $_conf_base = dirname($_confdir)
-  # The fact reads the default conf.d, so it only describes that one
-  $_webserver = $_confdir ? {
-    '/etc/puppetlabs/puppetserver/conf.d' => $facts['puppetserver_webserver'],
-    default                               => undef,
-  }
+  $_webserver = $pupmod::master::_webserver
+  $_masterport = $pupmod::master::_masterport
 
   $_resource_defaults = {
     'require' => Class['pupmod::master::install'],
@@ -44,16 +41,9 @@ class pupmod::master::config {
   # webserver.conf #
   ##################
 
-  # The port the main server listens on: the parameter, else what
-  # webserver.conf says now, else the puppetserver default
-  $_masterport = $pupmod::master::masterport ? {
-    Integer => $pupmod::master::masterport,
-    default => pick($_webserver.dig('ssl-port'), $_webserver.dig('base', 'ssl-port'), 8140),
-  }
-
   # Whether the CA runs as its own server on its own port. undef means it
   # isn't known, and the CA's server and route are left alone.
-  if ($pupmod::master::enable_ca == false) or ($pupmod::master::ca_port == 'absent') {
+  if $pupmod::master::enable_ca == false {
     $_ca_split = false
   }
   elsif $pupmod::master::ca_port =~ Integer {

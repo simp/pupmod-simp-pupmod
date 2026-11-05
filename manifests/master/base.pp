@@ -28,12 +28,6 @@ class pupmod::master::base (
       require     => File['/usr/local/sbin/puppetserver_reload'],
     }
 
-    # The puppetserver defaults apply when these aren't set
-    $_masterport = $pupmod::master::masterport ? {
-      Integer => $pupmod::master::masterport,
-      default => 8140,
-    }
-
     # Some simple helper scripts
     file { '/usr/local/sbin/puppetserver_clear_environment_cache':
       ensure  => 'file',
@@ -41,7 +35,7 @@ class pupmod::master::base (
       group   => 'root',
       mode    => '0700',
       content => epp("${module_name}/usr/local/sbin/puppetserver_clear_environment_cache", {
-          'masterport'           => $_masterport,
+          'masterport'           => $pupmod::master::_masterport,
           'admin_api_mountpoint' => pick($pupmod::master::admin_api_mountpoint, '/puppet-admin-api'),
         }
       ),

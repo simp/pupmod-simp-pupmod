@@ -130,6 +130,13 @@ describe 'pupmod::master::sysconfig' do
           it_behaves_like 'a JVM option', '-Xms', '1g'
         end
 
+        context "with java_max_memory => 'absent' and java_start_memory" do
+          let(:params) { { java_max_memory: 'absent', java_start_memory: '1g' } }
+
+          it_behaves_like 'a JVM option', '-Xmx', 'absent'
+          it_behaves_like 'a JVM option', '-Xms', '1g'
+        end
+
         context 'with a percentage for java_max_memory' do
           let(:params) { { java_max_memory: '50%' } }
 
@@ -147,7 +154,8 @@ describe 'pupmod::master::sysconfig' do
           let(:params) { { java_max_memory: 'absent' } }
 
           it_behaves_like 'a JVM option', '-Xmx', 'absent'
-          it_behaves_like 'a JVM option', '-Xms', 'absent'
+          # An -Xms set by hand stays
+          it { is_expected.not_to contain_ini_subsetting(subsetting('JAVA_ARGS', '-Xms')) }
         end
 
         context 'with java_temp_dir' do

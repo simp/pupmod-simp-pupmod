@@ -161,7 +161,11 @@ its own server: the module converts `webserver.conf` to named servers, moving
 the existing settings under `base` and adding a `ca` server. The
 `puppetserver_webserver` fact tells the module which layout the file uses, so
 settings such as `pupmod::master::ssl_protocols` are written where
-puppetserver reads them.
+puppetserver reads them. It reads the `webserver.conf` in the directory named by
+`CONFIG=` in `/etc/sysconfig/puppetserver`.
+
+Setting `pupmod::master::ca_port` to the main server's port moves the CA back
+onto the main server. `'absent'` only removes `ca_port` from `puppet.conf`.
 
 ## Upgrade Considerations
 

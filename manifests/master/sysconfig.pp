@@ -24,8 +24,9 @@
 # @param java_start_memory
 #   The amount of memory to allocate on service startup, written as ``-Xms``.
 #
-#   * When unset, ``-Xms`` follows ``java_max_memory`` whenever that is set,
-#     because the JVM refuses to start with ``-Xms`` above ``-Xmx``.
+#   * When unset, ``-Xms`` follows ``java_max_memory`` whenever that is set
+#     to a value, because the JVM refuses to start with ``-Xms`` above
+#     ``-Xmx``. ``java_max_memory: 'absent'`` leaves ``-Xms`` alone.
 #
 # @param java_max_memory
 #   The maximum amount of memory to allocate within the system, written as
@@ -161,8 +162,13 @@ class pupmod::master::sysconfig (
     }
 
     # The JVM won't start with -Xms above -Xmx, so -Xms follows -Xmx unless
-    # it is set
-    $_xms = $java_start_memory.lest || { $_xmx }
+    # it is set. Removing -Xmx leaves -Xms alone.
+    $_xms = $java_start_memory.lest || {
+      $_xmx ? {
+        'absent' => undef,
+        default  => $_xmx,
+      }
+    }
 
     if $java_temp_dir =~ NotUndef and $java_temp_dir != 'absent' {
       file { $java_temp_dir:

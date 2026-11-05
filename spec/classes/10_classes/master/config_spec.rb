@@ -10,6 +10,11 @@ describe 'pupmod::master' do
     catalogue.resources.select { |r| r.type == 'Hocon_setting' && r.title =~ pattern }.map(&:title)
   end
 
+  # The puppetserver_webserver fact for a webserver.conf in conf_d
+  def webserver_fact(webserver, dir = '/etc/puppetlabs/puppetserver/conf.d')
+    { 'path' => "#{dir}/webserver.conf", 'webserver' => webserver }
+  end
+
   let(:conf_d) { '/etc/puppetlabs/puppetserver/conf.d' }
   let(:ca_route) { 'web-router-service."puppetlabs.services.ca.certificate-authority-service/certificate-authority-service"' }
   let(:admin_route) { 'web-router-service."puppetlabs.services.puppet-admin.puppet-admin-service/puppet-admin-service"' }
@@ -128,7 +133,7 @@ describe 'pupmod::master' do
 
       describe 'webserver.conf' do
         context "with masterport => 'absent'" do
-          let(:facts) { os_facts.merge(puppetserver_webserver: single_server) }
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(single_server)) }
           let(:params) { { masterport: 'absent' } }
 
           # Only the puppet.conf setting goes; the server keeps its port
@@ -136,13 +141,23 @@ describe 'pupmod::master' do
           it { is_expected.to have_hocon_setting_resource_count(0) }
         end
 
-        context 'with a non-default confdir' do
-          let(:facts) { os_facts.merge(puppetserver_webserver: named_servers) }
+        context 'with a non-default confdir that puppetserver does not read yet' do
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(named_servers)) }
           let(:params) { { confdir: '/srv/puppetserver/conf.d', ssl_protocols: ['TLSv1.2'] } }
 
-          # The fact describes the default conf.d, so it is ignored
+          # The fact describes another conf.d, so it is ignored
           it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.ssl-protocols')).with_path('/srv/puppetserver/conf.d/webserver.conf') }
           it { is_expected.not_to contain_hocon_setting(hocon('webserver.conf', 'webserver.base.ssl-protocols')) }
+        end
+
+        context 'with a non-default confdir that puppetserver reads' do
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(named_servers, '/srv/puppetserver/conf.d')) }
+          let(:params) { { confdir: '/srv/puppetserver/conf.d', ssl_protocols: ['TLSv1.2'], ca_port: 8141 } }
+
+          it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.base.ssl-protocols')).with_path('/srv/puppetserver/conf.d/webserver.conf') }
+          # Already named servers, so the base server isn't rewritten
+          it { is_expected.not_to contain_hocon_setting(hocon('webserver.conf', 'webserver.base.ssl-host')) }
+          it { is_expected.not_to contain_hocon_setting(hocon('webserver.conf', 'webserver.ssl-host')) }
         end
 
         context "with admin_api_mountpoint => 'absent'" do
@@ -152,7 +167,7 @@ describe 'pupmod::master' do
         end
 
         context 'without ca_port, on the package layout' do
-          let(:facts) { os_facts.merge(puppetserver_webserver: single_server) }
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(single_server)) }
           let(:params) { { masterport: 8150, bind_address: '10.0.0.1', ssl_protocols: ['TLSv1.1', 'TLSv1.2'] } }
 
           it { is_expected.to compile.with_all_deps }
@@ -170,7 +185,7 @@ describe 'pupmod::master' do
         end
 
         context 'with server_webserver_options on the package layout' do
-          let(:facts) { os_facts.merge(puppetserver_webserver: single_server) }
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(single_server)) }
           let(:params) { { server_webserver_options: { 'idle-timeout-milliseconds' => 60_000, 'request-header-max-size' => 'absent' } } }
 
           it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.idle-timeout-milliseconds')).with_value(60_000) }
@@ -205,7 +220,7 @@ describe 'pupmod::master' do
         end
 
         context 'with a CA port on the package layout' do
-          let(:facts) { os_facts.merge(puppetserver_webserver: single_server) }
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(single_server)) }
           let(:params) { { ca_port: 8141 } }
 
           it_behaves_like 'a CA on its own port', {
@@ -231,7 +246,7 @@ describe 'pupmod::master' do
         end
 
         context 'with a CA port on an administrator-customized single server' do
-          let(:facts) { os_facts.merge(puppetserver_webserver: single_server.merge('ssl-port' => 8150, 'ssl-host' => '10.2.2.2')) }
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(single_server.merge('ssl-port' => 8150, 'ssl-host' => '10.2.2.2'))) }
           let(:params) { { ca_port: 8141 } }
 
           it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.base.ssl-port')).with_value(8150) }
@@ -241,7 +256,7 @@ describe 'pupmod::master' do
         end
 
         context 'with a CA port and bind addresses' do
-          let(:facts) { os_facts.merge(puppetserver_webserver: single_server) }
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(single_server)) }
 
           context 'with bind_address' do
             let(:params) { { ca_port: 8141, bind_address: '10.3.3.3' } }
@@ -258,7 +273,7 @@ describe 'pupmod::master' do
         end
 
         context 'with a CA port on named servers' do
-          let(:facts) { os_facts.merge(puppetserver_webserver: named_servers) }
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(named_servers)) }
           let(:params) { { ca_port: 8141, ssl_protocols: ['TLSv1.2'], ca_webserver_options: { 'idle-timeout-milliseconds' => '30000' } } }
 
           it { is_expected.to compile.with_all_deps }
@@ -272,7 +287,7 @@ describe 'pupmod::master' do
         end
 
         context 'with settings on named servers and no CA port' do
-          let(:facts) { os_facts.merge(puppetserver_webserver: named_servers) }
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(named_servers)) }
           let(:params) { { masterport: 8140 } }
 
           it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.base.ssl-port')).with_value(8140) }
@@ -288,7 +303,7 @@ describe 'pupmod::master' do
         end
 
         context 'with ca_port equal to masterport on named servers' do
-          let(:facts) { os_facts.merge(puppetserver_webserver: named_servers) }
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(named_servers)) }
           let(:params) { { ca_port: 8140, masterport: 8140 } }
 
           it_behaves_like 'a CA on the main port'
@@ -296,7 +311,7 @@ describe 'pupmod::master' do
         end
 
         context 'with ca_port equal to the current port on the package layout' do
-          let(:facts) { os_facts.merge(puppetserver_webserver: single_server) }
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(single_server)) }
           let(:params) { { ca_port: 8140 } }
 
           it_behaves_like 'a CA on the main port'
@@ -305,7 +320,7 @@ describe 'pupmod::master' do
         end
 
         context 'with enable_ca => false' do
-          let(:facts) { os_facts.merge(puppetserver_webserver: named_servers) }
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(named_servers)) }
           let(:params) { { ca_port: 8141, enable_ca: false } }
 
           it_behaves_like 'a CA on the main port'
@@ -313,15 +328,25 @@ describe 'pupmod::master' do
           it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.base.client-auth')).with_value('need') }
         end
 
+        context "with ca_port => 'absent' on named servers" do
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(named_servers)) }
+          let(:params) { { ca_port: 'absent' } }
+
+          # Only the puppet.conf setting goes; the CA keeps its own server
+          it { is_expected.to contain_pupmod__conf('master_ca_port').with_ensure('absent') }
+          it { expect(hocon_titles(%r{webserver\.ca})).to be_empty }
+          it { is_expected.not_to contain_hocon_setting(hocon('web-routes.conf', ca_route)) }
+        end
+
         context 'with enable_ca => false on the package layout' do
-          let(:facts) { os_facts.merge(puppetserver_webserver: single_server) }
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(single_server)) }
           let(:params) { { enable_ca: false } }
 
           it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.client-auth')).with_value('need') }
         end
 
         context 'with enable_master => true and a CA port' do
-          let(:facts) { os_facts.merge(puppetserver_webserver: named_servers) }
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(named_servers)) }
           let(:params) { { ca_port: 8141, enable_master: true } }
 
           # A default-server left on the CA by an earlier enable_master => false is removed
@@ -330,7 +355,7 @@ describe 'pupmod::master' do
         end
 
         context 'with enable_master => false and a CA port' do
-          let(:facts) { os_facts.merge(puppetserver_webserver: named_servers) }
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(named_servers)) }
           let(:params) { { ca_port: 8141, enable_master: false } }
 
           it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.base')).with_ensure('absent') }
@@ -339,7 +364,7 @@ describe 'pupmod::master' do
         end
 
         context 'with extra_webserver_sections on the package layout' do
-          let(:facts) { os_facts.merge(puppetserver_webserver: single_server) }
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(single_server)) }
           let(:params) { { extra_webserver_sections: { 'extra' => { 'ssl-port' => 8200, 'ssl-host' => 'absent' } } } }
 
           it { is_expected.to compile.with_all_deps }
@@ -348,6 +373,17 @@ describe 'pupmod::master' do
           it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.extra.ssl-port')).with_value(8200) }
           it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.extra.ssl-host')).with_ensure('absent') }
         end
+      end
+
+      describe 'the main port' do
+        let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(single_server.merge('ssl-port' => 8150))) }
+        let(:params) { { firewall: true, ca_port: 8141 } }
+        let(:hieradata) { 'master_helper_scripts' }
+
+        # Without masterport, every user of the port takes it from webserver.conf
+        it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.base.ssl-port')).with_value(8150) }
+        it { is_expected.to contain_iptables__listen__tcp_stateful('allow_puppet').with_dports(8150) }
+        it { is_expected.to contain_file('/usr/local/sbin/puppetserver_clear_environment_cache').with_content(%r{:8150/}) }
       end
 
       describe 'web-routes.conf admin route' do

@@ -53,6 +53,10 @@
 #   `web-routes.conf` points to it. When it is the same port, the `ca`
 #   server is removed.
 #
+#   `'absent'` removes the `puppet.conf` setting only; the CA's server and
+#   route are left as they are. To move the CA back onto the main server, set
+#   this to the main server's port.
+#
 #   Defaults to `simp_options::puppet::ca_port` when that is set.
 #
 # @param trusted_nets
@@ -118,10 +122,11 @@
 # @param confdir
 #   The puppetserver configuration directory (`conf.d`).
 #
-#   The `puppetserver_webserver` fact only reads the default
-#   `/etc/puppetlabs/puppetserver/conf.d`. With another directory, the module
-#   assumes a single-server `webserver.conf` until it converts the file to
-#   named servers itself.
+#   The `puppetserver_webserver` fact reads `webserver.conf` from the
+#   directory in `CONFIG=` in `/etc/sysconfig/puppetserver` (see
+#   `pupmod::master::sysconfig::config`). Until puppetserver is configured
+#   to read this directory, the module assumes a single-server
+#   `webserver.conf` here.
 #
 # @param codedir
 #   The directory holding the Puppet configuration codebase.
@@ -176,7 +181,8 @@
 # @param firewall
 #   If enabled, will use the SIMP iptables classes to manipulate IPTables.
 #
-#   The main server's port is `masterport`, or `8140` when that is not set.
+#   The main server's port is `masterport`, else the port in the current
+#   `webserver.conf`, else `8140`.
 #   The CA's port is opened when `ca_port` is set.
 #
 # @param ca_status_whitelist
@@ -421,6 +427,22 @@ class pupmod::master (
   $_puppet_user = pick($facts.dig('puppet_settings','server','user'),$facts.dig('puppet_settings','master','user'))
   $_puppet_group = $pupmod::puppet_group
 
+  # The puppetserver_webserver fact describes the webserver.conf that
+  # puppetserver reads, which only matters here when it is the one in $confdir
+  if $facts.dig('puppetserver_webserver', 'path') == "${confdir}/webserver.conf" {
+    $_webserver = $facts.dig('puppetserver_webserver', 'webserver')
+  }
+  else {
+    $_webserver = undef
+  }
+
+  # The port the main server listens on: the parameter, else what
+  # webserver.conf says now, else the puppetserver default
+  $_masterport = $masterport ? {
+    Integer => $masterport,
+    default => pick($_webserver.dig('ssl-port'), $_webserver.dig('base', 'ssl-port'), 8140),
+  }
+
   unless $mock {
     include 'pupmod::master::install'
     include 'pupmod::master::sysconfig'
@@ -515,17 +537,11 @@ class pupmod::master (
     if $firewall {
       include 'iptables'
 
-      # puppetserver listens on 8140 unless told otherwise
-      $_firewall_masterport = $masterport ? {
-        Integer => $masterport,
-        default => 8140,
-      }
-
       if $enable_master != false {
         iptables::listen::tcp_stateful { 'allow_puppet':
           order        => 11,
           trusted_nets => $trusted_nets,
-          dports       => $_firewall_masterport,
+          dports       => $_masterport,
         }
       }
 

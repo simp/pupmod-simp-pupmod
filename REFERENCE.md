@@ -271,7 +271,9 @@ settings. When one of this class's named parameters (for example
 
 `server`, `server_list`, `ca_server`, `masterport`, `ca_port`, `report`
 and `environment` are rejected here; set `puppet_server`, `ca_server`,
-`masterport`, `ca_port`, `report` or `set_environment` instead.
+`masterport`, `ca_port`, `report` or `set_environment` instead. So are
+`freeze_main`, `strict_hostname_checking`, `ca_ttl` and `keylength`; set
+them with the `pupmod::master` parameters of the same name.
 
 Default value: `{}`
 
@@ -549,6 +551,11 @@ When set, the group is created if it doesn't exist, and `$confdir` and
 on Puppet Enterprise, where the mode is left alone). On a puppet server,
 `pupmod::master` manages the server's directories and configuration files
 the same way.
+
+On a puppet server, use the group puppetserver runs as (`puppet`), or one
+its user belongs to. Other users have no access to these directories, so
+with any other group puppetserver can't read its configuration and won't
+start. The `simp:defaults` profile sets the server's own group.
 
 Default value: `undef`
 
@@ -1068,6 +1075,10 @@ is converted to named servers if it isn't already), and the CA route in
 `web-routes.conf` points to it. When it is the same port, the `ca`
 server is removed.
 
+`'absent'` removes the `puppet.conf` setting only; the CA's server and
+route are left as they are. To move the CA back onto the main server, set
+this to the main server's port.
+
 Defaults to `simp_options::puppet::ca_port` when that is set.
 
 Default value: `simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => undef })`
@@ -1198,10 +1209,11 @@ Data type: `Stdlib::AbsolutePath`
 
 The puppetserver configuration directory (`conf.d`).
 
-The `puppetserver_webserver` fact only reads the default
-`/etc/puppetlabs/puppetserver/conf.d`. With another directory, the module
-assumes a single-server `webserver.conf` until it converts the file to
-named servers itself.
+The `puppetserver_webserver` fact reads `webserver.conf` from the
+directory in `CONFIG=` in `/etc/sysconfig/puppetserver` (see
+`pupmod::master::sysconfig::config`). Until puppetserver is configured
+to read this directory, the module assumes a single-server
+`webserver.conf` here.
 
 Default value: `'/etc/puppetlabs/puppetserver/conf.d'`
 
@@ -1326,7 +1338,8 @@ Data type: `Boolean`
 
 If enabled, will use the SIMP iptables classes to manipulate IPTables.
 
-The main server's port is `masterport`, or `8140` when that is not set.
+The main server's port is `masterport`, else the port in the current
+`webserver.conf`, else `8140`.
 The CA's port is opened when `ca_port` is set.
 
 Default value: `simplib::lookup('simp_options::firewall', { 'default_value' => false })`
@@ -2184,8 +2197,9 @@ Data type: `Optional[Variant[Pupmod::Memory, Enum['absent']]]`
 
 The amount of memory to allocate on service startup, written as ``-Xms``.
 
-* When unset, ``-Xms`` follows ``java_max_memory`` whenever that is set,
-  because the JVM refuses to start with ``-Xms`` above ``-Xmx``.
+* When unset, ``-Xms`` follows ``java_max_memory`` whenever that is set
+  to a value, because the JVM refuses to start with ``-Xms`` above
+  ``-Xmx``. ``java_max_memory: 'absent'`` leaves ``-Xms`` alone.
 
 Default value: `undef`
 

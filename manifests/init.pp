@@ -95,7 +95,9 @@
 #
 #   `server`, `server_list`, `ca_server`, `masterport`, `ca_port`, `report`
 #   and `environment` are rejected here; set `puppet_server`, `ca_server`,
-#   `masterport`, `ca_port`, `report` or `set_environment` instead.
+#   `masterport`, `ca_port`, `report` or `set_environment` instead. So are
+#   `freeze_main`, `strict_hostname_checking`, `ca_ttl` and `keylength`; set
+#   them with the `pupmod::master` parameters of the same name.
 #
 # @param purge_logs
 #   Purge old logs from the system, using a systemd tmpfiles drop-in.
@@ -237,6 +239,11 @@
 #   on Puppet Enterprise, where the mode is left alone). On a puppet server,
 #   `pupmod::master` manages the server's directories and configuration files
 #   the same way.
+#
+#   On a puppet server, use the group puppetserver runs as (`puppet`), or one
+#   its user belongs to. Other users have no access to these directories, so
+#   with any other group puppetserver can't read its configuration and won't
+#   start. The `simp:defaults` profile sets the server's own group.
 #
 # @param mock
 #   If true, disable all code.
@@ -440,11 +447,14 @@ class pupmod (
     }
 
     # These are written elsewhere under the same resource titles
-    $_reserved_main_settings = ['server', 'server_list', 'ca_server', 'masterport', 'ca_port', 'report', 'environment']
+    $_reserved_main_settings = [
+      'server', 'server_list', 'ca_server', 'masterport', 'ca_port', 'report', 'environment',
+      'freeze_main', 'strict_hostname_checking', 'ca_ttl', 'keylength',
+    ]
     $_misplaced_main_settings = $main_settings.keys.filter |$setting| { $setting in $_reserved_main_settings }
 
     unless empty($_misplaced_main_settings) {
-      fail("pupmod::main_settings cannot set ${join($_misplaced_main_settings, ', ')}. Use the matching pupmod parameter (puppet_server, ca_server, masterport, ca_port, report or set_environment) instead.")
+      fail("pupmod::main_settings cannot set ${join($_misplaced_main_settings, ', ')}. Use the matching parameter (pupmod::puppet_server, ca_server, masterport, ca_port, report or set_environment, or pupmod::master::freeze_main, strict_hostname_checking, ca_ttl or keylength) instead.")
     }
 
     # A named parameter that is set wins over the same setting in

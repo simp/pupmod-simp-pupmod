@@ -159,6 +159,14 @@ describe 'pupmod' do
           it { is_expected.to compile.and_raise_error(%r{main_settings cannot set masterport}) }
         end
 
+        ['freeze_main', 'strict_hostname_checking', 'ca_ttl', 'keylength'].each do |setting|
+          context "with main_settings for #{setting}, which pupmod::master writes" do
+            let(:params) { { main_settings: { setting => 'x' } } }
+
+            it { is_expected.to compile.and_raise_error(%r{main_settings cannot set #{setting}\..*pupmod::master::}) }
+          end
+        end
+
         context 'with main_settings for a named parameter that is unset' do
           let(:params) { { main_settings: { 'splay' => true, 'runinterval' => 20 } } }
 
