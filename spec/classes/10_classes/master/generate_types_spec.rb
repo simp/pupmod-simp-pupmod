@@ -293,11 +293,18 @@ describe 'pupmod::master::generate_types' do
         it { is_expected.not_to create_file('/usr/local/sbin/simp_generate_types') }
         it { is_expected.not_to create_file('/var/run/simp_generate_types') }
         it { is_expected.not_to create_exec('simp_generate_types') }
-        it { is_expected.to create_service('simp_generate_types').with_enable(false) }
-        it { is_expected.to create_service('simp_generate_types_force').with_enable(false) }
+        ['simp_generate_types', 'simp_generate_types_force'].each do |svc|
+          it {
+            is_expected.to create_service(svc).with(ensure: 'stopped', enable: false)
+                                              .that_comes_before("Systemd::Unit_file[#{svc}.service]")
+          }
+        end
         if Array(os_facts[:init_systems]).include?('systemd')
-          it { is_expected.to create_systemd__unit_file('simp_generate_types.path').with_ensure('absent') }
-          it { is_expected.to create_systemd__unit_file('simp_generate_types_apps.path').with_ensure('absent') }
+          # An active path unit keeps watching after its file is removed
+          ['simp_generate_types.path', 'simp_generate_types_apps.path'].each do |unit|
+            it { is_expected.to create_systemd__unit_file(unit).with(ensure: 'absent', enable: false, active: false) }
+            it { is_expected.to create_service(unit).with(ensure: false, enable: false).that_comes_before("File[/etc/systemd/system/#{unit}]") }
+          end
           it { is_expected.to create_systemd__unit_file('simp_generate_types-trigger.service').with_ensure('absent') }
           it { is_expected.to create_systemd__unit_file('simp_generate_types-trigger_app.service').with_ensure('absent') }
           it { is_expected.to create_systemd__unit_file('simp_generate_types.service').with_ensure('absent') }

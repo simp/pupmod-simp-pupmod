@@ -147,11 +147,22 @@ class pupmod::master::generate_types (
     }
   }
   elsif $enable == false {
-    service { 'simp_generate_types': enable => false }
-    service { 'simp_generate_types_force': enable => false }
+    # Removing a unit file doesn't stop a unit that is already active, so
+    # stop the watchers and services before their files go
+    service { ['simp_generate_types', 'simp_generate_types_force']:
+      ensure => 'stopped',
+      enable => false,
+      before => [
+        Systemd::Unit_file['simp_generate_types.service'],
+        Systemd::Unit_file['simp_generate_types_force.service'],
+      ],
+    }
 
-    systemd::unit_file { 'simp_generate_types.path': ensure => absent }
-    systemd::unit_file { 'simp_generate_types_apps.path': ensure => absent }
+    systemd::unit_file { ['simp_generate_types.path', 'simp_generate_types_apps.path']:
+      ensure => absent,
+      enable => false,
+      active => false,
+    }
     systemd::unit_file { 'simp_generate_types-trigger.service': ensure => absent }
     systemd::unit_file { 'simp_generate_types-trigger_app.service': ensure => absent }
     systemd::unit_file { 'simp_generate_types.service': ensure => absent }

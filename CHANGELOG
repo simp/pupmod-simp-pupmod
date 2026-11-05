@@ -93,6 +93,9 @@
 - Fixed `pupmod::purge_logs: false` not removing the log purging tmpfiles
   drop-in.
 - Fixed the CVE-2020-7942 warning naming the wrong parameter value.
+- Fixed `pupmod::master::generate_types::enable: false` leaving the
+  `simp_generate_types` path units running, so environment changes still
+  triggered `puppet generate types`.
 
 * Mon Nov 02 2026 Mike Riddle <mike@sicura.us> - 12.4.1
 - Fixed a `Calling function empty() with Numeric value is deprecated` warning
