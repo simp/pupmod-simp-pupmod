@@ -1,0 +1,4 @@
+---
+pupmod::master::base::helper_scripts: true
+pupmod::master::masterport: 8150
+pupmod::master::admin_api_mountpoint: /admin

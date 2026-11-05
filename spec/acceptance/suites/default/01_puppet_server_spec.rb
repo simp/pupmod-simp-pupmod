@@ -4,6 +4,7 @@ describe 'install environment via r10k and openvox-server' do
   require_relative('lib/util')
 
   include GenerateTypesTestUtil
+  include PupmodTestUtil
 
   let(:master_manifest) do
     <<~EOF
@@ -34,7 +35,8 @@ describe 'install environment via r10k and openvox-server' do
 
   # Deliberately minimal. #241 is an agent-side regression in how `pupmod`
   # manages the puppetagent_manage_all_files SELinux boolean, so that class is
-  # all the first-run noop check needs.
+  # all the first-run noop check needs. simp:defaults is enforced, so the
+  # boolean is managed at all.
   #
   # Using the full master manifest here fails the noop for unrelated reasons:
   # simp_firewalld's Firewalld_service provider cannot evaluate on a fresh host
@@ -92,6 +94,34 @@ describe 'install environment via r10k and openvox-server' do
         on(master, 'chown -R puppet:puppet /etc/puppetlabs/code')
       end
 
+      context 'with a bare include' do
+        let(:watched_files) do
+          [
+            '/etc/puppetlabs/puppet/puppet.conf',
+            '/etc/sysconfig/puppetserver',
+            '/etc/puppetlabs/puppetserver/conf.d/*.conf',
+            '/etc/puppetlabs/puppetserver/services.d/ca.cfg',
+            '/etc/puppetlabs/puppetserver/logback.xml',
+          ].join(' ')
+        end
+        let(:bare_manifest) { "class { 'pupmod': enable_puppet_master => true }" }
+        let(:state_cmd) do
+          "md5sum #{watched_files}; stat -c '%U:%G %a %n' /etc/puppetlabs/puppet /etc/puppetlabs/puppetserver/conf.d; " \
+            'systemctl is-enabled puppet puppetserver; systemctl is-active puppet puppetserver; ' \
+            'ls /etc/systemd/system /etc/tmpfiles.d /usr/local/sbin /usr/local/bin'
+        end
+
+        it 'changes nothing but the packages' do
+          before_state = on(master, state_cmd, accept_all_exit_codes: true).stdout
+          apply_manifest_on(master, bare_manifest, catch_failures: true)
+          expect(on(master, state_cmd, accept_all_exit_codes: true).stdout).to eq(before_state)
+        end
+
+        it 'is idempotent' do
+          apply_manifest_on(master, bare_manifest, catch_changes: true)
+        end
+      end
+
       it 'does not fail a first-run noop before the puppet sebool package exists' do
         os_maj = fact_on(master, 'os.release.major').to_i
 
@@ -134,7 +164,9 @@ describe 'install environment via r10k and openvox-server' do
                                                  'puppetagent_manage_all_files still exists after removing ' \
                                                  "#{sebool_package}; the #241 first-run scenario was not reproduced"
 
-          apply_manifest_on(master, noop_manifest, catch_failures: true, noop: true)
+          set_simp_defaults_hieradata_on(master)
+          result = apply_manifest_on(master, noop_manifest, catch_failures: true, noop: true)
+          expect(result.output).to match(%r{Exec\[Set puppetagent_manage_all_files seboolean\].*\(noop\)})
         ensure
           # Leave the SUT as we found it: the following examples assume the
           # original enforcement mode, and a leaked `Enforcing` would change the
@@ -144,7 +176,26 @@ describe 'install environment via r10k and openvox-server' do
         end
       end
 
+      # On a fresh node the Sicura console previews the module with
+      # `puppet apply --noop`, which must not error. A bare include manages
+      # only the packages, so the preview enforces simp:defaults, as a SIMP
+      # site would. The firewall stays off: simp_firewalld cannot preview a
+      # zone that no real run has created yet (see noop_manifest).
+      it 'previews simp:defaults on the server without errors' do
+        # syslog follows simp_options::syslog, not the profile; turn it on so
+        # the preview covers inserting the SYSLOG appender into logback.xml
+        set_simp_defaults_hieradata_on(master, 'pupmod::master::syslog' => true)
+        result = apply_manifest_on(master, "class { 'pupmod::master': firewall => false }", catch_failures: true, noop: true)
+        # Guards against the preview quietly covering the packages alone if the
+        # Compliance Engine layer stops resolving the profile
+        expect(result.output).to match(%r{Hocon_setting\[pupmod::master webserver.conf webserver.base.ssl-port\].*\(noop\)})
+        expect(result.output).to match(%r{Ini_subsetting\[pupmod::master::sysconfig JAVA_ARGS -Xmx\].*\(noop\)})
+        expect(result.output).to match(%r{Service\[puppetserver\].*\(noop\)})
+        expect(result.output).to match(%r{Augeas\[pupmod::master logback.xml SYSLOG appender\].*\(noop\)})
+      end
+
       it 'applies the master manifest' do
+        set_simp_defaults_hieradata_on(master)
         apply_manifest_on(master, master_manifest, accept_all_exit_codes: true)
         apply_manifest_on(master, master_manifest, accept_all_exit_codes: true)
         wait_for_generate_types(master)
@@ -164,6 +215,18 @@ describe 'install environment via r10k and openvox-server' do
 
       it 'is idempotent' do
         apply_manifest_on(master, master_manifest, catch_changes: true)
+      end
+
+      it 'runs the CA as its own server on port 8141' do
+        webserver = on(master, 'cat /etc/puppetlabs/puppetserver/conf.d/webserver.conf').stdout
+        expect(webserver).to match(%r{^\s*base\s*[:\{]})
+        expect(webserver).to match(%r{^\s*ca\s*[:\{]})
+        on(master, "ss -ltn | grep -E ':8141\\s'")
+        on(master, "ss -ltn | grep -E ':8140\\s'")
+      end
+
+      it 'serves a catalog to its own agent' do
+        on(master, 'puppet agent -t', acceptable_exit_codes: [0, 2])
       end
 
       it 'is running the JRuby that ships with its openvox-server major' do
@@ -211,16 +274,13 @@ describe 'install environment via r10k and openvox-server' do
 
       context 'when managing facter.conf' do
         let(:disable_block_hieradata) do
-          <<~EOS
-            pupmod::manage_facter_conf: true
-            pupmod::facter_options:
-              facts:
-                blocklist:
-                  - hypervisors
-          EOS
+          { 'pupmod::facter_options' => { 'facts' => { 'blocklist' => ['hypervisors'] } } }
         end
 
-        let(:enable_block_hieradata) { 'pupmod::manage_facter_conf: true' }
+        # An empty section removes it
+        let(:enable_block_hieradata) do
+          { 'pupmod::facter_options' => { 'facts' => {} } }
+        end
 
         # rubocop:disable-next RSpec/RepeatedExample
         it 'provides hypervisors facts initially' do
@@ -230,7 +290,7 @@ describe 'install environment via r10k and openvox-server' do
         end
 
         it 'creates config to disable hypervisors fact block' do
-          set_hieradata_on(master, disable_block_hieradata)
+          set_simp_defaults_hieradata_on(master, disable_block_hieradata)
           apply_manifest_on(master, master_manifest, accept_all_exit_codes: true)
         end
 
@@ -246,7 +306,7 @@ describe 'install environment via r10k and openvox-server' do
         end
 
         it 'creates config to re-enable hypervisors fact block' do
-          set_hieradata_on(master, enable_block_hieradata)
+          set_simp_defaults_hieradata_on(master, enable_block_hieradata)
           apply_manifest_on(master, master_manifest, accept_all_exit_codes: true)
         end
 

@@ -1,0 +1,12 @@
+---
+compliance_engine::enforcement:
+  - simp:defaults
+# A SIMP site: these follow simp_options, not the profile
+simp_options::puppet::server: puppet.example.com
+simp_options::puppet::ca: puppet.example.com
+simp_options::puppet::ca_port: 8141
+simp_options::firewall: true
+simp_options::syslog: true
+simp_options::auditd: true
+simp_options::trusted_nets:
+  - 10.0.0.0/8

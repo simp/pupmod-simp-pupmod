@@ -1,0 +1,2 @@
+---
+pupmod::master::sysconfig::java_temp_dir: /opt/puppetlabs/server/data/pserver_tmp

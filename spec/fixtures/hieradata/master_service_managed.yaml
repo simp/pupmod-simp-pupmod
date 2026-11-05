@@ -1,0 +1,3 @@
+---
+pupmod::master::service::service_ensure: running
+pupmod::master::service::service_enable: true

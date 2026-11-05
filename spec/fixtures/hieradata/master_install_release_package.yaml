@@ -1,0 +1,2 @@
+---
+pupmod::master::install::install_release_package: true

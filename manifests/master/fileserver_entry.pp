@@ -1,34 +1,46 @@
-# @summary Manage entries in the /etc/puppet/fileserver.conf file.
+# @summary Manage entries in the puppet fileserver.conf file.
+#
+# Only this entry's `path` is managed; other mount points in the file are
+# left alone.
 #
 # @param name
 #   The name of the [] segment.
 #
 # @param allow
-#   An array of entries to add to the allow statement.
+#   Unused: puppetserver controls access with its `auth.conf`.
 #
 # @param path
 #   The filesystem path to which this segment should point.
 #
+# @param ensure
+#   ``absent`` removes this segment's `path`
+#
 define pupmod::master::fileserver_entry (
   Variant[Array[Simplib::Host],Simplib::Host] $allow,
-  Stdlib::AbsolutePath $path
+  Stdlib::AbsolutePath                        $path,
+  Enum['present', 'absent']                   $ensure = 'present',
 ) {
   include 'pupmod::master'
 
-  # In Puppet 6.19 the section "master was renamed to "server" in Puppet.settings.
-  # pick is used here to determine correct value for backwards compatability
-  $_puppet_group = pick($facts.dig('puppet_settings','server','group'),$facts.dig('puppet_settings','master','group'))
+  $_fileserver_conf = "${pupmod::confdir}/fileserver.conf"
 
-  ensure_resource('concat', "${pupmod::confdir}/fileserver.conf", {
-    'ensure' => 'present',
-    'owner'  => 'root',
-    'group'  => $_puppet_group,
-    'mode'   => '0640',
-    'notify' => Class['pupmod::master::service']
-  })
+  if $pupmod::puppet_group =~ NotUndef {
+    ensure_resource('file', $_fileserver_conf, {
+        'ensure' => 'file',
+        'owner'  => 'root',
+        'group'  => $pupmod::puppet_group,
+        'mode'   => '0640',
+        'notify' => Class['pupmod::master::service'],
+    })
+  }
 
-  concat::fragment { "pupmod::master::fileserver_entry ${name}":
-    target  => "${pupmod::confdir}/fileserver.conf",
-    content => epp("${module_name}/content/fileserver", { 'name' => $name, 'path' => $path, 'allow' => $allow, 'server_version' => $pupmod::master::_server_version }),
+  ini_setting { "pupmod::master::fileserver_entry ${name}":
+    ensure            => $ensure,
+    path              => $_fileserver_conf,
+    section           => $name,
+    setting           => 'path',
+    value             => $path,
+    key_val_separator => ' ',
+    notify            => Class['pupmod::master::service'],
   }
 }

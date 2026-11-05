@@ -36,12 +36,27 @@ class pupmod::facter::conf (
         require => File[$facter_conf_dir],
       }
     } else {
-      hocon_setting { $section:
-        ensure  => present,
-        path    => $_facter_conf,
-        setting => $section,
-        value   => $config,
-        require => File[$facter_conf_dir],
+      # Each key is managed on its own, so keys set elsewhere are left alone
+      $config.each |String $key, $value| {
+        $_ensure = $value ? {
+          'absent' => 'absent',
+          default  => 'present',
+        }
+
+        # hocon_setting writes a one-element Array as a scalar unless told
+        $_type = $value ? {
+          Array   => 'array',
+          default => undef,
+        }
+
+        hocon_setting { "${section}.${key}":
+          ensure  => $_ensure,
+          path    => $_facter_conf,
+          setting => "${section}.${key}",
+          value   => $value,
+          type    => $_type,
+          require => File[$facter_conf_dir],
+        }
       }
     }
   }
