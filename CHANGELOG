@@ -1,6 +1,9 @@
 * Mon Nov 02 2026 Mike Riddle <mike@sicura.us> - 12.4.1
 - Fixed a `Calling function empty() with Numeric value is deprecated` warning
   when `pupmod::splaylimit` is set
+- Fixed an OpenVox 9 (OpenFact 6) deprecation warning from the
+  `simp_pupmod_serverversion` fact by using `Facter::Core::Execution.execute`
+  instead of `Facter::Core::Execution.exec`
 
 * Thu Oct 08 2026 Steven Pritchard <steve@sicura.us> - 12.4.0
 - Add support for OpenVox 9
