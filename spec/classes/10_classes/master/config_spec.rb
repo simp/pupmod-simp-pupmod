@@ -354,6 +354,70 @@ describe 'pupmod::master' do
           it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.base.default-server')).with_value(true) }
         end
 
+        context 'on a CA-only server' do
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact('ca' => { 'ssl-port' => 8141, 'default-server' => true })) }
+
+          context 'with nothing set' do
+            it { expect(hocon_titles(%r{webserver\.conf})).to be_empty }
+          end
+
+          context 'with only ssl_protocols' do
+            let(:params) { { ssl_protocols: ['TLSv1.2'] } }
+
+            # No main server is created
+            it { expect(hocon_titles(%r{webserver\.base})).to be_empty }
+            # The CA is the only server, so the setting goes there
+            it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.ca.ssl-protocols')).with_value('TLSv1.2') }
+          end
+
+          context 'with enable_master => true' do
+            let(:params) { { enable_master: true } }
+
+            it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.base.default-server')).with_value(true) }
+          end
+        end
+
+        context 'on named servers with enable_master unset' do
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(named_servers)) }
+
+          context 'with nothing set' do
+            it { expect(hocon_titles(%r{webserver\.conf})).to be_empty }
+          end
+
+          context 'with only ssl_protocols' do
+            let(:params) { { ssl_protocols: ['TLSv1.2'] } }
+
+            it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.base.ssl-protocols')).with_value('TLSv1.2') }
+            it { is_expected.not_to contain_hocon_setting(hocon('webserver.conf', 'webserver.base.default-server')) }
+            # The CA on its own port gets it too, without ca_port
+            it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.ca.ssl-protocols')).with_value('TLSv1.2') }
+            it { is_expected.not_to contain_hocon_setting(hocon('webserver.conf', 'webserver.ca.ssl-port')) }
+            it { is_expected.not_to contain_hocon_setting(hocon('web-routes.conf', ca_route)) }
+          end
+
+          context 'with ssl_cipher_suites, ca_bind_address and ca_webserver_options' do
+            let(:params) do
+              {
+                ssl_cipher_suites: ['TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'],
+                ca_bind_address: '10.5.5.5',
+                ca_webserver_options: { 'idle-timeout-milliseconds' => '30000' },
+              }
+            end
+
+            it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.ca.cipher-suites')).with_value('TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384') }
+            it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.ca.ssl-host')).with_value('10.5.5.5') }
+            it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.ca.idle-timeout-milliseconds')).with_value('30000') }
+          end
+        end
+
+        context 'on the package layout with ca_bind_address and no CA port' do
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(single_server)) }
+          let(:params) { { ca_bind_address: '10.5.5.5', ssl_protocols: ['TLSv1.2'] } }
+
+          # There is no ca server to write to
+          it { expect(hocon_titles(%r{webserver\.ca})).to be_empty }
+        end
+
         context 'with enable_master => false and a CA port' do
           let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(named_servers)) }
           let(:params) { { ca_port: 8141, enable_master: false } }

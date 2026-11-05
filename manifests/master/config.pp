@@ -132,11 +132,22 @@ class pupmod::master::config {
     if $pupmod::master::enable_master == false {
       $_main_server = { 'webserver.base' => 'absent' }
     }
-    else {
+    elsif ($pupmod::master::enable_master == true) or !$_named_servers_now {
       # The main server takes every route that doesn't name a server
       $_main_server = ($_main_server_settings + { 'default-server' => true }).reduce({}) |$memo, $setting| {
         $memo + { "webserver.base.${setting[0]}" => $setting[1] }
       }
+    }
+    elsif $_webserver.dig('base') =~ Hash {
+      # enable_master is unset: manage only the settings that were set
+      $_main_server = $_main_server_settings.reduce({}) |$memo, $setting| {
+        $memo + { "webserver.base.${setting[0]}" => $setting[1] }
+      }
+    }
+    else {
+      # enable_master is unset and there is no main server, as on a CA-only
+      # server: leave it that way
+      $_main_server = {}
     }
   }
   else {
@@ -189,6 +200,17 @@ class pupmod::master::config {
   }
   elsif $_ca_split == false {
     $_ca_server = { 'webserver.ca' => 'absent' }
+  }
+  elsif $_webserver.dig('ca') =~ Hash {
+    # Whether the CA runs on its own isn't known, but it does now: the
+    # settings that were set for it still reach it
+    $_ca_server = ({
+      'ssl-host'      => $pupmod::master::ca_bind_address,
+      'ssl-protocols' => $_ssl_protocols,
+      'cipher-suites' => $_cipher_suites,
+    } + pick($pupmod::master::ca_webserver_options, {})).filter |$key, $value| { $value =~ NotUndef }.reduce({}) |$memo, $setting| {
+      $memo + { "webserver.ca.${setting[0]}" => $setting[1] }
+    }
   }
   else {
     $_ca_server = {}

@@ -1048,8 +1048,9 @@ Data type: `Optional[Variant[Simplib::IP, Enum['absent']]]`
 The IP address to which the Puppet CA process should bind, written as
 `ssl-host` of the `ca` server in `webserver.conf`
 
-* Only used when the CA has its own port (see `ca_port`). The CA listens
-  on the main server's address when this is not set.
+* Only used when the CA has its own port (see `ca_port`), or
+  `webserver.conf` already has a `ca` server. The CA listens on the main
+  server's address when this is not set.
 
 Default value: `undef`
 
@@ -1152,6 +1153,11 @@ Whether or not the system should act as a Puppet Master.
 * `false` removes the main (`base`) server from a `webserver.conf` that
   uses named servers, leaving only the CA. Only meaningful when the CA has
   its own port.
+* `true` makes the `base` server the default server, creating it if
+  needed.
+* When unset, a `webserver.conf` that already uses named servers keeps
+  its layout: settings go to an existing `base` server, and a CA-only
+  server gets no `base` server.
 
 Default value: `undef`
 
@@ -1629,7 +1635,8 @@ Data type: `Optional[Hash[String[1], Data]]`
 Additional settings for the `ca` server in `webserver.conf`, as
 `key => value`. A value of `'absent'` removes the key.
 
-Only used when the CA has its own port (see `ca_port`).
+Only used when the CA has its own port (see `ca_port`), or
+`webserver.conf` already has a `ca` server.
 
 Default value: `undef`
 
