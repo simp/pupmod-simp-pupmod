@@ -43,7 +43,8 @@ Agent side:
 
 - **`pupmod` (`manifests/init.pp`)** — Public entry class. Guarded by
   `unless $mock` (`init.pp`); first runs `simplib::assert_metadata($module_name)`.
-  Orchestration: optionally `include 'haveged'` if `$haveged`; always
+  Orchestration: optionally `include 'rngd'` if `$rngd`, or the deprecated
+  `include 'haveged'` if `$haveged` (optional dependency); always
   `include pupmod::agent::install`; `include 'pupmod::master'` when
   `$enable_puppet_master`. `$daemonize` is `Optional[Boolean]`: `true` runs
   `service { 'puppet' }` and removes the timer, `false` stops it and includes
@@ -203,7 +204,7 @@ Puppet-language functions (`functions/`, all `pupmod::*`): `server_distribution`
   The `default_value` in each `simplib::lookup` call is what makes the classes
   compile without it.
 - **Several declared dependencies are used conditionally.** `simp/iptables`
-  (`master.pp`, `pass_two.pp`), `simp/haveged` (`init.pp`), and
+  (`master.pp`, `pass_two.pp`), `simp/rngd` (`init.pp`), and
   `auditd` (`master.pp`, not a declared dep — pulled in only via `$auditd`) are
   `include`d only inside feature branches. `simp/pki` is a declared dependency but
   no `pki::` call appears in `manifests/` (retained as SIMP baseline / referenced by
@@ -247,7 +248,6 @@ Module dependencies (from `metadata.json`):
 
 - `puppet/systemd` `>= 4.0.2 < 10.0.0` (provides `systemd::timer`,
   `systemd::tmpfile`, `systemd::unit_file`)
-- `simp/haveged` `>= 0.4.5 < 1.0.0` (entropy daemon, included only when `$haveged`)
 - `puppetlabs/stdlib` `>= 9.2.0 < 11.0.0` (`pick`, `member`, `dirname`,
   `deprecation(..., false)`, etc.)
 - `puppetlabs/inifile` `>= 2.5.0 < 7.0.0` (`ini_setting`/`ini_subsetting` for
@@ -262,8 +262,11 @@ Module dependencies (from `metadata.json`):
   `simplib::rand_cron`, `simplib::cron::to_systemd`, `simplib::in_bolt`, and SIMP
   types)
 - `simp/pki` `>= 6.2.0 < 8.0.0` (SIMP baseline; no `pki::` call in `manifests/`)
+- `simp/rngd` `>= 0.2.0 < 1.0.0` (entropy daemon, included only when `$rngd`)
 
-No `simp.optional_dependencies` block is present in `metadata.json`.
+`simp.optional_dependencies` lists `simp/haveged` `>= 0.4.5 < 1.0.0`, used
+only by the deprecated `$haveged` (checked with
+`simplib::assert_optional_dependency`).
 `augeas` (for `logback.xml`) comes from the `augeas_core` module vendored in
 the OpenVox agent. `compliance_engine` is a spec fixture only, not a
 dependency. `auditd`

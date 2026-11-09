@@ -23,6 +23,7 @@ fixtures:
       repo: https://github.com/puppetlabs/puppetlabs-hocon.git
     logrotate: https://github.com/simp/pupmod-simp-logrotate.git
     pki: https://github.com/simp/pupmod-simp-pki.git
+    rngd: https://github.com/simp/pupmod-simp-rngd.git
     rsyslog: https://github.com/simp/pupmod-simp-rsyslog.git
     simp_firewalld: https://github.com/simp/pupmod-simp-simp_firewalld.git
     simp_options: https://github.com/simp/pupmod-simp-simp_options.git

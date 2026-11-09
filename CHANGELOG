@@ -1,3 +1,10 @@
+* Mon Nov 09 2026 Hazel Caballero <hazel@sicura.us> - 13.1.0
+- Add `pupmod::rngd` to include the `rngd` class for entropy generation
+- Deprecate `pupmod::haveged` (and its `simp_options::haveged` default); it
+  will be removed in the next major release
+- `simp/haveged` is now an optional dependency and must be installed
+  separately to use `pupmod::haveged`
+
 * Wed Nov 04 2026 Mike Riddle <mike@sicura.us> - 13.0.0
 - BREAKING: a bare `include pupmod` installs the agent package and nothing
   else, and a bare `include pupmod::master` installs the server package and

@@ -1,6 +1,6 @@
 {
   "name": "simp-pupmod",
-  "version": "13.0.0",
+  "version": "13.1.0",
   "author": "SIMP Team",
   "summary": "A puppet module to manage puppetserver and puppet agents",
   "license": "Apache-2.0",
@@ -20,10 +20,6 @@
     {
       "name": "puppet/systemd",
       "version_requirement": ">= 4.0.2 < 11.0.0"
-    },
-    {
-      "name": "simp/haveged",
-      "version_requirement": ">= 0.4.5 < 1.0.0"
     },
     {
       "name": "puppetlabs/stdlib",
@@ -52,6 +48,10 @@
     {
       "name": "simp/pki",
       "version_requirement": ">= 6.2.0 < 8.0.0"
+    },
+    {
+      "name": "simp/rngd",
+      "version_requirement": ">= 0.2.0 < 1.0.0"
     }
   ],
   "requirements": [
@@ -60,6 +60,14 @@
       "version_requirement": ">= 8.0.0 < 10.0.0"
     }
   ],
+  "simp": {
+    "optional_dependencies": [
+      {
+        "name": "simp/haveged",
+        "version_requirement": ">= 0.4.5 < 1.0.0"
+      }
+    ]
+  },
   "operatingsystem_support": [
     {
       "operatingsystem": "CentOS",

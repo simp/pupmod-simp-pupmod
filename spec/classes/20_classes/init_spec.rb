@@ -35,6 +35,7 @@ describe 'pupmod' do
         it { is_expected.to create_class('pupmod') }
         it { is_expected.to contain_package('openvox-agent').with_ensure('installed') }
         it { is_expected.not_to contain_class('haveged') }
+        it { is_expected.not_to contain_class('rngd') }
         it { is_expected.not_to contain_class('pupmod::agent::cron') }
         it { is_expected.not_to contain_class('pupmod::facter::conf') }
         it { is_expected.not_to contain_class('pupmod::master') }
@@ -71,11 +72,22 @@ describe 'pupmod' do
         it { is_expected.to contain_class('pupmod::master') }
       end
 
-      context 'with haveged => true' do
+      context 'with haveged => true (deprecated)' do
         let(:params) { { haveged: true } }
 
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_class('haveged') }
+        it { is_expected.not_to contain_class('rngd') }
+      end
+
+      context 'with rngd => true' do
+        let(:params) { { rngd: true } }
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_class('rngd') }
+        it { is_expected.to contain_package('rng-tools') }
+        it { is_expected.not_to contain_service('rngd') }
+        it { is_expected.not_to contain_class('haveged') }
       end
 
       context 'with agent_package and agent_package_install_options set' do

@@ -101,6 +101,7 @@ The following parameters are available in the `pupmod` class:
 * [`syslogfacility`](#-pupmod--syslogfacility)
 * [`use_srv_records`](#-pupmod--use_srv_records)
 * [`haveged`](#-pupmod--haveged)
+* [`rngd`](#-pupmod--rngd)
 * [`fips`](#-pupmod--fips)
 * [`vardir`](#-pupmod--vardir)
 * [`manage_facter_conf`](#-pupmod--manage_facter_conf)
@@ -405,9 +406,24 @@ Default value: `false`
 
 Data type: `Boolean`
 
-If true, include haveged to assist with entropy generation.
+Deprecated. If true, include haveged to assist with entropy generation.
+
+`simp/haveged` is an optional dependency and must be installed
+separately. This parameter will be removed in the next major release;
+use `rngd` instead.
 
 Default value: `simplib::lookup('simp_options::haveged', { 'default_value' => false })`
+
+##### <a name="-pupmod--rngd"></a>`rngd`
+
+Data type: `Boolean`
+
+If true, include the `rngd` class to assist with entropy generation.
+
+By default `rngd` only installs `rng-tools`; set `rngd::service_ensure`
+and `rngd::service_enable` to manage the service.
+
+Default value: `false`
 
 ##### <a name="-pupmod--fips"></a>`fips`
 
@@ -2751,3 +2767,4 @@ Alias of `Pattern['^\d+(g|k|m|%)$']`
 puppetserver profiling modes
 
 Alias of `Enum['off', 'api', 'flat', 'graph', 'html', 'json', 'service']`
+
