@@ -8,6 +8,10 @@ require 'spec_helper_acceptance'
 # exits 0 in that state (printing 'static'), so the assertions below check
 # stdout strings, never exit codes.
 describe 'puppet_agent timer reboot persistence' do
+  require_relative('lib/util')
+
+  include PupmodTestUtil
+
   # The earlier suite files enable SIMP's deny-by-default iptables, which
   # never opens port 22 — established beaker connections survive, but the
   # fresh SSH connection needed after the reboot below would be dropped.
@@ -26,6 +30,9 @@ describe 'puppet_agent timer reboot persistence' do
   hosts.each do |host|
     context "on #{host}" do
       it 'applies the agent manifest' do
+        # simp:defaults sets pupmod::daemonize to false, which runs the agent
+        # from the timer
+        set_simp_defaults_hieradata_on(host)
         apply_manifest_on(host, manifest, catch_failures: true)
       end
 

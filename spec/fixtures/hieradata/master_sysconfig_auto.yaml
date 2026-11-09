@@ -1,0 +1,3 @@
+---
+pupmod::master::sysconfig::java_max_memory: auto
+pupmod::master::sysconfig::reserved_code_cache: auto

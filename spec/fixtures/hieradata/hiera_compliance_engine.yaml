@@ -1,0 +1,19 @@
+# Alternate hiera config for the `simp:defaults` profile specs, selected with
+# `let(:hiera_config)`. It cannot live in the default config: spec_helper.rb
+# regenerates spec/fixtures/hieradata/hiera.yaml on every run and is maintained
+# by puppetsync, so a compliance-engine layer added there would not survive.
+#
+# The compliance engine is the lowest-priority layer, so an explicit site value
+# always beats a profile value.
+---
+version: 5
+defaults:
+  data_hash: yaml_data
+  datadir: '.'
+hierarchy:
+  - name: "Custom Test Hiera"
+    path: "%{custom_hiera}.yaml"
+  - name: "Common"
+    path: default.yaml
+  - name: "Compliance Engine"
+    lookup_key: "compliance_engine::enforcement"

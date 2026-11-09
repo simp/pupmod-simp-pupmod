@@ -2,111 +2,83 @@ require 'spec_helper'
 
 describe 'pupmod::master::base' do
   on_supported_os.each do |os, os_facts|
-    let(:extras) do
-      {
-        puppet_settings: {
-          'master' => {
-            'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf',
-          },
-          'server' => {
-            'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf',
-          },
-        },
-      }
-    end
     context "on #{os}" do
-      let(:facts) { extras.merge(os_facts) }
+      let(:facts) { os_facts }
 
       context 'with default parameters' do
-        it { is_expected.to create_class('pupmod::master::base') }
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.not_to contain_exec('puppetserver_reload') }
+        it { is_expected.not_to contain_file('/usr/local/sbin/puppetserver_reload') }
+        it { is_expected.not_to contain_file('/usr/local/sbin/puppetserver_clear_environment_cache') }
+        it { is_expected.not_to contain_file('/etc/puppetlabs/code/environments') }
+        it { is_expected.not_to contain_user('puppet') }
+        it { is_expected.not_to contain_puppet_authorization('/etc/puppetlabs/puppetserver/conf.d/auth.conf') }
+      end
+
+      context 'with helper_scripts => true' do
+        let(:params) { { helper_scripts: true } }
+
+        it { is_expected.to compile.with_all_deps }
         it {
           is_expected.to contain_exec('puppetserver_reload').with(
-            {
-              'command' => '/usr/local/sbin/puppetserver_reload',
-              'refreshonly' => true,
-            },
-          )
+            command: '/usr/local/sbin/puppetserver_reload',
+            onlyif: '/usr/bin/systemctl is-active --quiet puppetserver',
+            refreshonly: true,
+          ).that_subscribes_to('Class[pupmod::master::service]').that_requires('File[/usr/local/sbin/puppetserver_reload]')
         }
         it {
-          is_expected.to contain_file('/etc/puppetlabs/code/environments').with(
-            {
-              'ensure' => 'directory',
-              'owner' => 'root',
-              'group' => 'puppet',
-              'mode' => 'u=rwx,g=rwx,o-rwx',
-              'recurse' => true,
-              'recurselimit' => 1,
-            },
+          is_expected.to contain_file('/usr/local/sbin/puppetserver_reload').with(
+            ensure: 'file',
+            owner: 'root',
+            group: 'root',
+            mode: '0700',
+            content: %r{puppetserver reload},
           )
         }
         it {
           is_expected.to contain_file('/usr/local/sbin/puppetserver_clear_environment_cache').with(
-            {
-              'ensure' => 'file',
-              'owner' => 'root',
-              'group' => 'root',
-              'mode' => '0700',
-            },
+            ensure: 'file',
+            mode: '0700',
+            content: %r{:8140/puppet-admin-api/v1/environment-cache},
           )
         }
-        it {
-          puppetserver_clear_environment_cache = File.binread("#{File.dirname(__FILE__)}/data/puppetserver_clear_environment_cache.txt").gsub('foo.example.com', facts[:networking][:fqdn])
-          is_expected.to contain_file('/usr/local/sbin/puppetserver_clear_environment_cache').with_content(puppetserver_clear_environment_cache)
-        }
+      end
 
-        it {
-          is_expected.to contain_file('/usr/local/sbin/puppetserver_reload').with(
-            {
-              'ensure' => 'file',
-              'owner' => 'root',
-              'group' => 'root',
-              'mode' => '0700',
-            },
-          )
-        }
-        it {
-          puppetserver_reload = File.binread("#{File.dirname(__FILE__)}/data/puppetserver_reload.txt").gsub('foo.example.com', facts[:networking][:fqdn])
-          is_expected.to contain_file('/usr/local/sbin/puppetserver_reload').with_content(puppetserver_reload)
-        }
+      context 'with helper_scripts and pupmod::master settings' do
+        let(:hieradata) { 'master_base_helper_scripts' }
 
+        it { is_expected.to contain_file('/usr/local/sbin/puppetserver_clear_environment_cache').with_content(%r{:8150/admin/v1/environment-cache}) }
+      end
+
+      context 'with pupmod::puppet_group set to another group' do
+        let(:hieradata) { 'master_puppet_group_other' }
+
+        it { is_expected.to contain_file('/etc/puppetlabs/code/environments').with_group('puppetadmins') }
+        # The service user's primary group stays puppet, as in 12.x
+        it { is_expected.to contain_user('puppet').with_gid('puppet') }
+      end
+
+      context 'with pupmod::puppet_group set' do
+        let(:hieradata) { 'master_puppet_group' }
+
+        it { is_expected.to compile.with_all_deps }
         it {
-          is_expected.to contain_group('puppet').with(
-            {
-              'ensure' => 'present',
-              'allowdupe' => false,
-              'tag' => 'firstrun',
-            },
-          )
-        }
-        it {
-          is_expected.to contain_package('openvox-server').with(
-            {
-              'ensure' => 'installed',
-            },
-          )
-        }
-        it {
-          is_expected.to contain_service('puppetserver').with(
-            {
-              'ensure' => 'running',
-              'enable' => true,
-              'hasrestart' => true,
-              'hasstatus' => true,
-            },
+          is_expected.to contain_file('/etc/puppetlabs/code/environments').with(
+            ensure: 'directory',
+            owner: 'root',
+            group: 'puppet',
+            mode: 'u=rwx,g=rwx,o-rwx',
+            recurse: true,
+            recurselimit: 1,
           )
         }
         it {
           is_expected.to contain_user('puppet').with(
-            {
-              'ensure' => 'present',
-              'allowdupe' => false,
-              'comment' => 'Puppet User',
-              'gid' => 'puppet',
-              'home' => '/opt/puppetlabs/server/data/puppetserver',
-              'shell' => '/sbin/nologin',
-              'tag' => 'firstrun',
-            },
-          )
+            ensure: 'present',
+            gid: 'puppet',
+            home: '/opt/puppetlabs/server/data/puppetserver',
+            shell: '/sbin/nologin',
+          ).that_requires('Class[pupmod::master::install]')
         }
       end
     end

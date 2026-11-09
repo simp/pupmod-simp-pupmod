@@ -11,91 +11,80 @@ describe 'pupmod' do
       let(:conf_dir) { '/etc/puppetlabs/facter' }
       let(:conf_file) { '/etc/puppetlabs/facter/facter.conf' }
 
-      context 'with default facter config (empty sections)' do
+      context 'with default facter_options (empty)' do
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.not_to contain_class('pupmod::facter::conf') }
+        it { is_expected.to have_hocon_setting_resource_count(0) }
+      end
+
+      context 'with the deprecated manage_facter_conf => true and no facter_options' do
         let(:params) { { manage_facter_conf: true } }
 
         it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_file(conf_dir).with_ensure('directory') }
-        it { is_expected.to contain_file(conf_file).with_ensure('file') }
-        [ 'facts', 'global', 'cli' ].each do |section|
-          it {
-            is_expected.to contain_hocon_setting(section).with(
-              ensure: 'absent',
-              path: conf_file,
-              setting: section,
-            )
-          }
-        end
+        it { is_expected.not_to contain_class('pupmod::facter::conf') }
       end
 
-      context 'with fully specified facter config' do
-        let(:facts_section) do
-          {
-            'blocklist' => [ 'EC2' ],
-            'ttls'      => [
-              { 'processor' => '30 days' },
-              { 'timezone'  => '8 hours' },
-            ],
-          }
-        end
-
-        let(:global_section) do
-          {
-            'external-dir'     => [ 'path1', 'path2' ],
-            'custom-dir'       => [ 'custom/path' ],
-            'no-exernal-facts' => false,
-            'no-custom-facts'  => false,
-            'no-ruby'          => false,
-          }
-        end
-
-        let(:cli_section) do
-          {
-            'debug'     => false,
-            'trace'     => true,
-            'verbose'   => false,
-            'log-level' => 'warn',
-          }
-        end
-
+      context 'with facter_options' do
         let(:params) do
           {
-            manage_facter_conf: true,
             facter_options: {
-              'facts'  => facts_section,
-              'global' => global_section,
-              'cli'    => cli_section,
+              'facts' => {
+                'blocklist' => ['EC2'],
+                'ttls'      => [
+                  { 'processor' => '30 days' },
+                  { 'timezone'  => '8 hours' },
+                ],
+              },
+              'global' => {
+                'external-dir' => ['path1', 'path2'],
+                'no-ruby'      => false,
+                'custom-dir'   => 'absent',
+              },
+              'cli' => {},
             },
           }
         end
 
         it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_class('pupmod::facter::conf') }
         it { is_expected.to contain_file(conf_dir).with_ensure('directory') }
         it { is_expected.to contain_file(conf_file).with_ensure('file') }
         it {
-          is_expected.to contain_hocon_setting('facts').with(
+          is_expected.to contain_hocon_setting('facts.blocklist').with(
             ensure: 'present',
             path: conf_file,
-            setting: 'facts',
-            value: facts_section,
+            setting: 'facts.blocklist',
+            value: ['EC2'],
+            type: 'array',
           )
         }
         it {
-          is_expected.to contain_hocon_setting('global').with(
-            ensure: 'present',
-            path: conf_file,
-            setting: 'global',
-            value: global_section,
+          is_expected.to contain_hocon_setting('facts.ttls').with(
+            setting: 'facts.ttls',
+            value: [{ 'processor' => '30 days' }, { 'timezone' => '8 hours' }],
+            type: 'array',
           )
         }
-        it {
-          is_expected.to contain_hocon_setting('cli').with(
-            ensure: 'present',
-            path: conf_file,
-            setting: 'cli',
-            value: cli_section,
-          )
-        }
+        it { is_expected.to contain_hocon_setting('global.external-dir').with(value: ['path1', 'path2'], type: 'array') }
+        it { is_expected.to contain_hocon_setting('global.no-ruby').with(ensure: 'present', value: false, type: nil) }
+        it { is_expected.to contain_hocon_setting('global.custom-dir').with(ensure: 'absent', setting: 'global.custom-dir') }
+        it 'removes an empty section' do
+          is_expected.to contain_hocon_setting('cli').with(ensure: 'absent', path: conf_file, setting: 'cli')
+        end
+        it { is_expected.not_to contain_hocon_setting('facts') }
+        it { is_expected.not_to contain_hocon_setting('global') }
+      end
+
+      context 'with facter_options and the deprecated manage_facter_conf => false' do
+        let(:params) do
+          {
+            manage_facter_conf: false,
+            facter_options: { 'facts' => { 'blocklist' => ['EC2'] } },
+          }
+        end
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.not_to contain_class('pupmod::facter::conf') }
       end
     end
   end

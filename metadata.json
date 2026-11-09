@@ -1,6 +1,6 @@
 {
   "name": "simp-pupmod",
-  "version": "12.4.1",
+  "version": "13.0.0",
   "author": "SIMP Team",
   "summary": "A puppet module to manage puppetserver and puppet agents",
   "license": "Apache-2.0",
@@ -27,7 +27,7 @@
     },
     {
       "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 8.0.0 < 11.0.0"
+      "version_requirement": ">= 9.2.0 < 11.0.0"
     },
     {
       "name": "puppetlabs/inifile",
@@ -40,10 +40,6 @@
     {
       "name": "puppetlabs/hocon",
       "version_requirement": ">= 0.9.3 < 3.0.0"
-    },
-    {
-      "name": "puppetlabs/concat",
-      "version_requirement": ">= 6.4.0 < 11.0.0"
     },
     {
       "name": "simp/iptables",

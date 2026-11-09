@@ -1,0 +1,4 @@
+---
+simp_options::puppet::server: puppet.simp.test
+simp_options::puppet::ca: ca.simp.test
+simp_options::puppet::ca_port: 8141

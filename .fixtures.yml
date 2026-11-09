@@ -9,6 +9,11 @@ fixtures:
     augeasproviders_puppet: https://github.com/simp/augeasproviders_puppet.git
     cron_core:
       repo: https://github.com/simp/pupmod-puppetlabs-cron_core.git
+    # Only needed so spec tests can resolve `compliance_engine::enforcement`
+    # for the `simp:defaults` profile. NOT a module dependency (see metadata.json).
+    compliance_engine:
+      repo: https://github.com/simp/rubygem-simp-compliance_engine.git
+      ref: '1.0.0'
     firewalld: https://github.com/simp/pupmod-voxpupuli-firewalld.git
     haveged: https://github.com/simp/pupmod-simp-haveged.git
     inifile: https://github.com/simp/puppetlabs-inifile.git

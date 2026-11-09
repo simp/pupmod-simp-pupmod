@@ -1,29 +1,22 @@
 require 'spec_helper'
 
-File.binread("#{File.dirname(__FILE__)}/data/auditd.txt")
-
 describe 'pupmod' do
   on_supported_os.each do |os, os_facts|
-    let(:extras) do
-      {
-        puppet_settings: {
-          'master' => {
-            'rest_authconfig' => '/etc/puppetlabs/puppet/authconf.conf',
-          },
-        },
-      }
-    end
     context "on #{os}" do
-      let(:facts) { extras.merge(os_facts) }
+      let(:facts) { os_facts }
 
-      [
-        'PC1',
-        'PE',
-      ].each do |distribution|
+      ['PC1', 'PE'].each do |distribution|
         context "with server_distribution = #{distribution}" do
-          let(:params) { { server_distribution: distribution, puppet_server: '1.2.3.4' } }
+          context 'with default parameters' do
+            let(:params) { { server_distribution: distribution } }
 
-          describe 'with default parameters' do
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to have_pupmod__conf_resource_count(0) }
+          end
+
+          context 'with puppet_server set' do
+            let(:params) { { server_distribution: distribution, puppet_server: '1.2.3.4' } }
+
             it { is_expected.to compile.with_all_deps }
           end
         end

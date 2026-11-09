@@ -1,27 +1,64 @@
-# Provides configuration for a puppet master.
+# @summary Provides configuration for a puppet master.
 #
-# @see https://puppet.com/docs/puppetserver/5.2/config_file_puppetserver.html
+# A bare `include pupmod::master` installs the server package and does
+# nothing else. Every other behavior is turned on by setting the parameter
+# that controls it, here or in the `pupmod::master::*` classes.
+#
+# Settings follow a three-state contract:
+#
+# * `undef` (the default) leaves the setting alone
+# * a value writes it, replacing any earlier value
+# * `'absent'` removes it
+#
+# The puppetserver configuration files are edited in place, one setting at a
+# time, so settings this module doesn't manage are left as the package or an
+# administrator wrote them.
+#
+# The `simp:defaults` compliance profile restores the behavior of
+# `pupmod::master` before 13.0.0. See the README for details.
+#
+# @see https://puppet.com/docs/puppetserver/latest/config_file_puppetserver.html
 #
 # @param bind_address
-#   The IP address to which the Puppet Master process should bind
+#   The IP address to which the Puppet Master process should bind, written as
+#   `ssl-host` of the main server in `webserver.conf`
 #
 # @param ca_allow_auth_extensions
-#   If true, allows the CA to sign certificates with authorization extensions.
+#   Whether the CA may sign certificates with authorization extensions,
+#   written as `certificate-authority.allow-authorization-extensions` in
+#   `ca.conf`
 #
 # @param ca_allow_alt_names
-#   If true, allows the CA to sign certificates with subject alternative names.
+#   Whether the CA may sign certificates with subject alternative names,
+#   written as `certificate-authority.allow-subject-alt-names` in `ca.conf`
 #
 # @param ca_bind_address
-#   The IP address to which the Puppet CA process should bind
+#   The IP address to which the Puppet CA process should bind, written as
+#   `ssl-host` of the `ca` server in `webserver.conf`
+#
+#   * Only used when the CA has its own port (see `ca_port`), or
+#     `webserver.conf` already has a `ca` server. The CA listens on the main
+#     server's address when this is not set.
 #
 # @param auditd
 #   If true, adds an audit record to watch sensitive Puppet directories for
 #   changes by any user that is not the puppet user.
 #
 # @param ca_port
-#   The port upon which the CA should listen. This has been modified from the
-#   default setting of 8140 so that it does not interfere with the certificate
-#   verification of various clients.
+#   The port upon which the CA should listen, written as `ca_port` in the
+#   `[server]` section of `puppet.conf`.
+#
+#   When it differs from the main server's port, the CA runs as its own
+#   server: `webserver.conf` gets a `ca` server listening on this port (and
+#   is converted to named servers if it isn't already), and the CA route in
+#   `web-routes.conf` points to it. When it is the same port, the `ca`
+#   server is removed.
+#
+#   `'absent'` removes the `puppet.conf` setting only; the CA's server and
+#   route are left as they are. To move the CA back onto the main server, set
+#   this to the main server's port.
+#
+#   Defaults to `simp_options::puppet::ca_port` when that is set.
 #
 # @param trusted_nets
 #   An array of networks from which to allow access to the master.
@@ -33,34 +70,69 @@
 #
 # @param server_type
 #   The type of Puppet server this is. Can be 'monolithic', 'primary', or 'compile'
-#   as defined in https://puppet.com/docs/puppetserver/latest/scaling_puppet_server.html 
+#   as defined in https://puppet.com/docs/puppetserver/latest/scaling_puppet_server.html
+#
+#   Used to compute `max_active_instances` and the JVM heap size when those
+#   are set to `'auto'`.
 #
 # @param ca_ttl
-#   This is the length after which the CA certificate will no longer be valid.
+#   This is the length after which the CA certificate will no longer be
+#   valid, written as `ca_ttl` in the `[server]` section of `puppet.conf`.
 #
 # @param daemonize
-#   Whether or not to run the server as a daemon.
+#   Whether or not to run the server as a daemon, written as `daemonize` in
+#   the `[server]` section of `puppet.conf`.
 #
 # @param enable_ca
 #   Whether or not the system should act as a CA.
 #
+#   * `true` enables the CA service in `services.d/ca.cfg`
+#   * `false` enables the disabled CA service instead, and removes the `ca`
+#     server from `webserver.conf`
+#
 # @param enable_master
-#   Whether or not the system should act as a Puppet Master
+#   Whether or not the system should act as a Puppet Master.
+#
+#   * `false` removes the main (`base`) server from a `webserver.conf` that
+#     uses named servers, leaving only the CA. Only meaningful when the CA has
+#     its own port.
+#   * `true` makes the `base` server the default server, creating it if
+#     needed.
+#   * When unset, a `webserver.conf` that already uses named servers keeps
+#     its layout: settings go to an existing `base` server, and a CA-only
+#     server gets no `base` server.
 #
 # @param environmentpath
-#   The location of all directory environments.
+#   The location of all directory environments, written as
+#   `environmentpath` in the `[server]` section of `puppet.conf`.
 #
 # @param freeze_main
-#   Whether or not code is allowed outside of site.pp or a module.
+#   Whether or not code is allowed outside of site.pp or a module, written as
+#   `freeze_main` in `puppet.conf`.
+#
+# @param keylength
+#   The bit length of keys the CA generates, written as `keylength` in the
+#   `[server]` section of `puppet.conf`.
 #
 # @param masterport
-#   The port upon which the Puppet master process will listen.
+#   The port upon which the Puppet master process will listen, written as
+#   `masterport` in the `[server]` section of `puppet.conf` and as `ssl-port`
+#   of the main server in `webserver.conf`.
+#
+#   `'absent'` removes the `puppet.conf` setting only; the main server keeps
+#   its `ssl-port`.
 #
 # @param puppet_confdir
-#   The Puppet server configuration directory.
+#   The Puppet client configuration directory, which holds `puppet.conf`.
 #
 # @param confdir
-#   The Puppet client configuration directory.
+#   The puppetserver configuration directory (`conf.d`).
+#
+#   The `puppetserver_webserver` fact reads `webserver.conf` from the
+#   directory in `CONFIG=` in `/etc/sysconfig/puppetserver` (see
+#   `pupmod::master::sysconfig::config`). Until puppetserver is configured
+#   to read this directory, the module assumes a single-server
+#   `webserver.conf` here.
 #
 # @param codedir
 #   The directory holding the Puppet configuration codebase.
@@ -77,98 +149,130 @@
 # @param ssldir
 #   The SSL configuration directory for the Puppet server
 #
+# @param server_conf_dir
+#   Written as `jruby-puppet.server-conf-dir` in `puppetserver.conf`,
+#   replacing the deprecated `master-conf-dir`.
+#
+# @param server_code_dir
+#   Written as `jruby-puppet.server-code-dir` in `puppetserver.conf`,
+#   replacing the deprecated `master-code-dir`.
+#
+# @param server_var_dir
+#   Written as `jruby-puppet.server-var-dir` in `puppetserver.conf`,
+#   replacing the deprecated `master-var-dir`.
+#
+# @param server_run_dir
+#   Written as `jruby-puppet.server-run-dir` in `puppetserver.conf`,
+#   replacing the deprecated `master-run-dir`.
+#
+# @param server_log_dir
+#   Written as `jruby-puppet.server-log-dir` in `puppetserver.conf`,
+#   replacing the deprecated `master-log-dir`.
+#
 # @param use_legacy_auth_conf
-#   Enable processing of the legacy Puppetserver auth.conf.
+#   Enable processing of the legacy Puppetserver auth.conf, written as
+#   `jruby-puppet.use-legacy-auth-conf`.
 #
 #   * This is **NOT** recommended and may cause a SIMP installation to
 #     malfunction.
 #
 # @param max_queued_requests
 #   The number of requests that may be queued against the server prior to being
-#   rejected.
-#
-#   * Only functional on ``puppetserver`` >= 5.4.1
+#   rejected, written as `jruby-puppet.max-queued-requests`.
 #
 # @param max_retry_delay
 #   The maximum time that a client will wait prior to giving up on the server
-#   response.
-#
-#   * Only functional on ``puppetserver`` >= 5.4.1
+#   response, written as `jruby-puppet.max-retry-delay`.
 #
 # @param firewall
 #   If enabled, will use the SIMP iptables classes to manipulate IPTables.
 #
+#   The main server's port is `masterport`, else the port in the current
+#   `webserver.conf`, else `8140`.
+#   The CA's port is opened when `ca_port` is set, or when `webserver.conf`
+#   already has a `ca` server.
+#
 # @param ca_status_whitelist
 #   An array of certificate short names which will be allowed to query the CA end
-#   point of the Puppet Server
+#   point of the Puppet Server, written as
+#   `certificate-authority.certificate-status.client-whitelist` together with
+#   `authorization-required: true` in `ca.conf`
 #
 # @param ruby_load_path
-#   The path to the system Ruby installation to use for the Puppet Server
+#   The path to the system Ruby installation to use for the Puppet Server,
+#   written as `os-settings.ruby-load-path` in `os-settings.conf`.
 #
 # @param max_active_instances
-#   The maximum number of active JRuby instances to be run by the Puppet Server
+#   The maximum number of active JRuby instances to be run by the Puppet
+#   Server, written as `jruby-puppet.max-active-instances`.
+#
+#   `'auto'` computes it from the system's processors and memory with
+#   `pupmod::max_active_instances()`.
 #
 # @param max_requests_per_instance
 #   The number of requests a given JRuby instance will process prior to being
-#   stopped.
+#   stopped, written as `jruby-puppet.max-requests-per-instance`.
 #
 # @param borrow_timeout
 #   The timeout, in milliseconds, when attempting to borrow an instance from
-#   the JRuby pool.
+#   the JRuby pool, written as `jruby-puppet.borrow-timeout`.
 #
 # @param environment_class_cache_enabled
 #   Maintain a cache in conjucntion with the use of the ``environment_classes``
-#   API.
+#   API, written as `jruby-puppet.environment-class-cache-enabled`.
 #
 # @param compat_version
-#   Set the JRuby compat version
-#
-#   * Has no effect on ``puppetserver`` >= 5.0
+#   Unused: it only applied to ``puppetserver`` < 5.0.
 #
 # @param compile_mode
-#   Set the JRuby ``CompileMode``.
+#   Set the JRuby ``CompileMode``, written as `jruby-puppet.compile-mode`.
 #
 # @param ssl_protocols
-#   The protocols that are allowed for communication with the Puppet Server. See
-#   the ssl-protocols documentation for the Puppet Server for additional details.
+#   The protocols that are allowed for communication with the Puppet Server,
+#   written as `http-client.ssl-protocols` in `puppetserver.conf` and as
+#   `ssl-protocols` of each server in `webserver.conf`.
 #
 # @param ssl_cipher_suites
-#   The allowed SSL Cipher Suites to be used by the Puppet Server. The allowed
-#   list is Java version dependent and you will need to check the system Java
-#   documentation for details.
-#
-#   * The default is in the module data
+#   The allowed SSL Cipher Suites to be used by the Puppet Server, written as
+#   `http-client.cipher-suites` in `puppetserver.conf` and as `cipher-suites`
+#   of each server in `webserver.conf`. The allowed list is Java version
+#   dependent and you will need to check the system Java documentation for
+#   details.
 #
 # @param enable_profiler
-#   Whether or not to enable the Puppet Server profiler to allow for code metrics
-#   gathering.
+#   Whether or not to enable the Puppet Server profiler to allow for code
+#   metrics gathering, written as `profiler.enabled`.
 #
 # @param profiling_mode
-#   The JRuby profiling mode to use when profiling the server.
-#
-#   * Only functional on ``puppetserver`` >= 5.4.1
+#   The JRuby profiling mode to use when profiling the server, written as
+#   `jruby-puppet.profiling-mode`.
 #
 # @param profiler_output_file
-#   The file to use when outputting server profiling information
-#
-#   * Only functional on ``puppetserver`` >= 5.4.1
+#   The file to use when outputting server profiling information, written as
+#   `jruby-puppet.profiler-output-file`.
 #
 # @param admin_api_whitelist
-#   A list of X.509 certificate names that should be allowed to access the Puppet
-#   Server's administrative API.
+#   A list of X.509 certificate names that should be allowed to access the
+#   Puppet Server's administrative API, written as
+#   `puppet-admin.client-whitelist`.
 #
 # @param admin_api_mountpoint
-#   The endpoint for the Puppet Servers adminstrative API. Changing this may
-#   break external utilities.
+#   The endpoint for the Puppet Servers adminstrative API, written to
+#   `web-routes.conf`. Changing this may break external utilities.
+#
+#   puppetserver needs this route, so it cannot be removed: `'absent'` fails
+#   the catalog.
 #
 # @param log_to_file
-#   If true, log to system log files at /var/log/puppetserver.
+#   Whether puppetserver logs to its log file: `true` adds the `F1` appender
+#   to the root logger in `logback.xml`, `false` removes it.
 #
 # @param strict_hostname_checking
 #   Whether to only search for the complete hostname as it is in the
 #   certificate when searching for node information in teh catalogs or to match
 #   dot delimited segments of the cert's certname and the hostname, fqdn,
-#   and/or domain facts.
+#   and/or domain facts. Written as `strict_hostname_checking` in
+#   `puppet.conf`.
 #
 #   * Do NOT set to `false` unless you have read the details of CVE-2020-7942
 #
@@ -176,66 +280,70 @@
 #   Whether to warn about CVE-2020-7942 when the issue is detected.
 #
 # @param syslog
-#   If true, log to the local system logger over UDP port 514.
+#   Whether puppetserver logs to the local system logger over UDP port 514:
+#   `true` adds a `SYSLOG` appender to `logback.xml` and to its root logger,
+#   `false` removes it from the root logger.
+#
+#   Defaults to `simp_options::syslog` when that is set.
 #
 # @param syslog_facility
-#   The syslog facility to which to report if using syslog.
+#   The syslog facility of the `SYSLOG` appender. Only used when `syslog` is
+#   `true`.
 #
 # @param syslog_message_format
-#   The Logback compatible syslog message format. For more information, see the
-#   Logback documentation for 'SuffixPattern'.
+#   The Logback compatible syslog message format of the `SYSLOG` appender.
+#   For more information, see the Logback documentation for 'SuffixPattern'.
+#   Only used when `syslog` is `true`.
 #
 # @param log_level
-#   Type: One of ['TRACE','DEBUG','INFO','WARN','ERROR','OFF']
-#   A syslog severity string limiting the messages reported. Be aware that
-#   anything above 'WARN' will provide a massive amount of logs at each puppet
-#   run.
+#   The level of the root logger and of the `org.eclipse.jetty` logger in
+#   `logback.xml`. Be aware that anything below 'WARN' will provide a
+#   massive amount of logs at each puppet run.
 #
 # @param autosign_hosts
-#   An array of hosts or host globs to add to the master's ``autosign.conf`` file
+#   Deprecated: use `autosign_entries`.
 #
-#   * WARNING: If set, will be **authoritative** and overwrite the entire file!
+#   An array of hosts or host globs to add to the master's ``autosign.conf``
+#   file. Each entry is added with `pupmod::master::autosign`.
+#
+# @param autosign_entries
+#   Hosts or host globs to manage in the master's `autosign.conf`, each
+#   mapped to its options. `{}` adds the entry.
+#
+#   Merged with `deep`, so a Hiera layer can remove one entry with
+#   `{ ensure => absent }`.
+#
+# @option autosign_entries [Enum['present', 'absent']] :ensure
+#   `absent` removes the entry. Defaults to `present`.
 #
 # @param package_ensure
 #   String used to specify either 'latest', 'installed', or a specific version
 #   of the puppetserver package
 #
 # @param enable_analytics
-#   Enable the built-in analytics, and upgrade check, on the puppetserver
+#   Enable the built-in analytics, and upgrade check, on the puppetserver,
+#   written as `product.check-for-updates` in `product.conf`.
 #
 # @param server_webserver_options
-#   A ``Hash`` of ``String,String`` pairs that will be added as HOCON formatted
-#   options to the ``base`` section of the server's webserver.conf
-#   configuration.
+#   Additional settings for the main server in `webserver.conf`, as
+#   `key => value`. A value of `'absent'` removes the key.
 #
-#   This is completely unvalidated and is present to allow setting many of the
-#   more escoteric options that can be found in the webserver configuration
-#   documentation at
+#   Values are written as HOCON values of their own type; puppetserver
+#   converts strings such as `'true'` and `'8140'` to the type it expects.
+#   See
 #   https://github.com/puppetlabs/trapperkeeper-webserver-jetty9/blob/master/doc/jetty-config.md
-#
-#   The results will be printed in the order that they are defined as `key:
-#   value` with no additional formatting so take care to ensure that your
-#   values are in proper HOCON format per
-#   https://github.com/lightbend/config/blob/master/HOCON.md
 #
 # @param ca_webserver_options
-#   A ``Hash`` of ``String,String`` pairs that will be added as HOCON formatted
-#   options to the ``ca`` section of the server's webserver.conf configuration.
+#   Additional settings for the `ca` server in `webserver.conf`, as
+#   `key => value`. A value of `'absent'` removes the key.
 #
-#   This is completely unvalidated and is present to allow setting many of the
-#   more escoteric options that can be found in the webserver configuration
-#   documentation at
-#   https://github.com/puppetlabs/trapperkeeper-webserver-jetty9/blob/master/doc/jetty-config.md
-#
-#   The results will be printed in the order that they are defined as `key:
-#   value` with no additional formatting so take care to ensure that your
-#   values are in proper HOCON format per
-#   https://github.com/lightbend/config/blob/master/HOCON.md
+#   Only used when the CA has its own port (see `ca_port`), or
+#   `webserver.conf` already has a `ca` server.
 #
 # @param extra_webserver_sections
-#   A ``Hash`` using the following format to express the full contents of a
-#   webserver configuration section with options as defined in
-#   https://github.com/puppetlabs/trapperkeeper-webserver-jetty9/blob/master/doc/jetty-config.md
+#   Additional named servers in `webserver.conf`, as
+#   `name => { key => value }`. Each key is written separately. A value of
+#   `'absent'` removes the key.
 #
 #   Section Hash Example:
 #
@@ -250,29 +358,7 @@
 #   }
 #   ```
 #
-#   Result Example:
-#
-#   ```json
-#   webserver: {
-#     ...pre-existing material...
-#     section1_name: {
-#       ssl-port: 1234
-#     }
-#     section2_name: {
-#       ssl-port: 2345
-#     }
-#   }
-#   ```
-#
-#   This is completely unvalidated and is present to allow setting many of the
-#   more escoteric options that can be found in the webserver configuration
-#   documentation at
-#   https://github.com/puppetlabs/trapperkeeper-webserver-jetty9/blob/master/doc/jetty-config.md
-#
-#   The results will be printed in the order that they are defined as `key:
-#   value` with no additional formatting so take care to ensure that your
-#   values are in proper HOCON format per
-#   https://github.com/lightbend/config/blob/master/HOCON.md
+#   Named servers only work in a `webserver.conf` that uses named servers.
 #
 # @param mock
 #   DO NOT USE. needed for rspec testing
@@ -280,72 +366,95 @@
 # @author https://github.com/simp/pupmod-simp-pupmod/graphs/contributors
 #
 class pupmod::master (
-  Simplib::IP                                         $bind_address                    = '0.0.0.0',
-  Boolean                                             $ca_allow_auth_extensions        = false,
-  Boolean                                             $ca_allow_alt_names              = false,
-  Simplib::IP                                         $ca_bind_address                 = '0.0.0.0',
-  Boolean                                             $auditd                          = simplib::lookup('simp_options::auditd', { 'default_value' => false }),
-  Simplib::Port                                       $ca_port                         = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => 8141 }),
-  Simplib::NetList                                    $trusted_nets                    = simplib::lookup('simp_options::trusted_nets', { 'default_value' => ['127.0.0.1','::1'] }),
-  String                                              $server_distribution             = pupmod::server_distribution(),
-  Enum['monolithic', 'primary', 'compile']            $server_type                     = 'monolithic',
-  Pupmod::CaTTL                                       $ca_ttl                          = '10y',
-  Boolean                                             $daemonize                       = true,
-  Boolean                                             $enable_ca                       = true,
-  Boolean                                             $enable_master                   = true,
-  Stdlib::AbsolutePath                                $environmentpath                 = $pupmod::environmentpath,
-  Boolean                                             $freeze_main                     = false,
-  Simplib::Port                                       $masterport                      = 8140,
-  Stdlib::AbsolutePath                                $puppet_confdir                  = $pupmod::confdir,
-  Stdlib::AbsolutePath                                $confdir,
-  Stdlib::AbsolutePath                                $codedir,
-  Stdlib::AbsolutePath                                $vardir,
-  Stdlib::AbsolutePath                                $rundir,
-  Stdlib::AbsolutePath                                $logdir,
-  Stdlib::AbsolutePath                                $ssldir,
-  Boolean                                             $use_legacy_auth_conf            = false,
-  Integer[0]                                          $max_queued_requests             = 10,
-  Integer[1]                                          $max_retry_delay                 = 1800,
-  Boolean                                             $firewall                        = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
-  Array[Simplib::Host]                                $ca_status_whitelist             = [pick($facts['certname'],                                                                      $facts['networking']['fqdn'])],
-  Optional[Stdlib::AbsolutePath]                      $ruby_load_path                  = undef,
-  Integer[1]                                          $max_active_instances            = pupmod::max_active_instances($server_type),
-  Integer                                             $max_requests_per_instance       = 100000,
-  Integer[1000]                                       $borrow_timeout                  = 1200000,
-  Boolean                                             $environment_class_cache_enabled = true,
-  Optional[Pattern['^\d+\.\d+$']]                     $compat_version                  = undef,
-  Enum['off', 'jit', 'force']                         $compile_mode                    = 'off',
-  Array[Pupmod::Master::SSLProtocols]                 $ssl_protocols                   = ['TLSv1.2'],
-  Optional[Array[Pupmod::Master::SSLCipherSuites]]    $ssl_cipher_suites               = undef,
-  Boolean                                             $enable_profiler                 = false,
-  Pupmod::ProfilingMode                               $profiling_mode                  = 'off',
-  Stdlib::AbsolutePath                                $profiler_output_file            = "${vardir}/server_jruby_profiling",
-  Array[Simplib::Hostname]                            $admin_api_whitelist             = [pick($facts['certname'],                                                                      $facts['networking']['fqdn'])],
-  String                                              $admin_api_mountpoint            = '/puppet-admin-api',
-  Boolean                                             $log_to_file                     = false,
-  Boolean                                             $strict_hostname_checking        = true,
-  Boolean                                             $cve_2020_7942_warning           = true,
-  Boolean                                             $syslog                          = simplib::lookup('simp_options::syslog', { 'default_value' => false }),
-  String                                              $syslog_facility                 = 'LOCAL6',
-  String                                              $syslog_message_format           = '%logger[%thread]: %msg',
-  Pupmod::LogLevel                                    $log_level                       = 'WARN',
-  Optional[Array[String[1]]]                          $autosign_hosts                  = undef,
-  String                                              $package_ensure                  = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
-  Boolean                                             $enable_analytics                = false,
-  Optional[Hash[String[1],String[1]]]                 $server_webserver_options        = undef,
-  Optional[Hash[String[1],String[1]]]                 $ca_webserver_options            = undef,
-  Optional[Hash[String[1],Hash[String[1],String[1]]]] $extra_webserver_sections        = undef,
-  Boolean                                             $mock                            = false
+  Optional[Variant[Simplib::IP, Enum['absent']]]                              $bind_address                    = undef,
+  Optional[Boolean]                                                           $ca_allow_auth_extensions        = undef,
+  Optional[Boolean]                                                           $ca_allow_alt_names              = undef,
+  Optional[Variant[Simplib::IP, Enum['absent']]]                              $ca_bind_address                 = undef,
+  Boolean                                                                     $auditd                          = simplib::lookup('simp_options::auditd', { 'default_value' => false }),
+  Optional[Variant[Simplib::Port, Enum['absent']]]                            $ca_port                         = simplib::lookup('simp_options::puppet::ca_port', { 'default_value' => undef }),
+  Simplib::NetList                                                            $trusted_nets                    = simplib::lookup('simp_options::trusted_nets', { 'default_value' => ['127.0.0.1','::1'] }),
+  String                                                                      $server_distribution             = pupmod::server_distribution(),
+  Enum['monolithic', 'primary', 'compile']                                    $server_type                     = 'monolithic',
+  Optional[Variant[Pupmod::CaTTL, Enum['absent']]]                            $ca_ttl                          = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                                  $daemonize                       = undef,
+  Optional[Boolean]                                                           $enable_ca                       = undef,
+  Optional[Boolean]                                                           $enable_master                   = undef,
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                     $environmentpath                 = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                                  $freeze_main                     = undef,
+  Optional[Variant[Integer[1024], Enum['absent']]]                            $keylength                       = undef,
+  Optional[Variant[Simplib::Port, Enum['absent']]]                            $masterport                      = undef,
+  Stdlib::AbsolutePath                                                        $puppet_confdir                  = $pupmod::confdir,
+  Stdlib::AbsolutePath                                                        $confdir,
+  Stdlib::AbsolutePath                                                        $codedir,
+  Stdlib::AbsolutePath                                                        $vardir,
+  Stdlib::AbsolutePath                                                        $rundir,
+  Stdlib::AbsolutePath                                                        $logdir,
+  Stdlib::AbsolutePath                                                        $ssldir,
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                     $server_conf_dir                 = undef,
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                     $server_code_dir                 = undef,
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                     $server_var_dir                  = undef,
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                     $server_run_dir                  = undef,
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                     $server_log_dir                  = undef,
+  Optional[Boolean]                                                           $use_legacy_auth_conf            = undef,
+  Optional[Variant[Integer[0], Enum['absent']]]                               $max_queued_requests             = undef,
+  Optional[Variant[Integer[1], Enum['absent']]]                              $max_retry_delay                 = undef,
+  Boolean                                                                     $firewall                        = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
+  Optional[Variant[Array[Simplib::Host], Enum['absent']]]                     $ca_status_whitelist             = undef,
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                     $ruby_load_path                  = undef,
+  Optional[Variant[Integer[1], Enum['auto', 'absent']]]                       $max_active_instances            = undef,
+  Optional[Variant[Integer, Enum['absent']]]                                  $max_requests_per_instance       = undef,
+  Optional[Variant[Integer[1000], Enum['absent']]]                            $borrow_timeout                  = undef,
+  Optional[Boolean]                                                           $environment_class_cache_enabled = undef,
+  Optional[Pattern['^\d+\.\d+$']]                                             $compat_version                  = undef,
+  Optional[Enum['off', 'jit', 'force', 'absent']]                             $compile_mode                    = undef,
+  Optional[Variant[Array[Pupmod::Master::SSLProtocols, 1], Enum['absent']]]   $ssl_protocols                   = undef,
+  Optional[Variant[Array[Pupmod::Master::SSLCipherSuites, 1], Enum['absent']]] $ssl_cipher_suites              = undef,
+  Optional[Boolean]                                                           $enable_profiler                 = undef,
+  Optional[Variant[Pupmod::ProfilingMode, Enum['absent']]]                    $profiling_mode                  = undef,
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                     $profiler_output_file            = undef,
+  Optional[Variant[Array[Simplib::Hostname], Enum['absent']]]                 $admin_api_whitelist             = undef,
+  Optional[String[1]]                                                         $admin_api_mountpoint            = undef,
+  Optional[Boolean]                                                           $log_to_file                     = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                                  $strict_hostname_checking        = undef,
+  Boolean                                                                     $cve_2020_7942_warning           = true,
+  Optional[Boolean]                                                           $syslog                          = simplib::lookup('simp_options::syslog', { 'default_value' => undef }),
+  String                                                                      $syslog_facility                 = 'LOCAL6',
+  String                                                                      $syslog_message_format           = '%logger[%thread]: %msg',
+  Optional[Pupmod::LogLevel]                                                  $log_level                       = undef,
+  Optional[Array[String[1]]]                                                  $autosign_hosts                  = undef,
+  Hash[Pattern['^(\*\.)?\S+$'], Pupmod::EntryOptions]                          $autosign_entries                = {},
+  String                                                                      $package_ensure                  = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
+  Optional[Boolean]                                                           $enable_analytics                = undef,
+  Optional[Hash[String[1], Data]]                                             $server_webserver_options        = undef,
+  Optional[Hash[String[1], Data]]                                             $ca_webserver_options            = undef,
+  Optional[Hash[String[1], Hash[String[1], Data]]]                            $extra_webserver_sections        = undef,
+  Boolean                                                                     $mock                            = false
 ) inherits pupmod {
-  $_server_version = pupmod::server_version()
   # In Puppet 6.19 the section "master" was renamed to "server" in Puppet.settings.
   # pick is used here to determine correct value for backwards compatability
   $_puppet_user = pick($facts.dig('puppet_settings','server','user'),$facts.dig('puppet_settings','master','user'))
-  $_puppet_group = pick($facts.dig('puppet_settings','server','group'),$facts.dig('puppet_settings','master','group'))
+  $_puppet_group = $pupmod::puppet_group
+
+  # The puppetserver_webserver fact describes the webserver.conf that
+  # puppetserver reads, which only matters here when it is the one in $confdir
+  if $facts.dig('puppetserver_webserver', 'path') == "${confdir}/webserver.conf" {
+    $_webserver = $facts.dig('puppetserver_webserver', 'webserver')
+  }
+  else {
+    $_webserver = undef
+  }
+
+  # The port the main server listens on: the parameter, else what
+  # webserver.conf says now, else the puppetserver default
+  $_masterport = $masterport ? {
+    Integer => $masterport,
+    default => pick($_webserver.dig('ssl-port'), $_webserver.dig('base', 'ssl-port'), 8140),
+  }
 
   unless $mock {
     include 'pupmod::master::install'
     include 'pupmod::master::sysconfig'
+    include 'pupmod::master::config'
     include 'pupmod::master::reports'
     include 'pupmod::master::base'
     include 'pupmod::master::service'
@@ -353,197 +462,76 @@ class pupmod::master (
 
     Class['pupmod::master::install'] ~> Class['pupmod::master::service']
     Class['pupmod::master::sysconfig'] ~> Class['pupmod::master::service']
+    Class['pupmod::master::config'] ~> Class['pupmod::master::service']
     Class['pupmod::master::service'] ~> Class['pupmod::master::generate_types']
 
-    $_conf_base = dirname($confdir)
+    if $_puppet_group =~ NotUndef {
+      $_conf_base = dirname($confdir)
 
-    file { [$confdir, $codedir]:
-      ensure => 'directory',
-      owner  => 'root',
-      group  => $_puppet_group,
-      mode   => '0640',
-    }
+      file {
+        default:
+          ensure  => 'directory',
+          owner   => 'root',
+          group   => $_puppet_group,
+          require => Class['pupmod::master::install'];
 
-    # For Puppet 7+
-    file { $_conf_base:
-      ensure => 'directory',
-      owner  => 'root',
-      group  => $_puppet_group,
-      mode   => '0660',
-    }
+        [$confdir, $codedir]: mode => '0640';
 
-    # Mode is managed by puppet itself
-    file { $rundir:
-      ensure => 'directory',
-      owner  => $_puppet_user,
-      group  => $_puppet_group,
-    }
+        # For Puppet 7+
+        $_conf_base: mode => '0660';
 
-    # Mode is managed by puppet itself
-    file { $ssldir:
-      ensure => 'directory',
-      owner  => $_puppet_user,
-      group  => $_puppet_group,
-    }
-
-    file {
-      default:
-        ensure  => 'file',
-        owner   => 'root',
-        group   => $_puppet_group,
-        mode    => '0640',
-        require => Class['pupmod::master::install'],
-        notify  => Class['pupmod::master::service'];
-
-      "${_conf_base}/services.d/ca.cfg": content => epp("${module_name}/etc/puppetserver/ca.cfg");
-      "${_conf_base}/logback.xml":       content => epp("${module_name}/etc/puppetserver/logback.xml");
-      "${confdir}/ca.conf":              content => epp("${module_name}/etc/puppetserver/conf.d/ca.conf");
-      "${confdir}/puppetserver.conf":    content => epp("${module_name}/etc/puppetserver/conf.d/puppetserver.conf");
-      "${confdir}/web-routes.conf":      content => epp("${module_name}/etc/puppetserver/conf.d/web-routes.conf");
-      "${confdir}/webserver.conf":       content => epp("${module_name}/etc/puppetserver/conf.d/webserver.conf");
-    }
-
-    if $ruby_load_path {
-      file { "${confdir}/os-settings.conf":
-        ensure  => 'file',
-        owner   => 'root',
-        group   => $_puppet_group,
-        mode    => '0640',
-        content => epp("${module_name}/etc/puppetserver/conf.d/os-settings.conf"),
-        require => Class['pupmod::master::install'],
-        notify  => Class['pupmod::master::service'],
+        # Mode is managed by puppet itself
+        [$rundir, $ssldir]: owner => $_puppet_user;
       }
     }
 
-    # `trusted_server_facts` deprecated in Puppet 5.0.0 (PUP-6112)
-    $_trusted_server_facts_ensure = (versioncmp($facts['puppetversion'], '5.0')) ? {
-      -1      => 'present',
-      default => 'absent',
+    # Settings for the [server] section of puppet.conf, by resource title
+    $_server_settings = {
+      'master_environmentpath' => ['environmentpath', $environmentpath],
+      'master_daemonize'       => ['daemonize', $daemonize],
+      'master_masterport'      => ['masterport', $masterport],
+      'master_ca_port'         => ['ca_port', $ca_port],
+      'ca_ttl'                 => ['ca_ttl', $ca_ttl],
+      'keylength'              => ['keylength', $keylength],
     }
 
-    pupmod::conf { 'trusted_server_facts':
-      ensure  => $_trusted_server_facts_ensure,
-      confdir => $puppet_confdir,
-      setting => 'trusted_server_facts',
-      value   => true,
-      notify  => Class['pupmod::master::service'],
+    # Settings for the [main] section of puppet.conf, by resource title
+    $_main_settings = {
+      'freeze_main'              => ['freeze_main', $freeze_main],
+      'strict_hostname_checking' => ['strict_hostname_checking', $strict_hostname_checking],
     }
 
-    pupmod::conf { 'master_environmentpath':
-      section => 'server',
-      confdir => $puppet_confdir,
-      setting => 'environmentpath',
-      value   => $environmentpath,
-      notify  => Class['pupmod::master::service'],
+    $_sections = {
+      'server' => $_server_settings,
+      'main'   => $_main_settings,
     }
 
-    pupmod::conf { 'master_daemonize':
-      section => 'server',
-      confdir => $puppet_confdir,
-      setting => 'daemonize',
-      value   => $daemonize,
-      notify  => Class['pupmod::master::service'],
-    }
+    $_sections.each |String[1] $section, Hash $settings| {
+      $settings.each |String[1] $title, Array $setting_value| {
+        $_value = $setting_value[1]
 
-    pupmod::conf { 'master_masterport':
-      section => 'server',
-      confdir => $puppet_confdir,
-      setting => 'masterport',
-      value   => $masterport,
-      notify  => Class['pupmod::master::service'],
-    }
+        if $_value =~ NotUndef {
+          $_ensure = $_value ? {
+            'absent' => 'absent',
+            default  => 'present',
+          }
 
-    # `[master] ca` is deprecated, as of Puppet 5.5.6 (SIMP-5456), and removed
-    # in Puppet 6 (PUP-9158).
-    if versioncmp($facts['puppetversion'], '6.0') >= 0 {
-      $_ensure_master_ca = 'absent'
-    }
-    elsif versioncmp($facts['puppetversion'], '5.5.6') >= 0 {
-      # Puppet will emit warning messages whenever deprecated settings are
-      # encountered in `puppet.conf`.  To avoid this, we remove the setting
-      # if it is the same as the default `ca = true`.
-      #
-      # NOTE: Although the condition tests for 5.5.6 (when `ca` was marked as
-      #       deprecated), due to the bug PUP-9266 this logic will not prevent
-      #       deprecation warnings until the release of 5.5.8.
-      $_ensure_master_ca = $enable_ca ? {
-        true    => 'absent',
-        default => 'present',
+          pupmod::conf { $title:
+            ensure  => $_ensure,
+            section => $section,
+            confdir => $puppet_confdir,
+            setting => $setting_value[0],
+            value   => $_value,
+            notify  => Class['pupmod::master::service'],
+          }
+        }
       }
-    } else {
-      $_ensure_master_ca = 'present'
     }
 
-    pupmod::conf { 'master_ca':
-      ensure  => $_ensure_master_ca,
-      setting => 'ca',
-      value   => $enable_ca,
-      confdir => $puppet_confdir,
-      section => 'server',
-      notify  => Class['pupmod::master::service'],
-    }
-
-    pupmod::conf { 'master_ca_port':
-      section => 'server',
-      confdir => $puppet_confdir,
-      setting => 'ca_port',
-      value   => $ca_port,
-      notify  => Class['pupmod::master::service'],
-    }
-
-    pupmod::conf { 'ca_ttl':
-      section => 'server',
-      confdir => $puppet_confdir,
-      setting => 'ca_ttl',
-      value   => $ca_ttl,
-      notify  => Class['pupmod::master::service'],
-    }
-
-    if $pupmod::fips {
-      $_keylength = 2048
-    }
-    else {
-      $_keylength = 4096
-    }
-
-    pupmod::conf { 'keylength':
-      section => 'server',
-      confdir => $puppet_confdir,
-      setting => 'keylength',
-      value   => $_keylength,
-      notify  => Class['pupmod::master::service'],
-    }
-
-    pupmod::conf { 'freeze_main':
-      confdir => $puppet_confdir,
-      setting => 'freeze_main',
-      # This is hard set for now until we can ensure that this works in all
-      # potential configurations.
-      value   => false,
-      #value   => $freeze_main,
-      notify  => Class['pupmod::master::service'],
-    }
-
-    pupmod::conf { 'strict_hostname_checking':
-      confdir => $puppet_confdir,
-      setting => 'strict_hostname_checking',
-      value   => $strict_hostname_checking,
-      notify  => Class['pupmod::master::service'],
-    }
-
-    if !$strict_hostname_checking and $cve_2020_7942_warning {
+    if ($strict_hostname_checking == false) and $cve_2020_7942_warning {
       notify { 'CVE-2020-7942':
-        message => "Setting '${module_name}::pupmod::master::strict_hostname_checking' to 'true' enables CVE-2020-7942.\n\nSet '${module_name}::pupmod::master::cve_2020_7942_warning' to 'false' to disable this message.",
+        message => "Setting '${module_name}::master::strict_hostname_checking' to 'false' enables CVE-2020-7942.\n\nSet '${module_name}::master::cve_2020_7942_warning' to 'false' to disable this message.",
       }
-    }
-
-    hocon_setting { 'puppetserver analytics':
-      ensure  => present,
-      path    => "${confdir}/product.conf",
-      setting => 'product.check-for-updates',
-      value   => $enable_analytics,
-      type    => 'boolean',
-      notify  => Class['pupmod::master::service'],
     }
 
     if $auditd {
@@ -557,27 +545,42 @@ class pupmod::master (
     if $firewall {
       include 'iptables'
 
-      if $enable_master {
+      if $enable_master != false {
         iptables::listen::tcp_stateful { 'allow_puppet':
           order        => 11,
           trusted_nets => $trusted_nets,
-          dports       => $masterport,
+          dports       => $_masterport,
         }
       }
 
-      if $enable_ca {
+      # The CA's own port: the parameter, else the ca server in webserver.conf
+      $_firewall_ca_port = $ca_port ? {
+        Integer => $ca_port,
+        default => $_webserver.dig('ca', 'ssl-port'),
+      }
+
+      if ($enable_ca != false) and ($_firewall_ca_port =~ Integer) {
         iptables::listen::tcp_stateful { 'allow_puppetca':
           order        => 11,
           trusted_nets => $trusted_nets,
-          dports       => $ca_port,
+          dports       => $_firewall_ca_port,
         }
       }
     }
 
-    if $autosign_hosts {
-      $autosign_hosts.each |$autosign_host| {
-        ensure_resource('pupmod::master::autosign', $autosign_host)
-      }
+    if $autosign_hosts =~ NotUndef {
+      deprecation('pupmod::master::autosign_hosts', 'pupmod::master::autosign_hosts is deprecated. Use pupmod::master::autosign_entries instead.', false)
+    }
+
+    # The deprecated Array is applied last, so a site's existing data still wins
+    $_autosign = $autosign_entries.reduce({}) |$memo, $entry| {
+      $memo + { $entry[0] => pick($entry[1]['ensure'], 'present') }
+    } + pick($autosign_hosts, []).reduce({}) |$memo, $entry| {
+      $memo + { $entry => 'present' }
+    }
+
+    $_autosign.each |String[1] $autosign_host, Enum['present', 'absent'] $autosign_ensure| {
+      ensure_resource('pupmod::master::autosign', $autosign_host, { 'ensure' => $autosign_ensure })
     }
   }
 }
