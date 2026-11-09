@@ -159,7 +159,17 @@
 #   Unused.
 #
 # @param haveged
-#   If true, include haveged to assist with entropy generation.
+#   Deprecated. If true, include haveged to assist with entropy generation.
+#
+#   `simp/haveged` is an optional dependency and must be installed
+#   separately. This parameter will be removed in the next major release;
+#   use `rngd` instead.
+#
+# @param rngd
+#   If true, include the `rngd` class to assist with entropy generation.
+#
+#   By default `rngd` only installs `rng-tools`; set `rngd::service_ensure`
+#   and `rngd::service_enable` to manage the service.
 #
 # @param fips
 #   Unused, and deprecated.
@@ -301,6 +311,7 @@ class pupmod (
   Optional[Variant[Simplib::Syslog::Facility, Enum['absent']]]              $syslogfacility                = undef,
   Boolean                                                                   $use_srv_records               = false,
   Boolean                                                                   $haveged                       = simplib::lookup('simp_options::haveged', { 'default_value' => false }),
+  Boolean                                                                   $rngd                          = false,
   Optional[Boolean]                                                         $fips                          = undef,
   Boolean                                                                   $firewall                      = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Hash                                                                      $pe_classlist                  = {},
@@ -333,7 +344,13 @@ class pupmod (
     simplib::assert_metadata($module_name)
 
     if $haveged {
+      deprecation('pupmod::haveged', "${module_name}: 'pupmod::haveged' (and 'simp_options::haveged') is deprecated and will be removed in the next major release. Use 'pupmod::rngd' instead.", false)
+      simplib::assert_optional_dependency($module_name, 'simp/haveged')
       include 'haveged'
+    }
+
+    if $rngd {
+      include 'rngd'
     }
 
     include pupmod::agent::install
