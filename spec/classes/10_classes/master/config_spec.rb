@@ -54,8 +54,8 @@ describe 'pupmod::master' do
           profiling_mode: ['puppetserver.conf', 'jruby-puppet.profiling-mode', 'flat', true],
           profiler_output_file: ['puppetserver.conf', 'jruby-puppet.profiler-output-file', '/var/tmp/profile', true],
           max_active_instances: ['puppetserver.conf', 'jruby-puppet.max-active-instances', 4, true],
-          ssl_protocols: ['puppetserver.conf', 'http-client.ssl-protocols', ['TLSv1.2'], true],
-          ssl_cipher_suites: ['puppetserver.conf', 'http-client.cipher-suites', ['TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384', 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'], true],
+          ssl_protocols: ['puppetserver.conf', 'http-client.ssl-protocols', ['TLSv1.3', 'TLSv1.2'], true],
+          ssl_cipher_suites: ['puppetserver.conf', 'http-client.cipher-suites', ['TLS_AES_256_GCM_SHA384', 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384', 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'], true],
           enable_profiler: ['puppetserver.conf', 'profiler.enabled', true, false],
           admin_api_whitelist: ['puppetserver.conf', 'puppet-admin.client-whitelist', ['admin.example.com'], true],
           ca_allow_auth_extensions: ['ca.conf', 'certificate-authority.allow-authorization-extensions', true, false],
@@ -168,12 +168,12 @@ describe 'pupmod::master' do
 
         context 'without ca_port, on the package layout' do
           let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(single_server)) }
-          let(:params) { { masterport: 8150, bind_address: '10.0.0.1', ssl_protocols: ['TLSv1.1', 'TLSv1.2'] } }
+          let(:params) { { masterport: 8150, bind_address: '10.0.0.1', ssl_protocols: ['TLSv1.3', 'TLSv1.2'] } }
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.ssl-port')).with(ensure: 'present', value: 8150) }
           it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.ssl-host')).with_value('10.0.0.1') }
-          it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.ssl-protocols')).with_value('TLSv1.1,TLSv1.2') }
+          it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.ssl-protocols')).with_value('TLSv1.3,TLSv1.2') }
           it { is_expected.not_to contain_hocon_setting(hocon('webserver.conf', 'webserver.client-auth')) }
           it { is_expected.not_to contain_hocon_setting(hocon('webserver.conf', 'webserver.base.ssl-port')) }
           it { is_expected.not_to contain_hocon_setting(hocon('webserver.conf', 'webserver.ca')) }

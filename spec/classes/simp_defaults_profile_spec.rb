@@ -59,7 +59,7 @@ describe 'pupmod' do
       'jruby-puppet.max-retry-delay' => 1800,
       'jruby-puppet.profiling-mode' => 'off',
       'jruby-puppet.profiler-output-file' => '/opt/puppetlabs/server/data/puppetserver/server_jruby_profiling',
-      'http-client.ssl-protocols' => ['TLSv1.2'],
+      'http-client.ssl-protocols' => ['TLSv1.3', 'TLSv1.2'],
       'profiler.enabled' => false,
       'puppet-admin.client-whitelist' => ['profile.example.com'],
     },
@@ -221,6 +221,15 @@ describe 'pupmod' do
           is_expected.to contain_hocon_setting('pupmod::master webserver.conf webserver.ssl-port').with_value(8140)
           is_expected.to contain_hocon_setting('pupmod::master webserver.conf webserver.ssl-host').with_value('0.0.0.0')
           is_expected.not_to contain_hocon_setting('pupmod::master webserver.conf webserver.ca.ssl-port')
+        end
+
+        it 'allows TLS 1.3 and TLS 1.2 with FIPS-approved TLS 1.3 cipher suites' do
+          is_expected.to contain_hocon_setting('pupmod::master webserver.conf webserver.ssl-protocols').with_value('TLSv1.3,TLSv1.2')
+          suites = catalogue.resource('Hocon_setting', 'pupmod::master webserver.conf webserver.cipher-suites')[:value].split(',')
+          expect(suites).to include('TLS_AES_256_GCM_SHA384', 'TLS_AES_128_GCM_SHA256')
+          expect(suites).not_to include('TLS_CHACHA20_POLY1305_SHA256')
+          expect(suites).to include('TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384')
+          is_expected.to contain_hocon_setting('pupmod::master puppetserver.conf http-client.cipher-suites').with_value(suites)
         end
 
         it 'writes the pre-13.0.0 JVM settings' do
