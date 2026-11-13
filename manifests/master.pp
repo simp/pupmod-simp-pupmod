@@ -239,6 +239,11 @@
 #   dependent and you will need to check the system Java documentation for
 #   details.
 #
+#   The list applies to every protocol in `ssl_protocols`. If `TLSv1.3` is
+#   allowed, include at least one TLS 1.3 suite (`TLS_AES_256_GCM_SHA384`,
+#   `TLS_AES_128_GCM_SHA256` or `TLS_CHACHA20_POLY1305_SHA256`), or TLS 1.3
+#   cannot be negotiated.
+#
 # @param enable_profiler
 #   Whether or not to enable the Puppet Server profiler to allow for code
 #   metrics gathering, written as `profiler.enabled`.

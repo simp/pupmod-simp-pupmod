@@ -225,6 +225,25 @@ describe 'install environment via r10k and openvox-server' do
         on(master, "ss -ltn | grep -E ':8140\\s'")
       end
 
+      # simp:defaults allows TLSv1.3 and TLSv1.2, with only the FIPS-approved
+      # TLS 1.3 suites
+      [8140, 8141].each do |port|
+        it "negotiates TLS 1.3 and TLS 1.2 on port #{port}, but not ChaCha20" do
+          ssl = ['hostcert', 'hostprivkey', 'localcacert'].map { |s| on(master, "puppet config print #{s}").stdout.strip }
+          s_client = "openssl s_client -brief -connect localhost:#{port} -cert #{ssl[0]} -key #{ssl[1]} -CAfile #{ssl[2]}"
+
+          result = on(master, "#{s_client} -tls1_3 < /dev/null 2>&1")
+          expect(result.stdout).to match(%r{^Protocol version: TLSv1\.3$})
+          expect(result.stdout).to match(%r{^Ciphersuite: TLS_AES_(256|128)_GCM_SHA(384|256)$})
+
+          result = on(master, "#{s_client} -tls1_2 < /dev/null 2>&1")
+          expect(result.stdout).to match(%r{^Protocol version: TLSv1\.2$})
+
+          result = on(master, "#{s_client} -tls1_3 -ciphersuites TLS_CHACHA20_POLY1305_SHA256 < /dev/null 2>&1", accept_all_exit_codes: true)
+          expect(result.stdout).not_to match(%r{^Protocol version: TLSv1\.3$})
+        end
+      end
+
       it 'serves a catalog to its own agent' do
         on(master, 'puppet agent -t', acceptable_exit_codes: [0, 2])
       end
