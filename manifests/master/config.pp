@@ -97,8 +97,10 @@ class pupmod::master::config {
   }
 
   # TLS 1.3 only negotiates its own cipher suites. An explicit suite list
-  # without one quietly disables TLS 1.3; if TLS 1.3 is the only protocol,
-  # no handshake can succeed and agents lose contact with the server.
+  # without one quietly disables TLS 1.3; if TLS 1.3 is the only usable
+  # protocol, no handshake can succeed and agents lose contact with the
+  # server. Current JDKs disable TLSv1 and TLSv1.1 by default
+  # (jdk.tls.disabledAlgorithms), so those don't count as usable.
   $_tls13_without_suite = (
     $pupmod::master::ssl_protocols =~ Array and 'TLSv1.3' in $pupmod::master::ssl_protocols and
     $pupmod::master::ssl_cipher_suites =~ Array and
@@ -106,9 +108,10 @@ class pupmod::master::config {
   )
 
   if $_tls13_without_suite {
-    if $pupmod::master::ssl_protocols == ['TLSv1.3'] {
+    if ($pupmod::master::ssl_protocols - ['TLSv1', 'TLSv1.1']) == ['TLSv1.3'] {
       fail(@(EOM/L))
-        pupmod::master::ssl_protocols allows only TLSv1.3, but pupmod::master::ssl_cipher_suites \
+        pupmod::master::ssl_protocols allows no usable protocol but TLSv1.3 (the JDK disables \
+        TLSv1 and TLSv1.1), but pupmod::master::ssl_cipher_suites \
         has no TLS 1.3 suite (TLS_AES_256_GCM_SHA384, TLS_AES_128_GCM_SHA256 or \
         TLS_CHACHA20_POLY1305_SHA256), so no TLS handshake with the Puppet Server could succeed
         |-EOM

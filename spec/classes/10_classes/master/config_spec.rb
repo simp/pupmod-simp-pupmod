@@ -219,7 +219,13 @@ describe 'pupmod::master' do
           context 'as the only protocol, without a TLS 1.3 cipher suite' do
             let(:params) { { ssl_protocols: ['TLSv1.3'], ssl_cipher_suites: ['TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'] } }
 
-            it { is_expected.to compile.and_raise_error(%r{allows only TLSv1\.3, but .* has no TLS 1\.3 suite}) }
+            it { is_expected.to compile.and_raise_error(%r{allows no usable protocol but TLSv1\.3 .* has no TLS 1\.3 suite}) }
+          end
+
+          context 'with only JDK-disabled protocols besides TLS 1.3, without a TLS 1.3 cipher suite' do
+            let(:params) { { ssl_protocols: ['TLSv1.3', 'TLSv1.1', 'TLSv1'], ssl_cipher_suites: ['TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'] } }
+
+            it { is_expected.to compile.and_raise_error(%r{allows no usable protocol but TLSv1\.3}) }
           end
         end
 

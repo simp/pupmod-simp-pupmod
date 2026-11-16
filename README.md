@@ -181,7 +181,8 @@ only, set `pupmod::master::ssl_protocols: [TLSv1.2]` in Hiera.
 
 If you set `pupmod::master::ssl_cipher_suites` yourself and allow TLS 1.3,
 include at least one TLS 1.3 suite. Without one, the catalog logs a warning,
-and fails to compile when TLS 1.3 is the only allowed protocol.
+and fails to compile when TLS 1.3 is the only allowed protocol apart from
+TLSv1 and TLSv1.1, which current JDKs disable by default.
 
 `pupmod::master::ssl_cipher_suites` is no longer sorted when Hiera merges it,
 because Jetty prefers suites in the order they're listed.
