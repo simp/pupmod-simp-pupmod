@@ -422,12 +422,15 @@ checks:
     settings:
       parameter: pupmod::master::ssl_protocols
       value:
+        - TLSv1.3
         - TLSv1.2
   simp:defaults.pupmod.master.ssl_cipher_suites:
     type: puppet-class-parameter
     settings:
       parameter: pupmod::master::ssl_cipher_suites
       value:
+        - TLS_AES_256_GCM_SHA384
+        - TLS_AES_128_GCM_SHA256
         - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         - TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
         - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256

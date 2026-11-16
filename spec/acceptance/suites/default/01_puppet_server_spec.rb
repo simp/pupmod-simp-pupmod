@@ -74,16 +74,9 @@ describe 'install environment via r10k and openvox-server' do
       it 'installs openvox and deps' do
         master.install_package('cronie')
         master.install_package('firewalld')
-        if on(master, 'cat /proc/sys/crypto/fips_enabled', accept_all_exit_codes: true).stdout.strip == '1'
-          # Change to the following when it works for all RHEL-like OSs
-          # if master.fips_mode?
-          master.install_package('yum-utils')
-          master.install_package('java-headless')
-          on(master, 'yumdownloader openvox-server')
-          on(master, 'rpm -i --force --nodigest --nofiledigest openvox-server*.rpm')
-        else
-          master.install_package('openvox-server')
-        end
+        # openvox-server installs normally in FIPS mode too; it pulls in a
+        # supported JRE (21 or 25)
+        master.install_package('openvox-server')
       end
 
       it 'enables autosigning' do
@@ -223,6 +216,39 @@ describe 'install environment via r10k and openvox-server' do
         expect(webserver).to match(%r{^\s*ca\s*[:\{]})
         on(master, "ss -ltn | grep -E ':8141\\s'")
         on(master, "ss -ltn | grep -E ':8140\\s'")
+      end
+
+      # simp:defaults allows TLSv1.3 and TLSv1.2, with only the FIPS-approved
+      # TLS 1.3 suites
+      def s_client(host, port)
+        ssl = ['hostcert', 'hostprivkey', 'localcacert'].map { |s| on(host, "puppet config print #{s}").stdout.strip }
+        "openssl s_client -brief -connect localhost:#{port} -cert #{ssl[0]} -key #{ssl[1]} -CAfile #{ssl[2]}"
+      end
+
+      [8140, 8141].each do |port|
+        it "negotiates TLS 1.3 and TLS 1.2 on port #{port}" do
+          result = on(master, "#{s_client(master, port)} -tls1_3 < /dev/null 2>&1")
+          expect(result.stdout).to match(%r{^Protocol version: TLSv1\.3$})
+          expect(result.stdout).to match(%r{^Ciphersuite: TLS_AES_(256|128)_GCM_SHA(384|256)$})
+
+          result = on(master, "#{s_client(master, port)} -tls1_2 < /dev/null 2>&1")
+          expect(result.stdout).to match(%r{^Protocol version: TLSv1\.2$})
+        end
+
+        it "refuses ChaCha20 on port #{port}" do
+          # The server must be what refuses ChaCha20: the handshake fails with
+          # the server's handshake_failure alert, not a client-side error or
+          # a refused connection
+          result = on(master, "#{s_client(master, port)} -tls1_3 -ciphersuites TLS_CHACHA20_POLY1305_SHA256 < /dev/null 2>&1", accept_all_exit_codes: true)
+
+          # OpenSSL 3 in FIPS mode (EL9+) won't offer ChaCha20 at all, so no
+          # ClientHello is sent and the server's choice can't be tested
+          skip('the client OpenSSL refuses ChaCha20 (FIPS mode)') if result.stdout.include?('no ciphers available')
+
+          expect(result.exit_code).not_to eq(0)
+          expect(result.stdout).to include('alert handshake failure')
+          expect(result.stdout).not_to match(%r{^Protocol version: TLSv1\.3$})
+        end
       end
 
       it 'serves a catalog to its own agent' do

@@ -54,8 +54,8 @@ describe 'pupmod::master' do
           profiling_mode: ['puppetserver.conf', 'jruby-puppet.profiling-mode', 'flat', true],
           profiler_output_file: ['puppetserver.conf', 'jruby-puppet.profiler-output-file', '/var/tmp/profile', true],
           max_active_instances: ['puppetserver.conf', 'jruby-puppet.max-active-instances', 4, true],
-          ssl_protocols: ['puppetserver.conf', 'http-client.ssl-protocols', ['TLSv1.2'], true],
-          ssl_cipher_suites: ['puppetserver.conf', 'http-client.cipher-suites', ['TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384', 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'], true],
+          ssl_protocols: ['puppetserver.conf', 'http-client.ssl-protocols', ['TLSv1.3', 'TLSv1.2'], true],
+          ssl_cipher_suites: ['puppetserver.conf', 'http-client.cipher-suites', ['TLS_AES_256_GCM_SHA384', 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384', 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'], true],
           enable_profiler: ['puppetserver.conf', 'profiler.enabled', true, false],
           admin_api_whitelist: ['puppetserver.conf', 'puppet-admin.client-whitelist', ['admin.example.com'], true],
           ca_allow_auth_extensions: ['ca.conf', 'certificate-authority.allow-authorization-extensions', true, false],
@@ -178,6 +178,55 @@ describe 'pupmod::master' do
           it { is_expected.not_to contain_hocon_setting(hocon('webserver.conf', 'webserver.base.ssl-port')) }
           it { is_expected.not_to contain_hocon_setting(hocon('webserver.conf', 'webserver.ca')) }
           it { is_expected.not_to contain_hocon_setting(hocon('web-routes.conf', ca_route)) }
+        end
+
+        context 'with TLS 1.3' do
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(single_server)) }
+          let(:logs) { [] }
+          let(:compile_logs) do
+            Puppet::Util::Log.with_destination(Puppet::Test::LogCollector.new(logs)) { catalogue }
+            logs.select { |log| log.level == :warning }.map(&:message)
+          end
+
+          context 'and a TLS 1.3 cipher suite' do
+            let(:params) do
+              {
+                ssl_protocols: ['TLSv1.3', 'TLSv1.2'],
+                ssl_cipher_suites: ['TLS_AES_256_GCM_SHA384', 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'],
+              }
+            end
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.ssl-protocols')).with_value('TLSv1.3,TLSv1.2') }
+            it { is_expected.to contain_hocon_setting(hocon('puppetserver.conf', 'http-client.ssl-protocols')).with_value(['TLSv1.3', 'TLSv1.2']) }
+            it { expect(compile_logs.grep(%r{no TLS 1.3 suite})).to be_empty }
+          end
+
+          context 'and no cipher suite list' do
+            let(:params) { { ssl_protocols: ['TLSv1.3'] } }
+
+            it { is_expected.to compile.with_all_deps }
+            it { expect(compile_logs.grep(%r{no TLS 1.3 suite})).to be_empty }
+          end
+
+          context 'and TLS 1.2, but no TLS 1.3 cipher suite' do
+            let(:params) { { ssl_protocols: ['TLSv1.3', 'TLSv1.2'], ssl_cipher_suites: ['TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'] } }
+
+            it { is_expected.to compile.with_all_deps }
+            it { expect(compile_logs.grep(%r{allows TLSv1\.3, but .* has no TLS 1\.3 suite})).not_to be_empty }
+          end
+
+          context 'as the only protocol, without a TLS 1.3 cipher suite' do
+            let(:params) { { ssl_protocols: ['TLSv1.3'], ssl_cipher_suites: ['TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'] } }
+
+            it { is_expected.to compile.and_raise_error(%r{allows no usable protocol but TLSv1\.3 .* has no TLS 1\.3 suite}) }
+          end
+
+          context 'with only JDK-disabled protocols besides TLS 1.3, without a TLS 1.3 cipher suite' do
+            let(:params) { { ssl_protocols: ['TLSv1.3', 'TLSv1.1', 'TLSv1'], ssl_cipher_suites: ['TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'] } }
+
+            it { is_expected.to compile.and_raise_error(%r{allows no usable protocol but TLSv1\.3}) }
+          end
         end
 
         context 'without any webserver settings' do

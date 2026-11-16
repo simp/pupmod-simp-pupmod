@@ -1,8 +1,10 @@
 # The `simp:defaults` Sicura Compliance Engine profile.
 #
 # Enforcing it (Hiera `compliance_engine::enforcement: [simp:defaults]`)
-# restores what pupmod managed by default before 13.0.0. Checks are listed
-# directly (no controls indirection) and defined in checks.yaml.
+# restores what pupmod managed by default before 13.0.0, plus SIMP's current
+# hardening defaults, which can change in minor releases (13.1.0 added TLS
+# 1.3 on the Puppet Server). Checks are listed directly (no controls
+# indirection) and defined in checks.yaml.
 ---
 version: 2.0.0
 profiles:

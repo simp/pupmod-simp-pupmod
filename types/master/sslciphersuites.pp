@@ -1,5 +1,8 @@
 # Valid SSL Cipher Suites for the Puppet Master Webserver
 type Pupmod::Master::SSLCiphersuites = Enum[
+  'TLS_AES_256_GCM_SHA384',
+  'TLS_AES_128_GCM_SHA256',
+  'TLS_CHACHA20_POLY1305_SHA256',
   'TLS_RSA_WITH_AES_256_GCM_SHA384',
   'TLS_RSA_WITH_AES_256_CBC_SHA256',
   'TLS_RSA_WITH_AES_256_CBC_SHA',
