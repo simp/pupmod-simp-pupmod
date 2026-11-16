@@ -239,7 +239,12 @@ describe 'install environment via r10k and openvox-server' do
           result = on(master, "#{s_client} -tls1_2 < /dev/null 2>&1")
           expect(result.stdout).to match(%r{^Protocol version: TLSv1\.2$})
 
+          # The server must be what refuses ChaCha20: the handshake fails with
+          # the server's handshake_failure alert, not a client-side error or
+          # a refused connection
           result = on(master, "#{s_client} -tls1_3 -ciphersuites TLS_CHACHA20_POLY1305_SHA256 < /dev/null 2>&1", accept_all_exit_codes: true)
+          expect(result.exit_code).not_to eq(0)
+          expect(result.stdout).to include('alert handshake failure')
           expect(result.stdout).not_to match(%r{^Protocol version: TLSv1\.3$})
         end
       end

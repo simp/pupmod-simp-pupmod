@@ -6,7 +6,8 @@ require 'yaml'
 # Tests the `simp:defaults` Sicura Compliance Engine profile end to end: with
 # `compliance_engine::enforcement: [simp:defaults]` in Hiera, the otherwise
 # package-only `include pupmod` must reproduce what the module managed by
-# default before 13.0.0.
+# default before 13.0.0, plus the hardening defaults the profile has gained
+# since (13.1.0: TLS 1.3 on the Puppet Server).
 #
 # The "bare include is a no-op" regression specs live in init_spec.rb and
 # master_spec.rb and are intentionally left alone -- they guard the safe
@@ -147,7 +148,7 @@ describe 'pupmod' do
       let(:params) { { enable_puppet_master: true } }
 
       # -----------------------------------------------------------------------
-      # Enforced, no overrides: reproduces the pre-13.0.0 catalogue.
+      # Enforced, no overrides: the pre-13.0.0 catalogue plus later hardening.
       # -----------------------------------------------------------------------
       context 'when enforcing simp:defaults' do
         let(:facts) { base_facts }
@@ -203,7 +204,7 @@ describe 'pupmod' do
           is_expected.to contain_systemd__tmpfile('purge_puppetserver_reports.conf').with_ensure('present')
         end
 
-        it 'writes the pre-13.0.0 puppetserver HOCON settings' do
+        it 'writes the pre-13.0.0 puppetserver HOCON settings, with TLS 1.3 added' do
           PROFILE_HOCON.each do |file, settings|
             settings.each do |setting, value|
               is_expected.to contain_hocon_setting("pupmod::master #{file} #{setting}").with(ensure: 'present', value: value)

@@ -11,11 +11,11 @@ lookup_options:
   pupmod::pe_classlist:
     merge:
       strategy: hash
+  # Not sorted: Jetty prefers suites in list order
   pupmod::master::ssl_cipher_suites:
     merge:
       strategy: deep
       knockout_prefix: "--"
-      sort_merged_arrays: true
 
 pupmod::confdir: '/etc/puppetlabs/puppet'
 pupmod::environmentpath: '/etc/puppetlabs/code/environments'

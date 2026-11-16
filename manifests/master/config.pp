@@ -96,6 +96,32 @@ class pupmod::master::config {
     default => $pupmod::master::ssl_cipher_suites,
   }
 
+  # TLS 1.3 only negotiates its own cipher suites. An explicit suite list
+  # without one quietly disables TLS 1.3; if TLS 1.3 is the only protocol,
+  # no handshake can succeed and agents lose contact with the server.
+  $_tls13_without_suite = (
+    $pupmod::master::ssl_protocols =~ Array and 'TLSv1.3' in $pupmod::master::ssl_protocols and
+    $pupmod::master::ssl_cipher_suites =~ Array and
+    $pupmod::master::ssl_cipher_suites.filter |$suite| { $suite =~ /^TLS_(AES|CHACHA20)_/ }.empty
+  )
+
+  if $_tls13_without_suite {
+    if $pupmod::master::ssl_protocols == ['TLSv1.3'] {
+      fail(@(EOM/L))
+        pupmod::master::ssl_protocols allows only TLSv1.3, but pupmod::master::ssl_cipher_suites \
+        has no TLS 1.3 suite (TLS_AES_256_GCM_SHA384, TLS_AES_128_GCM_SHA256 or \
+        TLS_CHACHA20_POLY1305_SHA256), so no TLS handshake with the Puppet Server could succeed
+        |-EOM
+    }
+    else {
+      warning(@(EOM/L))
+        pupmod::master::ssl_protocols allows TLSv1.3, but pupmod::master::ssl_cipher_suites \
+        has no TLS 1.3 suite (TLS_AES_256_GCM_SHA384, TLS_AES_128_GCM_SHA256 or \
+        TLS_CHACHA20_POLY1305_SHA256), so TLS 1.3 cannot be negotiated
+        |-EOM
+    }
+  }
+
   # With the CA on the main port, the main server must accept agents
   # without certificates so they can submit certificate requests. Without a
   # CA, it requires them.

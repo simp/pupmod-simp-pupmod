@@ -1465,7 +1465,11 @@ details.
 The list applies to every protocol in `ssl_protocols`. If `TLSv1.3` is
 allowed, include at least one TLS 1.3 suite (`TLS_AES_256_GCM_SHA384`,
 `TLS_AES_128_GCM_SHA256` or `TLS_CHACHA20_POLY1305_SHA256`), or TLS 1.3
-cannot be negotiated.
+cannot be negotiated. The catalog logs a warning in that case, and fails
+to compile if `TLSv1.3` is the only allowed protocol.
+
+Jetty prefers suites in the order listed, so the list is not sorted when
+Hiera merges it.
 
 Default value: `undef`
 

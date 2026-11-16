@@ -168,16 +168,59 @@ describe 'pupmod::master' do
 
         context 'without ca_port, on the package layout' do
           let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(single_server)) }
-          let(:params) { { masterport: 8150, bind_address: '10.0.0.1', ssl_protocols: ['TLSv1.3', 'TLSv1.2'] } }
+          let(:params) { { masterport: 8150, bind_address: '10.0.0.1', ssl_protocols: ['TLSv1.1', 'TLSv1.2'] } }
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.ssl-port')).with(ensure: 'present', value: 8150) }
           it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.ssl-host')).with_value('10.0.0.1') }
-          it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.ssl-protocols')).with_value('TLSv1.3,TLSv1.2') }
+          it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.ssl-protocols')).with_value('TLSv1.1,TLSv1.2') }
           it { is_expected.not_to contain_hocon_setting(hocon('webserver.conf', 'webserver.client-auth')) }
           it { is_expected.not_to contain_hocon_setting(hocon('webserver.conf', 'webserver.base.ssl-port')) }
           it { is_expected.not_to contain_hocon_setting(hocon('webserver.conf', 'webserver.ca')) }
           it { is_expected.not_to contain_hocon_setting(hocon('web-routes.conf', ca_route)) }
+        end
+
+        context 'with TLS 1.3' do
+          let(:facts) { os_facts.merge(puppetserver_webserver: webserver_fact(single_server)) }
+          let(:logs) { [] }
+          let(:compile_logs) do
+            Puppet::Util::Log.with_destination(Puppet::Test::LogCollector.new(logs)) { catalogue }
+            logs.select { |log| log.level == :warning }.map(&:message)
+          end
+
+          context 'and a TLS 1.3 cipher suite' do
+            let(:params) do
+              {
+                ssl_protocols: ['TLSv1.3', 'TLSv1.2'],
+                ssl_cipher_suites: ['TLS_AES_256_GCM_SHA384', 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'],
+              }
+            end
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_hocon_setting(hocon('webserver.conf', 'webserver.ssl-protocols')).with_value('TLSv1.3,TLSv1.2') }
+            it { is_expected.to contain_hocon_setting(hocon('puppetserver.conf', 'http-client.ssl-protocols')).with_value(['TLSv1.3', 'TLSv1.2']) }
+            it { expect(compile_logs.grep(%r{no TLS 1.3 suite})).to be_empty }
+          end
+
+          context 'and no cipher suite list' do
+            let(:params) { { ssl_protocols: ['TLSv1.3'] } }
+
+            it { is_expected.to compile.with_all_deps }
+            it { expect(compile_logs.grep(%r{no TLS 1.3 suite})).to be_empty }
+          end
+
+          context 'and TLS 1.2, but no TLS 1.3 cipher suite' do
+            let(:params) { { ssl_protocols: ['TLSv1.3', 'TLSv1.2'], ssl_cipher_suites: ['TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'] } }
+
+            it { is_expected.to compile.with_all_deps }
+            it { expect(compile_logs.grep(%r{allows TLSv1\.3, but .* has no TLS 1\.3 suite})).not_to be_empty }
+          end
+
+          context 'as the only protocol, without a TLS 1.3 cipher suite' do
+            let(:params) { { ssl_protocols: ['TLSv1.3'], ssl_cipher_suites: ['TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'] } }
+
+            it { is_expected.to compile.and_raise_error(%r{allows only TLSv1\.3, but .* has no TLS 1\.3 suite}) }
+          end
         end
 
         context 'without any webserver settings' do
