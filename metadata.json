@@ -1,6 +1,6 @@
 {
   "name": "simp-pupmod",
-  "version": "13.1.0",
+  "version": "13.1.1",
   "author": "SIMP Team",
   "summary": "A puppet module to manage puppetserver and puppet agents",
   "license": "Apache-2.0",
@@ -39,7 +39,7 @@
     },
     {
       "name": "simp/iptables",
-      "version_requirement": ">= 6.5.3 < 10.0.0"
+      "version_requirement": ">= 6.5.3 < 11.0.0"
     },
     {
       "name": "simp/simplib",

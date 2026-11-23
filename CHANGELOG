@@ -1,3 +1,6 @@
+* Mon Nov 23 2026 Steven Pritchard <steve@sicura.us> - 13.1.1
+- Allow simp/iptables 10.x
+
 * Mon Nov 09 2026 Hazel Caballero <hazel@sicura.us> - 13.1.0
 - Add `pupmod::rngd` to include the `rngd` class for entropy generation
 - Deprecate `pupmod::haveged` (and its `simp_options::haveged` default); it
